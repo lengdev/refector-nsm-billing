@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+
+<script>
+    var ExpenseID = "@ViewBag.ExpenseID";
+    var PaymentNo = "@ViewBag.PaymentNo";
+    var PaidAmount = "@ViewBag.PaidAmount";
+    function SaveChangePostingExpense() {
+        //console.log(ExpenseID);
+        var DATA = {
+            ExpenseID: ExpenseID,
+            Posting_Date: StringToDate($("#PostingPaymentDate").val()),
+            PaidOn_Date: StringToDate($("#PaidOnDate").val()),
+            Description: $("#PaymentDescription").val().trim(),
+            PrefixPVNO: $("#PVNo_PrefixPVNO").val().trim(),
+            PostingPrefix: $("#PVNo_PostingPrefix").val().trim(),
+            PVNo: $("#PVNo").val().trim(),
+            PostingNumber: $("#PostingNumber").val().trim(),
+            PaymentNo: PaymentNo,
+            PaidAmount: accounting.unformat(PaidAmount)
+        };
+        DoSaveChageAjaxForm("frmPostExpenses", "Expenses/SaveChangePostingExpense", DATA, "", function (response) {
+            if (response.Result === 2) {
+                //closeDialogClick("modal-default");
+                $("#modal-default").modal('hide');
+                $('.modal').remove();
+                $('.modal-backdrop').remove();
+                $('body').removeClass("modal-open");
+                $("#Transcation_tab").click();
+            }
+            else {
+                DialogSweetAlert('error', response.message);
+            }
+        });
+    }
+</script>

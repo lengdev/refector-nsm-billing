@@ -1,0 +1,4777 @@
+﻿@{ Layout = null; }
+<style>
+    /* =========================================================
+       VENDOR CENTER — CONSOLIDATED STYLESHEET
+       ========================================================= */
+    div.card-body {
+        padding: 0;
+    }
+
+    /* ---------- 1. TOKENS ---------- */
+    #mypane.vc-app {
+        --vc-primary: var(--blue);
+        --vc-primary-strong: var(--blue);
+        --vc-primary-soft: var(--blue-light);
+        --vc-page: var(--gray-light);
+        --vc-surface: #ffffff;
+        --vc-surface-2: #ffffff;
+        --vc-surface-3: var(--gray-light);
+        --vc-ink: #202124;
+        --vc-muted: #5a6472;
+        --vc-subtle: #7c8695;
+        --vc-border: var(--gray-border);
+        --vc-grid: #eceff2;
+        --vc-success: var(--green);
+        --vc-warning: var(--orange);
+        --vc-danger: var(--red);
+        --vc-teal: var(--cyan);
+        --vc-radius: 14px;
+        --vc-shadow-sm: 0 2px 8px rgba(24, 48, 86, .045);
+        --vc-shadow: 0 12px 32px rgba(24, 48, 86, .09);
+        --vc-focus: 0 0 0 3px var(--blue-border);
+        --vc-motion-fast: 160ms;
+        --vc-motion: 260ms;
+        --vc-motion-slow: 520ms;
+        --vc-ease: cubic-bezier(.2, .75, .25, 1);
+        --vc-fs-xs: .78rem;
+        --vc-fs-sm: .84rem;
+        --vc-fs-base: .90rem;
+        --vc-fs-md: .96rem;
+        --vc-fs-lg: 1.06rem;
+        --vc-fs-xl: 1.30rem;
+        --vc-fs-2xl: 1.50rem;
+    }
+
+    body.dark-mode #mypane.vc-app {
+        --vc-primary: var(--blue-dark);
+        --vc-primary-strong: var(--blue-dark);
+        --vc-primary-soft: var(--blue-light-dark);
+        --vc-page: var(--dark-bg-primary);
+        --vc-surface: var(--dark-bg-secondary);
+        --vc-surface-2: var(--dark-bg-tertiary);
+        --vc-surface-3: var(--dark-bg-quaternary);
+        --vc-ink: var(--dark-text-primary);
+        --vc-muted: var(--dark-text-secondary);
+        --vc-subtle: var(--dark-text-muted);
+        --vc-border: var(--dark-border-light);
+        --vc-grid: var(--dark-border-light);
+        --vc-success: var(--green-dark);
+        --vc-warning: var(--orange-dark);
+        --vc-danger: var(--red-dark);
+        --vc-teal: var(--cyan-dark);
+        --vc-shadow-sm: 0 2px 8px rgba(0, 0, 0, .18);
+        --vc-shadow: 0 14px 36px rgba(0, 0, 0, .24);
+        --vc-focus: 0 0 0 3px var(--blue-border-dark);
+        color-scheme: dark;
+        background-color: var(--dark-bg-primary);
+    }
+
+    /* ---------- 2. BASE ---------- */
+    #mypane.vc-app {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 12px);
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /*        padding: 10px;*/
+        color: var(--vc-ink);
+        color-scheme: light;
+        isolation: isolate;
+        font-family: inherit;
+        font-size: var(--vc-fs-base);
+        letter-spacing: .002em;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /*        background: radial-gradient(ellipse at 85% 0%, rgba(57, 120, 232, .055), transparent 34%), var(--vc-page);*/
+        transition: background-color var(--vc-motion) ease, color var(--vc-motion) ease;
+    }
+
+    body.dark-mode #mypane.vc-app {
+        background: radial-gradient(ellipse at 85% 0%, rgba(83, 132, 220, .10), transparent 36%), var(--vc-page);
+    }
+
+    #mypane.vc-app,
+    #mypane.vc-app *,
+    #mypane.vc-app *::before,
+    #mypane.vc-app *::after {
+        box-sizing: border-box;
+    }
+
+        #mypane.vc-app button,
+        #mypane.vc-app input,
+        #mypane.vc-app select,
+        #mypane.vc-app textarea {
+            font: inherit;
+        }
+
+        #mypane.vc-app button,
+        #mypane.vc-app a,
+        #mypane.vc-app .k-item {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #mypane.vc-app :focus-visible {
+            outline: 2px solid var(--vc-primary);
+            outline-offset: 2px;
+            box-shadow: none;
+        }
+
+        #mypane.vc-app ::selection {
+            background: #93c5fd;
+            color: #0f172a;
+        }
+
+    body.dark-mode #mypane.vc-app ::selection {
+        background: rgba(141, 181, 255, .35);
+        color: var(--vc-ink);
+    }
+
+    #mypane.vc-app ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+    }
+
+    #mypane.vc-app ::-webkit-scrollbar-thumb {
+        background: var(--vc-border);
+        border-radius: 20px;
+    }
+
+    /* ---------- 3. LAYOUT SHELL ---------- */
+    #mypane.vc-app #vertical,
+    #mypane.vc-app #top-pane {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    #mypane.vc-app #horizontal {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: row;
+        gap: 16px;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    #mypane.vc-app #left-pane {
+        display: flex;
+        flex: 0 0 278px;
+        width: 278px;
+        max-width: 278px;
+        min-width: 220px;
+        min-height: 0;
+    }
+
+    #mypane.vc-app #center-pane {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 2px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--vc-border) transparent;
+    }
+
+    #mypane.vc-app .pane-content {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    /* ---------- 4. SURFACES ---------- */
+    #mypane.vc-app .vc-vendor-sidebar,
+    #mypane.vc-app .vc-profile-card,
+    #mypane.vc-app .vc-workspace-card {
+        border: 1px solid var(--vc-border);
+        border-radius: var(--vc-radius);
+        box-shadow: var(--vc-shadow-sm);
+        background: var(--vc-surface);
+        transition: box-shadow var(--vc-motion) var(--vc-ease), border-color var(--vc-motion) var(--vc-ease), background-color var(--vc-motion) var(--vc-ease);
+    }
+
+    #mypane.vc-app .vc-vendor-sidebar,
+    #mypane.vc-app .vc-profile-card,
+    #mypane.vc-app .vc-workspace-card {
+        transition: box-shadow 0.2s ease;
+    }
+
+    /* ---------- 5. SIDEBAR ---------- */
+    #mypane.vc-app .vc-vendor-sidebar {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 17px;
+    }
+
+    #mypane.vc-app .vc-sidebar-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 1px 1px 14px;
+        color: var(--vc-ink);
+        font-size: var(--vc-fs-sm);
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+        #mypane.vc-app .vc-sidebar-title > span {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-lg);
+            font-weight: 800;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+            #mypane.vc-app .vc-sidebar-title > span i {
+                display: grid;
+                place-items: center;
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                color: var(--vc-primary);
+                background: var(--vc-primary-soft);
+                margin: 0;
+                font-size: 1rem;
+            }
+
+        #mypane.vc-app .vc-sidebar-title small {
+            display: none;
+        }
+
+    #mypane.vc-app .vc-theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 33px;
+        padding: 0 12px;
+        border: 1px solid var(--vc-border);
+        border-radius: 9px;
+        background: var(--vc-surface-2);
+        color: var(--vc-muted);
+        cursor: pointer;
+        font-size: var(--vc-fs-xs);
+        font-weight: 650;
+        transition: transform var(--vc-motion-fast) var(--vc-ease), color var(--vc-motion-fast) ease, border-color var(--vc-motion-fast) ease, background-color var(--vc-motion-fast) ease;
+    }
+
+        #mypane.vc-app .vc-theme-toggle:hover {
+            transform: translateY(-2px);
+            color: var(--vc-primary);
+            border-color: var(--vc-primary);
+            background: var(--vc-primary-soft);
+        }
+
+    #mypane.vc-app .vc-search-wrap {
+        position: relative;
+        padding-bottom: 12px;
+    }
+
+    #mypane.vc-app #searchBox {
+        width: 100%;
+        height: 43px;
+        padding: 0 14px 0 40px;
+        border: 1px solid var(--vc-border);
+        border-radius: 10px;
+        background-color: var(--vc-surface-2);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        color: var(--vc-ink);
+        font-size: var(--vc-fs-sm);
+        outline: 0;
+        transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+    }
+
+        #mypane.vc-app #searchBox::placeholder {
+            color: var(--vc-subtle);
+        }
+
+        #mypane.vc-app #searchBox:focus {
+            transform: translateY(-1px);
+            background-color: var(--vc-surface);
+            border-color: var(--vc-primary);
+            box-shadow: var(--vc-focus);
+        }
+
+    #mypane.vc-app #itemList {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        margin: 0;
+        padding: 2px 1px;
+        list-style: none;
+        scrollbar-width: thin;
+    }
+
+        #mypane.vc-app #itemList .k-item {
+            position: relative;
+            display: block;
+            min-height: 58px;
+            margin: 3px 0;
+            padding: 11px 44px 11px 44px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-base);
+            font-weight: 600;
+            line-height: 1.4;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform var(--vc-motion-fast) var(--vc-ease), background-color var(--vc-motion-fast) ease, border-color var(--vc-motion-fast) ease, box-shadow var(--vc-motion-fast) ease;
+        }
+
+            #mypane.vc-app #itemList .k-item::before {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 23px;
+                height: 23px;
+                content: "";
+                border-radius: 7px;
+                background: var(--vc-surface-3);
+                box-shadow: inset 0 0 0 1px var(--vc-border);
+            }
+
+            #mypane.vc-app #itemList .k-item:hover {
+                transform: translateX(3px);
+                background: var(--vc-surface-2);
+                border-color: var(--vc-border);
+            }
+
+            #mypane.vc-app #itemList .k-item.k-state-selected {
+                background: var(--vc-primary-soft);
+                border-color: rgba(57, 120, 232, .2);
+                color: var(--vc-primary-strong);
+                box-shadow: inset 3px 0 0 var(--vc-primary);
+                animation: vc-dot-pulse 1.8s ease-in-out 1;
+            }
+
+                #mypane.vc-app #itemList .k-item.k-state-selected::before {
+                    background: var(--vc-primary);
+                    box-shadow: none;
+                }
+
+        #mypane.vc-app #itemList .vc-vendor-list-name {
+            display: block;
+            color: inherit;
+            font-weight: 650;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #mypane.vc-app #itemList .vc-vendor-list-code {
+            display: block;
+            margin-top: 2px;
+            color: var(--vc-muted);
+            font-size: var(--vc-fs-xs);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    #mypane.vc-app .vc-vendor-edit-btn {
+        position: absolute;
+        right: 9px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--vc-border);
+        border-radius: 7px;
+        background: var(--vc-surface);
+        color: var(--vc-muted);
+        font-size: 12px;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .18s ease, visibility .18s ease, background .18s ease, color .18s ease;
+        z-index: 5;
+    }
+
+    #mypane.vc-app #itemList .k-item:hover .vc-vendor-edit-btn,
+    #mypane.vc-app #itemList .k-item:focus-within .vc-vendor-edit-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    #mypane.vc-app .vc-vendor-edit-btn:hover {
+        background: var(--vc-primary);
+        border-color: var(--vc-primary);
+        color: #fff;
+    }
+
+    #mypane.vc-app .vc-skeleton {
+        height: 58px;
+        margin: 3px 0;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--vc-surface-2) 25%, var(--vc-surface-3) 50%, var(--vc-surface-2) 75%);
+        background-size: 200% 100%;
+        animation: vc-shimmer 1.4s infinite;
+    }
+
+    /* ---------- 6. PROFILE CARD ---------- */
+    #mypane.vc-app .vc-profile-card {
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+
+    #mypane.vc-app .vc-profile-header {
+        position: relative;
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        gap: 18px;
+        align-items: center;
+        padding: 23px 24px;
+        background: linear-gradient(120deg, #f3f6fb 0%, #f2f5fa 56%, #f3f6fb 100%);
+        background-size: 180% 180%;
+        overflow: hidden;
+        animation: vc-profile-glow 16s ease-in-out infinite;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-header {
+        background: linear-gradient(120deg, #142a4b 0%, #1b3a66 58%, #28528a 100%);
+        background-size: 180% 180%;
+        border-bottom: 1px solid var(--vc-border);
+    }
+
+    #mypane.vc-app .vc-profile-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, transparent 45%, rgba(255, 255, 255, .07));
+        pointer-events: none;
+    }
+
+    #mypane.vc-app .vc-profile-header::after {
+        content: "";
+        position: absolute;
+        right: -85px;
+        top: -155px;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, .13);
+        box-shadow: 0 0 0 28px rgba(255, 255, 255, .025), 0 0 0 58px rgba(255, 255, 255, .02);
+        pointer-events: none;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-header::after {
+        border-color: rgba(139, 180, 255, .10);
+        box-shadow: 0 0 0 28px rgba(139, 180, 255, .025), 0 0 0 58px rgba(139, 180, 255, .02);
+    }
+
+    #mypane.vc-app .vc-profile-avatar {
+        position: relative;
+        width: 76px;
+        height: 76px;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, .72);
+        background: rgba(255, 255, 255, .16);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+        transition: transform 300ms var(--vc-ease), box-shadow 300ms ease;
+    }
+
+        #mypane.vc-app .vc-profile-avatar:hover {
+            transform: translateY(-2px) rotate(-2deg);
+            box-shadow: 0 9px 22px rgba(0, 0, 0, .2);
+        }
+
+    body.dark-mode #mypane.vc-app .vc-profile-avatar {
+        border-color: rgba(139, 180, 255, .35);
+        background: rgba(139, 180, 255, .10);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .35);
+    }
+
+    #mypane.vc-app .vc-profile-avatar .profilepic__image,
+    #mypane.vc-app .vc-profile-avatar img.profilepic__image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        object-fit: cover;
+    }
+
+    #mypane.vc-app .vc-profile-avatar .fa-user-circle {
+        color: #fff;
+        font-size: 2.8rem;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-avatar .fa-user-circle {
+        color: var(--vc-primary);
+    }
+
+    #mypane.vc-app .vc-profile-avatar .profilepic__content {
+        position: absolute;
+        inset: auto 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 2px;
+        font-size: .68rem;
+        background: rgba(0, 0, 0, .55);
+        color: #fff;
+        opacity: 0;
+        transition: opacity .15s ease;
+    }
+
+    #mypane.vc-app .vc-profile-avatar:hover .profilepic__content {
+        opacity: 1;
+    }
+
+    #mypane.vc-app .vc-profile-topline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #mypane.vc-app .vc-profile-title {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+        #mypane.vc-app .vc-profile-title h2 {
+            margin: 0;
+            font-size: var(--vc-fs-2xl);
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -.02em;
+            color: #fff;
+            overflow-wrap: anywhere;
+        }
+
+    #mypane.vc-app .vc-vendor-type {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 6px;
+        padding: 4px 11px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, .16);
+        border: 1px solid rgba(255, 255, 255, .25);
+        color: #fff;
+        font-size: var(--vc-fs-xs);
+        font-weight: 600;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-vendor-type {
+        background: rgba(139, 180, 255, .12);
+        border-color: rgba(139, 180, 255, .28);
+        color: var(--vc-primary);
+    }
+
+    #mypane.vc-app .vc-profile-actions {
+        display: flex;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+
+        #mypane.vc-app .vc-profile-actions .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 14px;
+            border: 1px solid rgba(255, 255, 255, .28);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, .15);
+            color: #fff;
+            font-size: var(--vc-fs-xs);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--vc-motion-fast) var(--vc-ease), background-color var(--vc-motion-fast) ease, border-color var(--vc-motion-fast) ease, color var(--vc-motion-fast) ease;
+        }
+
+            #mypane.vc-app .vc-profile-actions .btn:hover {
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, .25);
+            }
+
+    body.dark-mode #mypane.vc-app .vc-profile-actions .btn {
+        background: rgba(139, 180, 255, .10);
+        border-color: rgba(139, 180, 255, .28);
+        color: var(--vc-primary);
+    }
+
+        body.dark-mode #mypane.vc-app .vc-profile-actions .btn:hover {
+            background: rgba(139, 180, 255, .20);
+            color: #fff;
+        }
+
+    #mypane.vc-app .vc-profile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px 20px;
+        margin-top: 13px;
+        font-size: var(--vc-fs-sm);
+        color: rgba(255, 255, 255, .85);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-meta {
+        color: var(--vc-muted);
+    }
+
+    #mypane.vc-app .vc-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+        #mypane.vc-app .vc-meta-item > i {
+            display: grid;
+            place-items: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, .12);
+            font-size: .82rem;
+            opacity: .9;
+        }
+
+    body.dark-mode #mypane.vc-app .vc-meta-item > i {
+        color: var(--vc-primary);
+        background: rgba(139, 180, 255, .10);
+        opacity: .8;
+    }
+
+    #mypane.vc-app .vc-meta-label {
+        display: block;
+        margin: 0 0 2px;
+        font-size: var(--vc-fs-xs);
+        opacity: .78;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+    }
+
+    #mypane.vc-app .vc-meta-value {
+        display: block;
+        max-width: 260px;
+        font-size: var(--vc-fs-sm);
+        font-weight: 550;
+        overflow-wrap: anywhere;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    /* ---------- 7. KPI STRIP ---------- */
+    #mypane.vc-app .vc-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        align-items: stretch;
+        padding: 13px 16px 10px;
+        border-top: 1px solid var(--vc-border);
+        background: var(--vc-surface-2);
+    }
+
+    #mypane.vc-app .vc-kpi {
+        position: relative;
+        min-width: 0;
+        min-height: 118px;
+        padding: 16px 16px 14px;
+        border: 1px solid var(--vc-border);
+        border-radius: 14px;
+        background: var(--vc-surface);
+        box-shadow: var(--vc-shadow-sm);
+        overflow: hidden;
+        transition: transform var(--vc-motion) var(--vc-ease), box-shadow var(--vc-motion) var(--vc-ease), border-color var(--vc-motion) var(--vc-ease), background-color var(--vc-motion) ease;
+    }
+
+        #mypane.vc-app .vc-kpi:hover {
+            transform: translateY(-4px);
+            border-color: rgba(57, 120, 232, .38);
+            box-shadow: 0 12px 24px rgba(30, 64, 120, .09);
+        }
+
+        #mypane.vc-app .vc-kpi::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 3px;
+            height: auto;
+            background: var(--vc-muted);
+            border-radius: 0 4px 4px 0;
+        }
+
+        #mypane.vc-app .vc-kpi.purchase::before {
+            background: var(--vc-primary);
+        }
+
+        #mypane.vc-app .vc-kpi.paid::before {
+            background: var(--vc-success);
+        }
+
+        #mypane.vc-app .vc-kpi.outstanding::before {
+            background: var(--vc-warning);
+        }
+
+        #mypane.vc-app .vc-kpi.overdue::before {
+            background: var(--vc-danger);
+        }
+
+        #mypane.vc-app .vc-kpi.not-due::before {
+            background: var(--vc-teal);
+        }
+
+        #mypane.vc-app .vc-kpi.progress-kpi::before {
+            background: #64748b;
+        }
+
+        #mypane.vc-app .vc-kpi > .vc-kpi-icon {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            color: var(--vc-primary);
+            background: var(--vc-primary-soft);
+            font-size: .95rem;
+            pointer-events: none;
+        }
+
+        /* Fallback for color-mix: use solid backgrounds, then layer color-mix when supported */
+        #mypane.vc-app .vc-kpi.paid .vc-kpi-icon {
+            color: var(--vc-success);
+            background: #eaf7f1;
+            background: color-mix(in srgb, var(--vc-success) 12%, transparent);
+        }
+
+        #mypane.vc-app .vc-kpi.outstanding .vc-kpi-icon {
+            color: var(--vc-warning);
+            background: #fff6e8;
+            background: color-mix(in srgb, var(--vc-warning) 12%, transparent);
+        }
+
+        #mypane.vc-app .vc-kpi.overdue .vc-kpi-icon {
+            color: var(--vc-danger);
+            background: #fff0f2;
+            background: color-mix(in srgb, var(--vc-danger) 12%, transparent);
+        }
+
+        #mypane.vc-app .vc-kpi.not-due .vc-kpi-icon,
+        #mypane.vc-app .vc-kpi.vendor-advance .vc-kpi-icon {
+            color: var(--vc-teal);
+            background: #e9f7f7;
+            background: color-mix(in srgb, var(--vc-teal) 12%, transparent);
+        }
+
+        #mypane.vc-app .vc-kpi.progress-kpi .vc-kpi-icon {
+            color: #64748b;
+            background: rgba(100, 116, 139, .12);
+        }
+
+        #mypane.vc-app .vc-kpi > .min-w-0 {
+            display: block;
+            position: relative;
+            width: 100%;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+    #mypane.vc-app .vc-kpi-label {
+        display: block;
+        min-height: 17px;
+        max-width: calc(100% - 40px);
+        margin: 0;
+        color: var(--vc-muted);
+        font-size: var(--vc-fs-xs);
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #mypane.vc-app .vc-kpi-value {
+        display: block;
+        clear: both;
+        position: relative;
+        z-index: 2;
+        margin: 9px 0 0;
+        color: var(--vc-ink);
+        font-size: clamp(1.20rem, 1.55vw, 1.55rem);
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -.02em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #mypane.vc-app .vc-kpi-note {
+        display: block;
+        position: relative;
+        z-index: 2;
+        margin: 7px 0 0;
+        color: var(--vc-subtle);
+        font-size: var(--vc-fs-xs);
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    /* ---------- 8. PAYMENT PROGRESS ---------- */
+    #mypane.vc-app .vc-payment-progress {
+        display: grid;
+        grid-template-columns: minmax(130px, auto) minmax(100px, 1fr) auto;
+        align-items: center;
+        gap: 10px 14px;
+        margin: 0 16px 14px;
+        padding: 11px 14px;
+        border: 1px solid var(--vc-border);
+        border-radius: 12px;
+        background: var(--vc-surface);
+    }
+
+    #mypane.vc-app .vc-payment-progress-heading {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--vc-muted);
+        font-size: var(--vc-fs-sm);
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+        #mypane.vc-app .vc-payment-progress-heading i {
+            color: var(--vc-primary);
+        }
+
+        #mypane.vc-app .vc-payment-progress-heading strong {
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-md);
+            font-weight: 800;
+        }
+
+    #mypane.vc-app .vc-payment-progress-track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: var(--vc-surface-3);
+    }
+
+        #mypane.vc-app .vc-payment-progress-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #3478eb, #12a27a);
+            transition: width 550ms cubic-bezier(.2, .7, .2, 1);
+        }
+
+    #mypane.vc-app .vc-payment-progress-note {
+        color: var(--vc-subtle);
+        font-size: var(--vc-fs-xs);
+        text-align: right;
+    }
+
+    /* ---------- 9. ACTION STRIP ---------- */
+    #mypane.vc-app .vc-action-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 0 0 12px;
+        padding: 13px 16px;
+        border: 1px solid var(--vc-border);
+        border-radius: 13px;
+        background: var(--vc-surface);
+        box-shadow: var(--vc-shadow-sm);
+    }
+
+    #mypane.vc-app .vc-action-intro {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 150px;
+    }
+
+        #mypane.vc-app .vc-action-intro strong {
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-base);
+            font-weight: 750;
+        }
+
+        #mypane.vc-app .vc-action-intro span {
+            color: var(--vc-subtle);
+            font-size: var(--vc-fs-xs);
+        }
+
+    #mypane.vc-app .vc-action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    #mypane.vc-app .vc-quick-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 37px;
+        padding: 0 13px;
+        border: 1px solid var(--vc-border);
+        border-radius: 9px;
+        color: var(--vc-muted);
+        background: var(--vc-surface-2);
+        font: inherit;
+        font-size: var(--vc-fs-sm);
+        font-weight: 650;
+        cursor: pointer;
+        transition: transform 180ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+        #mypane.vc-app .vc-quick-action:hover:not(:disabled) {
+            transform: translateY(-2px);
+            color: var(--vc-primary);
+            border-color: var(--vc-primary);
+            background: var(--vc-primary-soft);
+            box-shadow: 0 5px 13px rgba(37, 99, 235, .10);
+        }
+
+        #mypane.vc-app .vc-quick-action.primary {
+            color: #fff;
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #3978e8);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, .18);
+        }
+
+            #mypane.vc-app .vc-quick-action.primary:hover:not(:disabled) {
+                color: #fff;
+                background: #1d4ed8;
+                border-color: #1d4ed8;
+            }
+
+        #mypane.vc-app .vc-quick-action:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+    body.dark-mode #mypane.vc-app .vc-quick-action {
+        background: var(--vc-surface-2);
+        border-color: var(--vc-border);
+        color: var(--vc-muted);
+    }
+
+        body.dark-mode #mypane.vc-app .vc-quick-action.primary {
+            color: #081326;
+            background: linear-gradient(135deg, #8db5ff, #a8c7ff);
+            border-color: #8db5ff;
+        }
+
+            body.dark-mode #mypane.vc-app .vc-quick-action.primary:hover:not(:disabled) {
+                color: #081326;
+                background: #b7d0ff;
+            }
+
+    /* ---------- 10. WORKSPACE / TABS ---------- */
+    #mypane.vc-app .vc-workspace-card {
+        overflow: hidden;
+    }
+
+    #mypane.vc-app .vc-tabs-wrap {
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        border-bottom: 1px solid var(--vc-border);
+        background: var(--vc-surface);
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+        #mypane.vc-app .vc-tabs-wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+    #mypane.vc-app #invoice_tab {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0;
+        min-width: max-content;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        align-items: center;
+    }
+
+        #mypane.vc-app #invoice_tab .nav-item {
+            margin: 0;
+        }
+
+        #mypane.vc-app #invoice_tab .nav-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 56px;
+            padding: 0 15px;
+            border: 0;
+            background: transparent;
+            color: var(--vc-muted);
+            font-size: var(--vc-fs-sm);
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: color var(--vc-motion-fast) ease, background-color var(--vc-motion-fast) ease;
+        }
+
+            #mypane.vc-app #invoice_tab .nav-link i {
+                font-size: var(--vc-fs-base);
+                opacity: .8;
+            }
+
+            #mypane.vc-app #invoice_tab .nav-link:hover {
+                color: var(--vc-ink);
+            }
+
+    body.dark-mode #mypane.vc-app #invoice_tab .nav-link:hover {
+        color: var(--vc-ink);
+        background: rgba(255, 255, 255, .03);
+    }
+
+    #mypane.vc-app #invoice_tab .nav-link.active {
+        color: var(--vc-primary);
+        background: transparent;
+        box-shadow: none;
+        font-weight: 750;
+    }
+
+        #mypane.vc-app #invoice_tab .nav-link.active::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: -1px;
+            height: 2px;
+            background: var(--vc-primary);
+            border-radius: 2px 2px 0 0;
+            animation: vc-tab-reveal 240ms var(--vc-ease) both;
+        }
+
+        #mypane.vc-app #invoice_tab .nav-link.active i {
+            color: var(--vc-primary);
+            opacity: 1;
+        }
+
+    #mypane.vc-app .vc-tab-content {
+        padding: 22px 23px 25px;
+        background: var(--vc-surface);
+        min-width: 0;
+    }
+
+    #mypane.vc-app .tab-pane {
+        min-width: 0;
+    }
+
+        #mypane.vc-app .tab-pane.active,
+        #mypane.vc-app .vc-file-sub-panel.active {
+            animation: vc-tab-reveal 300ms var(--vc-ease) both;
+        }
+
+    #mypane.vc-app .vc-tab-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 16px;
+    }
+
+        #mypane.vc-app .vc-tab-heading span {
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-lg);
+            font-weight: 800;
+            letter-spacing: -.01em;
+        }
+
+        #mypane.vc-app .vc-tab-heading small {
+            color: var(--vc-muted);
+            font-size: var(--vc-fs-xs);
+        }
+
+    /* ---------- 11. TABLES & GRIDS ---------- */
+    #mypane.vc-app #transactionsGrid,
+    #mypane.vc-app #DivCustInvoice,
+    #mypane.vc-app #showPaidInvoice,
+    #mypane.vc-app #showVendorTransactions,
+    #mypane.vc-app #showVendorStatement,
+    #mypane.vc-app #showHistory,
+    #mypane.vc-app #showDocuments {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #mypane.vc-app .table-responsive {
+        border: 1px solid var(--vc-border);
+        border-radius: 11px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--vc-surface);
+    }
+
+    #mypane.vc-app .table {
+        width: 100%;
+        margin: 0;
+        font-size: var(--vc-fs-sm);
+        color: var(--vc-ink);
+        border-collapse: separate;
+        border-spacing: 0;
+        background: var(--vc-surface);
+    }
+
+        #mypane.vc-app .table thead th {
+            padding: 13px 14px;
+            background: var(--vc-surface-3);
+            color: var(--vc-muted);
+            font-size: var(--vc-fs-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            white-space: nowrap;
+            border: 0;
+            border-bottom: 1px solid var(--vc-grid);
+        }
+
+        #mypane.vc-app .table tbody td {
+            padding: 12px 14px;
+            border: 0;
+            border-bottom: 1px solid var(--vc-grid);
+            vertical-align: middle;
+        }
+
+        #mypane.vc-app .table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        #mypane.vc-app .table tbody tr {
+            transition: background-color 140ms ease;
+        }
+
+            #mypane.vc-app .table tbody tr:hover td {
+                background: var(--vc-primary-soft);
+            }
+
+    #mypane.vc-app .k-grid {
+        max-width: 100%;
+        border: 1px solid var(--vc-border);
+        border-radius: 11px;
+        overflow: hidden;
+        background: var(--vc-surface);
+        color: var(--vc-ink);
+    }
+
+    #mypane.vc-app .k-grid-header,
+    #mypane.vc-app .k-grid-header th,
+    #mypane.vc-app .k-grid-header-wrap {
+        background: var(--vc-surface-3);
+        border-color: var(--vc-grid);
+    }
+
+        #mypane.vc-app .k-grid-header th {
+            padding: 13px 14px;
+            color: var(--vc-muted);
+            font-size: var(--vc-fs-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+    #mypane.vc-app .k-grid td {
+        padding: 12px 14px;
+        border-color: var(--vc-grid);
+        font-size: var(--vc-fs-sm);
+        vertical-align: middle;
+    }
+
+    #mypane.vc-app .k-grid tbody tr {
+        transition: background-color 140ms ease;
+    }
+
+    #mypane.vc-app .k-grid-content {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ---------- 12. FORM CONTROLS ---------- */
+    #mypane.vc-app .form-control,
+    #mypane.vc-app select,
+    #mypane.vc-app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    #mypane.vc-app textarea,
+    #mypane.vc-app .k-input,
+    #mypane.vc-app .k-dropdown-wrap,
+    #mypane.vc-app .k-picker-wrap {
+        min-height: 39px;
+        border-radius: 8px;
+        border-color: var(--vc-border);
+        background-color: var(--vc-surface-2);
+        color: var(--vc-ink);
+        font-size: var(--vc-fs-sm);
+        box-shadow: none;
+    }
+
+        #mypane.vc-app .form-control:focus,
+        #mypane.vc-app select:focus,
+        #mypane.vc-app input:focus,
+        #mypane.vc-app textarea:focus {
+            border-color: var(--vc-primary);
+            box-shadow: var(--vc-focus);
+        }
+
+    /* ---------- 13. FILE GALLERY ---------- */
+    #mypane.vc-app .vc-file-sub-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+        padding-bottom: 11px;
+        border-bottom: 1px solid var(--vc-border);
+    }
+
+    #mypane.vc-app .vc-file-sub-tabs {
+        display: flex;
+        gap: 22px;
+    }
+
+    #mypane.vc-app .vc-file-sub-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 2px 11px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--vc-muted);
+        font-size: var(--vc-fs-base);
+        font-weight: 600;
+        cursor: pointer;
+        transition: color var(--vc-motion-fast) ease, border-color var(--vc-motion-fast) ease, transform var(--vc-motion-fast) var(--vc-ease);
+    }
+
+        #mypane.vc-app .vc-file-sub-tab:hover,
+        #mypane.vc-app .vc-file-sub-tab.active {
+            color: var(--vc-primary);
+        }
+
+        #mypane.vc-app .vc-file-sub-tab.active {
+            border-bottom-color: var(--vc-primary);
+        }
+
+    #mypane.vc-app .vc-file-sub-panel {
+        display: none;
+    }
+
+        #mypane.vc-app .vc-file-sub-panel.active {
+            display: block;
+        }
+
+    #mypane.vc-app .vc-file-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--vc-border);
+        border-radius: 12px;
+        background: var(--vc-surface);
+        transition: transform 240ms var(--vc-ease), box-shadow 240ms ease, border-color 240ms ease;
+    }
+
+        #mypane.vc-app .vc-file-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--vc-primary);
+            box-shadow: var(--vc-shadow);
+        }
+
+    #mypane.vc-app .vc-file-thumb {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 178px;
+        overflow: hidden;
+        background: var(--vc-surface-2);
+    }
+
+        #mypane.vc-app .vc-file-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 420ms var(--vc-ease);
+        }
+
+    #mypane.vc-app .vc-file-card:hover .vc-file-thumb img {
+        transform: scale(1.035);
+    }
+
+    #mypane.vc-app .vc-file-thumb::after {
+        content: attr(data-ext);
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        padding: 3px 7px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, .6);
+        color: #fff;
+        font-size: var(--vc-fs-xs);
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-file-thumb::after {
+        background: rgba(0, 0, 0, .7);
+        border: 1px solid var(--vc-border);
+    }
+
+    #mypane.vc-app .vc-file-actions {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity .15s ease;
+    }
+
+    #mypane.vc-app .vc-file-card:hover .vc-file-actions {
+        opacity: 1;
+    }
+
+    #mypane.vc-app .vc-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: #1e40af;
+        color: #fff;
+        font-size: var(--vc-fs-sm);
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+        transition: transform var(--vc-motion-fast) var(--vc-ease), background-color var(--vc-motion-fast) ease, box-shadow var(--vc-motion-fast) ease;
+    }
+
+        #mypane.vc-app .vc-action-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+            background: #1e3a8a;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, .18);
+        }
+
+    body.dark-mode #mypane.vc-app .vc-action-btn {
+        background: var(--vc-primary);
+        color: #0a111e;
+        font-weight: 700;
+    }
+
+        body.dark-mode #mypane.vc-app .vc-action-btn:hover {
+            background: var(--vc-primary-strong);
+        }
+
+    #mypane.vc-app .vc-file-info {
+        padding: 13px 14px;
+        border-top: 1px solid var(--vc-border);
+        font-size: var(--vc-fs-sm);
+    }
+
+    #mypane.vc-app .vc-file-ref {
+        color: var(--vc-ink);
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #mypane.vc-app .vc-file-name {
+        margin-top: 3px;
+        color: var(--vc-muted);
+        font-size: var(--vc-fs-xs);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #mypane.vc-app .vc-file-date {
+        margin-top: 4px;
+        color: var(--vc-subtle);
+        font-size: var(--vc-fs-xs);
+    }
+
+    /* ---------- 14. STATES ---------- */
+    #mypane.vc-app .vc-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 195px;
+        padding: 28px 16px;
+        border: 1px dashed var(--vc-border);
+        border-radius: 12px;
+        background: var(--vc-surface-2);
+        color: var(--vc-muted);
+        text-align: center;
+        font-size: var(--vc-fs-base);
+    }
+
+        #mypane.vc-app .vc-empty-state i {
+            color: var(--vc-subtle);
+            font-size: 2rem;
+        }
+
+        #mypane.vc-app .vc-empty-state strong {
+            color: var(--vc-ink);
+            font-size: var(--vc-fs-md);
+        }
+
+    #mypane.vc-app .vc-loading-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 148px;
+        color: var(--vc-muted);
+        font-size: var(--vc-fs-base);
+    }
+
+    #mypane.vc-app .alert-light {
+        color: var(--vc-muted);
+        border-color: var(--vc-border);
+        background: var(--vc-surface-2);
+        font-size: var(--vc-fs-sm);
+    }
+
+    #mypane.vc-app .badge.bg-secondary {
+        color: var(--vc-ink);
+        background: var(--vc-surface-3);
+        font-size: var(--vc-fs-xs);
+    }
+
+    /* ---------- 15. ANIMATIONS ---------- */
+    @@keyframes vc-shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    @@keyframes vc-enter-up {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 16px, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @@keyframes vc-enter-side {
+        from {
+            opacity: 0;
+            transform: translate3d(-14px, 0, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @@keyframes vc-soft-scale {
+        from {
+            opacity: 0;
+            transform: scale(.975) translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    @@keyframes vc-profile-glow {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    @@keyframes vc-tab-reveal {
+        from {
+            opacity: 0;
+            transform: translateY(7px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes vc-dot-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(57, 120, 232, 0);
+        }
+
+        50% {
+            box-shadow: 0 0 0 5px rgba(57, 120, 232, .10);
+        }
+    }
+
+    #mypane.vc-app #left-pane {
+        animation: vc-enter-side 520ms var(--vc-ease) both;
+    }
+
+    #mypane.vc-app #center-pane {
+        animation: vc-enter-up 560ms var(--vc-ease) 70ms both;
+    }
+
+    #mypane.vc-app .vc-profile-card {
+        animation: vc-soft-scale 560ms var(--vc-ease) 110ms both;
+    }
+
+    #mypane.vc-app .vc-workspace-card {
+        animation: vc-enter-up 560ms var(--vc-ease) 190ms both;
+    }
+
+    #mypane.vc-app .vc-action-strip {
+        animation: vc-enter-up 480ms cubic-bezier(.2, .7, .2, 1) 170ms both;
+    }
+
+    #mypane.vc-app .vc-kpi {
+        animation: vc-enter-up 480ms var(--vc-ease) both;
+    }
+
+        #mypane.vc-app .vc-kpi:nth-child(1) {
+            animation-delay: 150ms;
+        }
+
+        #mypane.vc-app .vc-kpi:nth-child(2) {
+            animation-delay: 210ms;
+        }
+
+        #mypane.vc-app .vc-kpi:nth-child(3) {
+            animation-delay: 270ms;
+        }
+
+        #mypane.vc-app .vc-kpi:nth-child(4) {
+            animation-delay: 330ms;
+        }
+
+    /* ---------- 16. RESPONSIVE ---------- */
+    @@media (max-width: 1450px) {
+        #mypane.vc-app .vc-kpi-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 1250px) {
+        #mypane.vc-app .vc-payment-progress {
+            grid-template-columns: auto minmax(100px, 1fr);
+        }
+
+        #mypane.vc-app .vc-payment-progress-note {
+            grid-column: 1 / -1;
+            text-align: left;
+        }
+    }
+
+    @@media (max-width: 1100px) {
+        #mypane.vc-app #left-pane {
+            flex-basis: 245px;
+            width: 245px;
+            max-width: 245px;
+        }
+
+        #mypane.vc-app .vc-kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 900px) {
+        #mypane.vc-app {
+            height: auto;
+            min-height: calc(100vh - 12px);
+            overflow: visible;
+            padding: 8px;
+        }
+
+            #mypane.vc-app #horizontal {
+                flex-direction: column;
+                height: auto;
+                overflow: visible;
+                gap: 12px;
+                padding: 0;
+            }
+
+            #mypane.vc-app #left-pane {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+            }
+
+            #mypane.vc-app .vc-vendor-sidebar {
+                height: 260px;
+            }
+
+            #mypane.vc-app #center-pane {
+                overflow: visible;
+                padding: 0;
+            }
+
+            #mypane.vc-app .vc-action-strip {
+                align-items: flex-start;
+            }
+
+            #mypane.vc-app .vc-action-buttons {
+                width: 100%;
+            }
+
+            #mypane.vc-app .vc-meta-value {
+                max-width: none;
+                white-space: normal;
+            }
+    }
+
+    @@media (max-width: 700px) {
+        #mypane.vc-app .vc-payment-progress {
+            grid-template-columns: 1fr auto;
+            margin: 0 9px 10px;
+        }
+
+        #mypane.vc-app .vc-payment-progress-track {
+            grid-column: 1 / -1;
+            grid-row: 2;
+        }
+
+        #mypane.vc-app .vc-payment-progress-note {
+            grid-column: 1 / -1;
+            grid-row: 3;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        #mypane.vc-app .vc-profile-header {
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 12px;
+            padding: 16px;
+        }
+
+        #mypane.vc-app .vc-profile-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 15px;
+        }
+
+            #mypane.vc-app .vc-profile-avatar .fa-user-circle {
+                font-size: 2.1rem;
+            }
+
+        #mypane.vc-app .vc-profile-title h2 {
+            font-size: var(--vc-fs-xl);
+        }
+
+        #mypane.vc-app .vc-profile-meta {
+            grid-column: 1 / -1;
+            gap: 8px 12px;
+        }
+
+        #mypane.vc-app .vc-meta-value {
+            max-width: 170px;
+        }
+
+        #mypane.vc-app .vc-profile-actions {
+            width: 100%;
+        }
+
+            #mypane.vc-app .vc-profile-actions .btn {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+        #mypane.vc-app .vc-tabs-wrap {
+            padding: 0 8px;
+        }
+
+        #mypane.vc-app #invoice_tab .nav-link {
+            height: 47px;
+            padding: 0 11px;
+            font-size: var(--vc-fs-xs);
+        }
+
+        #mypane.vc-app .vc-tab-content {
+            padding: 14px 13px 17px;
+        }
+
+        #mypane.vc-app .vc-tab-heading {
+            flex-direction: column;
+            gap: 2px;
+            align-items: flex-start;
+        }
+
+        #mypane.vc-app .vc-file-thumb {
+            height: 145px;
+        }
+
+        #mypane.vc-app .vc-kpi:hover,
+        #mypane.vc-app .vc-file-card:hover {
+            transform: none;
+        }
+
+        #mypane.vc-app #itemList .k-item:hover {
+            transform: none;
+        }
+    }
+
+    @@media (max-width: 520px) {
+        #mypane.vc-app .vc-kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            padding: 10px;
+        }
+
+        #mypane.vc-app .vc-kpi {
+            min-height: 108px;
+            padding: 13px 11px;
+        }
+
+            #mypane.vc-app .vc-kpi > .vc-kpi-icon {
+                top: 10px;
+                right: 9px;
+                width: 27px;
+                height: 27px;
+            }
+
+        #mypane.vc-app .vc-kpi-label {
+            max-width: calc(100% - 33px);
+            font-size: var(--vc-fs-xs);
+        }
+
+        #mypane.vc-app .vc-kpi-value {
+            font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+        }
+
+        #mypane.vc-app .vc-action-strip {
+            padding: 12px;
+        }
+
+        #mypane.vc-app .vc-action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #mypane.vc-app .vc-quick-action {
+            padding: 0 8px;
+            font-size: var(--vc-fs-xs);
+        }
+
+        #mypane.vc-app .vc-payment-progress {
+            margin: 0 10px 10px;
+        }
+    }
+
+    @@media (hover: none) {
+        #mypane.vc-app .vc-vendor-edit-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        #mypane.vc-app *,
+        #mypane.vc-app *::before,
+        #mypane.vc-app *::after {
+            animation-duration: .01ms;
+            animation-iteration-count: 1;
+            transition-duration: .01ms;
+            scroll-behavior: auto;
+        }
+
+        #mypane.vc-app .vc-skeleton {
+            animation: none;
+        }
+    }
+
+    /* =========================================================
+       VENDOR CENTER — UI POLISH OVERRIDES
+       ========================================================= */
+    #mypane.vc-app {
+        --vc-primary: var(--blue);
+        --vc-primary-strong: var(--blue);
+        --vc-primary-soft: #edf4ff;
+        --vc-page: #f7f8fa;
+        --vc-surface: #ffffff;
+        --vc-surface-2: #fbfcfe;
+        --vc-surface-3: #f3f5f8;
+        --vc-ink: #1d2a3d;
+        --vc-muted: #5e6e85;
+        --vc-subtle: #8995a8;
+        --vc-border: #e6eaf0;
+        --vc-grid: #edf0f4;
+        --vc-success: #16865f;
+        --vc-warning: #bd842b;
+        --vc-danger: #d34f5b;
+        --vc-teal: #168b91;
+        --vc-radius: 12px;
+        --vc-shadow-sm: 0 1px 3px rgba(20, 35, 58, .045);
+        --vc-shadow: 0 8px 22px rgba(20, 35, 58, .075);
+        --vc-focus: 0 0 0 3px rgba(57, 120, 232, .13);
+        /*        padding: 10px;*/
+        /*        background: var(--vc-page);*/
+        font-size: var(--vc-fs-base);
+    }
+
+    body.dark-mode #mypane.vc-app {
+        --vc-primary: #8db5ff;
+        --vc-primary-strong: #a8c7ff;
+        --vc-primary-soft: rgba(141, 181, 255, .12);
+        --vc-page: #0f1724;
+        --vc-surface: #151f2e;
+        --vc-surface-2: #192638;
+        --vc-surface-3: #202e42;
+        --vc-ink: #e8eef7;
+        --vc-muted: #a6b3c5;
+        --vc-subtle: #7f8da2;
+        --vc-border: #2a394e;
+        --vc-grid: #263449;
+        --vc-success: #52c99a;
+        --vc-warning: #e8bd69;
+        --vc-danger: #f08089;
+        --vc-teal: #4bc4c0;
+        --vc-shadow-sm: 0 1px 3px rgba(0, 0, 0, .16);
+        --vc-shadow: 0 10px 28px rgba(0, 0, 0, .22);
+        color-scheme: dark;
+    }
+
+    #mypane.vc-app #horizontal {
+        gap: 12px;
+    }
+
+    #mypane.vc-app #left-pane {
+        flex: 0 0 264px;
+        width: 264px;
+        max-width: 264px;
+    }
+
+    #mypane.vc-app #center-pane {
+        padding-right: 1px;
+    }
+
+    #mypane.vc-app .vc-vendor-sidebar,
+    #mypane.vc-app .vc-profile-card,
+    #mypane.vc-app .vc-workspace-card {
+        border: 1px solid var(--vc-border);
+        border-radius: 12px;
+        background: var(--vc-surface);
+        box-shadow: var(--vc-shadow-sm);
+    }
+
+    #mypane.vc-app .vc-vendor-sidebar {
+        padding: 15px 13px;
+    }
+
+    #mypane.vc-app .vc-sidebar-title {
+        padding: 1px 2px 12px;
+    }
+
+        #mypane.vc-app .vc-sidebar-title > span {
+            font-size: 1rem;
+            font-weight: 750;
+        }
+
+            #mypane.vc-app .vc-sidebar-title > span i {
+                width: 31px;
+                height: 31px;
+                color: #3978e8;
+                background: #edf4ff;
+                font-size: 1rem;
+            }
+
+    #mypane.vc-app .vc-theme-toggle {
+        height: 32px;
+        border-radius: 8px;
+        background: var(--vc-surface);
+        font-size: var(--vc-fs-xs);
+    }
+
+    #mypane.vc-app #searchBox {
+        height: 41px;
+        border-radius: 8px;
+        background-color: var(--vc-surface-2);
+        font-size: var(--vc-fs-sm);
+    }
+
+    #mypane.vc-app #itemList .k-item {
+        min-height: 55px;
+        margin: 2px 0;
+        padding-top: 9px;
+        padding-bottom: 9px;
+        border-radius: 8px;
+        font-size: var(--vc-fs-sm);
+    }
+
+        #mypane.vc-app #itemList .k-item::before {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+        }
+
+        #mypane.vc-app #itemList .k-item.k-state-selected {
+            color: var(--vc-primary-strong);
+            border-color: rgba(57, 120, 232, .16);
+            background: var(--vc-primary-soft);
+            box-shadow: inset 2px 0 0 var(--vc-primary);
+        }
+
+    #mypane.vc-app .vc-vendor-edit-btn {
+        width: 29px;
+        height: 29px;
+        border-radius: 7px;
+        color: #3978e8;
+        background: #f2f6ff;
+        border-color: #dce7fb;
+    }
+
+        #mypane.vc-app .vc-vendor-edit-btn:hover {
+            color: #fff;
+            background: #3978e8;
+            border-color: #3978e8;
+        }
+
+    #mypane.vc-app .vc-profile-card {
+        margin-bottom: 12px;
+    }
+
+    #mypane.vc-app .vc-profile-header {
+        grid-template-columns: 68px minmax(0, 1fr);
+        gap: 16px;
+        padding: 19px 21px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+        animation: none;
+    }
+
+        #mypane.vc-app .vc-profile-header::before {
+            background: linear-gradient(110deg, transparent 48%, rgba(57, 120, 232, .025));
+        }
+
+        #mypane.vc-app .vc-profile-header::after {
+            right: -100px;
+            top: -175px;
+            width: 270px;
+            height: 270px;
+            border-color: rgba(57, 120, 232, .07);
+            box-shadow: 0 0 0 28px rgba(57, 120, 232, .025), 0 0 0 58px rgba(57, 120, 232, .015);
+        }
+
+    body.dark-mode #mypane.vc-app .vc-profile-header {
+        background: linear-gradient(135deg, #19283c 0%, #1b2d45 100%);
+        border-bottom: 1px solid var(--vc-border);
+    }
+
+        body.dark-mode #mypane.vc-app .vc-profile-header::after {
+            border-color: rgba(141, 181, 255, .10);
+            box-shadow: 0 0 0 28px rgba(141, 181, 255, .025), 0 0 0 58px rgba(141, 181, 255, .015);
+        }
+
+    #mypane.vc-app .vc-profile-avatar {
+        width: 68px;
+        height: 68px;
+        border: 1px solid #dce6f5;
+        border-radius: 16px;
+        background: #edf4ff;
+        box-shadow: none;
+    }
+
+        #mypane.vc-app .vc-profile-avatar .fa-user-circle {
+            color: #3978e8;
+            font-size: 2.5rem;
+        }
+
+    #mypane.vc-app .vc-profile-title h2 {
+        color: #1d2a3d;
+        font-size: var(--vc-fs-xl);
+        font-weight: 760;
+        letter-spacing: -.02em;
+        line-height: 1.3;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-title h2 {
+        color: var(--vc-ink);
+    }
+
+    #mypane.vc-app .vc-vendor-type {
+        margin-top: 6px;
+        padding: 3px 10px;
+        border: 1px solid #dce8fb;
+        border-radius: 6px;
+        color: #3978e8;
+        background: #f0f5ff;
+        font-size: var(--vc-fs-xs);
+        font-weight: 650;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-vendor-type {
+        color: var(--vc-primary);
+        background: rgba(141, 181, 255, .10);
+        border-color: rgba(141, 181, 255, .22);
+    }
+
+    #mypane.vc-app .vc-profile-actions .btn {
+        height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--vc-border);
+        border-radius: 8px;
+        color: var(--vc-muted);
+        background: var(--vc-surface);
+        font-size: var(--vc-fs-xs);
+        font-weight: 650;
+    }
+
+        #mypane.vc-app .vc-profile-actions .btn i {
+            color: #3978e8;
+        }
+
+        #mypane.vc-app .vc-profile-actions .btn:hover {
+            color: #2864d6;
+            border-color: #cbdcf8;
+            background: #f5f8ff;
+            transform: translateY(-1px);
+        }
+
+    body.dark-mode #mypane.vc-app .vc-profile-actions .btn {
+        color: var(--vc-muted);
+        background: var(--vc-surface-2);
+        border-color: var(--vc-border);
+    }
+
+    #mypane.vc-app .vc-profile-meta {
+        gap: 10px 18px;
+        margin-top: 12px;
+        color: #5e6e85;
+        font-size: var(--vc-fs-sm);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-profile-meta {
+        color: var(--vc-muted);
+    }
+
+    #mypane.vc-app .vc-meta-item > i {
+        width: 25px;
+        height: 25px;
+        color: #3978e8;
+        background: #edf4ff;
+        font-size: var(--vc-fs-xs);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-meta-item > i {
+        color: var(--vc-primary);
+        background: rgba(141, 181, 255, .10);
+    }
+
+    #mypane.vc-app .vc-meta-label {
+        color: var(--vc-subtle);
+        font-size: var(--vc-fs-xs);
+        font-weight: 650;
+    }
+
+    #mypane.vc-app .vc-meta-value {
+        color: #4d5e76;
+        font-size: var(--vc-fs-sm);
+        font-weight: 550;
+    }
+
+    body.dark-mode #mypane.vc-app .vc-meta-value {
+        color: var(--vc-ink);
+    }
+
+    #mypane.vc-app .vc-kpi-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        padding: 12px 15px 10px !important;
+        border-top: 1px solid var(--vc-border);
+        background: var(--vc-surface-2);
+    }
+
+    #mypane.vc-app .vc-kpi {
+        min-height: 106px;
+        padding: 14px 14px 12px;
+        border: 1px solid var(--vc-border);
+        border-radius: 10px;
+        box-shadow: none;
+        background: var(--vc-surface);
+    }
+
+        #mypane.vc-app .vc-kpi:hover {
+            transform: translateY(-2px);
+            border-color: #d3e1f6;
+            box-shadow: 0 5px 13px rgba(30, 64, 120, .055);
+        }
+
+        #mypane.vc-app .vc-kpi::before {
+            width: 3px;
+        }
+
+        #mypane.vc-app .vc-kpi > .vc-kpi-icon {
+            top: 11px;
+            right: 11px;
+            width: 29px;
+            height: 29px;
+            border-radius: 8px;
+        }
+
+        #mypane.vc-app .vc-kpi.purchase .vc-kpi-icon {
+            color: #3978e8;
+            background: #edf4ff;
+        }
+
+        #mypane.vc-app .vc-kpi.paid .vc-kpi-icon {
+            color: #16865f;
+            background: #eaf7f1;
+        }
+
+        #mypane.vc-app .vc-kpi.outstanding .vc-kpi-icon {
+            color: #bd842b;
+            background: #fff6e8;
+        }
+
+        #mypane.vc-app .vc-kpi.vendor-advance .vc-kpi-icon {
+            color: #168b91;
+            background: #e9f7f7;
+        }
+
+    #mypane.vc-app .vc-kpi-label {
+        color: #65738b;
+        font-size: var(--vc-fs-xs);
+        letter-spacing: .04em;
+    }
+
+    #mypane.vc-app .vc-kpi-value {
+        margin-top: 10px;
+        color: #20304a;
+        font-size: clamp(1.12rem, 1.35vw, 1.38rem);
+        font-weight: 760;
+    }
+
+    #mypane.vc-app .vc-kpi-note {
+        margin-top: 6px;
+        color: #8492a6;
+        font-size: var(--vc-fs-xs);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi-value {
+        color: var(--vc-ink);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi-label,
+    body.dark-mode #mypane.vc-app .vc-kpi-note {
+        color: var(--vc-muted);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi.purchase .vc-kpi-icon {
+        color: var(--vc-primary);
+        background: rgba(141, 181, 255, .12);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi.paid .vc-kpi-icon {
+        color: var(--vc-success);
+        background: rgba(82, 201, 154, .12);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi.outstanding .vc-kpi-icon {
+        color: var(--vc-warning);
+        background: rgba(232, 189, 105, .12);
+    }
+
+    body.dark-mode #mypane.vc-app .vc-kpi.vendor-advance .vc-kpi-icon {
+        color: var(--vc-teal);
+        background: rgba(75, 196, 192, .12);
+    }
+
+    #mypane.vc-app .vc-payment-progress {
+        margin: 0 15px 13px;
+        padding: 11px 13px;
+        border-radius: 9px;
+        background: var(--vc-surface);
+    }
+
+    #mypane.vc-app .vc-payment-progress-track {
+        height: 7px;
+    }
+
+        #mypane.vc-app .vc-payment-progress-track span {
+            background: linear-gradient(90deg, #3978e8 0%, #23a47a 100%);
+        }
+
+    #mypane.vc-app .vc-action-strip {
+        margin-bottom: 11px;
+        padding: 12px 14px;
+        border-radius: 11px;
+        box-shadow: var(--vc-shadow-sm);
+    }
+
+    #mypane.vc-app .vc-action-intro strong {
+        font-size: var(--vc-fs-base);
+    }
+
+    #mypane.vc-app .vc-action-intro span {
+        font-size: var(--vc-fs-xs);
+    }
+
+    #mypane.vc-app .vc-quick-action {
+        min-height: 36px;
+        padding: 0 11px;
+        border-radius: 8px;
+        color: #566277;
+        background: #fbfcfe;
+        font-size: var(--vc-fs-sm);
+        font-weight: 650;
+    }
+
+        #mypane.vc-app .vc-quick-action i {
+            color: #3978e8;
+        }
+
+        #mypane.vc-app .vc-quick-action.primary {
+            color: #fff;
+            border-color: #3978e8;
+            background: #3978e8;
+            box-shadow: 0 2px 6px rgba(57, 120, 232, .13);
+        }
+
+            #mypane.vc-app .vc-quick-action.primary i {
+                color: #fff;
+            }
+
+            #mypane.vc-app .vc-quick-action.primary:hover:not(:disabled) {
+                background: #2864d6;
+                border-color: #2864d6;
+            }
+
+        /* ---- NEW: Expense button variant ---- */
+        #mypane.vc-app .vc-quick-action.expense {
+            color: #fff;
+            border-color: #16865f;
+            background: linear-gradient(135deg, #16865f, #1fa877);
+            box-shadow: 0 4px 10px rgba(22, 134, 95, .20);
+        }
+
+            #mypane.vc-app .vc-quick-action.expense i {
+                color: #fff;
+            }
+
+            #mypane.vc-app .vc-quick-action.expense:hover:not(:disabled) {
+                color: #fff;
+                background: linear-gradient(135deg, #12714f, #1a9568);
+                border-color: #12714f;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 14px rgba(22, 134, 95, .28);
+            }
+
+    body.dark-mode #mypane.vc-app .vc-quick-action.expense {
+        color: #06120d;
+        background: linear-gradient(135deg, #52c99a, #6ad9a9);
+        border-color: #52c99a;
+    }
+
+        body.dark-mode #mypane.vc-app .vc-quick-action.expense i {
+            color: #06120d;
+        }
+
+        body.dark-mode #mypane.vc-app .vc-quick-action.expense:hover:not(:disabled) {
+            color: #06120d;
+            background: #6ad9a9;
+            border-color: #6ad9a9;
+        }
+
+    body.dark-mode #mypane.vc-app .vc-quick-action {
+        color: var(--vc-muted);
+        background: var(--vc-surface-2);
+    }
+
+        body.dark-mode #mypane.vc-app .vc-quick-action i {
+            color: var(--vc-primary);
+        }
+
+        body.dark-mode #mypane.vc-app .vc-quick-action.primary {
+            color: #101b2c;
+            background: var(--vc-primary);
+            border-color: var(--vc-primary);
+        }
+
+            body.dark-mode #mypane.vc-app .vc-quick-action.primary i {
+                color: #101b2c;
+            }
+
+    #mypane.vc-app .vc-workspace-card {
+        border-radius: 11px;
+        box-shadow: var(--vc-shadow-sm);
+    }
+
+    #mypane.vc-app .vc-tabs-wrap {
+        padding: 0 12px;
+        background: var(--vc-surface);
+    }
+
+    #mypane.vc-app #invoice_tab .nav-link {
+        height: 51px;
+        padding: 0 12px;
+        font-size: var(--vc-fs-sm);
+    }
+
+        #mypane.vc-app #invoice_tab .nav-link i {
+            color: #7c8ba1;
+            font-size: var(--vc-fs-base);
+        }
+
+        #mypane.vc-app #invoice_tab .nav-link.active i {
+            color: var(--vc-primary);
+        }
+
+        #mypane.vc-app #invoice_tab .nav-link.active {
+            color: var(--vc-primary-strong);
+        }
+
+    #mypane.vc-app .vc-tab-content {
+        padding: 18px 19px 21px;
+    }
+
+    #mypane.vc-app .vc-tab-heading {
+        margin-bottom: 13px;
+    }
+
+        #mypane.vc-app .vc-tab-heading span {
+            font-size: var(--vc-fs-md);
+            font-weight: 750;
+        }
+
+        #mypane.vc-app .vc-tab-heading small {
+            font-size: var(--vc-fs-xs);
+        }
+
+    #mypane.vc-app .table-responsive,
+    #mypane.vc-app .k-grid {
+        border-color: var(--vc-border);
+        border-radius: 9px;
+        box-shadow: none;
+    }
+
+    #mypane.vc-app .table thead th,
+    #mypane.vc-app .k-grid-header,
+    #mypane.vc-app .k-grid-header th,
+    #mypane.vc-app .k-grid-header-wrap {
+        color: #5e6e85;
+        background: #f5f7fa;
+        border-color: var(--vc-grid);
+    }
+
+        #mypane.vc-app .table thead th,
+        #mypane.vc-app .k-grid-header th {
+            padding: 11px 13px;
+            font-size: var(--vc-fs-xs);
+            font-weight: 700;
+        }
+
+    #mypane.vc-app .table tbody td,
+    #mypane.vc-app .k-grid td {
+        padding: 10px 13px;
+        font-size: var(--vc-fs-sm);
+    }
+
+    #mypane.vc-app .table tbody tr:hover td {
+        background: #f7faff;
+    }
+
+    body.dark-mode #mypane.vc-app .table thead th,
+    body.dark-mode #mypane.vc-app .k-grid-header,
+    body.dark-mode #mypane.vc-app .k-grid-header th,
+    body.dark-mode #mypane.vc-app .k-grid-header-wrap {
+        color: var(--vc-muted);
+        background: var(--vc-surface-3);
+        border-color: var(--vc-grid);
+    }
+
+    body.dark-mode #mypane.vc-app .table tbody tr:hover td {
+        background: rgba(141, 181, 255, .06);
+    }
+
+    #mypane.vc-app .form-control,
+    #mypane.vc-app select,
+    #mypane.vc-app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    #mypane.vc-app textarea,
+    #mypane.vc-app .k-input,
+    #mypane.vc-app .k-dropdown-wrap,
+    #mypane.vc-app .k-picker-wrap {
+        border-color: var(--vc-border);
+        border-radius: 8px;
+        background-color: var(--vc-surface-2);
+        color: var(--vc-ink);
+        font-size: var(--vc-fs-sm);
+    }
+
+        #mypane.vc-app .form-control:focus,
+        #mypane.vc-app select:focus,
+        #mypane.vc-app input:focus,
+        #mypane.vc-app textarea:focus {
+            border-color: var(--vc-primary);
+            box-shadow: var(--vc-focus);
+        }
+
+    #mypane.vc-app .vc-file-card {
+        border-radius: 10px;
+        box-shadow: none;
+    }
+
+        #mypane.vc-app .vc-file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--vc-shadow);
+        }
+
+    #mypane.vc-app .vc-file-thumb {
+        background: var(--vc-surface-3);
+    }
+
+    #mypane.vc-app .vc-action-btn {
+        background: #3978e8;
+        border-radius: 7px;
+    }
+
+    #mypane.vc-app #left-pane,
+    #mypane.vc-app #center-pane,
+    #mypane.vc-app .vc-profile-card,
+    #mypane.vc-app .vc-workspace-card,
+    #mypane.vc-app .vc-action-strip,
+    #mypane.vc-app .vc-kpi {
+        animation-duration: 280ms;
+    }
+
+    @@media (max-width: 1100px) {
+        #mypane.vc-app #left-pane {
+            flex-basis: 235px;
+            width: 235px;
+            max-width: 235px;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        #mypane.vc-app #left-pane {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: none;
+        }
+
+        #mypane.vc-app .vc-vendor-sidebar {
+            height: 240px;
+        }
+
+        #mypane.vc-app .vc-profile-header {
+            grid-template-columns: 60px minmax(0, 1fr);
+            gap: 12px;
+            padding: 15px;
+        }
+
+        #mypane.vc-app .vc-profile-avatar {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        #mypane.vc-app {
+            padding: 6px;
+        }
+
+            #mypane.vc-app .vc-profile-header {
+                grid-template-columns: 50px minmax(0, 1fr);
+                padding: 13px;
+            }
+
+            #mypane.vc-app .vc-profile-avatar {
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+            }
+
+            #mypane.vc-app .vc-profile-title h2 {
+                font-size: var(--vc-fs-lg);
+            }
+
+            #mypane.vc-app .vc-profile-meta {
+                grid-column: 1 / -1;
+                gap: 8px 12px;
+            }
+
+            #mypane.vc-app .vc-profile-actions {
+                width: 100%;
+            }
+
+                #mypane.vc-app .vc-profile-actions .btn {
+                    flex: 1 1 auto;
+                    justify-content: center;
+                }
+
+            #mypane.vc-app .vc-kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                padding: 9px !important;
+            }
+
+            #mypane.vc-app .vc-kpi {
+                min-height: 98px;
+                padding: 12px 11px;
+            }
+
+            #mypane.vc-app .vc-kpi-value {
+                font-size: 1.08rem;
+            }
+
+            #mypane.vc-app .vc-action-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }
+
+            #mypane.vc-app .vc-quick-action {
+                min-width: 0;
+                padding: 0 8px;
+                font-size: var(--vc-fs-xs);
+            }
+
+            #mypane.vc-app .vc-tab-content {
+                padding: 13px 11px 16px;
+            }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        #mypane.vc-app *,
+        #mypane.vc-app *::before,
+        #mypane.vc-app *::after {
+            animation-duration: .01ms !important;
+            transition-duration: .01ms !important;
+        }
+    }
+</style>
+
+<style>
+    /* =========================================================
+       VENDOR CREATE - SCOPED ERP STYLES
+       ========================================================= */
+    .vendor-entry {
+        --ve-primary: #f47721;
+        --ve-primary-hover: #e76513;
+        --ve-primary-soft: rgba(244, 119, 33, .09);
+        --ve-success: #15976a;
+        --ve-danger: #dc4458;
+        --ve-text: #172438;
+        --ve-muted: #718096;
+        --ve-subtle: #98a4b5;
+        --ve-bg: #f4f6fa;
+        --ve-surface: #fff;
+        --ve-surface-alt: #f8fafc;
+        --ve-border: #e5eaf1;
+        --ve-input: #fff;
+        --ve-radius: 11px;
+        --ve-shadow: 0 4px 16px rgba(25, 42, 70, .045);
+        width: 100%;
+        min-height: 100%;
+        padding: 18px;
+        background: var(--ve-bg);
+        color: var(--ve-text);
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+        .vendor-entry *,
+        .vendor-entry *::before,
+        .vendor-entry *::after {
+            box-sizing: border-box;
+        }
+
+        .vendor-entry input,
+        .vendor-entry select,
+        .vendor-entry textarea,
+        .vendor-entry button {
+            font-family: inherit;
+        }
+
+    .ve-shell {
+        max-width: 1500px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* HEADER */
+    .ve-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 17px;
+    }
+
+    .ve-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .ve-header-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--ve-primary);
+        background: var(--ve-primary-soft);
+        font-size: 18px;
+    }
+
+    .ve-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 3px;
+        color: var(--ve-muted);
+        font-size: 10px;
+    }
+
+        .ve-breadcrumb i {
+            font-size: 8px;
+        }
+
+        .ve-breadcrumb .current {
+            color: var(--ve-primary);
+            font-weight: 700;
+        }
+
+    .ve-heading h1 {
+        margin: 0;
+        color: var(--ve-text);
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.3;
+    }
+
+    .ve-heading p {
+        margin: 4px 0 0;
+        color: var(--ve-muted);
+        font-size: 11px;
+    }
+
+    /* BUTTONS */
+    .vendor-entry .ve-btn {
+        min-height: 38px;
+        padding: 8px 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 750;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+        .vendor-entry .ve-btn:hover {
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        .vendor-entry .ve-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .vendor-entry .ve-btn-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #f47721, #ff923f);
+        box-shadow: 0 4px 11px rgba(244, 119, 33, .2);
+    }
+
+        .vendor-entry .ve-btn-primary:hover {
+            color: #fff;
+            background: var(--ve-primary-hover);
+        }
+
+    .vendor-entry .ve-btn-light {
+        color: var(--ve-text);
+        background: var(--ve-surface);
+        border-color: var(--ve-border);
+    }
+
+        .vendor-entry .ve-btn-light:hover {
+            color: var(--ve-primary);
+            border-color: var(--ve-primary);
+        }
+
+    /* ALERTS */
+    .vendor-entry .ve-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 11px 13px;
+        margin-bottom: 14px;
+        border-radius: 9px;
+        font-size: 12px;
+    }
+
+    .vendor-entry .ve-success {
+        color: #11734f;
+        background: #eaf8f1;
+        border: 1px solid #bcebd3;
+    }
+
+    .vendor-entry .ve-danger {
+        color: #a72e42;
+        background: #fff0f2;
+        border: 1px solid #ffd1d8;
+    }
+
+    .vendor-entry .validation-summary-errors ul {
+        margin: 4px 0 0;
+        padding-left: 18px;
+    }
+
+    /* PANELS */
+    .ve-panel {
+        margin-bottom: 14px;
+        overflow: hidden;
+        background: var(--ve-surface);
+        border: 1px solid var(--ve-border);
+        border-radius: var(--ve-radius);
+        box-shadow: var(--ve-shadow);
+    }
+
+    .ve-panel-header {
+        min-height: 54px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--ve-border);
+    }
+
+    .ve-panel-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .ve-section-icon {
+        width: 33px;
+        height: 33px;
+        flex: 0 0 33px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        color: var(--ve-primary);
+        background: var(--ve-primary-soft);
+        font-size: 14px;
+    }
+
+    .ve-panel-heading h2 {
+        margin: 0;
+        color: var(--ve-text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .ve-panel-heading p {
+        margin: 2px 0 0;
+        color: var(--ve-muted);
+        font-size: 10px;
+    }
+
+    .ve-section-tag {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: var(--ve-surface-alt);
+        color: var(--ve-muted);
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .ve-panel-body {
+        padding: 17px;
+    }
+
+    /* GRID */
+    .ve-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px 17px;
+    }
+
+    .ve-field {
+        min-width: 0;
+    }
+
+        .ve-field.wide-2 {
+            grid-column: span 2;
+        }
+
+        .ve-field.wide-3 {
+            grid-column: span 3;
+        }
+
+    .ve-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 5px;
+        color: var(--ve-text);
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+        .ve-label .req {
+            color: var(--ve-danger);
+            font-size: 12px;
+        }
+
+    /* INPUTS WITH ICONS */
+    .ve-input-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+        .ve-input-wrap > i {
+            position: absolute;
+            z-index: 2;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ve-subtle);
+            font-size: 12px;
+            pointer-events: none;
+            transition: color .18s;
+        }
+
+    .ve-input,
+    .ve-select,
+    .ve-textarea {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 9px 11px 9px 35px;
+        border: 1px solid var(--ve-border);
+        border-radius: 7px;
+        outline: none;
+        background: var(--ve-input);
+        color: var(--ve-text);
+        font-size: 11px;
+        font-weight: 500;
+        transition: border-color .18s, box-shadow .18s;
+    }
+
+    .ve-input,
+    .ve-select {
+        height: 37px;
+    }
+
+        .ve-input::placeholder,
+        .ve-textarea::placeholder {
+            color: var(--ve-subtle);
+            font-weight: 400;
+        }
+
+    .ve-input-wrap:hover .ve-input,
+    .ve-input-wrap:hover .ve-select,
+    .ve-input-wrap:hover .ve-textarea {
+        border-color: #bdc9d8;
+    }
+
+    .ve-input-wrap:focus-within > i {
+        color: var(--ve-primary);
+    }
+
+    .ve-input:focus,
+    .ve-select:focus,
+    .ve-textarea:focus {
+        border-color: var(--ve-primary);
+        box-shadow: 0 0 0 3px var(--ve-primary-soft);
+    }
+
+    .ve-input[readonly] {
+        background: var(--ve-surface-alt);
+        color: var(--ve-muted);
+        cursor: default;
+    }
+
+    .ve-textarea {
+        min-height: 65px;
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .ve-textarea-wrap > i {
+        top: 13px;
+        transform: none;
+    }
+
+    .ve-help {
+        display: block;
+        margin-top: 4px;
+        color: var(--ve-muted);
+        font-size: 9px;
+    }
+
+    .ve-error {
+        display: block;
+        margin-top: 4px;
+        color: var(--ve-danger);
+        font-size: 10px;
+    }
+
+    .vendor-entry #RegisterDateDisplay.input-validation-error {
+        border-color: #e04452 !important;
+    }
+
+    .vendor-entry .input-validation-error {
+        border-color: var(--ve-danger) !important;
+    }
+
+    /* CODE */
+    .ve-code-wrap {
+        position: relative;
+    }
+
+    .ve-code-lock {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        color: var(--ve-success);
+        font-size: 11px;
+    }
+
+    .ve-code-wrap .ve-input {
+        padding-right: 32px;
+    }
+
+    /* SUBSECTIONS */
+    .ve-subsection-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 13px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--ve-border);
+        color: #16a765;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+        .ve-subsection-title i {
+            font-size: 12px;
+        }
+
+        .ve-subsection-title.ve-subsection-spaced {
+            margin-top: 23px;
+        }
+
+    /* VAT TIN */
+    .ve-vat-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .ve-vat-prefix {
+        width: 60px;
+        flex: 0 0 60px;
+    }
+
+        .ve-vat-prefix .ve-input {
+            padding-left: 9px;
+            text-align: center;
+        }
+
+        .ve-vat-prefix > i {
+            display: none;
+        }
+
+    .ve-vat-number {
+        flex: 1;
+        min-width: 0;
+    }
+
+        .ve-vat-number .ve-input {
+            padding-left: 11px;
+        }
+
+    .ve-vat-separator {
+        color: var(--ve-muted);
+        font-weight: 800;
+    }
+
+    /* BANK */
+    .ve-bank-toggle {
+        padding: 7px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid var(--ve-border);
+        border-radius: 7px;
+        background: var(--ve-surface);
+        color: var(--ve-muted);
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .ve-bank-toggle:hover {
+            color: var(--ve-primary);
+            border-color: var(--ve-primary);
+        }
+
+        .ve-bank-toggle i {
+            transition: transform .2s;
+        }
+
+        .ve-bank-toggle[aria-expanded="false"] i {
+            transform: rotate(-90deg);
+        }
+
+    .ve-bank-body.is-collapsed {
+        display: none;
+    }
+
+    .ve-bank-notice {
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border: 1px solid var(--ve-border);
+        border-radius: 8px;
+        background: var(--ve-surface-alt);
+        color: var(--ve-muted);
+        font-size: 10px;
+    }
+
+        .ve-bank-notice i {
+            color: var(--ve-primary);
+            margin-top: 2px;
+        }
+
+    /* FOOTER */
+    .ve-form-footer {
+        padding: 13px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--ve-border);
+        border-radius: var(--ve-radius);
+        background: var(--ve-surface);
+        box-shadow: var(--ve-shadow);
+    }
+
+    .ve-footer-note {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--ve-muted);
+        font-size: 10px;
+    }
+
+        .ve-footer-note i {
+            color: var(--ve-success);
+        }
+
+    .ve-footer-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* DARK THEME */
+    html[data-theme="dark"] .vendor-entry,
+    body[data-theme="dark"] .vendor-entry,
+    body.dark-mode .vendor-entry {
+        --ve-text: #e5edf7;
+        --ve-muted: #9aabc0;
+        --ve-subtle: #71849d;
+        --ve-bg: #0b1220;
+        --ve-surface: #111c2d;
+        --ve-surface-alt: #172438;
+        --ve-border: #27374d;
+        --ve-input: #101b2b;
+        --ve-shadow: 0 5px 20px rgba(0, 0, 0, .15);
+    }
+
+        html[data-theme="dark"] .vendor-entry .ve-btn-light,
+        body[data-theme="dark"] .vendor-entry .ve-btn-light,
+        body.dark-mode .vendor-entry .ve-btn-light {
+            background: var(--ve-surface);
+            color: var(--ve-text);
+        }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1050px) {
+        .ve-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ve-field.wide-3 {
+            grid-column: span 2;
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .vendor-entry {
+            padding: 11px;
+        }
+
+        .ve-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .ve-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 13px;
+        }
+
+        .ve-field.wide-2,
+        .ve-field.wide-3 {
+            grid-column: span 1;
+        }
+
+        .ve-panel-body {
+            padding: 13px;
+        }
+
+        .ve-panel-header {
+            padding: 10px 12px;
+        }
+
+        .ve-section-tag {
+            display: none;
+        }
+
+        .ve-form-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .ve-footer-actions {
+            width: 100%;
+        }
+
+            .ve-footer-actions .ve-btn {
+                flex: 1;
+            }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .vendor-entry *,
+        .vendor-entry *::before,
+        .vendor-entry *::after {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+
+    /* =========================================================
+       CONTROL NORMALIZATION - PREVENT HOST THEME / BOOTSTRAP CLASH
+       Keep every icon inside its own input and keep validation text
+       in normal document flow underneath the control.
+       ========================================================= */
+    .vendor-entry .ve-grid {
+        align-items: start;
+    }
+
+    .vendor-entry .ve-field {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vendor-entry .ve-label {
+        display: flex !important;
+        position: static !important;
+        float: none !important;
+        width: auto !important;
+        margin: 0 0 6px !important;
+        padding: 0 !important;
+        line-height: 1.35 !important;
+        transform: none !important;
+    }
+
+    .vendor-entry .ve-input-wrap {
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        line-height: normal !important;
+    }
+
+        .vendor-entry .ve-input-wrap > i,
+        .vendor-entry .ve-input-wrap > .fas,
+        .vendor-entry .ve-input-wrap > .far,
+        .vendor-entry .ve-input-wrap > .fab {
+            position: absolute !important;
+            z-index: 3 !important;
+            display: block !important;
+            top: 50% !important;
+            bottom: auto !important;
+            left: 13px !important;
+            right: auto !important;
+            width: 14px !important;
+            height: 14px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            color: #9aa7b8 !important;
+            font-size: 13px !important;
+            line-height: 14px !important;
+            text-align: center !important;
+            transform: translateY(-50%) !important;
+            pointer-events: none !important;
+        }
+
+        .vendor-entry .ve-input-wrap:focus-within > i,
+        .vendor-entry .ve-input-wrap:focus-within > .fas,
+        .vendor-entry .ve-input-wrap:focus-within > .far {
+            color: var(--ve-primary) !important;
+        }
+
+    .vendor-entry input.ve-input,
+    .vendor-entry select.ve-select,
+    .vendor-entry textarea.ve-textarea {
+        position: relative !important;
+        display: block !important;
+        float: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        margin: 0 !important;
+        padding: 0 13px 0 40px !important;
+        border: 1px solid #d9e1ec !important;
+        border-radius: 9px !important;
+        outline: 0 !important;
+        background-color: #fff !important;
+        background-image: none !important;
+        color: #172438 !important;
+        font-family: inherit !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: normal !important;
+        box-shadow: none !important;
+        appearance: none;
+        -webkit-appearance: none;
+        transition: border-color .18s ease, box-shadow .18s ease !important;
+    }
+
+    /* select arrow */
+    .vendor-entry select.ve-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa7b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 13px center !important;
+        padding-right: 34px !important;
+        cursor: pointer;
+    }
+
+    .vendor-entry textarea.ve-textarea {
+        height: auto !important;
+        min-height: 76px !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        line-height: 1.5 !important;
+        resize: vertical;
+    }
+
+    .vendor-entry .ve-textarea-wrap > i {
+        top: 17px !important;
+        transform: none !important;
+    }
+
+    .vendor-entry input.ve-input::placeholder,
+    .vendor-entry textarea.ve-textarea::placeholder {
+        color: #9aa7b8 !important;
+        opacity: 1 !important;
+    }
+
+    .vendor-entry input.ve-input:focus,
+    .vendor-entry select.ve-select:focus,
+    .vendor-entry textarea.ve-textarea:focus {
+        border-color: var(--ve-primary) !important;
+        box-shadow: 0 0 0 3px rgba(244, 119, 33, .13) !important;
+        outline: 0 !important;
+    }
+
+    .vendor-entry input.ve-input[readonly] {
+        padding-right: 36px !important;
+        background: #f7f9fc !important;
+    }
+
+    .vendor-entry .ve-code-lock {
+        z-index: 4 !important;
+        right: 13px !important;
+        left: auto !important;
+        top: 50% !important;
+        width: auto !important;
+        height: auto !important;
+        transform: translateY(-50%) !important;
+    }
+
+    .vendor-entry .ve-error,
+    .vendor-entry span.field-validation-error,
+    .vendor-entry .field-validation-error {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        margin: 5px 0 0 !important;
+        padding: 0 !important;
+        color: #e04452 !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        line-height: 1.35 !important;
+        text-align: left !important;
+        transform: none !important;
+    }
+    label.error {
+        position: absolute
+    }
+    /* Removed the broken global `label.error { position:absolute }` rule.
+       Validation summary stays in flow. */
+
+    /* Dark-mode input normalization */
+    body.dark-mode .vendor-entry input.ve-input,
+    body.dark-mode .vendor-entry select.ve-select,
+    body.dark-mode .vendor-entry textarea.ve-textarea,
+    html[data-theme="dark"] .vendor-entry input.ve-input,
+    html[data-theme="dark"] .vendor-entry select.ve-select,
+    html[data-theme="dark"] .vendor-entry textarea.ve-textarea {
+        border-color: #2a3a50 !important;
+        background-color: #0d1624 !important;
+        color: #e5edf7 !important;
+    }
+
+        body.dark-mode .vendor-entry input.ve-input[readonly],
+        html[data-theme="dark"] .vendor-entry input.ve-input[readonly] {
+            background: #162236 !important;
+        }
+
+    body.dark-mode .vendor-entry select.ve-select,
+    html[data-theme="dark"] .vendor-entry select.ve-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237f8da2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+    }
+
+    body.dark-mode .vendor-entry .ve-input-wrap > i,
+    html[data-theme="dark"] .vendor-entry .ve-input-wrap > i {
+        color: #71849d !important;
+    }
+</style>
+
+
+<style>
+/* =========================================================
+   VENDOR CENTER — PREMIUM STYLE OVERRIDES
+   Keeps existing markup, IDs, classes, and functionality.
+   ========================================================= */
+#mypane.vc-app {
+    --vc-radius: 16px;
+    --vc-shadow-sm: 0 3px 12px rgba(15, 35, 70, .055);
+    --vc-shadow: 0 14px 38px rgba(15, 35, 70, .11);
+    --vc-border: #e4eaf2;
+    --vc-grid: #edf1f6;
+    --vc-primary: #3978e8;
+    --vc-primary-strong: #2865d7;
+    --vc-primary-soft: #edf4ff;
+    --vc-page: #f5f7fb;
+    --vc-surface: #fff;
+    --vc-surface-2: #fbfcfe;
+    --vc-surface-3: #f2f5f9;
+    --vc-ink: #182337;
+    --vc-muted: #64748b;
+    --vc-subtle: #8b98aa;
+}
+body.dark-mode #mypane.vc-app {
+    --vc-border: #29374b;
+    --vc-grid: #263449;
+    --vc-primary: #8db5ff;
+    --vc-primary-strong: #a7c6ff;
+    --vc-primary-soft: rgba(91, 143, 232, .14);
+    --vc-page: #0b1220;
+    --vc-surface: #111c2d;
+    --vc-surface-2: #152238;
+    --vc-surface-3: #1a2a40;
+    --vc-ink: #e7eef9;
+    --vc-muted: #a5b4c8;
+    --vc-subtle: #788ba5;
+}
+#mypane.vc-app {
+/*    background: var(--vc-page);*/
+    padding: 8px;
+}
+#mypane.vc-app #horizontal { gap: 14px; }
+#mypane.vc-app #left-pane { flex-basis: 286px; width: 286px; max-width: 286px; }
+#mypane.vc-app .vc-vendor-sidebar,
+#mypane.vc-app .vc-profile-card,
+#mypane.vc-app .vc-workspace-card {
+    border-radius: 16px;
+    border-color: var(--vc-border);
+    box-shadow: var(--vc-shadow-sm);
+}
+#mypane.vc-app .vc-vendor-sidebar { padding: 18px; }
+#mypane.vc-app .vc-sidebar-title { padding-bottom: 16px; }
+#mypane.vc-app #searchBox {
+    height: 44px;
+    border-radius: 12px;
+    background-color: var(--vc-surface);
+}
+#mypane.vc-app #itemList .k-item {
+    min-height: 62px;
+    border-radius: 12px;
+    margin: 4px 0;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+#mypane.vc-app #itemList .k-item.k-state-selected {
+    border-color: rgba(57,120,232,.25);
+    box-shadow: inset 3px 0 0 var(--vc-primary), 0 3px 10px rgba(57,120,232,.07);
+}
+#mypane.vc-app .vc-profile-card { margin-bottom: 16px; }
+#mypane.vc-app .vc-profile-header {
+    padding: 26px 28px;
+    gap: 20px;
+/*    background: linear-gradient(125deg, #3475df 0%, #4c8ce9 55%, #65a3f5 100%);*/
+}
+body.dark-mode #mypane.vc-app .vc-profile-header {
+    background: linear-gradient(125deg, #172e4e 0%, #1d3d67 55%, #244d7c 100%);
+}
+#mypane.vc-app .vc-profile-title h2 { font-size: clamp(1.3rem, 1.8vw, 1.7rem); }
+#mypane.vc-app .vc-profile-actions .btn { border-radius: 10px; height: 38px; }
+#mypane.vc-app .vc-kpi-grid {
+    gap: 12px;
+    padding: 16px;
+    background: var(--vc-surface);
+}
+#mypane.vc-app .vc-kpi {
+    min-height: 112px;
+    border-radius: 13px;
+    padding: 17px 17px 15px;
+}
+#mypane.vc-app .vc-kpi:hover { transform: translateY(-2px); }
+#mypane.vc-app .vc-payment-progress {
+    border-radius: 13px;
+    padding: 13px 15px;
+    margin: 0 16px 16px;
+}
+#mypane.vc-app .vc-action-strip {
+    border-radius: 14px;
+    padding: 15px 17px;
+    margin-bottom: 14px;
+}
+#mypane.vc-app .vc-quick-action {
+    min-height: 39px;
+    border-radius: 10px;
+    padding-inline: 14px;
+}
+#mypane.vc-app .vc-workspace-card { border-radius: 16px; }
+#mypane.vc-app .vc-tabs-wrap { padding-inline: 14px; }
+#mypane.vc-app #invoice_tab .nav-link { height: 54px; padding-inline: 16px; }
+#mypane.vc-app #invoice_tab .nav-link.active::after { height: 3px; }
+#mypane.vc-app .vc-tab-content { padding: 23px 24px 26px; }
+#mypane.vc-app .table-responsive,
+#mypane.vc-app .k-grid { border-radius: 12px; }
+#mypane.vc-app .table thead th,
+#mypane.vc-app .k-grid-header th { padding: 12px 14px; }
+#mypane.vc-app .table tbody td,
+#mypane.vc-app .k-grid td { padding: 11px 14px; }
+#mypane.vc-app .form-control,
+#mypane.vc-app select,
+#mypane.vc-app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+#mypane.vc-app textarea,
+#mypane.vc-app .k-input,
+#mypane.vc-app .k-dropdown-wrap,
+#mypane.vc-app .k-picker-wrap {
+    border-radius: 10px;
+    min-height: 41px;
+    background-color: var(--vc-surface);
+}
+#mypane.vc-app input:focus,
+#mypane.vc-app select:focus,
+#mypane.vc-app textarea:focus,
+#mypane.vc-app .form-control:focus {
+    border-color: var(--vc-primary) !important;
+    box-shadow: var(--vc-focus) !important;
+}
+#mypane.vc-app .vc-file-card { border-radius: 14px; }
+#mypane.vc-app .vc-file-thumb { height: 190px; }
+#mypane.vc-app .vc-empty-state { border-radius: 14px; }
+#mypane.vc-app .vc-action-btn { border-radius: 9px; }
+#mypane.vc-app .vc-theme-toggle { border-radius: 10px; }
+#mypane.vc-app :focus-visible { outline-offset: 3px; }
+#mypane.vc-app button,
+#mypane.vc-app .vc-quick-action,
+#mypane.vc-app .vc-action-btn { transition-duration: 180ms; }
+
+/* Responsive: laptop and tablet */
+@@media (max-width: 1200px) {
+    #mypane.vc-app #left-pane { flex-basis: 250px; width: 250px; max-width: 250px; }
+    #mypane.vc-app .vc-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #mypane.vc-app .vc-profile-header { padding: 21px; }
+}
+@@media (max-width: 900px) {
+    #mypane.vc-app { height: auto; min-height: calc(100vh - 12px); overflow: visible; }
+    #mypane.vc-app #horizontal { flex-direction: column; overflow: visible; }
+    #mypane.vc-app #left-pane { flex: 0 0 auto; width: 100%; max-width: none; min-width: 0; }
+    #mypane.vc-app .vc-vendor-sidebar { max-height: 360px; }
+    #mypane.vc-app #itemList { max-height: 230px; }
+    #mypane.vc-app #center-pane { overflow: visible; padding: 0; }
+    #mypane.vc-app .vc-profile-header { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; }
+    #mypane.vc-app .vc-profile-avatar { width: 64px; height: 64px; border-radius: 16px; }
+    #mypane.vc-app .vc-profile-actions { flex-wrap: wrap; }
+    #mypane.vc-app .vc-payment-progress { grid-template-columns: 1fr; }
+    #mypane.vc-app .vc-payment-progress-note { text-align: left; }
+}
+@@media (max-width: 600px) {
+    #mypane.vc-app { padding: 5px; font-size: .86rem; }
+    #mypane.vc-app #horizontal { gap: 10px; }
+    #mypane.vc-app .vc-vendor-sidebar { padding: 13px; }
+    #mypane.vc-app .vc-profile-header { grid-template-columns: 54px minmax(0,1fr); padding: 16px; gap: 12px; }
+    #mypane.vc-app .vc-profile-avatar { width: 54px; height: 54px; border-radius: 13px; }
+    #mypane.vc-app .vc-profile-title h2 { font-size: 1.2rem; }
+    #mypane.vc-app .vc-profile-topline { align-items: flex-start; }
+    #mypane.vc-app .vc-profile-actions { width: 100%; margin-top: 8px; }
+    #mypane.vc-app .vc-profile-actions .btn { flex: 1 1 auto; justify-content: center; }
+    #mypane.vc-app .vc-profile-meta { gap: 8px 12px; margin-top: 10px; }
+    #mypane.vc-app .vc-meta-value { max-width: 180px; }
+    #mypane.vc-app .vc-kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; padding: 11px; }
+    #mypane.vc-app .vc-kpi { min-height: 96px; padding: 13px; }
+    #mypane.vc-app .vc-kpi-value { font-size: 1.15rem; }
+    #mypane.vc-app .vc-kpi-icon { width: 27px; height: 27px; top: 11px; right: 11px; }
+    #mypane.vc-app .vc-payment-progress { margin: 0 11px 12px; padding: 11px; }
+    #mypane.vc-app .vc-action-strip { align-items: flex-start; padding: 12px; }
+    #mypane.vc-app .vc-action-buttons { width: 100%; }
+    #mypane.vc-app .vc-quick-action { flex: 1 1 calc(50% - 7px); }
+    #mypane.vc-app .vc-tab-content { padding: 15px 12px; }
+    #mypane.vc-app #invoice_tab .nav-link { height: 47px; padding-inline: 12px; }
+    #mypane.vc-app .vc-file-thumb { height: 150px; }
+}
+@@media (prefers-reduced-motion: reduce) {
+    #mypane.vc-app *, #mypane.vc-app *::before, #mypane.vc-app *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+
+
+<div id="mypane" class="vc-app" data-vc-theme="light">
+    <div id="vertical">
+        <div id="top-pane">
+            <div id="horizontal">
+                <div id="left-pane">
+                    <div class="pane-content">
+                        <aside class="vc-vendor-sidebar">
+                            <div class="vc-sidebar-title">
+                                <span><i class="fas fa-building mr-2 text-primary"></i> Vendors</span>
+                                <div class="d-flex align-items-center" style="gap:8px">
+                                    <small>Vendor Center</small>
+                                    <button type="button" class="vc-theme-toggle d-none" id="vcThemeToggle"
+                                            aria-label="Switch Vendor Center theme"
+                                            aria-pressed="false"
+                                            title="Switch light and dark mode">
+                                        <i class="fas fa-moon" aria-hidden="true"></i><span>Dark</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="vc-search-wrap">
+                                <input id="searchBox" class="form-control"
+                                       placeholder="Search vendor or code..."
+                                       autocomplete="off"
+                                       aria-label="Search vendor" />
+                            </div>
+                            <ul id="itemList" class="scrollable-list" role="listbox" aria-label="Vendor list"></ul>
+                        </aside>
+                    </div>
+                </div>
+
+                <div id="center-pane">
+                    <div class="pane-content">
+                        <section class="content" id="VendorCenter">
+                            <div class="container-fluid p-0" name="VendorCenter">
+                                <div class="vc-profile-card">
+                                    <div class="vc-profile-header">
+                                        <div class="vc-profile-avatar" id="Cust_profilepic">
+                                            <div class="profilepic__image">
+                                                <i class="fa fa-user-circle"></i>
+                                            </div>
+                                            <div class="profilepic__content" id="addCustPic" role="button" tabindex="0" aria-label="Add vendor profile picture" style="cursor:pointer">
+                                                <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                                                <span class="profilepic__text">Edit Profile</span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div class="vc-profile-topline">
+                                                <div class="vc-profile-title">
+                                                    <h2 id="vcVendorName">Select a vendor</h2>
+                                                    <span class="vc-vendor-type" id="vcVendorType">
+                                                        <i class="far fa-star mr-2"></i> Vendor
+                                                    </span>
+                                                </div>
+                                                <div class="vc-profile-actions">
+                                                    @*<button type="button" class="btn" id="vcRefreshBtn">
+                                                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                                                        </button>*@
+                                                    <button type="button" class="btn" id="addNewVD">
+                                                        <i class="fas fa-plus mr-1"></i> Add New Vendor
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="vc-profile-meta">
+                                                <div class="vc-meta-item">
+                                                    <i class="fas fa-phone-alt"></i>
+                                                    <div><span class="vc-meta-label">Phone</span><span class="vc-meta-value" id="vcPhone">-</span></div>
+                                                </div>
+                                                <div class="vc-meta-item">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    <div><span class="vc-meta-label">Address</span><span class="vc-meta-value" id="vcAddress">-</span></div>
+                                                </div>
+                                                <div class="vc-meta-item">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                    <div><span class="vc-meta-label">Register Date</span><span class="vc-meta-value" id="vcRegisterDate">-</span></div>
+                                                </div>
+                                                <div class="vc-meta-item">
+                                                    <i class="fas fa-user"></i>
+                                                    <div><span class="vc-meta-label">Register By</span><span class="vc-meta-value" id="vcRegisterBy">-</span></div>
+                                                </div>
+                                                <div class="vc-meta-item">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                    <div><span class="vc-meta-label">Terms / VAT TIN</span><span class="vc-meta-value" id="vcPaymentVat">-</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="CustInfo" class="d-none"></div>
+                                        <div id="CustInfo-left" class="d-none"></div>
+                                    </div>
+
+                                    <div class="vc-kpi-grid p-3">
+                                        <div class="vc-kpi purchase">
+                                            <div class="vc-kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                                            <div class="min-w-0">
+                                                <div class="vc-kpi-label">Total Purchase</div>
+                                                <div class="vc-kpi-value" id="TotalInv">0.00</div>
+                                                <div class="vc-kpi-note" id="CountInv">0 Bills</div>
+                                            </div>
+                                        </div>
+                                        <div class="vc-kpi paid">
+                                            <div class="vc-kpi-icon"><i class="fas fa-wallet"></i></div>
+                                            <div class="min-w-0">
+                                                <div class="vc-kpi-label">Total Paid</div>
+                                                <div class="vc-kpi-value" id="Paid">0.00</div>
+                                                <div class="vc-kpi-note" id="PaidInvoices">0 Payments</div>
+                                            </div>
+                                        </div>
+                                        <div class="vc-kpi outstanding">
+                                            <div class="vc-kpi-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                                            <div class="min-w-0">
+                                                <div class="vc-kpi-label">Outstanding</div>
+                                                <div class="vc-kpi-value" id="Unpaid">0.00</div>
+                                                <div class="vc-kpi-note" id="UnpaidInvoices">0 Bills</div>
+                                            </div>
+                                        </div>
+                                        <div class="vc-kpi vendor-advance">
+                                            <div class="vc-kpi-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                            <div class="min-w-0">
+                                                <div class="vc-kpi-label">Vendor Deposit / Advance</div>
+                                                <div class="vc-kpi-value" id="VendorAdvanceAvailable">—</div>
+                                                <div class="vc-kpi-note" id="VendorAdvanceNote">Unallocated vendor prepayments</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="vc-payment-progress" aria-label="Vendor payment progress">
+                                        <div class="vc-payment-progress-heading">
+                                            <span><i class="fas fa-chart-line"></i> Payment Progress</span>
+                                            <strong id="PaymentProgress">0%</strong>
+                                        </div>
+                                        <div class="vc-payment-progress-track">
+                                            <span id="PaymentProgressBar" style="width:0%"></span>
+                                        </div>
+                                        <div class="vc-payment-progress-note" id="PaymentProgressNote">Paid against posted purchases</div>
+                                    </div>
+                                </div>
+
+                                <!-- ============================================
+                                     ACCOUNTING ACTIONS — includes NEW "Expense" button
+                                ============================================ -->
+                                <div class="vc-action-strip" aria-label="Vendor accounting quick actions">
+                                    <div class="vc-action-intro">
+                                        <strong>Accounting Actions</strong>
+                                        <span>Common tasks for this vendor</span>
+                                    </div>
+                                    <div class="vc-action-buttons">
+                                        <button type="button" class="vc-quick-action primary" id="vcMakePaymentBtn" disabled>
+                                            <i class="fas fa-credit-card"></i><span>Make Payment</span>
+                                        </button>
+                                        <button type="button" class="vc-quick-action expense" id="vcAddExpenseBtn" disabled
+                                                title="Record a new expense for the selected vendor">
+                                            <i class="fas fa-receipt"></i><span>Expense</span>
+                                        </button>
+                                        <button type="button" class="vc-quick-action" data-vc-tab="Transcation_tab">
+                                            <i class="fas fa-file-invoice"></i><span>View Bills</span>
+                                        </button>
+                                        <button type="button" class="vc-quick-action" data-vc-tab="OpenPayables-tab">
+                                            <i class="far fa-clock"></i><span>Outstanding</span>
+                                        </button>
+                                        <button type="button" class="vc-quick-action" data-vc-tab="VendorTransactions-tab">
+                                            <i class="fas fa-book"></i><span>Vendor Ledger</span>
+                                        </button>
+                                        <button type="button" class="vc-quick-action" data-vc-tab="VendorStatement-tab">
+                                            <i class="fas fa-file-alt"></i><span>Statement</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="vc-workspace-card">
+                                    <div class="vc-tabs-wrap">
+                                        <ul class="nav nav-tabs" id="invoice_tab" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="Transcation_tab"
+                                                   data-toggle="pill" href="#custom-tabs-three-home"
+                                                   role="tab" aria-controls="custom-tabs-three-home"
+                                                   aria-selected="true">
+                                                    <i class="fas fa-file-invoice"></i> Bills
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="OpenPayables-tab"
+                                                   data-toggle="pill" href="#custom-tabs-three-profile"
+                                                   role="tab" aria-controls="custom-tabs-three-profile"
+                                                   aria-selected="false">
+                                                    <i class="far fa-clock"></i> Outstanding
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="SettledPayments-tab"
+                                                   data-toggle="pill" href="#custom-tabs-three-messages"
+                                                   role="tab" aria-controls="custom-tabs-three-messages"
+                                                   aria-selected="false">
+                                                    <i class="far fa-credit-card"></i> Payments
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="VendorTransactions-tab"
+                                                   data-toggle="pill" href="#tabs-VendorTransactions"
+                                                   role="tab" aria-controls="tabs-VendorTransactions"
+                                                   aria-selected="false">
+                                                    <i class="fas fa-book"></i> Vendor Ledger
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="VendorStatement-tab"
+                                                   data-toggle="pill" href="#tabs-VendorStatement"
+                                                   role="tab" aria-controls="tabs-VendorStatement"
+                                                   aria-selected="false">
+                                                    <i class="fas fa-chart-bar"></i> Vendor Statement
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="Transaction-tab"
+                                                   data-toggle="pill" href="#tabs-Transaction"
+                                                   role="tab" aria-controls="tabs-Transaction"
+                                                   aria-selected="false">
+                                                    <i class="fas fa-history"></i> Audit Log
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="Documents-tab"
+                                                   data-toggle="pill" href="#tabs-Documents"
+                                                   role="tab" aria-controls="tabs-Documents"
+                                                   aria-selected="false">
+                                                    <i class="fas fa-paperclip"></i> Attachments
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="tab-content vc-tab-content" id="custom-tabs-three-tabContent">
+                                        <div class="tab-pane fade show active" id="custom-tabs-three-home"
+                                             role="tabpanel" aria-labelledby="Transcation_tab">
+                                            <div class="vc-tab-heading">
+                                                <span>Bills &amp; Expenses</span>
+                                                <small>Vendor purchase transactions</small>
+                                            </div>
+                                            <div id="transactionsGrid"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="custom-tabs-three-profile"
+                                             role="tabpanel" aria-labelledby="OpenPayables-tab">
+                                            <div class="vc-tab-heading">
+                                                <span>Outstanding Bills</span>
+                                                <small>Unpaid and partially paid transactions</small>
+                                            </div>
+                                            <div id="DivCustInvoice"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="custom-tabs-three-messages"
+                                             role="tabpanel" aria-labelledby="SettledPayments-tab">
+                                            <div class="vc-tab-heading">
+                                                <span>Payment History</span>
+                                                <small>Payments made to this vendor</small>
+                                            </div>
+                                            <div id="showPaidInvoice"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-VendorTransactions"
+                                             role="tabpanel" aria-labelledby="VendorTransactions-tab">
+                                            <div id="showVendorTransactions"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-VendorStatement"
+                                             role="tabpanel" aria-labelledby="VendorStatement-tab">
+                                            <div id="showVendorStatement"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-Transaction"
+                                             role="tabpanel" aria-labelledby="Transaction-tab">
+                                            <div id="showHistory"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-Documents"
+                                             role="tabpanel" aria-labelledby="Documents-tab">
+                                            <div id="showDocuments"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* =========================================================
+       VENDOR CENTER — CONSOLIDATED CONTROLLER
+       ========================================================= */
+
+    window.AddEditVendor = function (vendorID) {
+        vendorID = (vendorID === undefined || vendorID === null || vendorID === "") ? 0 : vendorID;
+
+        if (typeof window.ShowDialogBox !== "function") {
+            console.error("ShowDialogBox is not available.");
+            return;
+        }
+
+        window.ShowDialogBox("Add Vendor", "Auto", 500, "Vendors/Create_Vendor",
+            vendorID, "", false, 0, 0, function () {
+                $("#SaveChange")
+                    .off("click.vendorCenterSave")
+                    .on("click.vendorCenterSave", function (e) {
+                        e.preventDefault();
+                        if (typeof window.SaveChangeVendorData === "function") {
+                            window.SaveChangeVendorData();
+                        } else {
+                            console.error("SaveChangeVendorData is not available.");
+                        }
+                    });
+            });
+    };
+
+    /* =========================================================
+       NEW: Add Expense dialog for the selected vendor
+       - Same ShowDialogBox contract as AddEditVendor
+       - Pre-fills VendorID / VendorName / VendorCode
+       - Opens the Expense/Create view in a modal
+       - Refreshes vendor KPIs + bills tab after save
+       ========================================================= */
+    window.AddVendorExpense = function (vendorID, options) {
+        options = options || {};
+
+        // Resolve the vendor ID: caller arg → window.VendorID → state.
+        vendorID = vendorID || window.VendorID || "0";
+
+        if (!vendorID) {
+            if (window.Swal && typeof window.Swal.fire === "function") {
+                window.Swal.fire("Select a vendor",
+                    "Choose a vendor before recording an expense.", "info");
+            } else {
+                alert("Please select a vendor first.");
+            }
+            return;
+        }
+
+        if (typeof window.ShowDialogBox !== "function") {
+            console.error("ShowDialogBox is not available.");
+            return;
+        }
+
+        var vendorName = window.VendorName || "";
+        var vendorCode = window.VendorCode || "";
+        var title = options.title || "Add Expense";
+
+        // Height "Auto" lets the dialog size itself; width 900 fits the
+        // full Create Expense form (two-column layout at >=xl breakpoint).
+        var width = options.width || 900;
+
+        // Pass the selected vendor through the dialog's primaryValue arg
+        // so Expense/Create can prefill PaymentAccount/Payee fields.
+        var primaryValue = {
+            VendorID: vendorID,
+            VendorName: vendorName,
+            VendorCode: vendorCode,
+            ReturnUrl: "Vendors/VendorCenter?id=" + encodeURIComponent(vendorID)
+        };
+
+        // ShowDialogBox signature used by the existing AddEditVendor:
+        //   ShowDialogBox(title, height, width, url, primaryValue,
+        //                 secondaryValue, showFooter, buttonFlags, ?, onShown)
+        window.ShowDialogBox(
+            title,
+            "Auto",
+            width,
+            "Vendors/ExpenseForm",
+            vendorID,
+            "DialogExpenseAdd",
+            false,
+            0,
+            0,
+            function () {
+                // Wire the dialog's Save button (same pattern as vendor save).
+                $("#SaveChange")
+                    .off("click.vendorCenterExpenseSave")
+                    .on("click.vendorCenterExpenseSave", function (e) {
+                        e.preventDefault();
+
+                        // Delegate to the Expense view's own save handler.
+                        if (typeof window.SaveChangeExpenseData === "function") {
+                            window.SaveChangeExpenseData();
+                        } else if (typeof window.saveExpense === "function") {
+                            window.saveExpense();
+                        } else if (typeof window.SaveExpenseData === "function") {
+                            window.SaveExpenseData();
+                        } else {
+                            console.error("No expense save handler was found " +
+                                "(expected SaveChangeExpenseData / saveExpense / SaveExpenseData).");
+                        }
+                    });
+
+                // When the dialog closes, refresh the vendor panel so KPIs,
+                // bills list, outstanding, etc. reflect the new expense.
+                $("#DialogExpenseAdd")
+                    .off("hidden.bs.modal.vcExpense")
+                    .on("hidden.bs.modal.vcExpense", function () {
+                        if (!window.VendorID) return;
+                        // Refresh KPIs (LoadVendorInfo recomputes totals) and
+                        // the active tab so the new bill shows up immediately.
+                        if (typeof window.LoadVendorInfo === "function") {
+                            window.LoadVendorInfo(window.VendorID);
+                        }
+                        if (typeof window.GetTransactions === "function") {
+                            window.GetTransactions(window.VendorID);
+                        }
+                        // Force any previously-loaded tabs to re-fetch on next open.
+                        try { window.__vcResetTabCache && window.__vcResetTabCache(); } catch (e) { }
+                    });
+            }
+        );
+    };
+
+    (function (window, document, $) {
+        "use strict";
+
+        if (!$) {
+            console.error("Vendor Center requires jQuery.");
+            return;
+        }
+
+        var controllerRoot = document.getElementById("mypane");
+        if (!controllerRoot) {
+            console.error("Vendor Center root #mypane was not found.");
+            return;
+        }
+        if (controllerRoot.__vcControllerInitialized === true) return;
+        controllerRoot.__vcControllerInitialized = true;
+
+        $(".card.card-outline.card-border-top").removeClass("card card-outline card-border-top");
+
+        /* ---------- Legacy global state ---------- */
+        window.VendorName = window.VendorName || "";
+        window.VendorID = window.VendorID || "";
+        window.VendorCode = window.VendorCode || "";
+        window.grids = window.grids || null;
+        window.rowNumber = window.rowNumber || 0;
+
+        /* ---------- Module state ---------- */
+        var state = {
+            vendors: [],
+            selectedId: null,
+            selectedName: "",
+            selectedCode: "",
+            seq: {},
+            selectTimer: null,
+            tabLoaded: {}
+        };
+
+        // Expose tab cache reset for the Expense dialog close handler.
+        window.__vcResetTabCache = function () { state.tabLoaded = {}; };
+
+        /* =========================================================
+           Utilities
+        ========================================================= */
+        function hasFunction(name) { return typeof window[name] === "function"; }
+
+        function safeText(value, fallback) {
+            if (value === null || value === undefined || value === "") {
+                return fallback === undefined ? "-" : fallback;
+            }
+            return String(value);
+        }
+
+        function parsePayload(response) {
+            var value = response;
+            for (var i = 0; i < 3 && typeof value === "string"; i++) {
+                try { value = JSON.parse(value); } catch (e) { break; }
+            }
+            return (value === null || value === undefined) ? {} : value;
+        }
+
+        function getDataObject(response) {
+            var payload = parsePayload(response);
+            if (payload && payload.data !== undefined) return parsePayload(payload.data);
+            if (payload && payload.Data !== undefined) return parsePayload(payload.Data);
+            return payload;
+        }
+
+        function finiteOrNull(value) {
+            if (value === null || value === undefined || value === "") return null;
+            var n = Number(value);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        function money(value) {
+            var n = Number(value);
+            if (!Number.isFinite(n)) n = 0;
+            if (window.accounting && accounting.formatMoney) {
+                return accounting.formatMoney(n, "", 2);
+            }
+            return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function pluralize(count, singular, plural) {
+            return count + " " + (count === 1 ? singular : (plural || singular + "s"));
+        }
+
+        function safeUrl(path) {
+            var root = typeof window.ServerRoot === "string" ? window.ServerRoot : "";
+            var raw = String(path || "");
+            if (!raw.trim()) return "";
+            if (/^(javascript|data|vbscript):/i.test(raw.trim())) return "";
+            try {
+                var resolved = new URL(root + raw, window.location.origin);
+                if (resolved.protocol !== "http:" && resolved.protocol !== "https:") return "";
+                if (resolved.href === window.location.href) return "";
+                return resolved.href;
+            } catch (e) { return ""; }
+        }
+
+        function getFragmentParameterByName(name) {
+            var hash = window.location.hash || "";
+            var qIndex = hash.indexOf("?");
+            if (qIndex === -1) return null;
+            try {
+                var params = new URLSearchParams(hash.slice(qIndex));
+                return params.get(name);
+            } catch (e) { return null; }
+        }
+
+        function showLoading(container, message) {
+            var $box = $("<div>", { "class": "vc-loading-state" });
+            $("<i>", { "class": "fas fa-circle-notch fa-spin" }).appendTo($box);
+            $("<span>").text(message || "Loading...").appendTo($box);
+            $(container).empty().append($box);
+        }
+
+        function showEmpty(container, title, description, icon, actionLabel, actionHref) {
+            var $box = $("<div>", { "class": "vc-empty-state" });
+            $("<i>", { "class": icon || "far fa-folder-open" }).appendTo($box);
+            $("<strong>").text(title || "No records found").appendTo($box);
+            if (description) $("<span>").text(description).appendTo($box);
+            if (actionLabel && actionHref) {
+                $("<a>", { "class": "btn btn-sm btn-primary mt-2", href: actionHref })
+                    .text(actionLabel).appendTo($box);
+            }
+            $(container).empty().append($box);
+        }
+
+        function closeSwalSafely() {
+            try { if (window.Swal && typeof Swal.close === "function") Swal.close(); } catch (e) { }
+        }
+
+        function loadHtml(url, container, emptyMessage) {
+            if (!window.VendorID) {
+                showEmpty(container, "Select a vendor", "Choose a vendor from the list to view accounting activity.");
+                return;
+            }
+            showLoading(container);
+            var key = container;
+            var sequence = state.seq[key] = (state.seq[key] || 0) + 1;
+
+            try {
+                LoadData(url, function (response) {
+                    if (sequence !== state.seq[key]) return;
+                    var payload = parsePayload(response);
+                    var html = payload && payload.data !== undefined ? payload.data :
+                        payload && payload.Data !== undefined ? payload.Data : response;
+                    if (typeof html !== "string" || !html.trim()) {
+                        showEmpty(container, emptyMessage || "No records found");
+                        return;
+                    }
+                    $(container).html(html);
+                });
+            } catch (error) {
+                console.error("Vendor Center request failed:", error);
+                showEmpty(container, "Unable to load records",
+                    "Please refresh and try again.", "fas fa-exclamation-triangle");
+            }
+        }
+
+        /* =========================================================
+           Theme
+        ========================================================= */
+        document.addEventListener("DOMContentLoaded", function () {
+            var root = document.getElementById("mypane");
+            if (!root) return;
+            root.setAttribute("data-vc-theme",
+                document.body.classList.contains("dark-mode") ? "dark" : "light");
+        });
+
+        /* =========================================================
+           Vendor list
+        ========================================================= */
+        function showListSkeleton(count) {
+            var html = "";
+            for (var i = 0; i < (count || 6); i++) {
+                html += '<li class="vc-skeleton" aria-hidden="true"></li>';
+            }
+            $("#itemList").html(html);
+        }
+
+        function setVendorSelection(id) {
+            $("#itemList .k-item").removeClass("k-state-selected")
+                .attr("aria-selected", "false")
+                .filter(function () {
+                    return String($(this).attr("data-id")) === String(id);
+                }).addClass("k-state-selected").attr("aria-selected", "true");
+        }
+
+        function updateVendorHash(id) {
+            var base = window.location.href.split("#")[0];
+            var hash = "#!/Vendors?id=" + encodeURIComponent(id);
+            if (window.history && history.replaceState) {
+                history.replaceState(null, "", base + hash);
+            } else {
+                window.location.hash = hash;
+            }
+        }
+
+        function renderVendorList(items) {
+            state.vendors = Array.isArray(items) ? items : [];
+            var $list = $("#itemList").empty();
+            if (!state.vendors.length) { showEmpty("#itemList", "No vendors found"); return; }
+
+            state.vendors.forEach(function (item) {
+                var id = safeText(item.VendorID, "");
+                var name = safeText(hasFunction("fullyDecodeHtml") ? fullyDecodeHtml(item.VendorName || "") : item.VendorName, "Unnamed vendor");
+                var code = safeText(item.VendorCode, "");
+
+                var $li = $("<li>", {
+                    "class": "k-item",
+                    "role": "option",
+                    "data-id": id,
+                    "data-name": name,
+                    "data-code": code,
+                    "aria-selected": String(state.selectedId) === String(id) ? "true" : "false",
+                    "title": code ? name + " (" + code + ")" : name
+                });
+
+                $("<span>", { "class": "vc-vendor-list-name" }).text(name).appendTo($li);
+                $("<small>", { "class": "vc-vendor-list-code" }).text(code || "Vendor").appendTo($li);
+
+                var $edit = $("<button>", {
+                    type: "button", "class": "vc-vendor-edit-btn",
+                    "data-vendor-id": id, "title": "Edit vendor",
+                    "aria-label": "Edit " + name
+                });
+                $("<i>", { "class": "fas fa-pen" }).appendTo($edit);
+                $li.append($edit);
+
+                $list.append($li);
+            });
+
+            setVendorSelection(state.selectedId);
+        }
+
+        function LoadVendorList(callback, selectedVendorID) {
+            var requestId = state.seq.vendorList = (state.seq.vendorList || 0) + 1;
+            if (selectedVendorID !== undefined && selectedVendorID !== null && selectedVendorID !== "") {
+                state.selectedId = selectedVendorID;
+                window.VendorID = selectedVendorID;
+            }
+
+            showListSkeleton(6);
+
+            if (typeof window.LoadData !== "function") {
+                console.error("LoadData is not available.");
+                showEmpty("#itemList", "Unable to load vendors", "The data service is unavailable.");
+                if (typeof callback === "function") callback([]);
+                return;
+            }
+
+            window.LoadData("Vendors/LoadVendor", function (response) {
+                if (requestId !== state.seq.vendorList) return;
+                try {
+                    var items = getDataObject(response);
+                    if (!Array.isArray(items)) {
+                        items = (items && Array.isArray(items.Table)) ? items.Table : [];
+                    }
+
+                    renderVendorList(items);
+
+                    if (window.VendorID) {
+                        var match = state.vendors.find(function (v) {
+                            return String(v.VendorID) === String(window.VendorID);
+                        });
+                        if (match) {
+                            state.selectedId = match.VendorID;
+                            window.VendorID = match.VendorID;
+                            window.VendorName = hasFunction("fullyDecodeHtml") ? fullyDecodeHtml(match.VendorName || "") : (match.VendorName || "");
+                            window.VendorCode = match.VendorCode || "";
+                            setVendorSelection(match.VendorID);
+                        }
+                    }
+
+                    if (typeof callback === "function") callback(items);
+                } catch (error) {
+                    console.error("Error loading vendor list:", error);
+                    showEmpty("#itemList", "Unable to load vendors", "Please try again.");
+                    if (typeof callback === "function") callback([]);
+                }
+            });
+        }
+
+        window.ReloadVendorList = function (vendorID, callback) {
+            var changed = String(vendorID || "") !== String(state.selectedId || "");
+            LoadVendorList(function (items) {
+                if (vendorID && changed) selectVendor(vendorID);
+                if (typeof callback === "function") callback(items);
+            }, vendorID);
+        };
+
+        /* ---------- Search filter ---------- */
+        $(document).off("input.vcSearch", "#searchBox").on("input.vcSearch", "#searchBox", function () {
+            var term = String($(this).val() || "").toLowerCase().trim();
+            $("#itemList .k-item").each(function () {
+                if (!term) { $(this).show(); return; }
+                var name = String($(this).attr("data-name") || "").toLowerCase();
+                var code = String($(this).attr("data-code") || "").toLowerCase();
+                $(this).toggle(name.indexOf(term) > -1 || code.indexOf(term) > -1);
+            });
+        });
+
+        $(document).off("keydown.vcSearch", "#searchBox").on("keydown.vcSearch", "#searchBox", function (e) {
+            if (e.key === "Escape") $(this).val("").trigger("input");
+        });
+
+        /* ---------- Keyboard nav on list ---------- */
+        $(document).off("keydown.vcList", "#itemList").on("keydown.vcList", "#itemList", function (e) {
+            var $items = $("#itemList .k-item:visible");
+            if (!$items.length) return;
+            var idx = $items.index($items.filter(".k-state-selected"));
+
+            if (e.key === "ArrowDown") { e.preventDefault(); idx = Math.min($items.length - 1, idx + 1); }
+            else if (e.key === "ArrowUp") { e.preventDefault(); idx = Math.max(0, idx - 1); }
+            else if (e.key === "Home") { e.preventDefault(); idx = 0; }
+            else if (e.key === "End") { e.preventDefault(); idx = $items.length - 1; }
+            else if ((e.key === "Enter" || e.key === " ") && idx > -1) {
+                e.preventDefault();
+                selectVendor($items.eq(idx).attr("data-id"));
+                return;
+            } else { return; }
+
+            $items.removeClass("k-state-selected").attr("aria-selected", "false");
+            $items.eq(idx).addClass("k-state-selected").attr("aria-selected", "true")[0].scrollIntoView({ block: "nearest" });
+        });
+
+        /* ---------- Click delegation ---------- */
+        $(document).off("click.vcItem", "#itemList").on("click.vcItem", "#itemList", function (e) {
+            var $edit = $(e.target).closest(".vc-vendor-edit-btn");
+            if ($edit.length) {
+                e.stopPropagation();
+                var id = $edit.attr("data-vendor-id");
+                if (typeof window.AddEditVendor === "function") window.AddEditVendor(id);
+                return;
+            }
+            var $item = $(e.target).closest(".k-item");
+            if ($item.length) selectVendor($item.attr("data-id"));
+        });
+
+        /* ---------- Selection ---------- */
+        function selectVendor(id) {
+            clearTimeout(state.selectTimer);
+            state.selectTimer = setTimeout(function () { _selectVendor(id); }, 120);
+        }
+
+        function _selectVendor(id) {
+            var item = state.vendors.find(function (v) { return String(v.VendorID) === String(id); });
+            if (!item) return;
+
+            state.selectedId = item.VendorID;
+            window.VendorID = item.VendorID;
+            window.VendorName = hasFunction("fullyDecodeHtml") ? fullyDecodeHtml(item.VendorName || "") : (item.VendorName || "");
+            window.VendorCode = item.VendorCode || "";
+
+            state.tabLoaded = {};
+
+            setVendorSelection(item.VendorID);
+            updateVendorHash(item.VendorID);
+
+            // Disable action buttons until KPIs finish loading.
+            $("#vcMakePaymentBtn").prop("disabled", true);
+            $("#vcAddExpenseBtn").prop("disabled", true);
+
+            $("#VendorAdvanceAvailable").text("—");
+            $("#VendorAdvanceNote").text("Loading vendor advance...");
+            $("#PaymentProgress").text("0%");
+            $("#PaymentProgressBar").css("width", "0%");
+            $("#PaymentProgressNote").text("Loading payment summary...");
+
+            if (window.Swal && Swal.fire) {
+                Swal.fire({
+                    title: "Loading...",
+                    allowOutsideClick: false, allowEscapeKey: false,
+                    position: "top", timer: 15000, timerProgressBar: true,
+                    didOpen: function () { Swal.showLoading(); }
+                });
+            }
+
+            window.LoadVendorProfilePicture(window.VendorID);
+            window.LoadVendorInfo(window.VendorID);
+            window.GetTransactions(window.VendorID);
+            state.tabLoaded["Transcation_tab"] = window.VendorID;
+
+            try { $('#invoice_tab a[href="#custom-tabs-three-home"]').tab("show"); } catch (e) { }
+        }
+
+        /* =========================================================
+           Profile & KPIs
+        ========================================================= */
+        window.LoadVendorProfilePicture = function (id) {
+            id = id || window.VendorID;
+            if (!id) return;
+
+            LoadData("VendorCenter/LoadVendorProfilePicture?ID=" + encodeURIComponent(id), function (response) {
+                var payload = getDataObject(response);
+                var row = Array.isArray(payload) ? payload[0] : (payload.Table && payload.Table[0]) || payload;
+                var picture = row && row.VendorPicture ? String(row.VendorPicture) : "";
+                var url = picture ? safeUrl(picture) : "";
+                var $avatar = $("#Cust_profilepic").empty();
+
+                if (url) {
+                    $("<div>", { "class": "profilepic__image" })
+                        .append($("<img>", {
+                            "class": "profilepic__image", "src": url,
+                            "alt": "Vendor profile", "loading": "lazy"
+                        })).appendTo($avatar);
+
+                    var $actions = $("<div>", {
+                        "class": "profilepic__content", "id": "addCustPic",
+                        "role": "button", "tabindex": 0,
+                        "aria-label": "Change vendor profile picture",
+                        "css": { cursor: "pointer" }
+                    });
+
+                    $("<span>", { "class": "profilepic__icon" })
+                        .append($("<i>", { "class": "fas fa-camera", "title": "Change picture" }))
+                        .append(" ")
+                        .append($("<i>", { "class": "far fa-trash-alt", "name": "deletepiccust", "title": "Delete picture" }))
+                        .append(" ")
+                        .append($("<a>", { "href": url, "target": "_blank", "rel": "noopener" })
+                            .append($("<i>", { "class": "far fa-eye", "name": "viewprofilepic", "title": "View picture" })))
+                        .appendTo($actions);
+
+                    $("<span>", { "class": "profilepic__text" }).text("Edit Profile").appendTo($actions);
+                    $avatar.append($actions);
+                } else {
+                    $avatar.append(
+                        $("<div>", { "class": "profilepic__image" })
+                            .append($("<i>", { "class": "fa fa-user-circle", "aria-hidden": "true" }))
+                    );
+                    $avatar.append(
+                        $("<div>", { "class": "profilepic__content", "id": "addCustPic", "role": "button", "tabindex": 0, "aria-label": "Add vendor profile picture", "css": { cursor: "pointer" } })
+                            .append($("<span>", { "class": "profilepic__icon" })
+                                .append($("<i>", { "class": "fas fa-camera" })))
+                            .append($("<span>", { "class": "profilepic__text" })
+                                .text("Add Profile Picture"))
+                    );
+                }
+            });
+        };
+
+        window.LoadVendorInfo = function (id) {
+            id = id || window.VendorID;
+            if (!id) return;
+
+            var sequence = state.seq.profile = (state.seq.profile || 0) + 1;
+            LoadData("VendorCenter/LoadVendorInfo?ID=" + encodeURIComponent(id), function (response) {
+                if (sequence !== state.seq.profile || String(id) !== String(window.VendorID)) return;
+                try {
+                    var payload = getDataObject(response);
+                    var info = payload.Table && payload.Table.length ? payload.Table[0] : {};
+                    var summary = payload.Table1 && payload.Table1.length ? payload.Table1[0] : {};
+                    var advanceSummary = payload.Table2 && payload.Table2.length ? payload.Table2[0] : {};
+
+                    window.VendorName = safeText(info.VendorName, window.VendorName || "");
+                    window.VendorCode = safeText(info.VendorCode, window.VendorCode || "");
+
+                    $("#CustInfo, #CustInfo-left").empty();
+                    $("#vcVendorName").text(window.VendorName || "Vendor");
+                    $("#vcVendorType").empty()
+                        .append($("<i>", { "class": "far fa-star mr-2" }))
+                        .append(document.createTextNode(safeText(info.VendorType, "Vendor")));
+                    $("#vcPhone").text(safeText(info.Phone || info.Mobile));
+                    $("#vcAddress").text(safeText(info.Address));
+                    $("#vcRegisterDate").text(safeText(info.RegisterDate));
+                    $("#vcRegisterBy").text(safeText(info.CreateBy));
+                    $("#vcPaymentVat").text(safeText(info.PaymentTerms) + " / " + safeText(info.VATTIN));
+
+                    var total = Number(summary.TotalAmount) || 0;
+                    var paid = Number(summary.PaidAmount) || 0;
+                    var balance = Number(summary.BalanceAmount) || 0;
+                    var invoiceCount = Number(summary.TotalInvoices) || 0;
+                    var unpaidCount = Number(summary.UnpaidInvoices) || 0;
+                    var partialCount = Number(summary.PartialPaidInvoices) || 0;
+                    var paymentCount = Number(summary.TotalPayments) || 0;
+
+                    $("#TotalInv").text(money(total));
+                    $("#CountInv").text(pluralize(invoiceCount, "Bill"));
+                    $("#Paid").text(money(paid));
+                    $("#PaidInvoices").text(pluralize(paymentCount, "Payment"));
+                    $("#Unpaid").text(money(balance));
+                    $("#UnpaidInvoices").text(pluralize(unpaidCount + partialCount, "Bill"));
+
+                    var paymentProgress = total > 0 ? Math.max(0, Math.min(100, (paid / total) * 100)) : 0;
+
+                    $("#PaymentProgress").text(paymentProgress.toFixed(1) + "%");
+                    $("#PaymentProgressBar").css("width", paymentProgress.toFixed(2) + "%");
+                    $("#PaymentProgressNote").text(money(paid) + " paid of " + money(total) + " purchases");
+
+                    var advanceValue = finiteOrNull(advanceSummary.VendorAdvanceAvailable);
+                    var advanceCount = Number(advanceSummary.OpenDepositCount) || 0;
+
+                    if (advanceValue !== null) {
+                        $("#VendorAdvanceAvailable").text(money(Math.max(0, advanceValue)));
+                        $("#VendorAdvanceNote").text(pluralize(advanceCount, "open deposit") + " · available to allocate");
+                        $("#VendorAdvanceAvailable").attr("title", "Sum of remaining balances from open vendor deposits");
+                    } else {
+                        $("#VendorAdvanceAvailable").text(money(0));
+                        $("#VendorAdvanceNote").text("No available vendor advance");
+                        $("#VendorAdvanceAvailable").attr("title", "No matching open vendor deposit balance was returned");
+                    }
+
+                    // Enable action buttons now that the vendor is fully loaded.
+                    $("#vcMakePaymentBtn").prop("disabled", !window.VendorID || balance <= 0);
+                    $("#vcAddExpenseBtn").prop("disabled", !window.VendorID);
+                } catch (e) {
+                    console.error("LoadVendorInfo render failed:", e);
+                } finally {
+                    closeSwalSafely();
+                }
+            });
+        };
+
+        /* =========================================================
+           Vendor attachment / profile-picture upload
+        ========================================================= */
+        window.AddVendorAttachmentFile = function (AddVendorProfilePic) {
+            AddVendorProfilePic = (typeof AddVendorProfilePic === "undefined" ? "" : AddVendorProfilePic);
+
+            if (!window.VendorID) {
+                if (window.Swal && typeof window.Swal.fire === "function") {
+                    window.Swal.fire("Select a vendor", "Please select a vendor before adding a profile picture.", "info");
+                } else {
+                    alert("Please select a vendor first.");
+                }
+                return;
+            }
+
+            var URL = "VendorCenter/SaveChangeVendorProfilePicture";
+            var isProfilePicture = AddVendorProfilePic !== "";
+            var title = isProfilePicture ? "Add Vendor Profile Picture" : "Add Attachment File to Vendor";
+            var primaryFieldValue = {
+                SaveOnItsForm: true,
+                VendorName: window.VendorName,
+                VendorID: window.VendorID,
+                URL: URL,
+                VendorCode: window.VendorCode,
+                TypeFor: "AttachmentFile"
+            };
+
+            var uri = isProfilePicture ? "UploadFileForm?AllowOnlyImage=true&ShowAvatar=true" : "UploadFileForm";
+
+            if (typeof window.ShowDialogBox2 !== "function") {
+                console.error("ShowDialogBox2 is not defined. Cannot open the vendor upload dialog.");
+                return;
+            }
+
+            window.ShowDialogBox2(
+                title, 700, 500, uri, primaryFieldValue, "DialogAddAttCustFile",
+                function () {
+                    $("#DialogAddAttCustFile")
+                        .on("hide.bs.modal", function () {
+                            if (isProfilePicture) {
+                                window.LoadVendorProfilePicture(window.VendorID);
+                            } else if (typeof window.LoadCustAttachmentFile === "function") {
+                                window.LoadCustAttachmentFile(window.VendorID);
+                            }
+                        });
+                }
+            );
+        };
+
+        /* =========================================================
+           Tab loaders
+        ========================================================= */
+        window.GetTransactions = function (payeeId) {
+            payeeId = payeeId || window.VendorID;
+            if (!payeeId) { showEmpty("#transactionsGrid", "Select a vendor"); return; }
+            state.tabLoaded["Transcation_tab"] = payeeId;
+            loadHtml("VendorCenter/GetTransactions?PayeeID=" + encodeURIComponent(payeeId),
+                "#transactionsGrid", "No bills or expenses found");
+        };
+
+        window.LoadOpenPayables = function () {
+            if (!window.VendorID) return;
+            state.tabLoaded["OpenPayables-tab"] = window.VendorID;
+            loadHtml("VendorCenter/GetTransactions?PayeeID=" +
+                encodeURIComponent(window.VendorID) + "&PaymentStatus=Unpaid",
+                "#DivCustInvoice", "No outstanding bills");
+        };
+
+        window.LoadPaidInvoices = function () {
+            if (!window.VendorID) return;
+            state.tabLoaded["SettledPayments-tab"] = window.VendorID;
+            loadHtml("VendorCenter/GetTransactions?PayeeID=" +
+                encodeURIComponent(window.VendorID) + "&PaymentStatus=Paid",
+                "#showPaidInvoice", "No payments recorded");
+        };
+
+        window.LoadVendorTransactions = function () {
+            if (!window.VendorID) return;
+            state.tabLoaded["VendorTransactions-tab"] = window.VendorID;
+            loadHtml("VendorCenter/LoadVendorHistory?PayeeID=" +
+                encodeURIComponent(window.VendorID) + "&Type=Transactions",
+                "#showVendorTransactions", "No ledger transactions found");
+        };
+
+        window.LoadVendorStatement = function () {
+            if (!window.VendorID) return;
+            state.tabLoaded["VendorStatement-tab"] = window.VendorID;
+            loadHtml("VendorCenter/LoadVendorStatement?PayeeID=" + encodeURIComponent(window.VendorID),
+                "#showVendorStatement", "No statement activity found");
+        };
+
+        window.LoadVendorHistory = function () {
+            if (!window.VendorID) return;
+            state.tabLoaded["Transaction-tab"] = window.VendorID;
+            loadHtml("VendorCenter/LoadVendorHistory?PayeeID=" +
+                encodeURIComponent(window.VendorID) + "&Type=History",
+                "#showHistory", "No audit history found");
+        };
+
+        window.LoadCustAttachmentFile = function (id) {
+            id = id || window.VendorID;
+            if (!id) { showEmpty("#showDocuments", "Select a vendor"); return; }
+            state.tabLoaded["Documents-tab"] = id;
+            loadHtml("VendorCenter/LoadVendorAttachmentFile?ID=" + encodeURIComponent(id),
+                "#showDocuments", "No attachments found");
+        };
+
+        /* ---------- Vendor profile-picture actions ---------- */
+        $(document)
+            .off("click.vcAvatar", "#addCustPic")
+            .on("click.vcAvatar", "#addCustPic", function (event) {
+                var $target = $(event.target);
+                var $delete = $target.closest('[name="deletepiccust"]');
+                var $view = $target.closest('a, [name="viewprofilepic"]');
+
+                if ($view.length) { event.stopPropagation(); return; }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!window.VendorID) return;
+
+                if ($delete.length) {
+                    if (typeof window.DialogSweetCofirm === "function") {
+                        window.DialogSweetCofirm(function () {
+                            if (typeof window.DoSaveChangeData === "function") {
+                                window.DoSaveChangeData("VendorCenter/SaveChangeVendorProfilePicture", {
+                                    Data: JSON.stringify({
+                                        VendorName: window.VendorName,
+                                        VendorID: window.VendorID,
+                                        VendorCode: window.VendorCode
+                                    })
+                                });
+                                window.LoadVendorProfilePicture(window.VendorID);
+                            }
+                        }, "", "Do you want to delete this profile picture?");
+                    } else if (window.confirm("Do you want to delete this profile picture?")) {
+                        if (typeof window.DoSaveChangeData === "function") {
+                            window.DoSaveChangeData("VendorCenter/SaveChangeVendorProfilePicture", {
+                                Data: JSON.stringify({
+                                    VendorName: window.VendorName,
+                                    VendorID: window.VendorID,
+                                    VendorCode: window.VendorCode
+                                })
+                            });
+                            window.LoadVendorProfilePicture(window.VendorID);
+                        }
+                    }
+                    return;
+                }
+
+                if (typeof window.AddVendorAttachmentFile === "function") {
+                    window.AddVendorAttachmentFile("AddCustomerProfilePic");
+                } else {
+                    console.error("AddVendorAttachmentFile is not available.");
+                }
+            })
+            .off("keydown.vcAvatar", "#addCustPic")
+            .on("keydown.vcAvatar", "#addCustPic", function (event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    $(this).trigger("click");
+                }
+            });
+
+        /* ---------- Tab click → loaders ---------- */
+        $(document).off("shown.bs.tab.vcTabs", '#invoice_tab a[data-toggle="pill"]')
+            .on("shown.bs.tab.vcTabs", '#invoice_tab a[data-toggle="pill"]', function () {
+                if (!window.VendorID) return;
+                var id = this.id;
+                if (state.tabLoaded[id] && String(state.tabLoaded[id]) === String(window.VendorID)) return;
+
+                switch (id) {
+                    case "Transcation_tab": window.GetTransactions(window.VendorID); break;
+                    case "OpenPayables-tab": window.LoadOpenPayables(); break;
+                    case "SettledPayments-tab": window.LoadPaidInvoices(); break;
+                    case "VendorTransactions-tab": window.LoadVendorTransactions(); break;
+                    case "VendorStatement-tab": window.LoadVendorStatement(); break;
+                    case "Transaction-tab": window.LoadVendorHistory(); break;
+                    case "Documents-tab": window.LoadCustAttachmentFile(); break;
+                }
+            });
+
+        /* ---------- Quick action buttons (tab shortcuts) ---------- */
+        $(document).off("click.vcQuick", "[data-vc-tab]").on("click.vcQuick", "[data-vc-tab]", function () {
+            var target = $(this).attr("data-vc-tab");
+            var $tab = $("#" + target);
+            if ($tab.length) { try { $tab.tab("show"); } catch (e) { } }
+        });
+
+        /* =========================================================
+           NEW: Expense button → opens Add Expense dialog
+        ========================================================= */
+        $(document).off("click.vcExpense", "#vcAddExpenseBtn").on("click.vcExpense", "#vcAddExpenseBtn", function () {
+            if (!window.VendorID) {
+                if (window.Swal && typeof window.Swal.fire === "function") {
+                    window.Swal.fire("Select a vendor",
+                        "Choose a vendor before recording an expense.", "info");
+                } else {
+                    alert("Please select a vendor first.");
+                }
+                return;
+            }
+
+            if (typeof window.AddVendorExpense === "function") {
+                window.AddVendorExpense(window.VendorID);
+            } else {
+                console.error("AddVendorExpense is not available.");
+            }
+        });
+
+        /* ---------- Refresh / Add buttons ---------- */
+        $(document).off("click.vcRefresh", "#vcRefreshBtn").on("click.vcRefresh", "#vcRefreshBtn", function () {
+            if (window.VendorID) selectVendor(window.VendorID);
+        });
+
+        $(document).off("click.vcAddNew", "#addNewVD").on("click.vcAddNew", "#addNewVD", function () {
+            if (typeof window.AddEditVendor === "function") window.AddEditVendor(0);
+        });
+
+        /* =========================================================
+           Init
+        ========================================================= */
+        $("a[data-widget=pushmenu]").click();
+
+        var initialId = getFragmentParameterByName("id") || window.VendorID || "";
+        LoadVendorList(function () {
+            if (initialId) selectVendor(initialId);
+        }, initialId);
+    })(window, document, window.jQuery);
+</script>

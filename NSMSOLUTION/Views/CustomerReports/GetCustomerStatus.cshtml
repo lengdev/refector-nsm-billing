@@ -1,0 +1,211 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col" id="divCustStatus"></div>
+</div>
+<div class="row">
+    <div class="col">
+        <div id="accordion">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="apendingInstall" class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
+                            <i class="fa-light fa-sign-posts-wrench"></i> Pending Install <span class="badge badge-danger" id="sp_pendinginstall"></span>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive">
+                        @Html.Raw(ViewBag.TblPendingInstall)
+                    </div>
+                </div>
+            </div>
+            <div class="card card-info">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="anewInstall" class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseTwo" aria-expanded="false">
+                            <i class="fa-duotone fa-sign-posts-wrench"></i> New Install
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body">
+                        <div id="divNewInstall" class="table-responsive" style="height:600px">
+                            @Html.Raw(ViewBag.TblNewInstall)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="aRenew" class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseThree" aria-expanded="false">
+                            <i class="fa-light fa-rectangle-history-circle-user"></i> Renew
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseThree" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive" style="height:600px">
+                        @Html.Raw(ViewBag.TblRenew)
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header bg-indigo color-palette">
+                    <h4 class="card-title w-100">
+                        <a id="aActived" class="d-block w-100 collapsed text-white" data-toggle="collapse" href="#collapseactived" aria-expanded="false">
+                            <i class="fa-solid fa-wifi"></i> Actived
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseactived" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive" style="height:600px">
+                        @Html.Raw(ViewBag.TblActived)
+                    </div>
+                </div>
+            </div>
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="aLocked" class="d-block w-100 collapsed text-white" data-toggle="collapse" href="#collapseFoure" aria-expanded="false">
+                            <i class="fa-sharp fa-regular fa-wifi-exclamation"></i> Locked
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseFoure" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive" style="height:600px">
+                        @Html.Raw(ViewBag.TblLocked)
+                    </div>
+                </div>
+            </div>
+            <div class="card card-danger">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="aExpired" class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseFive" aria-expanded="false">
+                            <i class="fa-solid fa-wifi-slash"></i> Expired
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseFive" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive" style="height:600px">
+                        @Html.Raw(ViewBag.TblExpired)
+                    </div>
+                </div>
+            </div>
+            <div class="card card-secondary">
+                <div class="card-header">
+                    <h4 class="card-title w-100">
+                        <a id="aTerminate" class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseSix" aria-expanded="false">
+                            <i class="fa-solid fa-wifi-slash"></i> Terminated
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseSix" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body table-responsive" style="height:600px">
+                        @Html.Raw(ViewBag.TblTerminated)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var CustomerStatus = JSON.parse(`@Html.Raw(ViewBag.CustomerStatus)`).Table[0];
+    $(function () {
+        $("#accordion a").click(function (e) {
+            e.preventDefault();
+        });
+        //$("#sp_pendinginstall").html(accounting.formatNumber(CustomerStatus.CustomerPendingInstall, 0));
+        var row = '<div class="row">';
+        row += `<div class="col-md col-sm-6 col-12">
+        <a onclick="$('#apendingInstall').click();" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-success"><i class="fa-light fa-sign-posts-wrench"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Pending Install</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerPendingInstall, 0) +`</span>
+        </div>
+    </div></a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#anewInstall').click();$('html, body').animate({scrollTop: $('#collapseTwo').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-info"><i class="fa-duotone fa-sign-posts-wrench"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">New Install <b>`+ accounting.formatNumber(CustomerStatus.NewCustomerConnection, 0) +`</b></span>
+            <span class="info-box-number text-nowrap">
+            <span class="badge badge-primary" title="Completed">Com.: `+ accounting.formatNumber(CustomerStatus.Completed, 0) +`</span>
+            <span class="badge badge-warning" title="Pending">Pen.: `+ accounting.formatNumber(CustomerStatus.Pending, 0) +`</span>
+            </span>
+        </div>
+    </div>
+    </a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#aRenew').click();$('html, body').animate({scrollTop: $('#collapseThree').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-primary"><i class="fa-light fa-rectangle-history-circle-user"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Renew</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerRenewConnection, 0) +`</span>
+        </div>
+    </div>
+    </a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#aActived').click();$('html, body').animate({scrollTop: $('#collapseactived').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-indigo color-palette"><i class="fa-solid fa-wifi"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Actived</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerActiveConnection, 0) +`</span>
+        </div>
+    </div></a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#aLocked').click();$('html, body').animate({scrollTop: $('#collapseFoure').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-warning"><i class="fa-sharp fa-regular fa-wifi-exclamation"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Locked</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerLockConnection, 0) +`</span>
+        </div>
+    </div></a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#aExpired').click();$('html, body').animate({scrollTop: $('#collapseFive').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-danger"><i class="fa-solid fa-wifi-slash"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Expired</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerExpiredConnection, 0) +`</span>
+        </div>
+    </div></a>
+</div>
+<div class="col-md col-sm-6 col-12">
+<a onclick="$('#aTerminate').click();$('html, body').animate({scrollTop: $('#collapseSix').offset().top}, 500);" href="javascript:void(0);">
+    <div class="info-box p-0">
+        <span class="info-box-icon bg-secondary color-palette"><i class="fa-solid fa-wifi-slash"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text">Terminated</span>
+            <span class="info-box-number">`+ accounting.formatNumber(CustomerStatus.CustomerTerminate, 0) +`</span>
+        </div>
+    </div></a>
+</div>`;
+        row += '</div>';
+
+        $("#divCustStatus").html(row);
+
+
+    });
+
+    $(document).ready(function () {
+        setInterval(function () {
+            cache_clear()
+        }, 500000);
+    });
+
+    function cache_clear() {
+        window.location.reload(true);
+        // window.location.reload(); use this if you do not remove cache
+    }
+</script>

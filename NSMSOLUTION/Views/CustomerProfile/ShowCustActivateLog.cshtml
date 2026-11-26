@@ -1,0 +1,269 @@
+﻿@{ Layout = null;}
+
+<div class="card card-success card-outline">
+    <div class="card-header p-0 border-bottom-0 p-2">
+        <ul class="nav nav-tabs" id="ShowUsersConnectivityStatus-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="ConnectivityStatus-tab" data-toggle="pill" href="#ShowConnectivityStatus-tab">Connectivity Status</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="ConnectivityHistory-tabs" data-toggle="pill" href="#ShowConnectivityHistory-tab">Connectivity History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="UserProfile-tabs" data-toggle="pill" href="#ShowUserProfile-tab">User Profile</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane fade active show" id="ShowConnectivityStatus-tab">
+                <div id="ShowConnectivityStatus">
+                    @Html.Raw(ViewBag.DrawHTMLSearchForm)
+                </div>
+            </div>
+            <div class="tab-pane fade" id="ShowConnectivityHistory-tab">
+                <div id="ShowConnectivityHistory">
+                    <table id="tblShowPPPoEUserOnline" class="table table-bordered table-head-fixed text-nowrap" width="100%">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>User</th>
+                                <th>Started</th>
+                                <th>User IP</th>
+                                <th>Calling Station ID</th>
+                                <th>Download</th>
+                                <th>Upload</th>
+                                <th>Uptime</th>
+                                <th>Last Accounting Packet</th>
+                                <th>Ended</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="ShowUserProfile-tab">
+                <div id="ShowUserProfile"></div>
+                <div id="UserProfileDetail"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var CustomerID = "@ViewBag.CustomerID";
+    var ShowDetail = "@ViewBag.ShowDetail";
+    var PPPoEUserName = "@ViewBag.PPPoEUserName";
+    $(function () {
+        $("#ShowUsersConnectivityStatus-tabs a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+
+        // Load only once
+        let ConnectivityLoaded = false;
+
+        $('a[data-toggle="pill"]').on("shown.bs.tab", function (e) {
+            if (e.target.id === "ConnectivityHistory-tabs" && !ConnectivityLoaded) {
+                ConnectivityLoaded = true;
+                LoadConnectivityHistory();
+            }
+        });
+
+        function LoadConnectivityHistory() {
+
+            Swal.fire({
+                title: "Loading...",
+                didOpen: () => Swal.showLoading()
+            });
+
+            const url = "CustomerProfile/GetPPPeEUserOnline?ShowDetail=" + ShowDetail
+                + "&PPPoEUserName=" + PPPoEUserName;
+
+            LoadData(url, function (response) {
+
+                let Data = JSON.parse(JSON.parse(response).Data).results[0].Data;
+
+                let rows = [];
+                $.each(Data, function (i, value) {
+                    rows.push([
+                        i + 1,
+                        value.Words["user"],
+                        value.Words["started"],
+                        value.Words["user-address"],
+                        value.Words["calling-station-id"],
+                        value.Words["download"],
+                        value.Words["upload"],
+                        value.Words["uptime"],
+                        value.Words["last-accounting-packet"],
+                        value.Words["ended"] ?? ""
+                    ]);
+                });
+
+                // Initialize DataTable only once
+                let table = $("#tblShowPPPoEUserOnline").DataTable({
+                    destroy: true,
+                    responsive: true,
+                    deferRender: true,
+                    lengthMenu: [
+                        [10, 30, 50, 100, -1],
+                        ['10', '30', '50', '100', 'All']
+                    ],
+                    lengthChange: true,
+                    data: rows,
+                    language: {
+                        emptyTable: "No items to display.",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        infoEmpty: "Showing 0 to 0 of 0 entries",
+                        searchPlaceholder: "Search"
+                    },
+                    dom:
+                        "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f>"
+                        + "<'col-sm-12 col-md-6 d-flex align-items-center justify-content-between'lB>>"
+                        + "<'row'<'col-sm-12'tr>>"
+                        + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    buttons: [
+                        {
+                            extend: "excelHtml5",
+                            className: "btn btn-primary btn-sm",
+                            text: '<i class="fa fa-file-excel-o"></i> Excel'
+                        },
+                        {
+                            extend: "csvHtml5",
+                            className: "btn btn-info btn-sm",
+                            text: '<i class="fa-solid fa-file-csv"></i> CSV'
+                        },
+                        {
+                            extend: "copyHtml5",
+                            className: "btn btn-primary btn-sm",
+                            text: '<i class="fa fa-copy"></i> Copy'
+                        },
+                        {
+                            extend: "print",
+                            className: "btn btn-default btn-sm",
+                            text: '<i class="fa fa-print"></i> Print'
+                        }
+                    ]
+                });
+
+                Swal.close();
+            });
+        }
+
+        $("#UserProfile-tabs").click(function () {
+            var currentcon = "";
+            LoadData("CustomerProfile/ShowUserProfile?CustomerID=" + CustomerID, function (response) {
+                response = JSON.parse(JSON.parse(response).CboData);
+                var row = '<div class="row"><div class="col">';
+                row += '<select id="userconnection">';
+                row += '<option value="">Choose Connection</option>';
+                $.each(response, function (key, val) {
+                    var item = val.ItemArray[0];
+                    var RouterID = val.ItemArray[1];
+                    var user = val.ItemArray[2];
+                    var connectiontype = val.ItemArray[3];
+                    var Version = val.ItemArray[4];
+                    row += '<option value="' + RouterID + '" data-version="' + Version + '" data-user="' + user + '" data-connectiontype="' + connectiontype + '">' + item + '</option>';
+                })
+                row += '</select></div></div>';
+                $("#ShowUserProfile").html(row);
+                $("#userconnection").select2({
+                    //minimumResultsForSearch: Infinity,
+                    theme: 'bootstrap4',
+                    dropdownParent: $("#userconnection").parent().parent()
+
+                }).on('change', function () {
+                    $("#UserProfileDetail").html('');
+                    if ($(this).val() != "") {
+                        currentcon = $(this).val();
+                        var data = $(this).select2('data')[0];
+                        var RouterID = data.id;
+                        var ConnectionType = $(data.element).attr("data-connectiontype");
+                        var PPPoEUserName = $(data.element).attr("data-user");
+                        var Version = $(data.element).attr("data-version");
+                        if (ConnectionType == "PPPoE") {
+                            LoadData("CustomerProfile/GetUserProfile?PPPoEUserName=" + PPPoEUserName + "&RouterID=" + RouterID, function (objresponse) {
+                                var row = '<div class=" mt-3 mb-3"><button type="button" id="AddNewUserPPPoEProfile" name="AddNewUserPPPoEProfile" class="btn btn-primary"> Add New</button></div>';
+                                var response = new Object();
+                                response = JSON.parse(JSON.parse(objresponse).Data);                                
+                                if (response.UserProfileInfo) {
+                                    row += '<div class="row mt-3"><div class="col">';
+                                    row += '<table width="100%" border="0" cellspacing="0" cellpadding="5" class="table table-bordered"><thead><tr><th>Profile Name</th><th>State</th><th>End Time</th></tr></thead>';
+                                    var UserProfileInfo = JSON.parse(response.UserProfileInfo);
+                                    $.each(UserProfileInfo, function (key, value) {
+                                        var UserProfileName = "", State = "", EndTime = "";
+                                        if (value.Words["profile"])
+                                            UserProfileName = value.Words["profile"];
+                                        else
+                                            UserProfileName = value.Words["name"];
+                                        if (value.Words["state"])
+                                            State = value.Words["state"];
+                                        if (value.Words["end-time"])
+                                            EndTime = value.Words["end-time"];
+                                        else
+                                            EndTime = value.Words["validity"];
+
+                                        row += `<tr><th><div class="row"><div class="col-auto">` + UserProfileName + `</div><div class="col"><button type="button" onclick="RemoveUserPPPoEProfile(this,` + RouterID + `,'` + value.Words[".id"] + `','` + UserProfileName + `','` + PPPoEUserName + `');" name="RemoveUserPPPoEProfile" class="btn btn-danger btn-sm"> Remove</button></div></div></th><th>` + State + `</th><th>` + EndTime + `</th></tr>`;
+                                        var UserProfileLimitationInfo = JSON.parse(response.UserProfileLimitationInfo); 
+                                        UserProfileLimitationInfo = UserProfileLimitationInfo.filter(function (item) {
+                                            return item.profile = UserProfileName;
+                                        });
+                                        row += '<tr><td colspan="3">';
+                                        var tr = '<table width="100%" border="0" cellspacing="0" cellpadding="5" class="table table-bordered"><thead><tr><th>Limitation Name</th><th>From Time</th><th>Till Time</th><th>Weekdays</th></tr></thead><tbody>'
+                                        $.each(UserProfileLimitationInfo, function (k, val) {
+                                            tr += '<tr>';
+                                            tr += '<td>' + val.Words["limitation"] + '</td>';
+                                            tr += '<td>' + val.Words["from-time"] + '</td>';
+                                            tr += '<td>' + val.Words["till-time"] + '</td>';
+                                            tr += '<td>' + val.Words["weekdays"] + '</td>';
+                                            //tr += '<td>' + val.Words["comment"] + '</td>';
+                                            tr += '</tr>';
+                                        });
+                                        tr += '</tbody></table>';
+                                        row += tr;
+                                    });
+                                    row += '</td></tr></table>';
+                                    row += '</div></div>';                                    
+                                }
+                                $("#UserProfileDetail").html(row);
+                                $("#AddNewUserPPPoEProfile").click(function () {
+                                    ModalDialogBox("Add New User PPPoE Profile", "CustomerProfile/GetProfile", { RouterID: RouterID, PPPoEUserName: PPPoEUserName }
+                                        , "DialogIDAddNew_UserPPPoEProfile", function () {
+                                            var Comments = encodeURIComponent(nl2br($("#Comments").val()));
+                                            var PPPoEUserName = $("#TxtPPPoEUserName").val();
+                                            var ProfileName = $("#CboProfileName").val();
+                                            if (Comments == "") {
+                                                DialogSweetAlert("error", "Please enter comments.", function () {
+                                                    $("#Comments").focus();
+                                                    return false;
+                                                });
+                                                return false;
+                                            }
+                                            PostData("CustomerProfile/AppendProfileToUser", { RouterID: RouterID, PPPoEUserName: PPPoEUserName, PPPoEProfileName: ProfileName, Comment: Comments }, function (response) {
+                                                $("#userconnection").val("");
+                                                $("#userconnection").val(currentcon).trigger("change");
+                                            });
+                                            return true;
+                                        });
+                                });
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    });
+
+    function RemoveUserPPPoEProfile(THIS, RouterID, ProfileID, ProfileName, PPPoEUserName) {
+        var DATA = { RouterID: RouterID, ProfileID: ProfileID, ProfileName: ProfileName, PPPoEUserName: PPPoEUserName };
+        DoSaveChangeSweetCofirm("CustomerProfile/RemoveUserPPPoEProfile", DATA, function (response) {
+            if (response.Result == 2) {
+                $(THIS).closest("tr").next().remove();
+                $(THIS).closest("tr").remove();
+            }
+            else {
+                DialogSweetAlert("error", response.Message);
+            }
+        }, "Removing...", "Remove this profile: " + ProfileName + " from PPPoE User Name: " + PPPoEUserName + ". You won't be able to revert this!");
+    }
+</script>

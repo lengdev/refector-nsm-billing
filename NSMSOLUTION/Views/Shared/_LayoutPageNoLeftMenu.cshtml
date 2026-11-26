@@ -1,0 +1,923 @@
+@{
+Utilities.Common common = new Utilities.Common();
+//string ServerRoot = common.GetServerRoot();
+string Title = ViewBag.Title;
+string PageName = ViewBag.PageName;
+if (Title == "")
+{
+Title = PageName;
+}
+
+var baseUrl = $"{Request.Url.Scheme}://{Request.Url.Authority}";
+}
+<!DOCTYPE html>
+<html lang="en" data-ng-app="appInventory">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  @*
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="apple-touch-icon" sizes="57x57" href="~/Content/icon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="~/Content/icon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="~/Content/icon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="~/Content/icon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="~/Content/icon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="~/Content/icon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="~/Content/icon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="~/Content/icon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="~/Content/icon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="~/Content/icon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="~/Content/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="~/Content/icon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="~/Content/icon/favicon-16x16.png">
+  <link rel="manifest" href="~/Content/icon/manifest.json" />*@
+
+  <!-- Standard Meta -->
+  <meta name="description"
+    content="Modern ISP Billing and Customer Management System with Invoice, PPPoE, Mikrotik Integration, and Reporting.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="NSM Billing System">
+  <meta property="og:description"
+    content="Manage customers, invoices, payments, and MikroTik routers from one powerful platform.">
+  <meta property="og:image" content="@($" {baseUrl}/Uploads/SystemLogo/LOGOPNG-169319062548938.jpg")" />
+  <meta property="og:url" content="@Request.Url.AbsoluteUri" />
+  <meta property="og:site_name" content="NSM Billing">
+
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="~/Content/icon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title ng-bind="title"></title>
+
+  @using System.Web.Optimization
+
+  <!-- Ekko Lightbox -->
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/ekko-lightbox/ekko-lightbox.css">
+  <link href="https://cdn.datatables.net/buttons/3.0.0/css/buttons.dataTables.css" rel="stylesheet" />
+
+  @*
+  <script type="text/javascript"
+    src='https://maps.googleapis.com/maps/api/js?key=AIzaSyB7a3VS_R_x_NvyUnwWhL7eNI2Gct0uXQs&sensor=false&libraries=places'></script>
+  *@
+  @*
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnwdGnzLZgi--f7jbuqT9Iu22NTeFuOmo&callback=initMap&sensor=false&libraries=places&language=KM&region=KH"
+    async defer></script>*@
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAyV6cu3lTOAyx7rRRfeaq5Ec2ypIEi08&callback=initMap&sensor=false&libraries=places&language=KM&region=KH"
+    async defer></script>
+  @*
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1EbC7uh_aASvvKtIdxOEMGtIIkln1Cdc&sensor=false&libraries=places&language=KM&region=KH"></script>
+  *@
+  @*
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDR6d9RbmdJ8mq_HPsWMQ7Njkm4TzDCcEE&sensor=false&libraries=places&language=KM&region=KH"></script>
+  *@
+  @*
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDVTZPM4E8lXdyuesfnlioaBkyjNfWHZGg&libraries=places&callback=initMap"></script>
+  *@
+  @*
+  <script src="~/Scripts/Map/locationpicker.jquery.js" crossorigin="anonymous"></script>*@
+  <script defer>
+    async function initMap() {
+      //const position = { lat: -25.344, lng: 131.031 };
+      //const { Map } = await google.maps.importLibrary("maps");
+      //const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+      //console.log('initMap');
+    }
+
+    initMap();
+  </script>
+  @*
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/all.css" />*@
+  <link href="~/Content/fontawesome-free-6.5.1-web/css/all.css" rel="stylesheet" />
+  <link href="~/Scripts/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
+  <link href="~/Scripts/bootstrap-fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+  <link href="~/Scripts/bootstrap-fileinput/themes/explorer-fa5/theme.min.css" media="all" rel="stylesheet"
+    type="text/css" />
+  <link href="~/Scripts/jquery-tagsinput-revisited/dist/jquery.tagsinput-revisited.min.css" rel="stylesheet"
+    type="text/css" />
+  <link href="~/Scripts/jquery-filestyle.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/dist/css/adminlte.min.css" rel="stylesheet" />
+  <link href="~/Content/bootstrap-glyphicons.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/dist/css/ionicons.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/dist/css/icheck-material.min.css" rel="stylesheet" />
+  <link href="~/Scripts/sweetalert2/css/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+  <link href="~/Content/toastr/toastr.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css"
+    rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"
+    rel="stylesheet" />
+  <link href="~/Content/TableGrid/Style/TableStyle.css" rel="stylesheet" />
+  <link href="~/Content/loading-bar.min.css" rel="stylesheet" />
+  <link href="~/Content/ng-table.min.css" rel="stylesheet" />
+  <link href="~/Content/css/step.css" rel="stylesheet" />
+  <link href="~/Content/ContactV2_files/main.css" rel="stylesheet" />
+  <link href="~/Content/css/custom.css" rel="stylesheet" />
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Siemreap&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Content:wght@400;700&family=Siemreap&display=swap"
+    rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin>
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet" crossorigin />
+  <link href='https://fonts.googleapis.com/css?family=Bayon' rel='stylesheet' type='text/css' crossorigin />
+  <link href='https://fonts.googleapis.com/css?family=Bayon|Francois+One' rel='stylesheet' type='text/css'
+    crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@200;300&display=swap" rel="stylesheet"
+    crossorigin>
+
+  <link href="~/Scripts/baguetteBox/baguetteBox.min.css" rel="stylesheet" />
+  <link href="~/Content/css-file-icons.css" rel="stylesheet" />
+  <link href="~/Scripts/UploadFile/imageuploadify.min.css" rel="stylesheet" />
+  <link href="~/Scripts/UploadFile/cropper.css" rel="stylesheet" />
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/select2/css/select2.min.css" />
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/select2/css/select2-bootstrap-5-theme.min.css" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.css" rel="stylesheet" />
+  <link href="~/Content/AdminLTE-3.2.0/plugins/chart.js/Chart.min.css" rel="stylesheet" />
+  <!-- summernote -->
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/summernote/summernote-bs4.min.css">
+  <link rel="stylesheet" type="text/css" href="~/Scripts/jsgrid/jsgrid.css" />
+  <link rel="stylesheet" type="text/css" href="~/Scripts/jsgrid/theme.css" />
+  <!--kendoui-->
+  <link href="~/Scripts/kendo/css/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+  <link type="text/css" rel="stylesheet" href="~/Content/floating-labels-bootstrap/bootstrap.css" />
+  <link type="text/css" rel="stylesheet" href="~/Scripts/Map/IconStyle.css" />
+  <link type="text/css" rel="stylesheet" href="~/Content/css/customcss.css" />
+  <link type="text/css" rel="stylesheet" href="~/Content/css/card.css" />
+  <link type="text/css" rel="stylesheet" href="~/Content/css/app.min.css" />
+  <link type="text/css" rel="stylesheet" href="~/Content/css/img_checkbox/bootstrap-image-checkbox.css" />
+  <link type="text/css" rel="stylesheet" href="~/Content/bootstrap-icons-1.10.3/bootstrap-icons.css" />
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css" />
+  <link rel="stylesheet"
+    href="~/Content/AdminLTE-3.2.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" />
+  @Styles.Render("~/Content/css/MainLayoutStyle.css")
+</head>
+
+<body id="BoyMasterPage" ng-controller="EventsCtrl"
+      class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed {{Body}}" ng-cloak>
+    <div class="wrapper">
+        <div class="col-12">
+            <div class="col-4">
+                <!-- Main Sidebar Container -->
+                <aside class="{{AsideLightSidebar || 'main-sidebar sidebar-light-success ng-scope'}}"
+                       ng-controller="HomeMenuController">
+                    <a href="#/!" class="brand-link liquid-glass d-flex align-items-center justify-content-center"
+                       style="height: 66px; border-bottom: 1px solid rgba(0, 0, 0, .08) !important;">
+                        <img class="brand-image" ng-src="{{absUrl}}Uploads/WarehouseLogo/{{SysWLogo}}" ng-if="SysWLogo != ''" />
+                    </a>
+                    <div class="sidebar">
+                        <div class="user-panel mt-4 pb-3 mb-3 d-flex" style="display: none !important">
+                            <div class="">
+                                <img id="userimg" class="img-circle" alt="User Image"
+                                     onerror="this.onerror=null;src='Content/images/avatar/user.png'" />
+                            </div>
+                            <div class="info">
+                                <a id="aUserName" href="#!/SupportUserProfile"
+                                   class="d-block text-uppercase text-truncate nothing-you-could-do-regular"
+                                   title="{{UserFullName}}">{{UserFullName}}</a>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Menu -->
+                        <nav class="mt-4 d-none">
+                            <div id="DivLeftMenu"></div>
+                        </nav>
+                        <!-- /.sidebar-menu -->
+                    </div>
+                    <div class="sidebar-bottom text-danger" ng-controller="LogoutController">
+                        <div class="logout-item" ng-click="Logout()">
+                            <i class="ti ti-logout"></i>
+                            <span>Sign out</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+            <div class="col-8">
+                <nav class="main-header navbar navbar-expand navbar-white liquid-glass"
+                     style="height: 66px; border-bottom: 1px solid rgba(0, 0, 0, .08) !important;">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" data-widget="pushmenu" href="javascript:;" role="button">
+                                <div class="nav-icon-btn">
+                                    <i id="menuIcon" class="ti ti-chevrons-left" style="font-size: 1.1rem;"></i>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <breadcrumbs></breadcrumbs>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto" ng-controller="LogoutController">
+                        <li class="nav-item d-flex gap-12" style="position: relative; margin-right: 1.05em;">
+                            <div id="notification" ng-show="showNotification" style="position:relative;">
+                                <div id="notification" ng-show="showNotification" style="position:relative;">
+                                    <div class="notification-icon nav-icon-btn" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-bell" style="font-size:18px"></i>
+                                        <span class="notification-count" ng-show="nearlyExpiredCount > 0">{{ nearlyExpiredCount }}</span>
+                                    </div>
+
+                                    <div class="dropdown-menu dropdown-menu-right notifications-dropdown">
+                                        <!-- Header -->
+                                        <div class="notification-header">
+                                            <div class="nh-title">
+                                                <span class="nh-icon"><i class="ti ti-bell-ringing"></i></span>
+                                                <div>
+                                                    <strong>Expiring Soon</strong>
+                                                    <small>Customers nearing expiry</small>
+                                                </div>
+                                            </div>
+                                            <span class="nh-count">{{ nearlyExpiredTotalText }}</span>
+                                        </div>
+
+                                        <!-- List -->
+                                        <div class="notification-scroll">
+                                            <div class="notification-empty" ng-if="nearlyExpiredList.length === 0">
+                                                <i class="ti ti-circle-check"></i>
+                                                <span>No nearly-expired customers</span>
+                                            </div>
+
+                                            <a class="notification-item" ng-repeat="exp in nearlyExpiredList track by $index"
+                                               ng-href="#!/ReportCustomerNearlyExpired?CID={{ ::exp.CustomerCode }}">
+                                                <div class="ni-avatar"><i class="ti ti-user"></i></div>
+                                                <div class="ni-body">
+                                                    <div class="ni-top">
+                                                        <span class="ni-code">{{ ::exp.CustomerCode }}</span>
+                                                        <span class="ni-days"><i class="ti ti-calendar-cancel"></i>{{ ::exp.DaysLeft }}</span>
+                                                    </div>
+                                                    <div class="ni-name" title="{{ ::exp.CustomerName }}">{{ ::exp.CustomerName }}</div>
+                                                    <div class="ni-meta">
+                                                        <span><i class="ti ti-file-invoice"></i>{{ ::exp.InvoiceNo }}</span>
+                                                        <span class="ni-date">
+                                                            <i class="ti ti-calendar-due"></i>{{ ::(exp.EndDate |
+                              date:'dd-MMM-yyyy') || '-' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="notification-footer">
+                                            <button type="button" class="nf-btn" ng-click="viewAllCustomerExpired()">
+                                                <i class="ti ti-eye"></i>
+                                                <span>View all customers</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu notifications-dropdown">
+                                    <div class="notification-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>Customer Nearly Expire</strong>
+                                            <span class="badge badge-info text-dark">{{ nearlyExpiredTotalText }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="notification-scroll">
+                                        <p class="text-center" ng-if="nearlyExpiredList.length === 0">
+                                            No nearly-expired customers.
+                                        </p>
+                                        <div class="notification-item" ng-repeat="exp in nearlyExpiredList track by $index">
+                                            <span class="badge badge-warning mb-1" style="font-size: 0.75rem;">
+                                                <i class="ti ti-calendar-cancel" style="font-size: 0.9rem;"></i>
+                                                {{ ::exp.DaysLeft }}
+                                            </span><br>
+                                            Customer: <strong>
+                                                <a ng-href="#!/ReportCustomerNearlyExpired?CID={{ ::exp.CustomerCode }}">
+                                                    {{ ::exp.CustomerCode }} - {{ ::exp.CustomerName }}
+                                                </a>
+                                            </strong><br>
+                                            Invoice No: <strong>{{ ::exp.InvoiceNo }}</strong><br>
+                                            Expire Date: <strong class="text-danger">
+                                                {{ ::(exp.EndDate |
+                        date:'dd-MMM-yyyy') || '-' }}
+                                            </strong><br>
+                                        </div>
+                                    </div>
+
+                                    <div class="notification-footer">
+                                        <button class="btn btn-secondary w-100" ng-click="viewAllCustomerExpired()">
+                                            <i class="ti ti-eye" style="font-size: 16px;"></i>
+                                            <span>View all</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dark Mode Toggle -->
+                            <button onclick="toggleDarkMode()" class="nav-icon-btn" id="darkModeBtn" aria-label="Toggle dark mode">
+                                <i class="ti ti-moon" id="darkModeIcon"></i>
+                            </button>
+
+                            <div class="dropdown theme-picker d-none">
+                                <a href="javascript:void(0)" class="nav-icon-btn" id="themeDropdownToggle" data-toggle="dropdown">
+                                    <i class="ti ti-palette"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right theme-menu" aria-labelledby="themeDropdownToggle">
+                                    <div class="theme-menu-header">Dark theme</div>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="midnight">
+                                        <span class="theme-swatch" style="background:#0c1017"></span> Midnight
+                                    </a>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="slate">
+                                        <span class="theme-swatch" style="background:#18181b"></span> Slate
+                                    </a>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="cosmos">
+                                        <span class="theme-swatch" style="background:linear-gradient(135deg,#1f1a38,#0d0b1a)"></span> Cosmos
+                                    </a>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="nord">
+                                        <span class="theme-swatch" style="background:#3b4252"></span> Nord
+                                    </a>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="dracula">
+                                        <span class="theme-swatch" style="background:#282a36"></span> Dracula
+                                    </a>
+                                    <a href="javascript:void(0)" class="theme-option" data-theme="forest">
+                                        <span class="theme-swatch" style="background:linear-gradient(135deg,#0d1712,#08110c)"></span> Forest
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Avatar + Profile Dropdown -->
+                            <div class="profile-trigger-wrap">
+                                <button class="avatar-ring-btn" id="avatarBtn" onclick="toggleProfileMenu()" aria-expanded="false">
+                                    <img id="" class="avatar-inner userimg" alt="User Image"
+                                         onerror="this.onerror=null;src='Content/images/profile404.jpg'" />
+
+                                    <span class="nav-user-greeting">
+                                        <span class="greeting-label">Welcome</span>
+                                        <strong class="greeting-name">{{UserName}}</strong>
+                                    </span>
+
+                                    <i class="ti ti-chevron-down profile-chevron"></i>
+                                </button>
+
+                                <div class="profile-dropdown" id="profileDropdown" role="menu">
+                                    <div class="dd-item dd-item-first">
+                                        <img id="" class="dd-avatar userimg" alt="User Image"
+                                             onerror="this.onerror=null;src='Content/images/profile404.jpg'" />
+                                        <div>
+                                            <div style="font-weight:700;font-size:14px;">{{UserFullName}}</div>
+                                            <div style="font-size:12px;color:var(--text2);">{{UserRole}}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="dd-divider"></div>
+
+                                    <a class="dd-item" role="menuitem" href="#!/SupportUserProfile">
+                                        <i class="ti ti-user"></i> Profile
+                                        <span class="username-badge"><i class="ti ti-flame"></i> {{UserName}}</span>
+                                    </a>
+                                    <a class="dd-item" role="menuitem" href="Home/Dashboard" ng-if="isShowSwitchSysOpt">
+                                        <i class="ti ti-switch"></i> Switch System
+                                    </a>
+                                    <a class="dd-item" role="menuitem" href="#!/Settings" ng-if="isShowSettingsOpt">
+                                        <i class="ti ti-adjustments-horizontal"></i> Settings
+                                    </a>
+                                    <div class="dd-divider"></div>
+                                    <a class="dd-item dd-item-danger cursor-pointer" role="menuitem" ng-click="Logout()">
+                                        <i class="ti ti-logout"></i> Sign out
+                                    </a>
+                                </div>
+                            </div>
+
+                        </li>
+                    </ul>
+                </nav>
+                <!-- /.navbar -->
+            </div>
+        </div>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                </div>
+            </div>
+            <!-- /.content-header -->
+            <!-- Main content -->
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card card-outline card-border-top" section-loader>
+                                <div class="card-body">
+                                    <div data-ng-view>
+                                        @RenderBody()
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div><!--/. container-fluid -->
+            </section>
+            <!-- /.content -->
+            <a id="back-to-top" href="javascript:void(0)" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
+               class="back-to-top" role="button" aria-label="Scroll to top">
+                <i class="ti ti-chevrons-up"></i>
+            </a>
+            <svg style="display: none">
+                <filter id="filter" color-interpolation-filters="linearRGB" filterUnits="objectBoundingBox"
+                        primitiveUnits="userSpaceOnUse">
+                    <feDisplacementMap in="SourceGraphic" in2="SourceGraphic" xChannelSelector="R" yChannelSelector="B" x="0%"
+                                       y="0%" width="100%" height="100%" result="displacementMap" />
+                    <feGaussianBlur stdDeviation="3 3" x="0%" y="0%" width="100%" height="100%" in="displacementMap"
+                                    edgeMode="none" result="blur" />
+                </filter>
+            </svg>
+        </div>
+    </div>
+    <div id="imagePopup" style="display:none;text-align:center">
+        <div style="margin-bottom:10px" class="buttonNext">
+            <button onclick="prevImage()">◀</button>
+            <button onclick="nextImage()"> ▶</button>
+        </div>
+        <img id="popupImage" style="max-width:100%;max-height:70vh;object-fit:contain;">
+    </div>
+
+    <script src="~/Content/location-picker/locationpicker.jquery.js" defer></script>
+    <script src="~/Scripts/jquery-tagsinput-revisited/dist/jquery.tagsinput-revisited.min.js" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/plugins/buffer.min.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/plugins/filetype.min.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/plugins/piexif.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/plugins/sortable.js" type="text/javascript" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+    <script src="~/Scripts/baguetteBox/baguetteBox.min.js" defer></script>
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.form.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/Content/AdminLTE-3.2.0/dist/js/adminlte.min.js" defer></script>
+    <!-- Summernote -->
+    <script src="~/Content/AdminLTE-3.2.0/plugins/summernote/summernote-bs4.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/inputmask/jquery.inputmask.min.js" defer></script>
+    <script src="~/Scripts/angular.min.js" defer></script>
+    <script src="~/Scripts/angular-sanitize.min.js" defer></script>
+    <script src="~/Scripts/angular-route.min.js" defer></script>
+    <script src="~/Scripts/angular-cookies.min.js" defer></script>
+    <script src="~/Scripts/ngStorage.min.js" defer></script>
+    <script src="~/Scripts/ng-table.js" defer></script>
+    <script src="~/Scripts/restangular.min.js" defer></script>
+    <script src="~/Scripts/underscore-min.js" defer></script>
+    <script src="~/Scripts/loading-bar.js" defer></script>
+    <script src="~/Scripts/angular-local-storage.min.js" defer></script>
+    <script src="~/Scripts/angular-animate.min.js" defer></script>
+    <script src="~/Scripts/angular-filter.min.js" defer></script>
+    <script src="~/Scripts/LocalStorage.js" defer></script>
+    <script src="~/Scripts/ngHtmlCompile.js" defer></script>
+    <script src="~/Scripts/ng-idle/angular-idle.min.js" defer></script>
+    <script src="~/Scripts/angular-web-notification-master/web-notification.js" defer></script>
+    <script src="~/Scripts/angular-web-notification-master/angular-web-notification.js" defer></script>
+    <script src="~/Scripts/angular-web-notification-master/service-worker.js" defer></script>
+    <script src="~/Scripts/jquery-ui.js" defer></script>
+    <script src="~/Scripts/jquery.validate.js" defer></script>
+    <script src="~/Scripts/jquery-filestyle.min.js" defer></script>
+    <script src="~/Scripts/typeahead.bundle.js" defer></script>
+    <script src="~/Scripts/accounting/accounting.js" defer></script>
+    <script src="~/Scripts/jquery.format.js" defer></script>
+    <script src="~/Scripts/AutoNumeric.js" defer></script>
+    <script src="~/Scripts/printThis.js" defer></script>
+    <script src="~/Scripts/jQuery.print.js" defer></script>
+    <script src="~/Scripts/print.min.js" defer></script>
+    <script src="~/Scripts/jquery.serialize-object.min.js" defer></script>
+    <script src="~/Scripts/UploadFile/imageuploadify.js" defer></script>
+    <script src="~/Scripts/UploadFile/webcamjs/webcam.min.js" defer></script>
+    <script src="~/Scripts/UploadFile/cropper.js" defer></script>
+    <script src="~/Scripts/IPSubnetMaskCalculator/ipsubnetmaskcal.js" defer></script>
+    <script src="~/Scripts/html2pdf/jspdf.min.js" defer></script>
+    <script src="~/Scripts/fixedTable/jquery.fixedTableHeader.js" defer></script>
+    <script src="~/Scripts/html2pdf/download.min.js" defer></script>
+    <script src="~/Scripts/html2pdf/FileSaver.min.js" defer></script>
+    <script src="~/Scripts/html2pdf/html2canvas.min.js" defer></script>
+    <script src="~/Content/toastr/toastr.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/moment/moment.min.js" defer></script>
+    <script src="~/Scripts/moment-range.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/daterangepicker/daterangepicker.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/select2-4.0.13/dist/js/select2.full.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/bootstrap-switch/js/bootstrap-switch.js" defer></script>
+    <script src="~/Scripts/sweetalert2/sweetalert2.all.min.js" defer></script>
+    <script src="~/Scripts/DivResize/ResizeSensor.js" defer></script>
+    <script src="~/Scripts/Chart3.5.1/chart.js" defer></script>
+    <script src="~/Scripts/Chart3.5.1/chartjs-plugin-datalabels.js" defer></script>
+    <!-- jQuery Knob -->
+    <script src="~/Content/AdminLTE-3.2.0/plugins/jquery-knob/jquery.knob.min.js" defer></script>
+
+    @*
+        <script src="~/Scripts/kendo/css/fonts/fonts.js"></script>*@
+    <script src="~/Scripts/kendo/kendo.all.min.js"></script>
+
+    <script src="~/Scripts/signalr/jquery.signalR.min.js" defer></script>
+    @*Reference the autogenerated SignalR hub script.*@
+    <script src="~/signalr/Hubs" defer></script>
+    <script src="~/Scripts/custom/util-helper.js" defer></script>
+    <script src="~/Scripts/custom/drawHtmlSearchForm.js" defer></script>
+    <script src="~/Scripts/custom/kendoConfig.js" defer></script>
+    <script src="~/Scripts/custom/kendoGridExport.js" defer></script>
+    <script src="~/Scripts/Map/jquery-geolocate.min.js" defer></script>
+    <script src="~/Scripts/dataTables/dataTables.js" defer></script>
+    <script src="~/Scripts/dataTables/dataTables.buttons.js" defer></script>
+    <script src="~/Scripts/dataTables/dataTables.rowGroup.js" defer></script>
+    <script src="~/Scripts/dataTables/rowGroup.dataTables.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/jszip/jszip.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/pdfmake/pdfmake.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/pdfmake/vfs_fonts.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/datatables/sum().js" defer></script>
+    <script src="~/Content/js/buttons.print.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+    <script src="~/Scripts/HtmlToExcel/htmlToExcel.js" defer></script>
+    <script src="~/Scripts/HtmlToExcel/tableToExcel.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/ekko-lightbox/ekko-lightbox.min.js" defer></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/filterizr/jquery.filterizr.min.js" defer></script>
+    <script src="~/Content/Templates/TMP1/css/apexcharts.min.js" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/locales/fr.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/js/locales/es.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/themes/fa5/theme.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-fileinput/themes/explorer-fa5/theme.js" type="text/javascript" defer></script>
+    <script src="~/Scripts/bootstrap-tagsinput/bootstrap-tagsinput.js" defer></script>
+    <script src="~/App/app.js" defer></script>
+    <script src="~/App/appHome.js" defer></script>
+    <script src="~/App/JScriptForm.js" defer></script>
+    <script src="~/Scripts/JScript_Function.js" defer></script>
+    <script src="~/App/Directive/breacrumb.js" defer></script>
+    <script src="~/App/Services/AuthData.js" defer></script>
+    <script src="~/App/Services/AuthenticationService.js" defer></script>
+    <script src="~/App/Services/LoginService.js" defer></script>
+    <script src="~/App/Services/Notificationservice.js" defer></script>
+    <script src="~/App/Services/AgreementFormService.js" defer></script>
+
+    <script src="~/App/Controllers/HomeController.js" defer></script>
+    <script src="~/App/Controllers/AddExpenseTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddDepartmentController.js" defer></script>
+    <script src="~/App/Controllers/AddPositionController.js" defer></script>
+    <script src="~/App/Controllers/AddWorkingTimeController.js" defer></script>
+    <script src="~/App/Controllers/AddCompanyController.js" defer></script>
+    <script src="~/App/Controllers/AddEmployeesController.js" defer></script>
+    <script src="~/App/Controllers/AddServicesController.js" defer></script>
+    <script src="~/App/Controllers/AddConnectionTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddPackagesController.js" defer></script>
+    <script src="~/App/Controllers/AddPackageDurationController.js" defer></script>
+    <script src="~/App/Controllers/AddCustomerTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddOrderTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddPaymentTermsController.js" defer></script>
+    <script src="~/App/Controllers/AddIndustryTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddOtherChargeController.js" defer></script>
+    <script src="~/App/Controllers/AddStockNameController.js" defer></script>
+    <script src="~/App/Controllers/AddSupplierController.js" defer></script>
+    <script src="~/App/Controllers/AddItemGroupController.js" defer></script>
+    <script src="~/App/Controllers/AddItemController.js" defer></script>
+    <script src="~/App/Controllers/AddCustomerController.js" defer></script>
+    <script src="~/App/Controllers/AddProvinceCityController.js" defer></script>
+    <script src="~/App/Controllers/AddDistrictController.js" defer></script>
+    <script src="~/App/Controllers/AddCommuneController.js" defer></script>
+    <script src="~/App/Controllers/AddTermConditionController.js" defer></script>
+    <script src="~/App/Controllers/CustomerProfileController.js" defer></script>
+    <script src="~/App/Controllers/AddUserLoginController.js" defer></script>
+    <script src="~/App/Controllers/PagenotfoundController.js" defer></script>
+    <script src="~/App/Controllers/AddWebMenuController.js" defer></script>
+    <script src="~/App/Controllers/AddWebSlideShowController.js" defer></script>
+    <script src="~/App/Controllers/AddAccountController.js" defer></script>
+    <script src="~/App/Controllers/AddPaymentCategoryController.js" defer></script>
+    <script src="~/App/Controllers/AddPaymentMethodController.js" defer></script>
+    <script src="~/App/Controllers/AddRadiusProfileController.js" defer></script>
+    <script src="~/App/Controllers/AddActivateCustomerController.js" defer></script>
+    <script src="~/App/Controllers/GenerateInvoiceController.js" defer></script>
+    <script src="~/App/Controllers/AddRouterController.js" defer></script>
+    <script src="~/App/Controllers/AddPrefixController.js" defer></script>
+    <script src="~/App/Controllers/AddExchangeRateController.js" defer></script>
+    <script src="~/App/Controllers/CustomerConnectionController.js" defer></script>
+    <script src="~/App/Controllers/CustomerInvoiceController.js" defer></script>
+    <script src="~/App/Controllers/UserCompanyController.js" defer></script>
+    <script src="~/App/Controllers/AddVendorTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddVendorController.js" defer></script>
+    <script src="~/App/Controllers/PurchaseOrderController.js" defer></script>
+    <script src="~/App/Controllers/AccountTypeController.js" defer></script>
+    <script src="~/App/Controllers/SubOfAccountTypeController.js" defer></script>
+    <script src="~/App/Controllers/ChartOfAccountController.js" defer></script>
+    <script src="~/App/Controllers/SubscriptionsController.js" defer></script>
+    <script src="~/App/Controllers/SubscriptionsListController.js" defer></script>
+    <script src="~/App/Controllers/LeadsGroupController.js" defer></script>
+    <script src="~/App/Controllers/LeadsController.js" defer></script>
+    <script src="~/App/Controllers/CustomerPaymentController.js" defer></script>
+    <script src="~/App/Controllers/AddCreditNoteController.js" defer></script>
+    <script src="~/App/Controllers/AddCurrencyController.js" defer></script>
+    <script src="~/App/Controllers/AddBranchController.js" defer></script>
+    <script src="~/App/Controllers/AddWarehouseController.js" defer></script>
+    <script src="~/App/Controllers/AddUomController.js" defer></script>
+    <script src="~/App/Controllers/AddItemTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddTaxController.js" defer></script>
+    <script src="~/App/Controllers/ProfileController.js" defer></script>
+    <script src="~/App/Controllers/BillsController.js" defer></script>
+    <script src="~/App/Controllers/ShowCustCompanyController.js" defer></script>
+    <script src="~/App/Controllers/ConnectionTypeController.js" defer></script>
+    <script src="~/App/Controllers/AddClassController.js" defer></script>
+    <script src="~/App/Controllers/VendorUnpaidController.js" defer></script>
+    <script src="~/App/Controllers/AddStockInController.js" defer></script>
+    <script src="~/App/Controllers/ReportSalesByItemController.js" defer></script>
+    <script src="~/App/Controllers/ReportSalesBySalesPersonController.js" defer></script>
+    <script src="~/App/Controllers/ReportSalesByCustomerController.js" defer></script>
+    <script src="~/App/Controllers/ReportItemListController.js" defer></script>
+    <script src="~/App/Controllers/ReportInventorySummaryController.js" defer></script>
+    <script src="~/App/Controllers/ReportInventoryValuationController.js" defer></script>
+    <script src="~/App/Controllers/OpenTicketController.js" defer></script>
+    <script src="~/App/Controllers/SupportController.js" defer></script>
+    <script src="~/App/Controllers/AddProjectController.js" defer></script>
+    <script src="~/App/Controllers/AddTrackerController.js" defer></script>
+    <script src="~/App/Controllers/AddSupportUserLoginController.js" defer></script>
+    <script src="~/App/Controllers/AddSupportGroupController.js" defer></script>
+    <script src="~/App/Controllers/SupportUserRoleController.js" defer></script>
+    <script src="~/App/Controllers/ProjectListsController.js" defer></script>
+    <script src="~/App/Controllers/TicketsController.js" defer></script>
+    <script src="~/App/Controllers/SupportUserProfileController.js" defer></script>
+    <script src="~/App/Controllers/AdjustmentStockController.js" defer></script>
+    <script src="~/App/Controllers/AddStockReasonController.js" defer></script>
+    <script src="~/App/Controllers/StockOutController.js" defer></script>
+    <script src="~/App/Controllers/StockStatusController.js" defer></script>
+    <script src="~/App/Controllers/StockMaintainController.js" defer></script>
+    <script src="~/App/Controllers/InventorySummaryController.js" defer></script>
+    <script src="~/App/Controllers/StockTransfersController.js" defer></script>
+    <script src="~/App/Controllers/AddRouterDeviceStatusController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerNearlyExpiredController.js" defer></script>
+    <script src="~/App/Controllers/ShowGeneratedInvoiceController.js" defer></script>
+    <script src="~/App/Controllers/TelegramNotificationController.js" defer></script>
+    <script src="~/App/Controllers/AddCustomerGroupController.js" defer></script>
+    <script src="~/App/Controllers/CustomerInfoController.js" defer></script>
+    <script src="~/App/Controllers/UserRoleController.js" defer></script>
+    <script src="~/App/Controllers/SurveyCustomerController.js" defer></script>
+    <script src="~/App/Controllers/AddItemSizeController.js" defer></script>
+    <script src="~/App/Controllers/AddItemBrandController.js" defer></script>
+    <script src="~/App/Controllers/SetDefaultOnAddItemFormController.js" defer></script>
+    <script src="~/App/Controllers/SetDefaultAccTypeController.js" defer></script>
+    <script src="~/App/Controllers/ReportInvoicesController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerServiceController.js" defer></script>
+    <script src="~/App/Controllers/AddPackageGroupController.js" defer></script>
+    <script src="~/App/Controllers/RadiusUserListsPPPoEController.js" defer></script>
+    <script src="~/App/Controllers/RadiusUserListsVlanController.js" defer></script>
+    <script src="~/App/Controllers/SaleOrderController.js" defer></script>
+    <script src="~/App/Controllers/AddRadiusUserController.js" defer></script>
+    <script src="~/App/Controllers/NewCustomerController.js" defer></script>
+    <script src="~/App/Controllers/NewCustomerProfileController.js" defer></script>
+    <script src="~/App/Controllers/NSMISPMapNetworkCoverageController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerInvoiceController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerInvoiceUnpaidController.js" defer></script>
+    <script src="~/App/Controllers/CustomerInvoiceListController.js" defer></script>
+    <script src="~/App/Controllers/CMTaxInvoiceController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerActiveBandwidthController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerIdentificationController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerInfrastructureController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerActiveController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerConnectionListController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerConnectivityListController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerInfoListController.js" defer></script>
+    <script src="~/App/Controllers/ShowPPPoEPackageController.js" defer></script>
+    <script src="~/App/Controllers/AddOLTController.js" defer></script>
+    <script src="~/App/Controllers/ShowPPPoELimitationController.js" defer></script>
+    <script src="~/App/Controllers/AddOLTNameController.js" defer></script>
+    <script src="~/App/Controllers/AddSplitterNameController.js" defer></script>
+    <script src="~/App/Controllers/AddPONController.js" defer></script>
+    <script src="~/App/Controllers/AddSplitterTypeController.js" defer></script>
+    <script src="~/App/Controllers/CustomerSaleOrderProfileController.js" defer></script>
+    <script src="~/App/Controllers/AddTelegramNotificationController.js" defer></script>
+    <script src="~/App/Controllers/AddDeviceNameController.js" defer></script>
+    <script src="~/App/Controllers/AddDeviceSplitterNameController.js" defer></script>
+    <script src="~/App/Controllers/AddNationalityController.js" defer></script>
+    <script src="~/App/Controllers/ShowCurrentBlockNumberController.js" defer></script>
+    <script src="~/App/Controllers/CustomerReports/CustomerReportsController.js" defer></script>
+    <script src="~/App/Controllers/CustomerReports/CustomerConnectionReportsController.js" defer></script>
+    <script src="~/App/Controllers/Customer/Customers.js" defer></script>
+    <script src="~/App/Controllers/Customer/ReportSentToDMCController.js" defer></script>
+    <script src="~/App/Controllers/Items/Items.js" defer></script>
+    <script src="~/App/Controllers/Purchase/PurchaseController.js" defer></script>
+    <script src="~/App/Controllers/RequestForm/RequestFormController.js" defer></script>
+    <script src="~/App/Controllers/Account/AccountController.js" defer></script>
+    <script src="~/App/Controllers/Expenses/ExpensesController.js" defer></script>
+    <script src="~/App/Controllers/Finance/FinanceController.js" defer></script>
+    <script src="~/App/Controllers/Telegrams/TelegramController.js" defer></script>
+    <script src="~/App/Controllers/StockAlertController.js" defer></script>
+    <script src="~/App/Controllers/InfrastructureProviderController.js" defer></script>
+    <script src="~/App/Controllers/InventoryExpirationDateController.js" defer></script>
+    <script src="~/App/Controllers/StockRequestReportController.js" defer></script>
+    <script src="~/App/Controllers/StockReturnReportController.js" defer></script>
+    <script src="~/App/Controllers/StockOnHandReportController.js" defer></script>
+    <script src="~/App/Controllers/AddItemProfileController.js" defer></script>
+    <script src="~/App/Controllers/Sales/SalesController.js" defer></script>
+    <script src="~/App/Controllers/StockInReportController.js" defer></script>
+    <script src="~/App/Controllers/TelegramBotController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerAttachmentController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomerTerminateController.js" defer></script>
+    <script src="~/App/Controllers/ReportStockAdjustController.js" defer></script>
+    <script src="~/App/Controllers/ReportPurchaseVendorController.js" defer></script>
+    <script src="~/App/Controllers/ReportPurchaseDetailController.js" defer></script>
+    <script src="~/App/Controllers/SummaryByVoucherController.js" defer></script>
+    <script src="~/App/Controllers/IspLinkController.js" defer></script>
+    <script src="~/App/Controllers/BalanceSheetController.js" defer></script>
+    <script src="~/App/Controllers/DashboardAccountController.js" defer></script>
+    <script src="~/App/Controllers/ReportBalanceSheetController.js" defer></script>
+    <script src="~/App/Controllers/IncomeStatementController.js" defer></script>
+    <script src="~/App/Controllers/ReportCustomer100MbpsUpController.js" defer></script>
+    <script src="~/App/Controllers/CreateQuotationController.js" defer></script>
+    <script src="~/App/Controllers/AddNewProjectController.js" defer></script>
+    <script src="~/App/Controllers/FundTransferController.js" defer></script>
+    <script src="~/App/Controllers/JournalEntryController.js" defer></script>
+    <script src="~/App/Controllers/AlertMessagesController.js" defer></script>
+    <script src="~/App/Controllers/SettingsController.js" defer></script>
+    <script src="~/App/Controllers/ReportGeneralJournalController.js" defer></script>
+    <script src="~/App/Controllers/ItemChartofAccountController.js" defer></script>
+    <script src="~/App/Controllers/ReportChangePackageController.js" defer></script>
+    <script src="~/App/Controllers/BS/BSController.js" defer></script>
+    <script src="~/App/Controllers/Dashboard/DashboardController.js" defer></script>
+    <script src="~/App/Controllers/BandwidthController.js" defer></script>
+    <script src="~/App/Controllers/Reports/ReportsController.js" defer></script>
+    <script src="~/App/Controllers/Customer/CustomerFeedbackController.js" defer></script>
+
+    <script src="~/App/Directive/ReportSortDirective.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportConfigService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportFilterFieldsService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportFormatService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportColumnService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportTotalsService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportRegistryService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportOptionsService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportExcelService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportSidebarService.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportDateFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportComboFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportFiltersFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportNavigationFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportFavoritesFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportPagingFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportSortingFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportDataFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportLayoutFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportCellsFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportExportFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportGrouping.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportGroupingFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/ReportHeaderGroupsFeature.js" defer></script>
+    <script src="~/App/Services/Report/Helper/TransactionLogDialog.js" defer></script>
+    <script src="~/App/Services/Report/Helper/JournalViewDialog.js" defer></script>
+
+    <script src="~/App/Services/Report/Categories/CustomerReportService.js" defer></script>
+    <script src="~/App/Services/Report/Categories/SaleReportService.js" defer></script>
+    <script src="~/App/Services/Report/Categories/InventoryReportService.js" defer></script>
+    <script src="~/App/Services/Report/Categories/PurchaseReportService.js" defer></script>
+    <script src="~/App/Services/Report/Categories/AccountingReportService.js" defer></script>
+    <script src="~/App/Services/Report/Categories/OtherReportService.js" defer></script>
+
+    <script src="~/App/Controllers/ReportController.js" defer></script>
+    <script src="~/App/Controllers/ActivateService/ActivateServiceController.js" defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+
+    <script>
+        $(function () {
+            var PageSize = 30;
+            var CurrentPage = 1;
+            var RowSeleted = -1;
+            var FixGridHeight = 297;
+            var ISEdit = false;
+            var imageWindow = null;
+            var currentImages = [];
+            var currentIndex = 0;
+
+            $(document).on('select2:open', (e) => {
+                e.preventDefault();
+                $(this).parent().find('.select2-search__field').focus();
+                $(this).parent().find('input.select2-search__field').focus();
+            });
+
+            $('.dropdown-menu').on('click', function (e) {
+                e.stopPropagation();
+            });
+
+            $(document).on('mouseenter', '[data-toggle="tooltip"]', function () {
+                $(this).tooltip({ trigger: 'hover' }).tooltip('show');
+            });
+
+            $(document).on('mouseenter', function (e) {
+                if (!e.target.closest('#avatarBtn') && !e.target.closest('#profileDropdown')) {
+                    document.getElementById('profileDropdown')?.classList.remove('open');
+                }
+            });
+
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') $('.theme-picker').removeClass('d-none');
+            applyTheme(theme);
+
+            $(document).on('scroll', function () {
+                const btn = document.getElementById('back-to-top');
+                if (window.scrollY > 300) {
+                    btn.classList.add('show');
+                } else {
+                    btn.classList.remove('show');
+                }
+            });
+        });
+
+        function showImagePopup(imagesStr, index) {
+            if (!imagesStr) return;
+
+            // Convert string or array to array
+            currentImages = Array.isArray(imagesStr) ? imagesStr : imagesStr.split(/[,~]/).map(f => f.trim()).filter(f => f);
+            if (currentImages.length === 0) return;
+
+            currentIndex = index || 0;
+
+            if (!imageWindow) {
+                imageWindow = $("#imagePopup").kendoWindow({
+                    width: "700px",
+                    height: "500px",
+                    title: "Image Viewer",
+                    modal: true,
+                    visible: false,
+                    actions: ["Close"],
+                    open: function () {
+                        $(".k-overlay").on("click.imagePopup", function () {
+                            imageWindow.close();
+                        });
+                    },
+                    close: function () {
+                        $(".k-overlay").off("click.imagePopup");
+                    }
+                }).data("kendoWindow");
+            }
+
+            loadImage();
+            imageWindow.center().open();
+        }
+        function loadImage() {
+            if (!currentImages[currentIndex]) return; // safety
+            var file = currentImages[currentIndex].trim();
+            var url = "/Uploads/Items/" + file; // <-- adjust to match ServerRoot + GH.ImagePath if needed
+            $("#popupImage").attr("src", url);
+        }
+        function nextImage() {
+            if (currentIndex < currentImages.length - 1) {
+                currentIndex++;
+                loadImage();
+            }
+        }
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadImage();
+            }
+        }
+        function toggleProfileMenu() {
+            const $dd = $('#profileDropdown');
+            const $btn = $('#avatarBtn');
+
+            $dd.toggleClass('open');
+
+            const isOpen = $dd.hasClass('open');
+            $btn.attr('aria-expanded', isOpen);
+
+            // Close when clicking outside
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#avatarBtn, #profileDropdown').length) {
+                    $('#profileDropdown').removeClass('open');
+                    $('#avatarBtn').attr('aria-expanded', false);
+                }
+            });
+        }
+        function applyTheme(theme) {
+            const $body = $('body');
+            const $navbar = $('.main-header');
+            const $sidebar = $('.main-sidebar');
+            const $icon = $('#darkModeIcon');
+
+            const isDarkMode = theme === 'dark';
+            $body.toggleClass('dark-mode', isDarkMode);
+            $navbar
+                .toggleClass('navbar-dark', isDarkMode)
+                .toggleClass('navbar-white', !isDarkMode);
+            if ($icon.length) {
+                $icon
+                    .removeClass('ti-sun ti-moon')
+                    .addClass(isDarkMode ? 'ti-sun' : 'ti-moon');
+            }
+            localStorage.setItem('theme', theme);
+        }
+        function toggleDarkMode() {
+            const theme = $('body').hasClass('dark-mode') ? 'light' : 'dark';
+            if (theme === 'dark') $('.theme-picker').removeClass('d-none');
+            else $('.theme-picker').addClass('d-none');
+            applyTheme(theme);
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

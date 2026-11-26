@@ -1,0 +1,402 @@
+﻿<div ng-controller="SettingsCtrl" class="sp-root">
+
+    <!-- ═══ LEFT SIDEBAR: System Setup Menu ═══ -->
+    <aside class="sp-sidebar">
+        <div class="sp-sidebar-header">
+            <span class="sp-sidebar-icon"><i class="fas fa-cog"></i></span>
+            <span class="sp-sidebar-title">System Setup</span>
+            <i class="fas fa-chevron-down sp-sidebar-caret"></i>
+        </div>
+        <nav class="sp-nav">
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'company'}" ng-click="setMenu('company')">
+                <i class="fas fa-building"></i> Company Profile
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'invoice'}" ng-click="setMenu('invoice')">
+                <i class="fas fa-file-invoice"></i> Invoice Template
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'nationality'}"
+                ng-click="setMenu('nationality')">
+                <i class="fas fa-flag"></i> Nationality
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'user'}" ng-click="setMenu('user')">
+                <i class="fas fa-user-lock"></i> User Login
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'prefix'}" ng-click="setMenu('prefix')">
+                <i class="fas fa-tag"></i> Prefix
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'commune'}" ng-click="setMenu('commune')">
+                <i class="fas fa-map-pin"></i> Commune
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'district'}" ng-click="setMenu('district')">
+                <i class="fas fa-map-marked"></i> District
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'province'}" ng-click="setMenu('province')">
+                <i class="fas fa-city"></i> Province / City
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'cblock'}" ng-click="setMenu('cblock')">
+                <i class="fas fa-user-slash"></i> Customer Block
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'cgroup'}" ng-click="setMenu('cgroup')">
+                <i class="fas fa-users"></i> Customer Group
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'business'}" ng-click="setMenu('business')">
+                <i class="fas fa-briefcase"></i> Business Type
+            </a>
+            <a class="sp-nav-item" ng-class="{'active': activeMenu === 'billing'}" ng-click="setMenu('billing')">
+                <i class="fas fa-file-invoice-dollar"></i> Billing Config
+            </a>
+            <a class="sp-nav-item maintenance-nav" ng-class="{'active': activeMenu === 'maintenance'}"
+                ng-click="setMenu('maintenance')">
+                <i class="fas fa-tools"></i> Maintenance
+                <span class="sp-badge" ng-show="maintenanceMode">ON</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ═══ CONTENT PANEL ═══ -->
+    <main class="sp-content">
+
+        <!-- Breadcrumb -->
+        <div class="sp-breadcrumb">
+            <span>Settings</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="sp-breadcrumb-current">{{menuLabel[activeMenu]}}</span>
+        </div>
+
+        <!-- ── Company Profile ── -->
+        <div ng-show="activeMenu === 'company'">
+            <div class="sp-section-title">Company Profile</div>
+            <div class="sp-section-desc">Configure your ISP company details displayed on invoices and customer
+                communications.</div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Company Name</div>
+                    <div class="sp-hint">Legal registered name of the company</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="text" ng-model="settings.companyName" placeholder="ISP Corp Ltd." />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Support Email</div>
+                    <div class="sp-hint">Customer-facing support address</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="email" ng-model="settings.supportEmail" placeholder="support@ispcorp.com" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Phone Number</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="text" ng-model="settings.supportPhone" placeholder="+855 23 000 000" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Timezone</div>
+                </div>
+                <div class="sp-field-control">
+                    <select ng-model="settings.timezone">
+                        <option value="Asia/Phnom_Penh">Asia/Phnom_Penh (ICT +7)</option>
+                        <option value="Asia/Bangkok">Asia/Bangkok (ICT +7)</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Company Address</div>
+                </div>
+                <div class="sp-field-control">
+                    <textarea ng-model="settings.address" rows="3"
+                        placeholder="123 Network Street, Phnom Penh, Cambodia"></textarea>
+                </div>
+            </div>
+            <div class="sp-actions">
+                <button class="sp-btn-save" ng-click="save('company')"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+        </div>
+
+        <!-- ── Billing Config ── -->
+        <div ng-show="activeMenu === 'billing'">
+            <div class="sp-section-title">Billing Configuration</div>
+            <div class="sp-section-desc">Set up invoice cycles, taxes, late fees, and payment gateways.</div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Default Currency</div>
+                </div>
+                <div class="sp-field-control">
+                    <select ng-model="settings.currency">
+                        <option value="USD">USD — US Dollar</option>
+                        <option value="KHR">KHR — Cambodian Riel</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Billing Cycle</div>
+                </div>
+                <div class="sp-field-control">
+                    <select ng-model="settings.billingCycle">
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="annually">Annually</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Invoice Due Days</div>
+                    <div class="sp-hint">Days after issue before invoice is overdue</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.dueDays" placeholder="15" min="1" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Tax Rate (%)</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.taxRate" placeholder="10" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Late Fee (%)</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.lateFee" placeholder="5" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-section-subtitle">Payment Gateways</div>
+            <div ng-repeat="gw in gateways" class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label"><i class="{{gw.icon}}"
+                            style="margin-right:6px;color:var(--accent)"></i>{{gw.name}}</div>
+                </div>
+                <div class="sp-field-control sp-row-right">
+                    <span class="sp-status-pill" ng-class="gw.enabled ? 'pill-on':'pill-off'">{{gw.enabled ?
+                        'Enabled':'Disabled'}}</span>
+                    <label class="sp-toggle">
+                        <input type="checkbox" ng-model="gw.enabled" />
+                        <span class="sp-toggle-track"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="sp-actions">
+                <button class="sp-btn-save" ng-click="save('billing')"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+        </div>
+
+        <!-- ── User Login ── -->
+        <div ng-show="activeMenu === 'user'">
+            <div class="sp-section-title">User Login</div>
+            <div class="sp-section-desc">Configure authentication settings and security policies.</div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Two-Factor Authentication</div>
+                    <div class="sp-hint">Require OTP for admin accounts</div>
+                </div>
+                <div class="sp-field-control sp-row-right">
+                    <label class="sp-toggle">
+                        <input type="checkbox" ng-model="settings.twoFA" />
+                        <span class="sp-toggle-track"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Session Timeout (minutes)</div>
+                    <div class="sp-hint">Auto-logout after inactivity</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.sessionTimeout" placeholder="30" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Max Login Attempts</div>
+                    <div class="sp-hint">Lock account after N failed attempts</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.maxAttempts" placeholder="5" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Password Minimum Length</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="number" ng-model="settings.pwdMinLen" placeholder="8" />
+                </div>
+            </div>
+            <div class="sp-actions">
+                <button class="sp-btn-save" ng-click="save('user')"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+        </div>
+
+        <!-- ── Maintenance ── -->
+        <div ng-show="activeMenu === 'maintenance'">
+            <div class="sp-section-title">Maintenance Mode</div>
+            <div class="sp-section-desc">Control system availability and configure the alert message shown to users
+                during downtime.</div>
+            <div class="sp-divider"></div>
+
+            <!-- Toggle Row -->
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Enable Maintenance Mode</div>
+                    <div class="sp-hint">When on, users see your alert message instead of logging in</div>
+                </div>
+                <div class="sp-field-control sp-row-right">
+                    <label class="sp-toggle large">
+                        <input type="checkbox" ng-model="maintenanceMode" ng-change="onMaintenanceToggle()" />
+                        <span class="sp-toggle-track"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Status Banner -->
+            <div class="sp-maint-banner" ng-class="maintenanceMode ? 'banner-danger':'banner-success'">
+                <i class="fas" ng-class="maintenanceMode ? 'fa-exclamation-triangle':'fa-check-circle'"></i>
+                <span ng-show="maintenanceMode">Maintenance mode is <strong>ACTIVE</strong> — users cannot access the
+                    system.</span>
+                <span ng-show="!maintenanceMode">System is <strong>online</strong> and operating normally.</span>
+            </div>
+
+            <div class="sp-divider"></div>
+            <div class="sp-section-subtitle">Alert Message for Users</div>
+
+            <!-- Alert Title -->
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Alert Title</div>
+                    <div class="sp-hint">Headline shown on the maintenance screen</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="text" ng-model="maintenance.title" placeholder="System Maintenance" maxlength="80" />
+                    <div class="sp-charcount">{{maintenance.title.length || 0}} / 80</div>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+
+            <!-- Alert Body -->
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Alert Body</div>
+                    <div class="sp-hint">Detailed message for users</div>
+                </div>
+                <div class="sp-field-control">
+                    <textarea ng-model="maintenance.message" rows="4" maxlength="500"
+                        placeholder="We are currently performing scheduled maintenance. We expect to be back online shortly. We apologize for any inconvenience."></textarea>
+                    <div class="sp-charcount">{{maintenance.message.length || 0}} / 500</div>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+
+            <!-- End Time + Style -->
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Estimated End Time</div>
+                </div>
+                <div class="sp-field-control">
+                    <input type="datetime-local" ng-model="maintenance.endTime" />
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+            <div class="sp-row">
+                <div class="sp-field-label">
+                    <div class="sp-label">Alert Style</div>
+                    <div class="sp-hint">Visual style of the user-facing banner</div>
+                </div>
+                <div class="sp-field-control">
+                    <select ng-model="maintenance.style">
+                        <option value="warning">⚠ Warning</option>
+                        <option value="danger">🚨 Critical</option>
+                        <option value="info">ℹ Info</option>
+                    </select>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+
+            <!-- Live Preview -->
+            <div class="sp-preview-label"><i class="fas fa-eye"></i> Live Preview</div>
+            <div class="sp-alert-preview" ng-class="'alert-' + (maintenance.style || 'warning')">
+                <i class="fas preview-ico" ng-class="{
+          'fa-exclamation-triangle': maintenance.style==='warning'||!maintenance.style,
+          'fa-times-circle': maintenance.style==='danger',
+          'fa-info-circle': maintenance.style==='info'
+        }"></i>
+                <div>
+                    <div class="sp-alert-title">{{maintenance.title || 'System Maintenance'}}</div>
+                    <div class="sp-alert-msg">{{maintenance.message || 'We are currently performing scheduled
+                        maintenance.'}}</div>
+                    <div class="sp-alert-time" ng-show="maintenance.endTime"><i class="fas fa-clock"></i> Est.
+                        completion: {{maintenance.endTime | date:'medium'}}</div>
+                </div>
+            </div>
+            <div class="sp-divider"></div>
+
+            <!-- Quick Actions -->
+            <div class="sp-section-subtitle">Maintenance Actions</div>
+            <div class="sp-action-row">
+                <button class="sp-action-btn" ng-click="runAction('cache')"><i class="fas fa-broom"></i> Clear
+                    Cache</button>
+                <button class="sp-action-btn" ng-click="runAction('logs')"><i class="fas fa-trash-alt"></i> Purge
+                    Logs</button>
+                <button class="sp-action-btn" ng-click="runAction('backup')"><i class="fas fa-database"></i> Backup
+                    DB</button>
+                <button class="sp-action-btn" ng-click="runAction('sessions')"><i class="fas fa-sign-out-alt"></i> Kill
+                    Sessions</button>
+            </div>
+
+            <div class="sp-actions">
+                <button class="sp-btn-save" ng-click="save('maintenance')"><i class="fas fa-save"></i> Save
+                    Settings</button>
+            </div>
+        </div>
+
+        <!-- ── Generic placeholder for other menu items ── -->
+        <div
+            ng-show="['invoice','nationality','prefix','commune','district','province','cblock','cgroup','business'].indexOf(activeMenu) >= 0">
+            <div class="sp-section-title">{{menuLabel[activeMenu]}}</div>
+            <div class="sp-section-desc">Configure {{menuLabel[activeMenu]}} settings for your ISP system.</div>
+            <div class="sp-divider"></div>
+            <div class="sp-empty-state">
+                <i class="fas fa-layer-group"></i>
+                <div>No items yet. Add your first entry to get started.</div>
+                <button class="sp-btn-save" style="margin-top:16px"><i class="fas fa-plus"></i> Add New</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="sp-toast" ng-class="{'sp-toast-show': toast.show, 'sp-toast-error': toast.error}">
+        <i class="fas" ng-class="toast.error ? 'fa-times-circle':'fa-check-circle'"></i>
+        {{toast.message}}
+    </div>
+</div>
+
+<style>
+    @import url('App/Views/Settings/settings.css');
+</style>

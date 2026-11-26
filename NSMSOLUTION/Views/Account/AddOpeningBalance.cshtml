@@ -1,0 +1,256 @@
+@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    $(document).ready(function () {
+        function showFieldError(elementId, message) {
+            var $el = $("#" + elementId);
+            $el.addClass("error is-invalid");
+            $("#" + elementId + "-error").remove();
+            $el.closest("td, .form-group, div").append('<label id="' + elementId + '-error" class="error text-danger" style="display:block;font-size:12px;margin-top:4px;" for="' + elementId + '">' + message + '</label>');
+            $el.focus();
+        }
+
+        function clearFieldError(elementId) {
+            var $el = $("#" + elementId);
+            $el.removeClass("error is-invalid");
+            $("#" + elementId + "-error").remove();
+        }
+
+        var mappingUrl = (typeof ServerRoot !== "undefined" ? ServerRoot : "/") + "Account/GetAccountClassMapping";
+        var accountClassMap = {};
+
+        function applyClassForAccount(accId) {
+            if (!accId) return;
+            if (accountClassMap && accountClassMap[accId]) {
+                $("#TxtClassName").val(accountClassMap[accId]).trigger("change");
+                clearFieldError("TxtClassName");
+                return;
+            }
+            $.getJSON(mappingUrl, { accountID: accId }, function (res) {
+                if (res && res.ClassID && res.ClassID > 0) {
+                    accountClassMap[accId] = res.ClassID;
+                    $("#TxtClassName").val(res.ClassID).trigger("change");
+                    clearFieldError("TxtClassName");
+                }
+            });
+        }
+
+        $.getJSON(mappingUrl, function (data) {
+            accountClassMap = data || {};
+            var curAcc = $("#TxtChartOfAccount").val();
+            var currentClass = $("#TxtClassName").val();
+            if (curAcc && (!currentClass || currentClass === "0" || currentClass === "")) {
+                applyClassForAccount(curAcc);
+            }
+        });
+
+        $("#TxtOpeningBalance, #TxtOpeningBalanceDate, #TxtChartOfAccount, #TxtClassName").on("input keyup change select2:select", function () {
+            clearFieldError(this.id);
+        });
+
+        $("#TxtChartOfAccount").on("change select2:select", function () {
+            var accId = $(this).val();
+            applyClassForAccount(accId);
+   if (curAcc && (!currentClass || currentClass === "0" || currentClass === "")) {
+                applyClassForAccount(curAcc);
+            }
+        });
+
+        $("#TxtOpeningBalance, #TxtOpeningBalanceDate, #TxtChartOfAccount, #TxtClassName").on("input keyup change select2:select", function () {
+            clearFieldError(this.id);
+        });
+
+        $("#TxtChartOfAccount").on("change select2:select", function () {
+            var accId = $(this).val();
+            applyClassForAccount(accId);
+        });
+
+        function validateOpeningBalanceFields() {
+            var className = $("#TxtClassName").val();
+            var chartOfAccount = $("#TxtChartOfAccount").val();
+            var amount = accounting.unformat($("#TxtOpeningBalance").val());
+            var date = $("#TxtOpeningBalanceDate").val();
+            var isValid = true;
+
+            clearFieldError("TxtClassName");
+            clearFieldError("TxtChartOfAccount");
+            clearFieldError("TxtOpeningBalance");
+            clearFieldError("TxtOpeningBalanceDate");
+
+            if (!className || className === "" || className === "0") {
+                showFieldError("TxtClassName", "Please select a Class.");
+                isValid = false;
+            }
+
+            if (!date || date.trim() === "") {
+                showFieldError("TxtOpeningBalanceDate", "Opening Balance Date is required.");
+                isValid = false;
+            }
+
+            if (!amount || amount === 0) {
+                showFieldError("TxtOpeningBalance", "Opening Balance amount must be greater than 0.");
+                isValid = false;
+            }
+
+            if (!chartOfAccount || chartOfAccount === "" || chartOfAccount === "0") {
+                showFieldError("TxtChartOfAccount", "Please select a Chart Of Account.");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        var submittedValues = null;
+
+        function formatDateForApi(dateStr) {
+            if (!dateStr) return new Date().toISOString().split('T')[0];
+            dateStr = dateStr.trim();
+            var dmyMatch = dateStr.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+            if (dmyMatch) {
+                var day = ("0" + dmyMatch[1]).slice(-2);
+                var month = ("0" + dmyMatch[2]).slice(-2);
+                var year = dmyMatch[3];
+                return year + "-" + month + "-" + day;
+            }
+            var ymdMatch = dateStr.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+            if (ymdMatch) {
+                var year = ymdMatch[1];
+                var month = ("0" + ymdMatch[2]).slice(-2);
+                var day = ("0" + ymdMatch[3]).slice(-2);
+                return year + "-" + month + "-" + day;
+            }
+            return dateStr;
+        }
+
+        // Intercept save button in capture phase to validate before DrawHTMLForm submits
+        var btnSave = document.getElementById("SaveChange");
+        if (btnSave) {
+            btnSave.addEventListener("click", function (e) {
+                if (!validateOpeningBalanceFields()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+
+                submittedValues = {
+                    classID: $("#TxtClassName").val(),
+                    accountID: $("#TxtChartOfAccount").val(),
+                    amount: accounting.unformat($("#TxtOpeningBalance").val()),
+                    date: $("#TxtOpeningBalanceDate").val()
+                };
+            }, true);
+        }
+
+        window.formatDateForApi = formatDateForApi;
+        window.getOpeningBalanceSubmittedValues = function () { return submittedValues; };
+    });
+
+    function savechangecallback(apiResponse) {
+        var submittedValues = (typeof window.getOpeningBalanceSubmittedValues === "function") ? window.getOpeningBalanceSubmittedValues() : null;
+        var accountId = (submittedValues && submittedValues.accountID) ? submittedValues.accountID : $("#TxtChartOfAccount").val();
+        var amount = (submittedValues && submittedValues.amount) ? submittedValues.amount : accounting.unformat($("#TxtOpeningBalance").val());
+        var rawDate = (submittedValues && submittedValues.date) ? submittedValues.date : $("#TxtOpeningBalanceDate").val();
+        var formattedDate = (typeof window.formatDateForApi === "function") ? window.formatDateForApi(rawDate) : (rawDate || new Date().toISOString().split('T')[0]);
+
+        var openingId = 0;
+        if (apiResponse && apiResponse.Data) {
+            openingId = apiResponse.Data.IDENTITYValue || apiResponse.Data.Data || apiResponse.Data;
+        } else if (window.SaveChangeResponse && window.SaveChangeResponse.Data) {
+            openingId = window.SaveChangeResponse.Data.IDENTITYValue || window.SaveChangeResponse.Data.Data || window.SaveChangeResponse.Data;
+        } else if (window.SaveChangeResponse && window.SaveChangeResponse["Data"]) {
+            openingId = window.SaveChangeResponse["Data"].IDENTITYValue || window.SaveChangeResponse["Data"];
+        }
+
+        if (!openingId || openingId === 0 || openingId === "0") {
+            openingId = $("#OpeningBalanceID, [name='OpeningBalanceID'], input[name='PrimaryFieldValue']").val() || 0;
+        }
+
+        var objData = {
+            AccountID: accountId,
+            Amount: amount,
+            OpeningBalanceID: openingId,
+            OpeningBalanceDate: formattedDate
+        };
+
+        PostData("ChartOfAccount/PostOpeningBalance", objData, function (res) {
+            refreshGridAndClose();
+        });
+    }
+
+    function refreshGridAndClose() {
+        if (typeof toastr !== "undefined") {
+            toastr.clear();
+            toastr.remove();
+        }
+        $("#toast-container, .swal2-container, #DialogMessageBox").remove();
+
+        // 1. Refresh all Kendo Grid instances on the page
+        try {
+            $("[data-role=grid], .k-grid, #grid, #TableGride").each(function () {
+                var grid = $(this).data("kendoGrid");
+                if (grid && grid.dataSource) {
+                    grid.dataSource.read();
+                }
+            });
+        } catch (e) { }
+
+        // 2. Refresh DrawHTMLSearchForm registry grids
+        try {
+            if (window.DrawHTMLSearchForm && window.DrawHTMLSearchForm.registry) {
+                for (var formId in window.DrawHTMLSearchForm.registry) {
+                    window.DrawHTMLSearchForm.loadGrid(formId, 1);
+                }
+            }
+        } catch (e) { }
+
+        // 3. Call standard LoadTableGrid if available
+        if (typeof LoadTableGrid === "function") {
+            try {
+                LoadTableGrid(typeof CurrentPage !== "undefined" ? CurrentPage : 1);
+            } catch (e) { }
+        }
+
+        // 4. Trigger search button if present
+        try {
+            $("#BunSearch, .btn-search, #btnSearch").trigger("click");
+        } catch (e) { }
+
+        // 5. Angular route reload fallback
+        try {
+            if (window.angular) {
+                var $injector = angular.element(document.querySelector('[ng-app], [ng-view], body')).injector();
+                if ($injector && $injector.has('$route')) {
+                    $injector.get('$route').reload();
+                }
+            }
+        } catch (e) { }
+
+        // 6. Close modal
+        closeModalForm();
+    }
+
+    function closeModalForm() {
+        $("#CloseModal, .btnclose, [data-dismiss='modal'], [data-bs-dismiss='modal'], .close").trigger("click");
+        try {
+            $("#modal-default, .modal").modal('hide');
+        } catch (e) { }
+
+        try {
+            var modalEl = document.getElementById('modal-default') || document.querySelector('.modal.show');
+            if (modalEl && window.bootstrap && bootstrap.Modal) {
+                var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        } catch (e) { }
+
+        setTimeout(function () {
+            $(".modal").removeClass("show").hide();
+            $(".modal-backdrop").remove();
+            $("body").removeClass("modal-open").css("overflow", "").css("padding-right", "");
+        }, 150);
+    }
+</script>
+

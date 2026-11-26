@@ -1,0 +1,58 @@
+<template id="rp-journal-view-dialog-template">
+  <div class="rp-jv-backdrop" role="presentation">
+    <section class="rp-jv-dialog" role="dialog" aria-modal="true" aria-labelledby="rp-jv-title">
+      <header class="rp-jv-header">
+        <span>Journal Report</span>
+        <button type="button" class="rp-jv-close" data-journal-view-close aria-label="Close">&times;</button>
+      </header>
+      <main class="rp-jv-body">
+        <div class="rp-jv-report-heading">
+          <strong data-journal-view-company></strong>
+          <h2 class="rp-jv-title" id="rp-jv-title">Journal Report</h2>
+        </div>
+        <div class="rp-jv-table-wrap">
+          <table class="rp-jv-table">
+            <thead>
+              <tr>
+                <th data-jv-column="0">Tran Type</th>
+                <th data-jv-column="1">Number</th>
+                <th data-jv-column="2">Date</th>
+                <th data-jv-column="3">Name</th>
+                <th data-jv-column="4">Item</th>
+                <th data-jv-column="5">Account</th>
+                <th class="rp-jv-number" data-jv-column="6">Debit</th>
+                <th class="rp-jv-number" data-jv-column="7">Credit</th>
+                <th data-jv-column="8">Memo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="9">Loading journal report...</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td data-jv-column="0">Grand Total</td>
+                <td data-jv-column="1"></td>
+                <td data-jv-column="2"></td>
+                <td data-jv-column="3"></td>
+                <td data-jv-column="4"></td>
+                <td data-jv-column="5"></td>
+                <td class="rp-jv-number" data-jv-column="6" data-journal-view-debit>0.00</td>
+                <td class="rp-jv-number" data-jv-column="7" data-journal-view-credit>0.00</td>
+                <td data-jv-column="8"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </main>
+      <div class="rp-jv-customize-panel" data-journal-view-customize-panel hidden></div>
+      <footer class="rp-jv-footer">
+        <button type="button" class="rp-jv-btn" data-journal-view-customize aria-expanded="false">Customize</button>
+        <div class="rp-jv-footer-actions">
+          <button type="button" class="rp-jv-btn" data-journal-view-print>Print</button>
+          <button type="button" class="rp-jv-btn" data-journal-view-export>Export Excel</button>
+          <button type="button" class="rp-jv-btn rp-jv-close-action" data-journal-view-close>Close</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+</template>

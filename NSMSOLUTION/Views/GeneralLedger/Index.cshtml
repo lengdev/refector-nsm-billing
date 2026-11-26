@@ -1,0 +1,815 @@
+@{
+    Layout = null;
+}
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    .ledger-header {
+        display: none;
+        padding: 8px;
+        font-weight: bold;
+        border: 1px solid #ccc;
+        background: #f5f5f5;
+        margin-bottom: 10px;
+    }
+
+    .account-header {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+    /* Enables horizontal scroll if the table exceeds screen width */
+    .table-responsive-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1000px; /* Ensures the table maintains structure when many columns are active */
+    }
+
+        .ledger-table th,
+        .ledger-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            white-space: nowrap; /* Prevents text from wrapping awkwardly into multiple lines */
+        }
+
+    /* Allows Description column to expand nicely if it has long text */
+    .col-description {
+        white-space: normal !important;
+        min-width: 250px;
+        max-width: 400px;
+    }
+
+    .ledger-table th {
+        background: #f2f2f2;
+        text-align: center;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .account-total {
+        background: #fafafa;
+        font-weight: bold;
+    }
+
+    .search-panel {
+        margin-bottom: 10px;
+        background: #f9f9f9;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+    .column-selector {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px dashed #ccc;
+    }
+
+        .column-selector label {
+            margin-right: 15px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+</style>
+
+<div class="search-panel">
+    <div class="row">
+        <div class="col-md-2">
+            <label>From Date</label>
+            <input id="FromDate" style="width: 100%;" />
+        </div>
+
+        <div class="col-md-2">
+            <label>To Date</label>
+            <input id="ToDate" style="width: 100%;" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Account</label>
+            <input id="txtAccount" class="form-control" placeholder="Account No / Name" />
+        </div>
+
+        <div class="col-md-5">
+            <br />
+            <button class="btn btn-primary" onclick="SearchGL();">
+                <i class="fa fa-search"></i> Search
+            </button>
+
+            <button class="btn btn-danger" onclick="PrintReport();">
+                <i class="fa fa-file-pdf"></i> PDF
+            </button>
+
+            <button class="btn btn-success" onclick="ExportExcel();">
+                <i class="fa fa-file-excel"></i> Excel
+            </button>
+        </div>
+    </div>
+
+    <div class="row column-selector">
+        <div class="col-md-12">
+            <strong>Show Columns: </strong>
+            <label><input type="checkbox" class="chk-col" data-col="ClassName" checked /> Class Name</label>
+            <label><input type="checkbox" class="chk-col" data-col="Type" checked /> Type</label>            
+            <label><input type="checkbox" class="chk-col" data-col="Date" checked /> Date</label>
+            <label><input type="checkbox" class="chk-col" data-col="ReferenceNo" checked /> Reference Nº</label>
+            <label><input type="checkbox" class="chk-col" data-col="Customer" checked /> Name</label>
+            <label><input type="checkbox" class="chk-col" data-col="Description" checked /> Description</label>
+            <label><input type="checkbox" class="chk-col" data-col="ContraAccount" checked /> Account Name</label>
+            <label><input type="checkbox" class="chk-col" data-col="Debit" checked /> Debit</label>
+            <label><input type="checkbox" class="chk-col" data-col="Credit" checked /> Credit</label>
+            <label><input type="checkbox" class="chk-col" data-col="Balance" checked /> Balance</label>
+        </div>
+    </div>
+</div>
+
+<div class="pl-report-header" id="glReportHeader" style="margin-top: 20px; margin-bottom: 20px;">
+    <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+    <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "ក្រុមហ៊ុន អិនអេសអិម សឹលូសិន អេន មេថឺណិន ឯ.ក")</div>
+    <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "NSM SOLUTION AND MAINTENANCE CO., LTD")</div>
+    <div class="bs-company-divider">
+        ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+    </div>
+    <h3 id="lblReportTitle">General Ledger</h3>
+    <div class="tb-date-range-bar" id="lblDateRangeBar">
+        From Date : <span id="lblGlFrom">All</span> &nbsp; To Date : <span id="lblGlTo">All</span>
+    </div>
+</div>
+
+<div id="ledgerContainer"></div>
+
+<script>
+    var LedgerData = [];
+
+    var columnSchema = [
+        { id: "ClassName", title: "Class Name", align: "", isNumeric: false },
+        { id: "Type", title: "Type", align: "", isNumeric: false },
+        { id: "Date", title: "Date", align: "text-center", isNumeric: false },
+        { id: "ReferenceNo", title: "Reference Nº", align: "", isNumeric: false },
+        { id: "Customer", title: "Name", align: "", isNumeric: false },
+        { id: "Description", title: "Description", align: "col-description", isNumeric: false },
+        { id: "ContraAccount", title: "Account Name", align: "", isNumeric: false },
+        { id: "Debit", title: "Debit", align: "text-right", isNumeric: true },
+        { id: "Credit", title: "Credit", align: "text-right", isNumeric: true },
+        { id: "Balance", title: "Balance", align: "text-right", isNumeric: true }
+    ];
+
+    function GetActiveColumns() {
+        var active = [];
+        $(".chk-col:checked").each(function () {
+            var colId = $(this).data("col");
+            var match = columnSchema.find(c => c.id === colId);
+            if (match) {
+                active.push(match);
+            }
+        });
+        return active;
+    }
+
+    function PrintReport() {
+        var content = document.getElementById("ledgerContainer").innerHTML;
+        var win = window.open('', '', 'width=1200,height=900');
+
+        win.document.write(`
+            <html>
+            <head>
+                <title>General Ledger</title>
+                <style>
+                    body { font-family: Arial; font-size:12px; }
+                    table { width:100%; border-collapse:collapse; }
+                    th, td { border:1px solid #ccc; padding:5px; }
+                    th { background:#f2f2f2; }
+                    .text-right { text-align:right; }
+                    .text-center { text-align:center; }
+                    .account-header { font-weight:bold; margin-top:15px; margin-bottom:5px; }
+                    .account-total { font-weight:bold; background:#fafafa; }
+                    .ledger-header { padding: 8px; font-weight: bold; border-top: 0; border-bottom: 0; background: #f5f5f5; margin-bottom: 10px; }
+                    .table-responsive-wrapper { border: none !important; overflow: visible !important; }
+                    .col-description { white-space: normal !important; }
+                </style>
+            </head>
+            <body>
+                ${content}
+            </body>
+            </html>
+        `);
+
+        win.document.close();
+        setTimeout(function () {
+            win.print();
+        }, 500);
+    }
+
+    function ExportExcel() {
+        if (LedgerData.length == 0) {
+            alert("No data.");
+            return;
+        }
+
+        var activeCols = GetActiveColumns();
+        var rows = [];
+
+        $.each(LedgerData, function (i, row) {
+            var rowData = {};
+
+            rowData["Account No"] = row.AccountNo;
+            rowData["Account Name"] = row.AccountName;
+
+            $.each(activeCols, function (j, col) {
+                if (col.id === "ClassName") rowData["ClassName"] = row.ClassName;
+                if (col.id === "Type") rowData["Type"] = row.Type;
+                if (col.id === "Date") rowData["Date"] = FormatDate(row.TransactionDate);
+                if (col.id === "ReferenceNo") rowData["Reference No"] = row.ReferenceNo;
+                if (col.id === "Customer") rowData["Customer"] = row.CustomerName;
+                if (col.id === "Description") rowData["Description"] = row.Description;
+                if (col.id === "ContraAccount") rowData["Contra Account"] = row.ContraAccount;
+                if (col.id === "Debit") rowData["Debit"] = row.Debit;
+                if (col.id === "Credit") rowData["Credit"] = row.Credit;
+                if (col.id === "Balance") rowData["Balance"] = row.RunningBalance;
+            });
+
+            rows.push(rowData);
+        });
+
+        var columns = Object.keys(rows[0] || {});
+        var dataSheet = XLSX.utils.json_to_sheet(rows);
+        var dataRows = XLSX.utils.sheet_to_json(dataSheet, { header: 1, raw: true });
+        var headerRows = [
+            [getGeneralLedgerExportHeaderText($("#glReportHeader #lblCompanyNameKh").text(), "ក្រុមហ៊ុន អិនអេសអិម សឹលូសិន អេន មេថឺណិន ឯ.ក")],
+            [getGeneralLedgerExportHeaderText($("#glReportHeader #lblCompanyNameEn").text(), "NSM SOLUTION AND MAINTENANCE CO., LTD")],
+            [getGeneralLedgerExportHeaderText($("#glReportHeader #lblReportTitle").text(), "General Ledger")],
+            [$.trim($("#glReportHeader #lblDateRangeBar").text())]
+        ];
+        var worksheet = XLSX.utils.aoa_to_sheet(headerRows.concat(dataRows));
+        worksheet["!merges"] = headerRows.map(function (_, rowIndex) {
+            return { s: { r: rowIndex, c: 0 }, e: { r: rowIndex, c: Math.max(0, columns.length - 1) } };
+        });
+        var headerStyles = [
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Khmer OS Muol Light", sz: 16, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Times New Roman", sz: 14, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 12, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } }
+        ];
+        headerStyles.forEach(function (style, rowIndex) {
+            var cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex, c: 0 })];
+            if (cell) cell.s = style;
+        });
+        worksheet["!cols"] = columns.map(function (column) {
+            return { wch: column === "Account Name" || column === "Description" ? 36 : 18 };
+        });
+        worksheet["!rows"] = [{ hpt: 30 }, { hpt: 24 }, { hpt: 22 }, { hpt: 20 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, "General Ledger");
+        XLSX.writeFile(wb, "GeneralLedger.xlsx");
+    }
+
+    function getGeneralLedgerExportHeaderText(value, fallback) {
+        value = $.trim(value || "");
+        return !value || /^(unknown|undefined|null)$/i.test(value) ? fallback : value;
+    }
+
+    $(document).ready(function () {
+        $("#FromDate").kendoDatePicker({
+            format: "dd/MM/yyyy"
+        });
+
+        $("#ToDate").kendoDatePicker({
+            format: "dd/MM/yyyy"
+        });
+
+        $(".chk-col").on("change", function () {
+            BuildLedger(LedgerData);
+        });
+
+        SearchGL();
+    });
+
+    function SearchGL() {
+        // FIXED: Both now correctly use .data("kendoDatePicker")
+        var fromDate = $("#FromDate").data("kendoDatePicker").value();
+        var toDate = $("#ToDate").data("kendoDatePicker").value();
+
+        $.ajax({
+            url: '/GeneralLedger/Read',
+            type: 'POST',
+            data: {
+                fromDate: fromDate ? kendo.toString(fromDate, "yyyy-MM-dd") : "",
+                toDate: toDate ? kendo.toString(toDate, "yyyy-MM-dd") : "",
+                account: $("#txtAccount").val()
+            },
+            success: function (res) {
+                if (!res.Success) {
+                    alert(res.Message);
+                    return;
+                }
+                LedgerData = res.Data;
+                BuildLedger(LedgerData);
+            },
+            error: function (xhr) {
+                alert(xhr.responseText);
+            }
+        });
+    }
+
+    function BuildLedger(data) {
+
+        var html = '';
+        var activeCols = GetActiveColumns();
+
+        if (activeCols.length === 0) {
+
+            $("#ledgerContainer").html(
+                '<div class="alert alert-warning">Please select at least one column to display.</div>'
+            );
+
+            return;
+        }
+
+        var fromStr = $("#FromDate").val() || 'All';
+        var toStr = $("#ToDate").val() || 'All';
+        $("#glReportHeader #lblDateRangeBar").html('From Date : ' + fromStr + ' &nbsp; To Date : ' + toStr);
+
+        html += `
+        <div class="ledger-header">
+            From Date : ${fromStr}
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            To Date : ${toStr}
+        </div>
+    `;
+
+        var currentParent = '';
+        var currentParentName = '';
+
+        var currentAccount = '';
+        var currentAccountName = '';
+
+        var parentDebit = 0;
+        var parentCredit = 0;
+
+        var totalDebit = 0;
+        var totalCredit = 0;
+        var endingBalance = 0;
+
+        var rowNo = 1;
+
+        function ParentHeader(parentNo, parentName) {
+
+            return `
+            <div style="
+                background:#d9edf7;
+                padding:10px;
+                margin-top:15px;
+                margin-bottom:10px;
+                border:1px solid #bce8f1;
+                font-size:16px;
+                font-weight:bold;
+            ">
+                ${parentNo} - ${parentName}
+            </div>
+        `;
+        }
+
+        function ParentTotal(parentNo, parentName, debit, credit) {
+
+            return `
+            <div style="
+                background:#fcf8e3;
+                padding:8px;
+                margin-bottom:20px;
+                border:1px solid #faebcc;
+                font-weight:bold;
+            ">
+
+                Total ${parentNo} - ${parentName}
+
+                <span style="float:right">
+                    Debit :
+                    ${kendo.toString(debit, 'n2')}
+                    &nbsp;&nbsp;&nbsp;
+                    Credit :
+                    ${kendo.toString(credit, 'n2')}
+                </span>
+
+            </div>
+        `;
+        }
+
+        function getTotalsRowHtml(accNo, accName, debit, credit, balance) {
+
+            var trHtml = '<tr class="account-total">';
+
+            var textColspan = 1;
+
+            $.each(activeCols, function (idx, col) {
+
+                if (!col.isNumeric) {
+                    textColspan++;
+                }
+
+            });
+
+            trHtml += `
+            <td colspan="${textColspan}" class="text-right">
+                Total ${accNo} - ${accName}
+            </td>
+        `;
+
+            if (activeCols.some(c => c.id === "Debit")) {
+
+                trHtml += `
+                <td class="text-right">
+                    ${kendo.toString(debit, 'n2')}
+                </td>
+            `;
+            }
+
+            if (activeCols.some(c => c.id === "Credit")) {
+
+                trHtml += `
+                <td class="text-right">
+                    ${kendo.toString(credit, 'n2')}
+                </td>
+            `;
+            }
+
+            if (activeCols.some(c => c.id === "Balance")) {
+
+                trHtml += `
+                <td class="text-right">
+                    ${kendo.toString(balance, 'n2')}
+                </td>
+            `;
+            }
+
+            trHtml += '</tr>';
+
+            return trHtml;
+        }
+
+        $.each(data, function (i, row) {
+
+            var groupNo =
+                row.GroupAccountNo ||
+                row.ParentAccountNo ||
+                row.AccountNo;
+
+            var groupName =
+                row.GroupAccountName ||
+                row.ParentAccountName ||
+                row.AccountName;
+
+            //-----------------------------------------
+            // Parent Group Changed
+            //-----------------------------------------
+            if (currentParent !== groupNo) {
+
+                if (currentAccount !== '') {
+
+                    html += getTotalsRowHtml(
+                        currentAccount,
+                        currentAccountName,
+                        totalDebit,
+                        totalCredit,
+                        endingBalance
+                    );
+
+                    html += '</tbody></table></div>';
+                }
+
+                if (currentParent !== '') {
+
+                    html += ParentTotal(
+                        currentParent,
+                        currentParentName,
+                        parentDebit,
+                        parentCredit
+                    );
+                }
+
+                currentParent = groupNo;
+                currentParentName = groupName;
+
+                parentDebit = 0;
+                parentCredit = 0;
+
+                currentAccount = '';
+
+                html += ParentHeader(
+                    currentParent,
+                    currentParentName
+                );
+            }
+
+            //-----------------------------------------
+            // Account Changed
+            //-----------------------------------------
+            if (currentAccount !== row.AccountNo) {
+
+                if (currentAccount !== '') {
+
+                    html += getTotalsRowHtml(
+                        currentAccount,
+                        currentAccountName,
+                        totalDebit,
+                        totalCredit,
+                        endingBalance
+                    );
+
+                    html += '</tbody></table></div>';
+                }
+
+                currentAccount = row.AccountNo;
+                currentAccountName = row.AccountName;
+
+                totalDebit = 0;
+                totalCredit = 0;
+                endingBalance = 0;
+
+                rowNo = 1;
+
+                html += `
+                <div class="account-header">
+                    ${row.AccountNo} - ${row.AccountName}
+                </div>
+
+                <div class="table-responsive-wrapper">
+
+                    <table class="ledger-table">
+
+                        <thead>
+                            <tr>
+
+                                <th>Nº</th>
+            `;
+
+                $.each(activeCols, function (j, col) {
+
+                    var thClass =
+                        col.align
+                            ? `class="${col.align}"`
+                            : '';
+
+                    html += `
+                    <th ${thClass}>
+                        ${col.title}
+                    </th>
+                `;
+
+                });
+
+                html += `
+                            </tr>
+                        </thead>
+
+                        <tbody>
+            `;
+            }
+
+            //-----------------------------------------
+            // Totals
+            //-----------------------------------------
+            totalDebit += Number(row.Debit || 0);
+            totalCredit += Number(row.Credit || 0);
+
+            parentDebit += Number(row.Debit || 0);
+            parentCredit += Number(row.Credit || 0);
+
+            endingBalance = Number(row.RunningBalance || 0);
+
+            //-----------------------------------------
+            // Detail Row
+            //-----------------------------------------
+            html += '<tr>';
+
+            html += `
+            <td class="text-center">
+                ${rowNo++}
+            </td>
+        `;
+
+            $.each(activeCols, function (j, col) {
+
+                var cellClass =
+                    col.align
+                        ? `class="${col.align}"`
+                        : '';
+
+                var value = '';
+
+                switch (col.id) {
+
+                    case "ClassName":
+                        value = row.ClassName || '';
+                        break;
+                    case "Type":
+                        value = row.Type || '';
+                        break;
+
+                    case "Date":
+                        value = FormatDate(row.TransactionDate);
+                        break;
+
+                    case "ReferenceNo":
+                        value = row.ReferenceNo || '';
+                        break;
+
+                    case "Customer":
+                        value = row.CustomerName || '';
+                        break;
+
+                    case "Description":
+                        value = row.Description || '';
+                        break;
+
+                    case "ContraAccount":
+                        value = row.ContraAccount || '';
+                        break;
+
+                    case "Debit":
+                        value =
+                            Number(row.Debit || 0) === 0
+                                ? '-'
+                                : kendo.toString(row.Debit, 'n2');
+                        break;
+
+                    case "Credit":
+                        value =
+                            Number(row.Credit || 0) === 0
+                                ? '-'
+                                : kendo.toString(row.Credit, 'n2');
+                        break;
+
+                    case "Balance":
+                        value =
+                            kendo.toString(
+                                row.RunningBalance || 0,
+                                'n2'
+                            );
+                        break;
+                }
+
+                html += `
+                <td ${cellClass}>
+                    ${value}
+                </td>
+            `;
+            });
+
+            html += '</tr>';
+
+        });
+
+        //-----------------------------------------
+        // Final Account Total
+        //-----------------------------------------
+        if (currentAccount !== '') {
+
+            html += getTotalsRowHtml(
+                currentAccount,
+                currentAccountName,
+                totalDebit,
+                totalCredit,
+                endingBalance
+            );
+
+            html += '</tbody></table></div>';
+        }
+
+        //-----------------------------------------
+        // Final Parent Total
+        //-----------------------------------------
+        if (currentParent !== '') {
+
+            html += ParentTotal(
+                currentParent,
+                currentParentName,
+                parentDebit,
+                parentCredit
+            );
+        }
+
+        $("#ledgerContainer").html(html);
+    }
+    
+    function ParentHeader(parentNo, parentName) {
+
+        return `
+        <div style="
+            background:#d9edf7;
+            padding:10px;
+            margin-top:15px;
+            font-weight:bold;
+            font-size:16px;
+            border:1px solid #bce8f1;">
+            ${parentNo} - ${parentName}
+        </div>
+    `;
+    }
+    function ParentTotal(parentNo, parentName, debit, credit) {
+
+        return `
+        <div style="
+            background:#fcf8e3;
+            padding:8px;
+            margin-bottom:20px;
+            font-weight:bold;
+            border:1px solid #faebcc;">
+
+            Total ${parentNo} - ${parentName}
+
+            <span style="float:right">
+                Debit :
+                ${kendo.toString(debit, 'n2')}
+                &nbsp;&nbsp;&nbsp;
+
+                Credit :
+                ${kendo.toString(credit, 'n2')}
+            </span>
+
+        </div>
+    `;
+    }
+    function FormatDate(value) {
+        if (!value) return '';
+        var date = kendo.parseDate(value);
+        if (!date) return '';
+        return kendo.toString(date, "dd/MM/yyyy");
+    }
+</script>

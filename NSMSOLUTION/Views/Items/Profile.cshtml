@@ -1,0 +1,624 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<style>
+    .item-detail-container {
+        padding: 20px;
+    }
+
+    .item-detail-header {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .item-detail-image {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+    }
+
+    .item-detail-info {
+        width: 100%;
+    }
+
+        .item-detail-info h2 {
+            font-size: 1.6rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+    .item-detail {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .item-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .detail-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .detail-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+        .detail-card-header span:not(.exp-switch-track):not(.exp-switch-label) {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .detail-card-header span:not(.exp-switch-track):not(.exp-switch-label) i {
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+        .detail-card-header :is(h1, h2, h3, h4, h5, h6) {
+            margin-bottom: 0;
+        }
+
+    .detail-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 6px 0;
+    }
+
+    .detail-description {
+        margin-top: 30px;
+    }
+
+        .detail-description h3 {
+            margin-bottom: 10px;
+        }
+
+        .detail-description p {
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+        }
+
+    body.dark-mode .item-detail {
+        color: white !important;
+    }
+
+    body.dark-mode .detail-card {
+        border: 1px solid #343a40 !important;
+    }
+
+    body.dark-mode .detail-description p {
+        border: 1px solid #343a40 !important;
+    }
+
+    /* Expiration toggle switch */
+    .exp-switch {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        align-self: center;
+        gap: 5px;
+        margin-left: auto;
+        cursor: pointer;
+        user-select: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+        .exp-switch input {
+            display: none;
+        }
+
+    .exp-switch-track {
+        width: 36px;
+        height: 20px;
+        background: #ccc;
+        border-radius: 999px;
+        position: relative;
+        transition: background 0.25s;
+        flex-shrink: 0;
+    }
+
+        .exp-switch-track::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.25s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        }
+
+    .exp-switch input:checked + .exp-switch-track {
+        background: #f59e0b;
+    }
+
+        .exp-switch input:checked + .exp-switch-track::after {
+            transform: translateX(16px);
+        }
+
+    .exp-switch-label {
+        min-width: 10px;
+        color: #888;
+    }
+
+    .exp-switch input:checked ~ .exp-switch-label {
+        color: #f59e0b;
+    }
+</style>
+
+<div class="tabs-showcase">
+    <div class="tabs-showcase__container">
+        <div class="tabs-showcase__card">
+            <div class="tabs-showcase__grid">
+                <div class="tabs-showcase__item">
+                    <h1 class="tabs-showcase__title d-none">Item Profile</h1>
+                    <div class="tab-group" data-variant="gray">
+                        <div class="tab-container tab-container--gray">
+                            <div class="tab-list">
+                                <button class="tab-item tab-item--gray active" data-tab-index="0">Item Detail</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="1">Stock Info</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="2">Purchasing</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="3">Stock Transfer</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="4">Sale History</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="5">Stock Adjustment</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="6">Stock Request</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="7">Serial Number</button>
+                            </div>
+                        </div>
+                        <div class="tab-content tab-content--gray"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const item = @Html.Raw(Json.Encode(ViewBag.Item));
+        const stockExpired = @Html.Raw(Json.Encode(ViewBag.ItemExpiredDate));
+        const telegramAlert = @Html.Raw(Json.Encode(ViewBag.TelegramAlert));
+
+        var serverRoot = location.protocol + '//' + location.host + "/";
+        var noimg = serverRoot + "Content/images/placeholder.jpg";
+
+        const stockExpDataRow = stockExpired
+            .map(exp => `
+                <tr>
+                    <td>${exp.WarehouseName || '-'}</td>
+                    <td><span class="text-danger">${exp.ExpireDate || '-'}</span></td>
+                    <td><strong>${exp.CurrentStockExpired || '0'}</strong></td>
+                </tr>
+            `).join('');
+
+        const initItemDetail = () => {
+            return `
+                <div class="item-detail-container">
+                    <div class="item-detail-header">
+                        <a href="Uploads/Items/${item.ItemImage}" data-toggle="lightbox" data-gallery="example-gallery" data-footer="${item.ItemCode} - ${item.ItemName}"><img src="Uploads/Items/${item.ItemImage}" class="item-detail-image" onerror="this.onerror=null;this.src='${noimg}';"/></a>
+                        <div class="item-detail-info">
+                            <h2 class="item-detail-title">
+                                ${item.ItemName || '-'}
+                                <i class="ti ti-edit edit-item text-orange" data-id="${item.ItemID}" style="cursor:pointer; font-size: 1.3rem;"></i>
+                            </h2>
+                            <div class="d-flex justify-content-between mt-4">
+                                <div>
+                                    <div class="item-detail text-bold"><i class="ti ti-tag font-weight-bold"></i> Code: ${item.ItemCode || '-'}</div>
+                                    <div class="item-detail">Create By: ${item.CreateBy || '0'}</div>
+                                    <div class="item-detail">Crate Date: ${item.CreateDate || '0'}</div>
+                                </div>
+                                 <div>
+                                    <div class="item-detail">Item Group: ${item.ItemGroup || '0'}</div>
+                                    <div class="item-detail">Category: ${item.StockName || '-'}</div>
+                                    <div class="item-detail">Barcode: ${item.Barcode || '-'}</div>
+                                 </div>
+                                 <div>
+                                    <div class="item-detail">Size: ${item.ItemSize || '-'}</div>
+                                    <div class="item-detail">Brand: ${item.ItemBrand || '-'}</div>
+                                    <div class="item-detail">Model: ${item.ItemModel || '-'}</div>
+                                </div>
+                                 <div>
+                                    <div class="item-detail">Unit: ${item.UM || '0'}</div>
+                                    <div class="item-detail text-danger">Alert Reorder: ${item.ReorderPoint || '0'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="item-detail-grid">
+
+                        <div class="detail-card">
+                             <div class="detail-card-header">
+                                 <span class="bg-info-light"><i class="ti ti-moneybag"></i></span>
+                                <h3 class="detail-title">Pricing</h3>
+                             </div>
+                            <div class="detail-row">
+                                <span>Cost Price:</span><strong>${accounting.formatMoney(item.CostPrice)}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Sale Price:</span><strong>${accounting.formatMoney(item.SellingPrice)}</strong>
+                            </div>
+                        </div>
+
+                        <div class="detail-card">
+                            <div class="detail-card-header">
+                                <span class="bg-primary-light"><i class="ti ti-box"></i></span>
+                                <h3 class="detail-title">Stock Summary</h3>
+                            </div>
+                            <div class="detail-row">
+                                <span>In Stock:</span><strong>${item.InStock || '0'}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Out Stock:</span><strong class="text-danger">${item.OutStock || '0'}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Current Stock:</span><strong class="text-primary">${item.CurrentStock || '0'}</strong>
+                            </div>
+                        </div>
+
+                        <div class="detail-card">
+                              <div class="detail-card-header">
+                                <span class="bg-warning-light"><i class="ti ti-clock-edit"></i></span>
+                                <h3 class="detail-title">Current Stock Expiration</h3>
+                                <label class="exp-switch" title="Toggle Telegram Alert">
+                                    <input type="checkbox" id="expToggle" ${telegramAlert === 1 ? 'checked' : ''} />
+                                    <span class="exp-switch-track"></span>
+                                    <span class="exp-switch-label" id="expToggleLabel"></span>
+                                </label>
+                              </div>
+                            <div id="expTableWrapper">
+                                <table width="100%">
+                                    ${stockExpired.length > 0 ? stockExpDataRow
+                                        : `<tr><td class="text-muted">No data available.</td></tr>`}
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="detail-card d-none">
+                            <h3 class="detail-title">Supplier Information</h3>
+                            <div class="detail-row">
+                                <span>Supplier:</span><strong>${item.SupplierName || '-'}</strong>
+                            </div>
+                            <div class="detail-row">
+                                <span>Contact:</span><strong>${item.SupplierPhone || '-'}</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-description">
+                        <h3>Description</h3>
+                        <p>${item.ItemDescription || 'No description provided.'}</p>
+                    </div>
+
+                </div>
+                `;
+        };
+
+        const loadStockInfo = () => {
+            return new Promise((resolve) => {
+
+                LoadData(`Items/GetStockInfo?ID=${item.ItemID}`, function (res) {
+                    const dataStock = JSON.parse(res);
+
+                    if (!Array.isArray(dataStock) || dataStock.length === 0) {
+                        resolve(`<p class="text-muted">No stock information available.</p>`);
+                        return;
+                    }
+
+                    let totalIn = 0;
+                    let totalOut = 0;
+                    let totalStock = 0;
+                    let stockValue = 0;
+
+                    dataStock.forEach(s => {
+                        totalIn += s.QTYIN ?? 0;
+                        totalOut += s.QTYOUT ?? 0;
+                        totalStock += s.StockOnHand ?? 0;
+                        stockValue += s.StockValue ?? 0;
+                    });
+
+                    const rows = dataStock
+                        .map(s => `
+                            <tr>
+                                <td>${s.No}</td>
+                                <td>${s.WarehouseName}</td>
+                                <td class="text-danger">${s.Alert ?? 0}</td>
+                                <td>${accounting.formatMoney(s.CostPrice ?? 0)}</td>
+                                <td>${s.UM ?? ''}</td>
+                                <td>${s.QTYIN ?? 0}</td>
+                                <td class="text-danger">${s.QTYOUT ?? 0}</td>
+                                <td class="text-primary">${s.StockOnHand ?? 0}</td>
+                                <td>${accounting.formatMoney(s.StockValue ?? 0)}</td>
+                            </tr>
+                        `)
+                        .join("");
+
+                    const wStock = `
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Warehouse name</th>
+                                        <th>Alert Reorder</th>
+                                        <th>Cost Price</th>
+                                        <th>Unit</th>
+                                        <th>In Stock</th>
+                                        <th>Out Stock</th>
+                                        <th>Current Stock</th>
+                                        <th>Stock Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rows}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" style="text-align:right">TOTAL</th>
+                                        <th>${totalIn}</th>
+                                        <th>${totalOut}</th>
+                                        <th>${totalStock}</th>
+                                        <th>${accounting.formatMoney(stockValue)}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+
+                    resolve(`
+                        ${wStock}
+
+                        <div class="tabs-showcase__container">
+                            <h1 class="tabs-showcase__title">All Transaction</h1>
+                            <div class="tabs-showcase__item">
+                                <div class="tab-group sub-tab-group" data-variant="blue">
+                                    <div class="tab-container tab-container--blue-outline" style="width:60%">
+                                        <div class="tab-list">
+                                            <button class="sub-tab-item tab-item--blue-outline active" data-sub-index="0">
+                                                Stock In
+                                            </button>
+                                            <button class="sub-tab-item tab-item--blue-outline" data-sub-index="1">
+                                                Stock Out
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sub-tab-content tab-content--gray p-0" style="width:60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                }, "", "json");
+            });
+        };
+
+        const loadPO = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadPurchaseDetail?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const loadTransfer = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadStockTransfer?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const loadSale = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadSale?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const loadAdjust = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadStockAdjust?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const loadRequest = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadRequestStockOut?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const loadSerial = () => {
+            return new Promise((resolve) => {
+                LoadData(`Items/LoadSerialNumberByItem?ID=${item.ItemID}`, function (res) {
+                    resolve(res);
+                });
+            });
+        }
+
+        const tabContents = {
+            0: initItemDetail,
+            1: loadStockInfo,
+            2: loadPO,
+            3: loadTransfer,
+            4: loadSale,
+            5: loadAdjust,
+            6: loadRequest,
+            7: loadSerial
+        };
+
+        // Main tabs
+        $('.tab-group').each(function () {
+
+            const $group = $(this);
+            const $buttons = $group.find('.tab-item');
+            const $contentDiv = $group.find('.tab-content');
+
+            $buttons.on('click', async function () {
+
+                $buttons.removeClass('active');
+                $(this).addClass('active');
+
+                const tabIndex = $(this).data('tab-index');
+                const handler = tabContents[tabIndex];
+
+                destroyKendoWidgets($contentDiv);
+
+                try {
+                    $contentDiv.html("Loading...");
+                    const result = await handler();
+                    $contentDiv.html(result);
+
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            $('.sub-tab-item.active').trigger('click');
+                        });
+                    });
+
+                } catch (err) {
+                    $contentDiv.html("Error loading content");
+                    console.error(err);
+                }
+            });
+        });
+
+        // Sub tabs
+        $(document).on('click', '.sub-tab-item', async function () {
+
+            const loadStockIn = () => {
+                return new Promise(resolve => {
+                    LoadData(`Items/LoadStockIn?ID=${item.ItemID}`, resolve);
+                });
+            };
+
+            const loadStockOut = () => {
+                return new Promise(resolve => {
+                    LoadData(`Items/LoadStockOut?ID=${item.ItemID}`, resolve);
+                });
+            };
+
+            const $group = $(this).closest('.sub-tab-group');
+            const $buttons = $group.find('.sub-tab-item');
+            const $content = $group.find('.sub-tab-content');
+
+            $buttons.removeClass('active');
+            $(this).addClass('active');
+
+            const index = $(this).data('sub-index');
+
+            $content.html('Loading...');
+
+            try {
+                let html = '';
+                if (index === 0) {
+                    html = await loadStockIn();
+                } else if (index === 1) {
+                    html = await loadStockOut();
+                }
+                $content.html(html);
+            } catch (e) {
+                console.error(e);
+                $content.html('Error loading data');
+            }
+        });
+
+        // ✅ Telegram alert toggle with confirm + comment
+        $(document).on('change', '#expToggle', function () {
+            const on = $(this).is(':checked');
+            const val = on ? 1 : 0;
+            const msg = on
+                ? "Are you sure you want to turn ON notification?"
+                : "Are you sure you want to turn OFF notification?";
+
+            // Step 1: Confirm dialog
+            DialogSweetCofirm(function () {
+
+                // Step 2: Comment input
+                Swal.fire({
+                    title: 'Please enter your comment',
+                    input: 'textarea',
+                    inputPlaceholder: 'Enter reason...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: (comment) => {
+                        if (!comment || comment.trim() === '') {
+                            Swal.showValidationMessage('Comment is required');
+                        }
+                        return comment;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Step 3: Post data
+                        PostData('Items/UpdateExpireDateTelegramAlert',
+                            { ItemID: item.ItemID, value: val, comment: result.value },
+                            function (res) {
+                                if (typeof res === "string") res = JSON.parse(res);
+                                if (!res.Result) {
+                                    DialogSweetAlert("error", res.Message || "Failed to update.", function () {});
+                                    $('#expToggle').prop('checked', !on);
+                                }
+                            }
+                        ).fail(function () {
+                            DialogSweetAlert("error", "Server error while updating.", function () {});
+                            $('#expToggle').prop('checked', !on);
+                        });
+                    } else {
+                        // Cancelled at comment → revert toggle
+                        $('#expToggle').prop('checked', !on);
+                    }
+                });
+
+            }, function () {
+                // Cancelled at confirm → revert toggle
+                $('#expToggle').prop('checked', !on);
+            }, msg, "Yes, Do It");
+        });
+
+        // Edit item
+        $(document).on('click', '.edit-item', function () {
+            const id = $(this).data('id');
+            ShowDialogBox("Edit Item", 'Auto', 600, "AddItem/CreateItem", id);
+        });
+
+        // When close modal
+        $(document).on('click', '.btnclose', function () {
+            window.location.reload();
+        });
+
+        // Initial trigger
+        $('.tab-group .tab-item.active').trigger('click');
+
+    });
+</script>

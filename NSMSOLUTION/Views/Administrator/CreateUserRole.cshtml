@@ -1,0 +1,12 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    //$(function () {
+    //    $("form[name=CreateUserRole]").html();
+    //});
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    function CboSystemNameChange (THIS) {
+        var SystemID = $(THIS).val();
+        LoadURL("DivIDGroupCheckBoxTab", "Administrator/GetUserRolePermission", true, { SystemID: SystemID, PrimaryFieldValue: PrimaryFieldValue });
+    };
+</script>

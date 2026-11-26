@@ -1,0 +1,37 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    $(function () {
+        let loc = window.location.href;
+        let Commune = getQueryStringValue(loc, 'Commune');
+        let District = getQueryStringValue(loc, 'District');
+        let ProvinceCity = getQueryStringValue(loc, 'ProvinceCity');
+        if (Commune != "") {
+            setTimeout(function () {
+                $("input[name=RD]").eq(3).click();
+                $("#CboSearchText").val(Commune);                
+                $("#BunSearch").click();
+            }, 500);
+        }
+        else if (District != "") {
+            setTimeout(function () {
+                $("input[name=RD]").eq(4).click();
+                $("#CboSearchText").val(District);                
+                $("#BunSearch").click();
+            }, 500);
+        }
+        else if (ProvinceCity != "") {
+            setTimeout(function () {
+                $("input[name=RD]").eq(5).click();
+                $("#CboSearchText").val(ProvinceCity);                
+                $("#BunSearch").click();
+            }, 500);
+        }
+    });
+    function onGridClick_CustInfo(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        var CustID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+        var url = '#!/CustomerProfile?ID=' + CustID;
+        OpenNewTap(url);
+    }
+</script>

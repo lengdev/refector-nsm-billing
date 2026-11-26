@@ -1,0 +1,878 @@
+﻿@{ Layout = null; }
+@using NSM.Models;
+@*
+<link href="~/Content/css/custom/aiz-core.css" rel="stylesheet" type="text/css" />*@
+<style>
+    .table1 {
+        border-spacing: 1;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        /*        max-width: 800px;*/
+        width: 100%;
+        /*        margin: 0 auto;*/
+        position: relative;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+
+    body.dark-mode .table1 tbody tr {
+        background: var(--dark-bg-quaternary) !important;
+    }
+
+    .table-sm th,
+    .table-sm td {
+        padding: 0.5rem !important;
+    }
+
+    .item-card::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #999;
+        z-index: 1;
+        opacity: 0.3;
+        border-radius: 1rem;
+    }
+
+    a.text-success:hover,
+    a.text-success:active {
+        color: #007bff !important;
+    }
+
+    .pills {
+        background: rgb(238, 238, 239);
+        display: inline;
+        padding: 0.15rem 0.5rem;
+        border-radius: 6px;
+        color: rgb(74, 74, 80);
+    }
+
+    .item-card-exist::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #FFC96F;
+        /*z-index: 1;*/
+        opacity: 0.3;
+    }
+
+    .pill {
+        background: #F89C39;
+        padding: 4px 8px;
+        margin-left: 5px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .main-image {
+        /*        width: 300px;*/
+        margin-bottom: 20px;
+    }
+
+    .img-hover-zoom--colorize img {
+        transition: transform .5s, filter 1.5s ease-in-out;
+        /*filter: grayscale(100%);*/
+    }
+
+    .img-hover-zoom--colorize:hover img {
+        /*filter: grayscale(0);*/
+        /*        transform: scale(1.1);*/
+    }
+
+    .img-box {
+        border: 1px dashed #ccc;
+        border-radius: 1rem;
+        height: 65px;
+        width: 65px;
+        align-content: center;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .thumbnails {
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        /*        overflow: scroll;*/
+        margin: 0.5rem 0 1rem;
+    }
+
+    .thumbnail {
+        width: inherit;
+        height: inherit;
+        cursor: pointer;
+        object-fit: cover;
+    }
+
+    .thumbnail:hover,
+    .thumbnail.active {
+        opacity: 0.7;
+    }
+
+    .card {
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        overflow: hidden;
+        border-radius: 1rem;
+    }
+
+    .btnRemoveCard {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0.75rem;
+        height: 0.75rem;
+        background: red;
+        margin: 15px;
+    }
+
+    span>svg.icon-tabler-list-details {
+        width: 24px;
+        height: 24px;
+        fill: none;
+    }
+
+    span>svg.icon-tabler-square-x {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 22px;
+        height: 22px;
+        margin: 10px;
+        color: red;
+        cursor: pointer;
+        transition: all ease 0.4s;
+    }
+
+    span>svg.icon-tabler-square-x:hover {
+        scale: 0.9;
+    }
+
+    .detail div label {
+        margin-bottom: 0;
+    }
+
+    .detail div {
+        padding: 0.375rem 0.5rem;
+        border-radius: .5rem;
+    }
+
+    .detail div:hover {
+        background: #eeeeee;
+        font-weight: 600;
+    }
+
+    body.dark-mode .detail div:hover {
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .table-hover tbody tr:hover {}
+
+    .cube {
+        margin: 40px auto;
+        font-size: 24px;
+        height: 1em;
+        width: 1em;
+        position: relative;
+        transform: rotatex(30deg) rotatey(45deg);
+        transform-style: preserve-3d;
+        animation: cube-spin 1.5s infinite ease-in-out alternate;
+    }
+
+    .side {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform-style: preserve-3d;
+    }
+
+    .side::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: currentcolor;
+        transform: translatez(0.5em);
+        animation: cube-explode 1.5s infinite ease-in-out;
+        opacity: 0.5;
+    }
+
+    .side:nth-child(1) {
+        transform: rotatey(90deg);
+    }
+
+    .side:nth-child(2) {
+        transform: rotatey(180deg);
+    }
+
+    .side:nth-child(3) {
+        transform: rotatey(270deg);
+    }
+
+    .side:nth-child(4) {
+        transform: rotatey(360deg);
+    }
+
+    .side:nth-child(5) {
+        transform: rotatex(90deg);
+    }
+
+    .side:nth-child(6) {
+        transform: rotatex(270deg);
+    }
+
+    @@keyframes cube-spin {
+        0% {
+            transform: rotatex(30deg) rotatey(45deg);
+        }
+
+        100% {
+            transform: rotatex(30deg) rotatey(405deg);
+        }
+    }
+
+    @@keyframes cube-explode {
+        0% {
+            transform: translatez(0.5em);
+        }
+
+        50% {
+            transform: translatez(0.75em);
+        }
+
+        100% {
+            transform: translatez(0.5em);
+        }
+    }
+</style>
+<style>
+    #scrollToTopBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #2561e6;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    #scrollToTopBtn:hover {
+        background-color: #1a4bba;
+        transform: scale(1.1);
+    }
+
+    #scrollToTopBtn.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .zoom-container {
+        position: relative;
+        display: flex;
+    }
+
+    .zoom-result {
+        width: 90vw;
+        max-width: 600px;
+        height: 90vh;
+        max-height: 600px;
+        backdrop-filter: blur(8px);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 60%;
+        transform: translate(-60%, -50%);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+    }
+
+    .zoom-lens {
+        position: absolute;
+        background-image: url("Uploads/mouse_hover_bg.gif");
+        cursor: pointer;
+        width: 160px;
+        height: 120px;
+        display: none;
+    }
+</style>
+<div class="row">
+    <div class="col">
+        <div class="row mb-4">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="">
+                        <input type="text" class="form-control" id="keyword" name="keyword"
+                            placeholder="Search by Product Name/Barcode" />
+                        <input type="hidden" name="ItemID" id="ItemID" value="0" />
+                        <button id="btnClear" type="button" class="btn bg-transparent"
+                            style="display:none; margin-left: -40px; z-index: 100; position:absolute; right:0; top:0;">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                @Html.Raw(ViewBag.DrawCategories)
+            </div>
+            <div class="col-md-3 col-6">
+                @Html.Raw(ViewBag.DrawItemBrand)
+            </div>
+            <div class="col-md-1">
+                <button id="btnClearAll" class="btn btn-danger btn-sm">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                    Clear
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 d-none totalQOH"
+                style="background-color: rgb(240 253 244); color: rgb(0, 216, 82); padding: 1rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: bolder; margin-bottom: 1rem;">
+                <span class="ml-2 text-uppercase">Total Stock On Hand:</span>
+                <span id="totalQOH"></span>
+            </div>
+        </div>
+        <div id="loading" class="cube d-none">
+            <div class="side"></div>
+            <div class="side"></div>
+            <div class="side"></div>
+            <div class="side"></div>
+            <div class="side"></div>
+            <div class="side"></div>
+        </div>
+        <div class="zoom-result shadow" id="zoomResult"></div>
+        <!-- Dispaly data -->
+        <div class="showItemDetail"></div>
+
+        <!-- Scroll to Top Button -->
+        <div id="scrollToTopBtn" class="scroll-to-top-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        </div>
+    </div>
+</div>
+<script>
+    var keyupTimer = "";
+    $(function () {
+        SetAutoComplete("keyword", "@ViewBag.AutoCompleteSQL", "ItemID");
+        $("#back-to-top").hide();
+        $('#CboCategories').prepend('<option selected=""></option>').select2({
+            placeholder: "All Categories",
+            allowClear: true,
+            //containerCssClass: "form-control form-control-lg myselectcontrol"
+        }).on("change", function () {
+            if ($(this).val() != "") {
+                $(".showItemDetail").html("");
+                filterProducts();
+            }
+            else {
+                if ($("#keyword").val() == "" && $("#CboItemBrand").val() == "") {
+                    $(".showItemDetail").html("");
+                } else {
+                    filterProducts();
+                }
+            }
+
+        });
+        $('#CboItemBrand').prepend('<option selected=""></option>').select2({
+            placeholder: "All Brands",
+            allowClear: true,
+            //containerCssClass: "form-control form-control-lg myselectcontrol"
+        }).on("change", function () {
+            if ($(this).val() != "") {
+                $(".showItemDetail").html("");
+                filterProducts();
+            }
+            else {
+                if ($("#keyword").val() == "" && $("#CboCategories").val() == "") {
+                    $(".showItemDetail").html("");
+                } else {
+                    filterProducts();
+                }
+            }
+        });
+        //$('#CboCategories').data('select2').$container.addClass('error')
+        //$('#CboCategories').data('select2').$container.removeClass('form-control')
+        //$('#CboCategories')//form-control form-control-lg
+        //filterProducts();
+
+        $("#keyword").on("keyup", function (event) {
+            var isPressEnter = false;
+            if ($(this).val() != "")
+                $("#btnClear").show();
+            else
+                $("#btnClear").hide();
+            //clearTimeout(keyupTimer);
+            //keyupTimer = setTimeout(function () {
+            if (event.which == 13) {
+
+                isPressEnter = true;
+                if ($(this).val() != "") {
+                    filterProducts(isPressEnter);
+                }
+                //LoadItemDetail();
+            }
+            //}, 500);
+        });
+        $("#btnClear").click(function () {
+            $(this).hide();
+            $("#ItemID").val("0");
+            $("#keyword").val("").focus();
+            if ($("#CboCategories").val() == "") {
+                $(".showItemDetail").html("");
+            } else {
+                filterProducts()
+            }
+        });
+
+        $("#btnClearAll").click(function () {
+            $(".showItemDetail").html("");
+            $('#CboCategories, #CboItemBrand').val(null).trigger('change');
+            $(".totalQOH").addClass('d-none');
+        });
+
+        //Scroll fix total stock on hand
+        const totalQOHElement = document.querySelector('.totalQOH');
+        const originalPosition = totalQOHElement.getBoundingClientRect().top + window.scrollY;
+        const elementHeight = totalQOHElement.offsetHeight;
+        totalQOHElement.style.transition = 'all 0.3s ease-in-out';
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > originalPosition) {
+                totalQOHElement.style.position = 'fixed';
+                totalQOHElement.style.top = '67px';
+                totalQOHElement.style.width = 'auto';
+                totalQOHElement.style.zIndex = '1000';
+                totalQOHElement.style.backgroundColor = 'rgb(15 23 42)';
+                totalQOHElement.style.color = 'rgb(203 213 225)';
+            } else {
+                totalQOHElement.style.position = 'static';
+                totalQOHElement.style.top = 'auto';
+                totalQOHElement.style.left = 'auto';
+                totalQOHElement.style.width = 'auto';
+                totalQOHElement.style.zIndex = 'auto';
+                totalQOHElement.style.backgroundColor = 'rgb(240 253 244)';
+                totalQOHElement.style.color = 'rgb(0, 216, 82)';
+            }
+        });
+
+        //Scroll to top
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        // Scroll functionality
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
+
+        // Click event to scroll to top
+        scrollToTopBtn.addEventListener('click', function () {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // JavaScript for zoom effect
+        $(document).on("mousemove", "#mainImage", function (e) {
+            const $zoomResult = $("#zoomResult");
+            const $mainImage = $(this);
+            const $zoomLens = $mainImage.siblings(".zoom-lens");
+            // Get image offset relative to document
+            const offset = $mainImage.offset();
+            const width = $mainImage.width();
+            const height = $mainImage.height();
+            const x = e.pageX - offset.left;
+            const y = e.pageY - offset.top;
+
+            // Calculate lens position (relative to image)
+            const lensWidth = $zoomLens.outerWidth();
+            const lensHeight = $zoomLens.outerHeight();
+            let lensX = x - lensWidth / 2;
+            let lensY = y - lensHeight / 2;
+
+            // Clamp lens position within image
+            lensX = Math.max(0, Math.min(lensX, width - lensWidth));
+            lensY = Math.max(0, Math.min(lensY, height - lensHeight));
+
+            // Position the lens absolutely over the image, relative to image container
+            $zoomLens.css({
+                left: lensX + "px",
+                top: lensY + "px",
+                width: lensWidth + "px",
+                height: lensHeight + "px",
+                display: "block",
+                position: "absolute",
+                zIndex: 1001,
+                pointerEvents: "none"
+            });
+
+            // Calculate zoom ratio (how much bigger the background is)
+            const zoomRatioX = $zoomResult.outerWidth() / lensWidth;
+            const zoomRatioY = $zoomResult.outerHeight() / lensHeight;
+
+            // Apply zoom effect
+            $zoomResult.css({
+                "background-image": `url('${$mainImage.attr("src")}')`,
+                "background-size": `${width * zoomRatioX}px ${height * zoomRatioY}px`,
+                "background-position": `-${lensX * zoomRatioX}px -${lensY * zoomRatioY}px`,
+                "display": "block",
+                "z-index": 1000
+            })
+        });
+
+        $(document).on("mouseleave", "#mainImage", function () {
+            $("#zoomResult").css({
+                backgroundImage: "none",
+                display: "none"
+            });
+            $(this).siblings(".zoom-lens").css("display", "none");
+        });
+
+    });
+
+    //function LoadItemDetail() {
+    //    var ItemID = $("#ItemID").val();
+    //    //console.log(ItemID);
+    //    LoadData("Items/LoadItemDetail?ItemID=" + ItemID, function (response) {
+    //        var Table = JSON.parse(response).Table;
+    //        //console.log(Table);
+    //    });
+    //}
+
+    function totalStockOnHandByWarehouse(items) {
+        let warehouseStockMap = {};
+        let strTotalQOH = '';
+        const seenCombinations = new Set();
+        //Sum stock by unique (ItemID + WarehouseName)
+        $.each(items, function (index, item) {
+            const warehouse = item.WarehouseName;
+            const serialNumber = item.SerialNumber;
+            const stock = item.TotalStock || 0;
+            const itemID = item.ItemID || '';
+
+            //Skip if warehouse is not defined
+            if (!warehouse) return;
+
+            const comboKey = `${itemID}::${warehouse}::${serialNumber}`;
+            if (!seenCombinations.has(comboKey)) {
+                seenCombinations.add(comboKey);
+
+                // Initialize warehouse if not exists
+                if (!warehouseStockMap[warehouse]) {
+                    warehouseStockMap[warehouse] = {};
+                }
+
+                // Initialize serial number if not exists
+                if (!warehouseStockMap[warehouse][serialNumber]) {
+                    warehouseStockMap[warehouse][serialNumber] = 0;
+                }
+
+                warehouseStockMap[warehouse][serialNumber] += stock;
+            }
+        });
+        //Total stock pills by warehouse
+        const arrWstock = Object.entries(warehouseStockMap);
+        const sorted = Object.fromEntries(arrWstock.sort());
+        $.each(sorted, function (warehouse, totalStock) {
+            const arrQty = Object.values(totalStock);
+            strTotalQOH += `<div class="pills">${warehouse}: <span class="text-danger">
+                ${arrQty.reduce((a, b) => a + b, 0)}
+            </span></div>&nbsp;`;
+        });
+        $("#totalQOH").html(strTotalQOH);
+    }
+
+    function filterProducts(isPressEnter) {
+        var ItemID = $("#ItemID").val();
+        var keyword = $("#keyword").val();
+        var Categories = $("#CboCategories").val();
+        var ItemBrand = $("#CboItemBrand").val();
+        var ServerRoot = location.protocol + '//' + location.host + "/";
+        var noimg = ServerRoot + "Content/images/placeholder.jpg";
+        var html = '';
+
+        function LoadData(url, callback) {
+            $.ajax({
+                type: "GET",
+                url: ServerRoot + url,
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading").removeClass('d-none');
+                },
+                success: callback,
+                error: function (xhr, status, error) {
+                    console.error("Failed to load data:", status, error);
+                }
+            });
+        }
+
+        // Main function to load and process data
+        LoadData(`Items/filterProducts?keyword=${keyword}&Categories=${Categories}&ItemBrand=${ItemBrand}`, async function (response) {
+            let { Table: items } = response;
+            if (items.length === 0) {
+                DialogSweetAlert("error", "No item found!");
+                $("#loading").addClass('d-none');
+                $("#keyword").select();
+                return;
+            }
+            const expBarcode = items.filter(item => item.ExpBarcode === keyword);
+            if (expBarcode.length > 0) {
+                items = expBarcode;
+            }
+            let cardItem = '';
+            //console.log(Categories)
+            const seenItemsId = new Set();
+            const seenItemsSerialNumber = new Set();
+            totalStockOnHandByWarehouse(items);
+            //Filter unique items for card rendering
+            const uniqueItems = items.filter(item => {
+                if (seenItemsId.has(item.ItemID) && seenItemsSerialNumber.has(item.SerialNumber)) return false;
+                seenItemsId.add(item.ItemID);
+                seenItemsSerialNumber.add(item.SerialNumber);
+                return true;
+            });
+
+            //Generate cards
+            $.each(uniqueItems, (index, item) => {
+                cardItem += generateItemCard(items, item);
+            });
+
+            //Render
+            renderCardShow(cardItem, keyword, Categories);
+            $("#loading").addClass('d-none');
+            $(".totalQOH").removeClass('d-none');
+            $(document).on('click', '.remove-item-card', function () {
+                var itemID = $(this).data('item');
+                // Remove the card
+                $(this).closest(`.item-id_${itemID}`).remove();
+                if ($(".showItemDetail").children().length === 0) {
+                    $(".totalQOH").addClass('d-none');
+                }
+                items = items.filter(i => i.ItemID !== itemID);
+                totalStockOnHandByWarehouse(items);
+            });
+        });
+
+        function generateItemCard(allItems, item) {
+            const itemImages = item.ItemImage || '';
+            const itemUM = item.UM || '';
+
+            const images = itemImages ? itemImages.split('~') : [];
+            const units = itemUM ? itemUM.split(',') : [];
+
+            const seenWarehouse = new Set();
+            const qtyByWarehouse =
+                allItems.filter(i => i.ItemID === item.ItemID && i.WarehouseName)
+                    .filter(function (obj) {
+                        const key = JSON.stringify(obj.WarehouseName);
+                        return seenWarehouse.has(key) ? false : seenWarehouse.add(key);
+                    });
+
+            const totalQtyIn = qtyByWarehouse.reduce((sum, i) => sum + (i.QTYIN || 0), 0);
+            const totalQtyOut = qtyByWarehouse.reduce((sum, i) => sum + (i.QTYOUT || 0), 0);
+            const totalStockOnHand = qtyByWarehouse.reduce((sum, i) => sum + (i.StockOnHand || 0), 0);
+
+            // ====== Qty by ExpireDate with Summation ======
+            const qtyByExpireDateMap = {};
+
+            allItems.forEach(i => {
+                if (i.ItemID === item.ItemID && i.ExpireDate) {
+                    const key = i.ExpireDate;
+                    if (!qtyByExpireDateMap[key]) {
+                        qtyByExpireDateMap[key] = {
+                            ExpireDate: key,
+                            ExpBarcode: i.ExpBarcode || '',
+                            QTYIN: 0,
+                            QTYOUT: 0,
+                            StockOnHand: 0
+                        };
+                    }
+                    qtyByExpireDateMap[key].QTYIN += i.ExpQTYIN || 0;
+                    qtyByExpireDateMap[key].QTYOUT += i.ExpQTYOUT || 0;
+                    qtyByExpireDateMap[key].StockOnHand += i.ExpStockOnHand || 0;
+                }
+            });
+
+            // Convert map to array
+            const qtyByExpireDate = Object.values(qtyByExpireDateMap);
+
+            return `
+            <div class="card item-card item-id_${item.ItemID}" style="border-bottom: 5px solid #FF5D5D; color:#000;border-radius: 1rem;">
+                <div class="row card-body relative" style="padding:2rem;">
+                    <span>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-x remove-item-card" data-item="${item.ItemID}"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 2h-14a3 3 0 0 0 -3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3 -3v-14a3 3 0 0 0 -3 -3zm-9.387 6.21l.094 .083l2.293 2.292l2.293 -2.292a1 1 0 0 1 1.497 1.32l-.083 .094l-2.292 2.293l2.292 2.293a1 1 0 0 1 -1.32 1.497l-.094 -.083l-2.293 -2.292l-2.293 2.292a1 1 0 0 1 -1.497 -1.32l.083 -.094l2.292 -2.293l-2.292 -2.293a1 1 0 0 1 1.32 -1.497z" /></svg>
+                    </span>
+                    <div class="col-6 col-md-3">
+                        <div id="div_show_product">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card">
+                                        <a href="${images.length > 0 ? `Uploads/Items/${images[0]}` : `javascript:void(0)`}" data-toggle="lightbox" data-max-width="800" class="img-hover-zoom--colorize zoom-container">
+                                            <img class="main-image" loading="lazy" id="mainImage" style="height: 330px; width: 100%; object-fit:cover" src="${images.length > 0 ? `Uploads/Items/${images[0]}` : ``}" onerror="this.onerror=null;this.src='${noimg}';">
+                                            <div class="zoom-lens"></div>
+                                        </a>
+                                        <div class="thumbnails">
+                                            ${images.length > 0 ? images.map((img) =>
+                `<div class="img-box">
+                                                    <img class="thumbnail" loading="lazy" src="Uploads/Items/${img}" onclick="changeImage(this)" onerror="this.onerror=null;this.src='${noimg}';"/>
+                                                </div>`).join('')
+                    : `<div class="img-box"><img class="thumbnail" loading="lazy" src="" onclick="changeImage(this)" onerror="this.onerror=null;this.src='${noimg}';"/></div>`
+                }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-9">
+                        <div class="card">
+                        <input type="hidden" class="form-control qtyQoh" value="${item.StockOnHand}"/>
+                            <div class="card-header d-flex align-items-center text-white" style="background: #2561e6;gap: 8px;">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 5h8" /><path d="M13 9h5" /><path d="M13 15h8" /><path d="M13 19h5" /><path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
+                                </span>
+                                <h4 class="card-title text-uppercase" style="font-size: 18px; font-weight: 800">Item Detail Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col col-md-6 detail">
+                                        <div><label>Item Name:</label> <a href="${ServerRoot}#!/ItemProfile?ID=${item.ItemID}" class="text-primary" target="_blank">${item.ItemName}</a></div>
+                                        <div><label>Code:</label> ${item.ItemCode || ``}</div>
+                                        <div><label>Barcode:</label> ${item.Barcode || ``}</div>
+                                        <div><label>Size:</label> ${item.ItemSize || ``}</div>
+                                        <div><label>Category:</label> ${item.StockName || ``}</div>
+                                        <div><label>Brand:</label> ${item.ItemBrand || ``}</div>
+                                        <div><label>Serial Number:</label> ${item.SerialNumber || ``}</div>
+                                    </div>
+                                    <div class="col col-md-6 detail">
+                                        <div><label>Unit Variant:</label> ${units.map((unit) => `<span class="pill">${unit}</span>`).join(',')}</div>
+                                        <div><label>Stock Opening:</label> ${0}</div>
+                                          <div><label>Stock In:</label> <span class="text-success">${totalQtyIn}</span></div>
+                                        <div><label>Stock Out:</label> <span class="text-danger">${totalQtyOut}</span></div>
+                                        <div><label>Stock On Hand:</label> <span class="text-primary">${totalStockOnHand}</span></div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px;">
+                                    <div class="col col-md-6">
+                                        <table class="table1 table-sm table-striped table-hover">
+                                            <thead style="background:#F89C39; color:#fff">
+                                                <tr>
+                                                    <th class="text-black">Warehouse Name</th>
+                                                    <th class="text-black">In</th>
+                                                    <th class="text-black">Out</th>
+                                                    <th class="text-black">QOH</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            ${qtyByWarehouse.length > 0 ? qtyByWarehouse.map(w => `<tr>
+                                                    <td>${w.WarehouseName}</td>
+                                                    <td class="text-danger">${w.QTYIN}</td>
+                                                    <td class="text-danger">${w.QTYOUT}</td>
+                                                    <td class="text-primary">${w.QTYIN - w.QTYOUT}</td>
+                                                </tr>`).join('') : `<tr>
+                                                    <td colspan="4" class="text-center">No data</td>
+                                                </tr>` }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col col-md-6">
+                                        <table class="table1 table-sm table-striped table-hover">
+                                            <thead style="background:#F89C39; color:#fff">
+                                                <tr>
+                                                    <th class="text-black">Expire Date</th>
+                                                    <th class="text-black">Barcode</th>
+                                                    <th class="text-black">In</th>
+                                                    <th class="text-black">Out</th>
+                                                    <th class="text-black">QOH</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            ${qtyByExpireDate.length > 0 ? qtyByExpireDate.map(e => `<tr>
+                                                <td>${convertFormatDate(e.ExpireDate, `dd-MM-yyyy`)}</td>
+                                                <td class="text-danger">${e.ExpBarcode}</td>
+                                                <td class="text-danger">${e.QTYIN}</td>
+                                                <td class="text-danger">${e.QTYOUT}</td>
+                                                <td class="text-primary">${e.StockOnHand}</td>
+                                                </tr>`).join('') : `<tr>
+                                                        <td colspan="5" class="text-center">No data</td>
+                                                    </tr>` }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderCardShow(itemCard, keyword, Categories) {
+            if (keyword !== '' && isPressEnter && !Categories) {
+                $(".showItemDetail").prepend(itemCard);
+                $("#keyword").val("").focus();
+                $("#btnClear").hide();
+            } else {
+                $(".showItemDetail").html(itemCard);
+            }
+
+            setTimeout(() => {
+                $('.showItemDetail').children().removeClass('item-card');
+            }, 500);
+        }
+
+    }
+
+
+    function changeImage(el) {
+        var imgSrc = $(el).attr("src");
+        $(el).closest(".row").find("a").attr("href", imgSrc);
+        $(el).closest(".row").find(".main-image").attr("src", imgSrc);
+    }
+
+    $(document).on('click', '[data-toggle="lightbox"]', function (event) {
+        event.preventDefault();
+        $(this).ekkoLightbox({
+            //alwaysShowClose: true,
+            wrapping: false
+        });
+    });
+
+</script>

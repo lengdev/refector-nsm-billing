@@ -1,0 +1,14 @@
+﻿@{ Layout = null;}
+@Html.Raw(@ViewBag.Data)
+<script>
+    var Status_ID = "@ViewBag.StatusID";
+    var VendorID = "@ViewBag.VendorID";
+    $(function () {
+        if (Status_ID != "" && Status_ID != 10) {
+            $("#VendorPaymentsMade").remove();
+            var btn = "<div class=\"\"><button type=\"button\" onclick=\"VendorPaymentsMade(" + VendorID + ");\" id=\"VendorPaymentsMade\" class=\"btn btn-danger\">";
+            btn += '<i class="fa fa-file-invoice-dollar"></i> Payments</button></div>';
+            $("#SaveChange").before(btn);
+        }
+    });
+</script>

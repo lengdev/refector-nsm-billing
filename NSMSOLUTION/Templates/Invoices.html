@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/Content/icon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/Content/icon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/Content/icon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/Content/icon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/Content/icon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/Content/icon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/Content/icon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/Content/icon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Content/icon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/Content/icon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/Content/icon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/Content/icon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/Content/icon/favicon-16x16.png" />
+    <link rel="manifest" href="/Content/icon/manifest.json" />
+    <meta name="msapplication-TileImage" content="/Content/icon/ms-icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link href="../Content/css/custom.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Siemreap&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"
+        crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Bayon" rel="stylesheet" type="text/css" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Bayon|Francois+One" rel="stylesheet" type="text/css"
+        crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@200;300&display=swap" rel="stylesheet"
+        crossorigin />
+    <title>{Title}</title>
+    <link href="../Content/css/custom_bootstrap.css" rel="stylesheet" />
+    <script src="../Scripts/jquery-3.7.1.min.js"></script>
+
+</head>
+
+<body id="BoyMasterPage" class="khmerFont1" style="background-color:#fff!important">
+    <style>
+        .mytable th,
+        .mytable td {
+            border: 1px solid #000000 !important;
+        }
+
+        .rm-p-space p {
+            margin-bottom: 0 !important;
+        }
+
+        @media print {
+            .invoice {
+                margin: 0 !important;
+                padding: 0 !important;
+                /*counter-reset: page;*/
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            thead,
+            tfoot {
+                display: table-row-group;
+            }
+
+            @page {
+                size: A3 !important;
+                margin: 20px 20px 60px 50px !important;
+            }
+
+            .footer {
+                width: calc(100% - 20px);
+                position: fixed;
+                bottom: 0 !important;
+            }
+
+            .page-break {
+                display: block;
+                page-break-before: always;
+            }
+
+            /* .showPageNo::before {
+                    border: 1px solid blue !important;
+                    counter-increment: page;
+                    content: "Page " counter(page);
+                }*/
+            .showPageNo {
+                display: block !important;
+            }
+        }
+    </style>
+    <div class="wrapper" id="Div_Content">
+        <section class="invoice">
+            <div class="row">
+                <div class="col-12 d-flex justify-content-between align-items-end mt-4 mb-4">
+                    <div class="img">
+                        {LOGO}
+                    </div>
+                </div>
+                <div style="margin: 0 auto 20px;">
+                    <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">
+                        ប៊ីអេស ព្រីនធីង អេន អេតវើថាយស៊ីង​ ឯ.ក
+                    </h4>
+                    <h6 class="text-uppercase">bs printing and advertising co, ltd</h6>
+                </div>
+            </div>
+            <div class="rm-p-space">
+                <p>លេខអត្តសញ្ញាណកម្ម អាករ (VAT TIN)៖ K007-902103322</p>
+                <p>អាសយដ្ឋាន៖ #1319, ផ្លូវ ទឹកល្អ២ ភូមិព្រែកតាកោង សង្កាត់ចាក់អង្រែលើ ខណ្ឌមានជ័យ រាជធានីភ្នំពេញ</p>
+                <p>Head Office: #1319, Road2, Phum Prek TaKong, Sangkat Chak Angrae Leu, Khan MeanChey, Phnom Penh</p>
+                <p>ទូរស័ព្ទចល័ត៖ ០៨៧ ៣៣៣ ២៧១</p>
+                <p>HP: 087 333 271</p>
+            </div>
+            <hr />
+            <div style="text-align:center">
+                <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">
+                    វិក័យប័ត្រ
+                </h4>
+                <h6 class="text-uppercase">invoice</h6>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between">
+                <div class="rm-p-space">
+                    <p>
+                    <div>
+                        <span>ឈ្មោះក្រុមហ៊ុន ឬអតិថិជន៖</span>
+                        <span>Leng</span>
+                    </div>
+                    <div>
+                        <span>Company Name/Customer:</span>
+                        <span>Test</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>អាសយដ្ឋាន៖</span>
+                        <span>ភ្នំពេញ</span>
+                    </div>
+                    <div>
+                        <span>Address:</span>
+                        <span>០៨១ ៨៣៣ ៨១៨</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>ទូរស័ព្ទលេខ៖</span>
+                        <span>០៨១ ៨៣៣ ៨១៨</span>
+                    </div>
+                    <div>
+                        <span>Phone:</span>
+                        <span>081 833 818</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>ATT:</span>
+                        <span></span>
+                    </div>
+                    <div>
+                        <span>លេខអត្តសញ្ញាណកម្ម អតប(VAT TIN): </span>
+                        <span>K009-110003438</span>
+                    </div>
+                    </p>
+                </div>
+                <div class="rm-p-space">
+                    <p>
+                    <div>
+                        <span>លេខរៀងវិក្ក័យបត្រ៖</span>
+                        <span></span>
+                    </div>
+                    <div>
+                        <span>INVOICE: </span>
+                        <span>BS/TI/24-000085</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>កាលបរិច្ឆេទ៖</span>
+                        <span></span>
+                    </div>
+                    <div>
+                        <span>Date:</span>
+                        <span>16-Dec-2024</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>ទូរស័ព្ទលេខ៖</span>
+                        <span>០៨១ ៨៣៣ ៨១៨</span>
+                    </div>
+                    <div>
+                        <span>SEF:</span>
+                        <span>Ms. Chea Souvary</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>SO:</span>
+                        <span>BS/SO2024-000084</span>
+                    </div>
+                    <div>
+                        <span>Due Date: </span>
+                        <span>16-Dec-2024</span>
+                    </div>
+                    </p>
+                    <p>
+                    <div>
+                        <span>DN :</span>
+                        <span></span>
+                    </div>
+                    <div>
+                        <span>Exchange Rate:</span>
+                        <span>4,200 ៛</span>
+                    </div>
+                    </p>
+                </div>
+            </div>
+            <table class="table table-bordered mytable mt-3">
+                <thead style="background: #FFCCFF;">
+                    <tr style="text-align:center">
+                        <th width="5%">ល.រ</th>
+                        <th width="40%">បរិយាយ</th>
+                        <th>ខ្នាត</th>
+                        <th>បរិមាណ</th>
+                        <th>ថ្លៃឯកតា</th>
+                        <th>ថ្លៃទំនិញ/សេវា</th>
+                    </tr>
+                    <tr style="text-align:center">
+                        <th>No.</th>
+                        <th>Description</th>
+                        <th>UM</th>
+                        <th>QTY</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="text-align:center">
+                        <td>1</td>
+                        <td align="left">Connection Fee</td>
+                        <td>Service</td>
+                        <td>1</td>
+                        <td>$30.00</td>
+                        <td>$0.00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="border-bottom: 0!important">
+                            <p>
+                                Term & Conditions:
+                                (1). All goods bought/delivered are not returnable and refundable.
+                                (2). Please make all checks payable to
+                                Name: BS PRINTING AND ADVERTISING CO., LTD
+                                (3). Account ABA : 888 990 909
+                            </p>
+                        </td>
+                        <th class="text-right" colspan="3">ទឹកប្រាក់សរុប Total Amount:</th>
+                        <td class="text-center">$30.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="border-top: 0 !important; border-bottom: 0!important"></td>
+                        <th class="text-right" colspan="3">អាករលើតម្លៃបន្ថែម VAT(10%):</th>
+                        <td class="text-center">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="border-top: 0 !important; border-bottom: 0!important"></td>
+                        <th class="text-right" colspan="3">ទឹកប្រាក់កក់ Deposit Amount:</th>
+                        <td class="text-center">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="border-top: 0 !important; border-bottom: 0!important"></td>
+                        <th class="text-right" colspan="3">សរុបរួមទាំងអាករ Total Included VAT 10%:</th>
+                        <td class="text-center">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="border-top: 0 !important; border-bottom: 0!important"></td>
+                        <th class="text-right" colspan="3">ទឹកប្រាក់សរុបរួមទាំងអាករជាលុយរៀល (KHR):</th>
+                        <td class="text-center">$30.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <footer class="footer">
+                <div class="row justify-content-around" style="margin-top:100px; margin-bottom: 40px !important">
+                    <div class="col-4">
+                        <div class="text-center" style="height:90px">{IssuedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">ហត្ថលេខា និង
+                                    ឈ្មោះអ្នកទិញ</label>
+                                <label class="col-form-label text-uppercase text-nowrap">Customer`s Signature &
+                                    Name</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">សម្គាល់៖ ច្បាប់ដើមសម្រាប់អ្នកទិញ
+                                    ច្បាប់ចម្លងសម្រាប់អ្នកលក់</label><br />
+                                <label class="col-form-label">Note: Original invoice for customer and copied invoice for
+                                    seller</label><br />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        <div class="text-center" style="height:90px">{IssuedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">ហត្ថលេខា និង
+                                    ឈ្មោះអ្នកលក់</label>
+                                <label class="col-form-label text-uppercase text-nowrap">Seller`s Signature &
+                                    Name</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <script>
+        $(function () {
+
+        });
+    </script>
+</body>
+
+</html>

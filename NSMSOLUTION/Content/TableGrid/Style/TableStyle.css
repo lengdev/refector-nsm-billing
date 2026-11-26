@@ -1,0 +1,278 @@
+﻿@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.eot") /* EOT file for IE */
+}
+
+@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.ttf") /* TTF file for CSS3 browsers */
+}
+
+.barcodeFont {
+    font-size: 50px;
+}
+
+table.TableGride {
+    font-family: Verdana, Geneva, sans-serif;
+    border-collapse: collapse;
+    font-size: 12px;
+    border: #EEE solid 1px;
+}
+
+.TableGride td {
+    border-left: #EEE solid 1px;
+    border-bottom: #EEE solid 1px;
+}
+
+table.TableGridePrint {
+    font-family: Verdana, Geneva, sans-serif;
+    border-collapse: collapse;
+    font-size: 11px;
+    border-top: #000 solid 1px;
+    border-right: #000 solid 1px;
+}
+
+    table.TableGridePrint td {
+        border-left: #000 solid 1px;
+        border-bottom: #000 solid 1px;
+    }
+
+.TableGridePrint .header, .TableGridePrint th {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    background: #CCC;
+    border-bottom: #000 solid 1px;
+}
+
+    .TableGridePrint .header th, .TableGridePrint th {
+        border-left: #000 solid 1px;
+    }
+
+
+table.TableGrideFooter {
+    color: #7cab0e;
+}
+
+.tr-Hover {
+    /*color: orangered;*/
+    background: url(../Images/bg-header.jpg) repeat-x bottom;
+    text-shadow: 0 0 0 #DBDBDB;
+}
+
+    .tr-Hover td {
+        border-bottom: #CCC solid 1px;
+    }
+
+.TableGride .tr-Hover td:Active {
+    border-bottom: #FCD3A1 solid 1px;
+}
+
+.TableGride .tr-Selected {
+    background-image: none;
+    background-color: #FCF9F1;
+    border-bottom: #FCD3A1 solid 1px;
+}
+
+.TableGride .tr-Selected2 {
+    background-image: none;
+    border-bottom: #FCD3A1 solid 1px;
+    color: #666;
+}
+
+.TableGride .tr-Selected tr:Hover {
+    background-image: none;
+    background-color: #FCF9F1;
+    border-bottom: #FCD3A1 solid 1px;
+}
+
+table .tr-Selected td {
+    border-right: #FCD3A1 solid 1px;
+    border-bottom: #FCD3A1 solid 1px;
+}
+
+.TableGride .header, .TableGride th {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    background: #EEE url(../Images/bg-header.jpg) repeat-x;
+    color: #7cab0e;
+    border-bottom: #DBDBDB solid 1px;
+}
+
+    .TableGride .header th, .TableGride th {
+        border-left: #EEE solid 1px;
+    }
+
+.TableGride td.Total {
+    color: Red;
+    font-weight: bold;
+}
+
+.TableGride tr.footer {
+    background: #EEE url(../Images/bg-header.jpg) repeat-x;
+    height: 30px;
+}
+
+    .TableGride tr.footer td {
+        border: #FFF solid 0;
+    }
+
+#TblPaging {
+    /*border: #D8DCDF solid 1px;*/
+    border-collapse: collapse;
+    /*border-top: #FFF solid 0;*/
+}
+
+tfoot tr.tblfooter {
+    background: #EEE url(../Images/bg-header.jpg) repeat-x;
+    height: 30px;
+}
+
+#TblPaging tr.tblfooter td {
+    border: #FFF solid 0;
+}
+
+#divloadingdata {
+    /*clear:both;
+	margin:0;
+	padding:0;
+	z-index:999;*/
+    margin-left: 9px;
+    margin-top: 35px;
+    background: url(../Images/loadinfo.gif) no-repeat center;
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+}
+
+#divtbldata {
+    background-color: transparent;
+}
+
+.divbody {
+    border: #D8DCDF solid 1px;
+    margin: 0;
+    padding: 0;
+    /*min-height:400px !important;*/
+}
+
+input#txtpaging {
+    color: #7cab0e;
+    border: #CCC solid 1px;
+    text-align: center;
+    width: 50px;
+    padding: 0;
+    margin: 0;
+    padding: 3px;
+}
+
+select.cbopagesize {
+    clear: both;
+    padding: 3px;
+    margin: 0;
+    color: #7cab0e;
+    border: #CCC solid 1px;
+    text-align: center;
+    width: 50px;
+    height: auto;
+}
+
+.TotalAllHeader {
+    border: #CCC solid 1px;
+}
+
+.TR-TotalAllHeader {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #7cab0e;
+    background: #EEE url(../Images/bg-header.jpg) repeat-x;
+    border-bottom: #DBDBDB solid 1px;
+}
+
+    .TR-TotalAllHeader td {
+        border-left: #EEE solid 1px;
+    }
+
+.TotalAllHeader-Amount {
+    color: #666;
+}
+
+.TotalAllField {
+    font-weight: bold;
+    color: #666;
+}
+
+.TotalAllFieldValue {
+    font-weight: bold;
+    color: #F00;
+}
+
+.CurrentQTY {
+    font-weight: bold;
+}
+
+.Partial {
+    color: Red;
+}
+
+.QTYIN {
+    color: Highlight;
+}
+
+.QTYOUT {
+    color: Red;
+}
+
+.TotalField {
+    color: Blue;
+}
+
+.GroupByField {
+    color: #666;
+    font-weight: bold;
+}
+
+.TotalFooter, .TotalFooter tr, .TotalFooter td {
+    /*font-size:12px;*/
+    font-weight: bold;
+    border: none;
+    /*color: red;*/
+    padding: 3px;
+    margin: 0;
+}
+
+.GTotal {
+    border-right: 1px solid #CCC;
+}
+
+.TableGride td.label {
+    color: black;
+    font-weight: bold;
+}
+
+.TableGride td.textlabel {
+    color: Red;
+    font-weight: bold;
+}
+
+.TblInvTop {
+    border-collapse: collapse;
+}
+
+    .TblInvTop tr td {
+        padding: 5px;
+        border: 1px solid #000;
+    }
+
+.TblTotalHeader td {
+    font-weight: bold;
+    color: #515151;
+    border: solid 1px #EEE;
+}
+
+    .TblTotalHeader td.textlabel {
+        /*        font-weight: bold;*/
+        color: Red;
+    }

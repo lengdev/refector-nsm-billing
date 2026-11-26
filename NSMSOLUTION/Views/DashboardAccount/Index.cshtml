@@ -1,0 +1,909 @@
+@using NewInventorySystem.Controllers
+@{
+    Layout = null;
+
+    DashboardSummary summary = ViewBag.Summary ?? new DashboardSummary();
+
+    Func<decimal, string> trendClass = d => d > 0 ? "trend-up" : d < 0 ? "trend-down" : "trend-neutral";
+    Func<decimal, string> trendArrow = d => d > 0 ? "+" : d < 0 ? "-" : "";
+    Func<decimal, string> money = d => d < 0 ? "-$" + Math.Abs(d).ToString("N2") : "$" + d.ToString("N2");
+
+    DateTime fromDate = ViewBag.FromDate != null ? (DateTime)ViewBag.FromDate : DateTime.Today.AddDays(-30);
+    DateTime toDate   = ViewBag.ToDate   != null ? (DateTime)ViewBag.ToDate   : DateTime.Today;
+
+    bool isMonthly = ViewBag.IsMonthly != null ? (bool)ViewBag.IsMonthly : false;
+    int selectedYear = ViewBag.SelectedYear != null ? (int)ViewBag.SelectedYear : DateTime.Today.Year;
+    List<int> availableYears = ViewBag.AvailableYears != null ? (List<int>)ViewBag.AvailableYears : new List<int> { DateTime.Today.Year };
+}
+
+@Html.Raw("<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.35.0/dist/tabler-icons.min.css\">")
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+ /* ═══════════════════════════════════════════════
+    Design tokens (oklch, shadcn-style matching Home)
+    ═══════════════════════════════════════════════ */
+ #dash-account-wrap {
+     --background: oklch(98.37% 0.0019 264.55);
+     --foreground: oklch(0.37 0.01 0);
+     --card: oklch(100% 0 0);
+     --border: oklch(93.56% 0.0055 264.53);
+     --dark-border: oklch(40.51% 0.0375 283.83);
+
+     --muted-foreground: oklch(55.03% 0.0235 264.36);
+     --radius-card: 1.25rem;
+     --radius-tile: 1rem;
+     --radius-chip: 0.85rem;
+
+     --green-bg: oklch(96.05% 0.0265 166.14);
+     --green-fg: oklch(51.7% 0.1084 158.1);
+     --blue-bg: oklch(94.44% 0.0247 255.08);
+     --blue-fg: oklch(55.56% 0.1968 260);
+     --red-bg: oklch(94.64% 0.024 17.58);
+     --red-fg: oklch(59.88% 0.2021 25.78);
+     --purple-bg: oklch(94.72% 0.0255 308.16);
+     --purple-fg: oklch(51.5% 0.2069 303.41);
+     --indigo-bg: oklch(94.55% 0.0206 277.99);
+     --indigo-fg: oklch(54.11% 0.1819 273.86);
+     --cyan-bg: oklch(96.01% 0.0235 206.32);
+     --cyan-fg: oklch(59.81% 0.0992 215.31);
+     --orange-bg: oklch(96.14% 0.0236 67.54);
+     --orange-fg: oklch(65.06% 0.1654 49.21);
+
+     font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, -apple-system, sans-serif;
+     color: var(--foreground);
+     background-color: var(--background);
+     padding: 1.5rem;
+     min-height: calc(100vh - 100px);
+     -webkit-font-smoothing: antialiased;
+ }
+
+ #dash-account-wrap * {
+     box-sizing: border-box;
+ }
+
+ /* ── Header ── */
+ #dash-account-wrap .db-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     margin-bottom: 1.5rem;
+     gap: 16px;
+     flex-wrap: wrap;
+ }
+
+ #dash-account-wrap .db-breadcrumb {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     font-size: 12px;
+     color: var(--muted-foreground);
+     list-style: none;
+     margin: 0 0 6px 0;
+     padding: 0;
+ }
+
+ #dash-account-wrap .db-breadcrumb a {
+     color: var(--muted-foreground);
+     text-decoration: none;
+ }
+
+ #dash-account-wrap .db-breadcrumb a:hover {
+     color: var(--foreground);
+ }
+
+ #dash-account-wrap .db-breadcrumb .sep {
+     opacity: 0.5;
+ }
+
+ #dash-account-wrap .db-title {
+     font-size: 26px;
+     font-weight: 800;
+     letter-spacing: -0.02em;
+     color: var(--foreground);
+     margin: 0 0 4px 0;
+     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+ }
+
+ #dash-account-wrap .db-subtitle {
+     font-size: 13px;
+     color: var(--muted-foreground);
+     margin: 0;
+ }
+
+ /* ── Select Period Filter ── */
+ #dash-account-wrap .da-year-select {
+     border: 1px solid var(--border);
+     border-radius: var(--radius-chip);
+     padding: 6px 12px;
+     font-size: 14px;
+     font-weight: 700;
+     color: var(--foreground);
+     background: var(--card);
+     cursor: pointer;
+     outline: none;
+     transition: border-color 0.15s, box-shadow 0.15s;
+ }
+
+ #dash-account-wrap .da-year-select:hover,
+ #dash-account-wrap .da-year-select:focus {
+     border-color: var(--blue-fg);
+     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+ }
+
+ body.dark-mode #dash-account-wrap .da-year-select {
+     background-color: var(--card);
+     border-color: var(--border);
+     color: var(--foreground);
+ }
+
+ body.dark-mode #dash-account-wrap .da-year-select option {
+     background-color: #1e293b;
+     color: #eceef1;
+ }
+
+ /* ── Stat cards grid (6-up) ── */
+ #dash-account-wrap .db-grid-6 {
+     display: grid;
+     grid-template-columns: repeat(6, minmax(0, 1fr));
+     gap: 14px;
+     margin-bottom: 1.5rem;
+ }
+
+ #dash-account-wrap .db-stat {
+     border: 1px solid var(--border);
+     border-radius: var(--radius-tile);
+     padding: 1.1rem;
+     background: var(--card);
+     box-shadow: 0 4px 14px 0 oklch(0% 0 0 / 0.04);
+     transition: box-shadow 0.15s, transform 0.15s;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+ }
+
+ #dash-account-wrap .db-stat:hover {
+     box-shadow: 0 6px 20px 0 oklch(0% 0 0 / 0.08);
+     transform: translateY(-2px);
+ }
+
+ #dash-account-wrap .db-stat-top {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     margin-bottom: 12px;
+ }
+
+ #dash-account-wrap .db-stat-label {
+     font-size: 10.5px;
+     font-weight: 700;
+     color: var(--muted-foreground);
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+ }
+
+ #dash-account-wrap .db-stat-icon {
+     width: 36px;
+     height: 36px;
+     border-radius: var(--radius-chip);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-shrink: 0;
+     font-size: 18px;
+ }
+
+ #dash-account-wrap .db-stat-icon.green  { background: var(--green-bg);  color: var(--green-fg); }
+ #dash-account-wrap .db-stat-icon.blue   { background: var(--blue-bg);   color: var(--blue-fg); }
+ #dash-account-wrap .db-stat-icon.red    { background: var(--red-bg);    color: var(--red-fg); }
+ #dash-account-wrap .db-stat-icon.purple { background: var(--purple-bg); color: var(--purple-fg); }
+ #dash-account-wrap .db-stat-icon.indigo { background: var(--indigo-bg); color: var(--indigo-fg); }
+ #dash-account-wrap .db-stat-icon.cyan   { background: var(--cyan-bg);   color: var(--cyan-fg); }
+ #dash-account-wrap .db-stat-icon.orange { background: var(--orange-bg); color: var(--orange-fg); }
+
+ #dash-account-wrap .db-stat-val {
+     font-size: 24px;
+     font-weight: 800;
+     color: var(--foreground);
+     line-height: 1.1;
+     letter-spacing: -0.02em;
+     font-variant-numeric: tabular-nums;
+     margin-bottom: 8px;
+ }
+
+ #dash-account-wrap .db-badge {
+     display: inline-flex;
+     align-items: center;
+     gap: 4px;
+     font-size: 10.5px;
+     font-weight: 600;
+     padding: 3px 9px;
+     border-radius: 999px;
+ }
+
+ #dash-account-wrap .db-badge-success { background: var(--green-bg);  color: var(--green-fg); }
+ #dash-account-wrap .db-badge-danger  { background: var(--red-bg);    color: var(--red-fg); }
+ #dash-account-wrap .db-badge-info    { background: var(--blue-bg);   color: var(--blue-fg); }
+ #dash-account-wrap .db-badge-warn    { background: var(--orange-bg); color: var(--orange-fg); }
+ #dash-account-wrap .db-badge-purple  { background: var(--purple-bg); color: var(--purple-fg); }
+
+ /* ── Charts Grid ── */
+ #dash-account-wrap .da-charts-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+     gap: 16px;
+     margin-bottom: 1.5rem;
+ }
+
+ #dash-account-wrap .db-card {
+     border: 1px solid var(--border);
+     border-radius: var(--radius-card);
+     padding: 1.4rem;
+     background: var(--card);
+     box-shadow: 0 4px 16px 0 oklch(0% 0 0 / 0.04);
+ }
+
+ #dash-account-wrap .db-card-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 1rem;
+     gap: 12px;
+     flex-wrap: wrap;
+ }
+
+ #dash-account-wrap .db-card-title {
+     font-size: 15px;
+     font-weight: 700;
+     color: var(--foreground);
+     margin: 0;
+     letter-spacing: -0.01em;
+ }
+
+ #dash-account-wrap .db-card-sub {
+     font-size: 12.5px;
+     color: var(--muted-foreground);
+     margin: 2px 0 0 0;
+ }
+
+ #dash-account-wrap .db-legend {
+     display: flex;
+     gap: 14px;
+     font-size: 12px;
+     color: var(--muted-foreground);
+     align-items: center;
+ }
+
+ #dash-account-wrap .db-legend-dot {
+     width: 8px;
+     height: 8px;
+     border-radius: 50%;
+     display: inline-block;
+     margin-right: 5px;
+ }
+
+ #dash-account-wrap .da-chart-tabs {
+     display: flex;
+     gap: 4px;
+     background: var(--background);
+     border-radius: 8px;
+     padding: 3px;
+     border: 1px solid var(--border);
+ }
+
+ #dash-account-wrap .da-chart-tab {
+     padding: 4px 10px;
+     border-radius: 6px;
+     font-size: 11.5px;
+     font-weight: 600;
+     color: var(--muted-foreground);
+     cursor: pointer;
+     border: none;
+     background: transparent;
+     transition: background .2s, color .2s;
+ }
+
+ #dash-account-wrap .da-chart-tab.active {
+     background: var(--card);
+     color: var(--foreground);
+     box-shadow: 0 1px 3px rgba(0,0,0,.1);
+ }
+
+ #dash-account-wrap .db-chart-wrap {
+     position: relative;
+     height: 280px;
+     width: 100%;
+ }
+
+ /* ── Recent Transactions Card ── */
+ #dash-account-wrap .insights-more {
+     display: flex;
+     align-items: center;
+     gap: 4px;
+     font-size: 12.5px;
+     font-weight: 600;
+     color: var(--blue-fg);
+     text-decoration: none;
+     padding: 4px 10px;
+     border-radius: 6px;
+     transition: background 0.15s;
+ }
+
+ #dash-account-wrap .insights-more:hover {
+     background: var(--blue-bg);
+ }
+
+ #dash-account-wrap .da-tx-table {
+     width: 100%;
+     border-collapse: collapse;
+ }
+
+ #dash-account-wrap .da-tx-table th {
+     padding: 12px 14px;
+     text-align: left;
+     font-weight: 700;
+     color: var(--muted-foreground);
+     font-size: 11px;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     border-bottom: 1px solid var(--border);
+     background: var(--background);
+ }
+
+ #dash-account-wrap .da-tx-table td {
+     padding: 14px;
+     border-bottom: 1px solid var(--border);
+     vertical-align: middle;
+ }
+
+ #dash-account-wrap .da-tx-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+ }
+
+ #dash-account-wrap .da-tx-icon {
+     width: 38px;
+     height: 38px;
+     border-radius: var(--radius-chip);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 16px;
+     flex-shrink: 0;
+ }
+
+ #dash-account-wrap .da-tx-desc {
+     font-weight: 600;
+     font-size: 13.5px;
+     color: var(--foreground);
+ }
+
+ #dash-account-wrap .da-amount-pos { color: var(--green-fg); font-weight: 700; font-size: 14px; }
+ #dash-account-wrap .da-amount-neg { color: var(--red-fg); font-weight: 700; font-size: 14px; }
+
+ /* ── Dark Mode Overrides (matching Home style.css) ── */
+ body.dark-mode #dash-account-wrap {
+     --background: #0d0e12;
+     --foreground: #eceef1;
+     --card: #16171c;
+     --border: #262832;
+     --muted-foreground: #8a90a0;
+
+     --green-bg: rgba(16, 185, 129, 0.15);
+     --green-fg: #34d399;
+     --blue-bg: rgba(59, 130, 246, 0.15);
+     --blue-fg: #60a5fa;
+     --red-bg: rgba(239, 68, 68, 0.15);
+     --red-fg: #f87171;
+     --purple-bg: rgba(168, 85, 247, 0.15);
+     --purple-fg: #c084fc;
+     --indigo-bg: rgba(99, 102, 241, 0.15);
+     --indigo-fg: #818cf8;
+     --cyan-bg: rgba(6, 182, 212, 0.15);
+     --cyan-fg: #22d3ee;
+     --orange-bg: rgba(245, 158, 11, 0.15);
+     --orange-fg: #fbbf24;
+ }
+
+ /* ── Responsive ── */
+ @@media (max-width: 1200px) {
+     #dash-account-wrap .db-grid-6 {
+         grid-template-columns: repeat(3, 1fr);
+     }
+ }
+
+ @@media (max-width: 768px) {
+     #dash-account-wrap .db-grid-6 {
+         grid-template-columns: repeat(2, 1fr);
+     }
+     #dash-account-wrap .da-charts-grid {
+         grid-template-columns: 1fr;
+     }
+ }
+</style>
+
+<div class="db-root" id="dash-account-wrap">
+
+    <!-- ========== Header ========== -->
+    <div class="db-header">
+        <div>
+            <ol class="db-breadcrumb" aria-label="breadcrumb">
+                <li><a href="#!/Dashboard">Home</a></li>
+                <li class="sep">/</li>
+                <li>Accounting</li>
+                <li class="sep">/</li>
+                <li aria-current="page">Dashboard</li>
+            </ol>
+            <h1 class="db-title">Accounting Overview</h1>
+            <p class="db-subtitle">Cash balance, income vs expenses, quarterly performance, and recent transactions.</p>
+        </div>
+        <div class="db-header-controls">
+            <select id="daYearSelect" class="da-year-select" onchange="onDaYearChange(this.value)" title="Filter period">
+                <option value="monthly" selected="@(isMonthly ? "selected" : null)">Last 30 Days</option>
+                @foreach (var y in availableYears)
+                {
+                    if (!isMonthly && y == selectedYear)
+                    {
+                        <option value="@y" selected="selected">@y</option>
+                    }
+                    else
+                    {
+                        <option value="@y">@y</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- ========== Stat Metric Grid (6-Up) ========== -->
+    <div class="db-grid-6">
+
+        <!-- Cash Balance -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Cash Balance</span>
+                <div class="db-stat-icon indigo"><i class="ti ti-wallet"></i></div>
+            </div>
+            <div class="db-stat-val">@money(summary.CashBalance)</div>
+            <div>
+                <span class="db-badge @(summary.CashDelta >= 0 ? "db-badge-success" : "db-badge-danger")">
+                    @trendArrow(summary.CashDelta)@money(Math.Abs(summary.CashDelta)) prev
+                </span>
+            </div>
+        </div>
+
+        <!-- Total Income -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Total Income</span>
+                <div class="db-stat-icon green"><i class="ti ti-arrow-down-left"></i></div>
+            </div>
+            <div class="db-stat-val">@money(summary.TotalIncome)</div>
+            <div>
+                <span class="db-badge @(summary.IncomeDelta >= 0 ? "db-badge-success" : "db-badge-danger")">
+                    @trendArrow(summary.IncomeDelta)@money(Math.Abs(summary.IncomeDelta)) prev
+                </span>
+            </div>
+        </div>
+
+        <!-- Total Spent -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Total Spent</span>
+                <div class="db-stat-icon red"><i class="ti ti-arrow-up-right"></i></div>
+            </div>
+            <div class="db-stat-val">@money(summary.TotalSpent)</div>
+            <div>
+                <span class="db-badge @(summary.SpentDelta <= 0 ? "db-badge-success" : "db-badge-danger")">
+                    @trendArrow(summary.SpentDelta)@money(Math.Abs(summary.SpentDelta)) prev
+                </span>
+            </div>
+        </div>
+
+        <!-- Net Income -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Net Income</span>
+                <div class="db-stat-icon @(summary.NetIncome >= 0 ? "green" : "red")"><i class="ti ti-credit-card"></i></div>
+            </div>
+            <div class="db-stat-val">@money(summary.NetIncome)</div>
+            <div>
+                <span class="db-badge @(summary.NetIncomeDelta >= 0 ? "db-badge-success" : "db-badge-danger")">
+                    @trendArrow(summary.NetIncomeDelta)@money(Math.Abs(summary.NetIncomeDelta)) prev
+                </span>
+            </div>
+        </div>
+
+        <!-- Total Transactions -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Transactions</span>
+                <div class="db-stat-icon orange"><i class="ti ti-arrows-diff"></i></div>
+            </div>
+            <div class="db-stat-val">@summary.TotalTransactions</div>
+            <div>
+                <span class="db-badge @(summary.TransactionsDelta >= 0 ? "db-badge-info" : "db-badge-warn")">
+                    @(summary.TransactionsDelta == 0 ? "No Change" : (summary.TransactionsDelta > 0 ? "+" : "") + summary.TransactionsDelta + " prev")
+                </span>
+            </div>
+        </div>
+
+        <!-- Unpaid Invoices -->
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Unpaid Invoices</span>
+                <div class="db-stat-icon purple"><i class="ti ti-clock"></i></div>
+            </div>
+            <div class="db-stat-val">@money(summary.PendingAmount)</div>
+            <div>
+                <span class="db-badge @(summary.PendingAmount == 0 ? "db-badge-success" : "db-badge-warn")">
+                    @(summary.PendingAmount == 0 ? "All Clear" : "Outstanding")
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== Charts ========== -->
+    <div class="da-charts-grid">
+
+        <!-- Line Chart: Financial Overview -->
+        <div class="db-card">
+            <div class="db-card-header">
+                <div>
+                    <h3 class="db-card-title">Financial Overview @(isMonthly ? "(Last 30 Days)" : "(" + selectedYear + ")")</h3>
+                    <p class="db-card-sub">Daily income &amp; expenses trend</p>
+                </div>
+                <div class="db-legend">
+                    <span><span class="db-legend-dot" style="background:#6366f1;"></span>Income</span>
+                    <span><span class="db-legend-dot" style="background:#f43f5e;"></span>Expense</span>
+                </div>
+            </div>
+            <div class="db-chart-wrap"><canvas id="dashTrendChart"></canvas></div>
+        </div>
+
+        <!-- Bar Chart: Quarterly Comparison -->
+        <div class="db-card">
+            <div class="db-card-header">
+                <div>
+                    <h3 class="db-card-title">Income vs Expenses @(isMonthly ? "(Last 30 Days)" : "(" + selectedYear + ")")</h3>
+                    <p class="db-card-sub">Quarterly comparison</p>
+                </div>
+                <div class="da-chart-tabs" id="qTabs">
+                    <button class="da-chart-tab active" data-q="all" onclick="filterQChart('all',this)">All</button>
+                    <button class="da-chart-tab" data-q="1" onclick="filterQChart('1',this)">Q1</button>
+                    <button class="da-chart-tab" data-q="2" onclick="filterQChart('2',this)">Q2</button>
+                    <button class="da-chart-tab" data-q="3" onclick="filterQChart('3',this)">Q3</button>
+                    <button class="da-chart-tab" data-q="4" onclick="filterQChart('4',this)">Q4</button>
+                </div>
+            </div>
+            <div class="db-chart-wrap"><canvas id="dashComparisonChart"></canvas></div>
+        </div>
+
+    </div>
+
+    <!-- ========== Recent Transactions ========== -->
+    <div class="db-card da-tx-card">
+        <div class="db-card-header">
+            <div>
+                <h3 class="db-card-title"><i class="ti ti-receipt-2" style="margin-right: 6px; color: var(--blue-fg);"></i> Recent Transactions</h3>
+                <p class="db-card-sub">Latest voucher and journal accounting entries</p>
+            </div>
+            <a href="#!/GeneralJournal" class="insights-more">View All <i class="ti ti-arrow-right"></i></a>
+        </div>
+        <div class="table-responsive">
+            <table class="da-tx-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Description</th>
+                        <th style="width: 20%; text-align: center;">Category</th>
+                        <th style="width: 15%; text-align: right;">Amount</th>
+                        <th style="width: 20%; text-align: center;">Date</th>
+                    </tr>
+                </thead>
+                <tbody id="daRecentTxBody">
+                    <!-- Dynamically populated via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    /* ---------- Select Period Handler ---------- */
+    window.onDaYearChange = function(val) {
+        var $wrap = $('#dash-account-wrap');
+        var scope = angular.element($wrap).scope();
+        if (scope && typeof scope.LoadData === 'function') {
+            scope.$apply(function() {
+                scope.LoadData(val);
+            });
+        } else {
+            var params = val === 'monthly' ? { mode: 'monthly' } : { year: val };
+            $.get('DashboardAccount/Index', params, function(html) {
+                $wrap.parent().html(html);
+            });
+        }
+    };
+
+    /* ---------- Chart.js ---------- */
+    var _allQData = [];
+    var _barChart = null;
+
+    window.filterQChart = function(q, btn) {
+        document.querySelectorAll('#qTabs .da-chart-tab').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var filtered = q === 'all' ? _allQData : _allQData.filter(function(d){ return d.QuarterNo == q; });
+        if (_barChart) {
+            _barChart.data.labels   = filtered.map(function(d){ return d.Label; });
+            _barChart.data.datasets[0].data = filtered.map(function(d){ return d.Income;  });
+            _barChart.data.datasets[1].data = filtered.map(function(d){ return d.Expense; });
+            _barChart.update('active');
+        }
+    };
+
+    function makeGradient(ctx, color1, color2) {
+        var g = ctx.createLinearGradient(0, 0, 0, 280);
+        g.addColorStop(0, color1);
+        g.addColorStop(1, color2);
+        return g;
+    }
+
+    var sharedTooltip = {
+        enabled: true,
+        backgroundColor: '#1e293b',
+        titleColor: '#94a3b8',
+        bodyColor: '#f1f5f9',
+        padding: 12,
+        cornerRadius: 10,
+        titleFont: { size: 12, weight: '600' },
+        bodyFont:  { size: 13, weight: '700' },
+        callbacks: {
+            label: function(ctx) {
+                var val = ctx.parsed.y;
+                return ' ' + ctx.dataset.label + ': $' + val.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
+        }
+    };
+
+    var sharedGrid = {
+        color: 'rgba(0,0,0,0.05)',
+        drawBorder: false
+    };
+
+    var sharedTicks = {
+        color: '#9ca3af',
+        font: { size: 11 },
+        callback: function(v) {
+            if (Math.abs(v) >= 1000) return '$' + (v/1000).toFixed(0) + 'k';
+            return '$' + v;
+        }
+    };
+
+    function initDashCharts() {
+        if (typeof Chart === 'undefined') return;
+
+        Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
+
+        var trendData    = @Html.Raw(ViewBag.TrendJson    ?? "[]");
+        _allQData        = @Html.Raw(ViewBag.QuarterlyJson ?? "[]");
+
+        var trendLabels  = trendData.map(function(t){ return t.Label;   });
+        var trendIncome  = trendData.map(function(t){ return t.Income;  });
+        var trendExpense = trendData.map(function(t){ return t.Expense; });
+        var qLabels      = _allQData.map(function(q){ return q.Label;   });
+        var qIncome      = _allQData.map(function(q){ return q.Income;  });
+        var qExpense     = _allQData.map(function(q){ return q.Expense; });
+
+        var trendEl = document.getElementById('dashTrendChart');
+        var barEl   = document.getElementById('dashComparisonChart');
+
+        /* ---- LINE CHART ---- */
+        if (trendEl) {
+            var tCtx = trendEl.getContext('2d');
+            new Chart(tCtx, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: trendIncome,
+                            borderColor: '#6366f1',
+                            backgroundColor: makeGradient(tCtx, 'rgba(99,102,241,0.22)', 'rgba(99,102,241,0.01)'),
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#6366f1',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2
+                        },
+                        {
+                            label: 'Expense',
+                            data: trendExpense,
+                            borderColor: '#f43f5e',
+                            backgroundColor: makeGradient(tCtx, 'rgba(244,63,94,0.18)', 'rgba(244,63,94,0.01)'),
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#f43f5e',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 750, easing: 'easeInOutQuart' },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: sharedTooltip
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { color: '#9ca3af', font: { size: 11 }, maxTicksLimit: 10 }
+                        },
+                        y: {
+                            grid: sharedGrid,
+                            border: { display: false },
+                            ticks: sharedTicks,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ---- BAR CHART ---- */
+        if (barEl) {
+            var bCtx = barEl.getContext('2d');
+            _barChart = new Chart(bCtx, {
+                type: 'bar',
+                data: {
+                    labels: qLabels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: qIncome,
+                            backgroundColor: makeGradient(bCtx, 'rgba(99,102,241,0.90)', 'rgba(99,102,241,0.55)'),
+                            borderRadius: { topLeft: 8, topRight: 8 },
+                            borderSkipped: false,
+                            barPercentage: 0.55,
+                            categoryPercentage: 0.75
+                        },
+                        {
+                            label: 'Expense',
+                            data: qExpense,
+                            backgroundColor: makeGradient(bCtx, 'rgba(244,63,94,0.90)', 'rgba(244,63,94,0.55)'),
+                            borderRadius: { topLeft: 8, topRight: 8 },
+                            borderSkipped: false,
+                            barPercentage: 0.55,
+                            categoryPercentage: 0.75
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 700, easing: 'easeInOutQuart' },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                color: '#6b7280',
+                                font: { size: 12 },
+                                padding: 16
+                            }
+                        },
+                        tooltip: sharedTooltip
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { color: '#9ca3af', font: { size: 11 } }
+                        },
+                        y: {
+                            grid: sharedGrid,
+                            border: { display: false },
+                            ticks: sharedTicks,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    if (typeof Chart !== 'undefined') {
+        initDashCharts();
+    } else {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        s.onload = initDashCharts;
+        document.head.appendChild(s);
+    }
+
+    /* ---------- Populate Recent Transactions ---------- */
+    var recentData = @Html.Raw(ViewBag.RecentTransactionsJson ?? "[]");
+    var txBody = document.getElementById('daRecentTxBody');
+    if (txBody && recentData) {
+        txBody.innerHTML = '';
+        recentData.forEach(function(tx) {
+            var tr = document.createElement('tr');
+
+            var iconHtml = '<div class="da-tx-icon db-badge-info"><i class="ti ti-receipt"></i></div>';
+            var badgeClass = 'db-badge-info';
+            var catLower = (tx.CategoryName || '').toLowerCase();
+
+            if (catLower.includes('shop') || catLower.includes('elect') || catLower.includes('purchase')) {
+                iconHtml = '<div class="da-tx-icon db-badge-warn"><i class="ti ti-shopping-cart"></i></div>';
+                badgeClass = 'db-badge-warn';
+            } else if (catLower.includes('food') || catLower.includes('sup') || catLower.includes('meal') || catLower.includes('cafe')) {
+                iconHtml = '<div class="da-tx-icon db-badge-info"><i class="ti ti-meat"></i></div>';
+                badgeClass = 'db-badge-info';
+            } else if (catLower.includes('home') || catLower.includes('office') || catLower.includes('house') || catLower.includes('rent')) {
+                iconHtml = '<div class="da-tx-icon db-badge-success"><i class="ti ti-building-store"></i></div>';
+                badgeClass = 'db-badge-success';
+            } else if (catLower.includes('trans') || catLower.includes('fuel') || catLower.includes('gas') || catLower.includes('taxi')) {
+                iconHtml = '<div class="da-tx-icon db-badge-purple"><i class="ti ti-gas-station"></i></div>';
+                badgeClass = 'db-badge-purple';
+            }
+
+            var amtClass = tx.Amount >= 0 ? 'da-amount-pos' : 'da-amount-neg';
+            var amtText = (tx.Amount < 0 ? '-$' : '+$') + Math.abs(tx.Amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            var dateStr = '';
+            if (tx.TxDate) {
+                var d = new Date(tx.TxDate);
+                var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                var hours = d.getHours();
+                var minutes = d.getMinutes();
+                var ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                dateStr = monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + ('0' + hours).slice(-2) + ':' + minutes + ' ' + ampm;
+            }
+
+            var tdDesc = document.createElement('td');
+            tdDesc.innerHTML = '<div class="da-tx-item">' + iconHtml + '<span class="da-tx-desc">' + (tx.Description || 'Transaction') + '</span></div>';
+
+            var tdCat = document.createElement('td');
+            tdCat.style.textAlign = 'center';
+            tdCat.innerHTML = '<span class="db-badge ' + badgeClass + '">' + (tx.CategoryName || 'General') + '</span>';
+
+            var tdAmt = document.createElement('td');
+            tdAmt.style.textAlign = 'right';
+            tdAmt.innerHTML = '<span class="' + amtClass + '">' + amtText + '</span>';
+
+            var tdDate = document.createElement('td');
+            tdDate.style.textAlign = 'center';
+            tdDate.style.fontSize = '12.5px';
+            tdDate.style.color = 'var(--muted-foreground)';
+            tdDate.textContent = dateStr;
+
+            tr.appendChild(tdDesc);
+            tr.appendChild(tdCat);
+            tr.appendChild(tdAmt);
+            tr.appendChild(tdDate);
+            txBody.appendChild(tr);
+        });
+    }
+})();
+</script>

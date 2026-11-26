@@ -1,0 +1,244 @@
+@{ Layout = null; }
+
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function openPayBillCreate(billId, vendorId) {
+        var getParam = function (key) {
+            var s = new URLSearchParams(window.location.search);
+            if (s.get(key)) return s.get(key);
+            if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                if (h.get(key)) return h.get(key);
+            }
+            return '';
+        };
+        var sysId = '@(ViewBag.SystemID ?? "")' || getParam('SystemID') || getParam('systemId');
+        var whId = '@(ViewBag.WarehouseID ?? "")' || getParam('WarehouseID') || getParam('warehouseId');
+        var params = new URLSearchParams();
+        if (sysId) params.set('systemId', sysId);
+        if (whId) params.set('warehouseId', whId);
+        if (billId) params.set('billId', billId);
+        if (vendorId) params.set('vendorId', vendorId);
+        var query = params.toString();
+        var url = 'PayBill/Create' + (query ? '?' + query : '');
+        ShowDialogBox('Pay Bill', '1250', '650', url);
+    }
+
+    $(document).ready(function () {
+        // Remove Add button from table toolbar
+        $('.k-grid-toolbar').find('.k-grid-add, a:contains("Add New"), a:contains("Pay Bill")').remove();
+    });
+
+    function showPaymentVoucher(paymentId, paymentNo, status) {
+        status = status || 'Draft';
+        var title = paymentNo ? 'Payment Voucher: ' + paymentNo : 'Payment Voucher';
+        ShowDialogBox(
+            title,
+            'Auto',
+            500,
+            '@Url.Action("Invoice", "PayBill")?id=' + paymentId,
+            0,
+            '',
+            false,
+            0,
+            0,
+            function () {
+                $('#btnCheckPayBill, #btnRejectPayBill').remove();
+
+                if (status === 'Draft') {
+                    var btnCheck = '<button type="button" id="btnCheckPayBill" onclick="checkPayBill(\'Checked\',' + paymentId + ',\'' + (paymentNo || '') + '\')" class="btn btn-outline-primary me-2"><i class="ti ti-check me-1"></i>Check</button>';
+                    var btnReject = '<button type="button" id="btnRejectPayBill" onclick="checkPayBill(\'Rejected\',' + paymentId + ',\'' + (paymentNo || '') + '\')" class="btn btn-outline-danger me-2"><i class="ti ti-x me-1"></i>Reject</button>';
+                    $('#SaveChange').before(btnCheck + btnReject);
+                } else if (status === 'Checked') {
+                    var btnVerify = '<button type="button" id="btnCheckPayBill" onclick="checkPayBill(\'Confirm Verified\',' + paymentId + ',\'' + (paymentNo || '') + '\')" class="btn btn-outline-primary me-2"><i class="ti ti-check me-1"></i>Confirm Verified</button>';
+                    var btnReject = '<button type="button" id="btnRejectPayBill" onclick="checkPayBill(\'Confirm Rejected\',' + paymentId + ',\'' + (paymentNo || '') + '\')" class="btn btn-outline-danger me-2"><i class="ti ti-x me-1"></i>Reject</button>';
+                    $('#SaveChange').before(btnVerify + btnReject);
+                }
+
+                $('#SaveChange')
+                    .html('<i class="ti ti-printer" aria-hidden="true"></i> Print')
+                    .off('click.payBillVoucher')
+                    .on('click.payBillVoucher', function () {
+                        if ($('#paybill-voucher').length) {
+                            $('#paybill-voucher').printThis({
+                                pageTitle: 'Payment Voucher'
+                            });
+                        } else {
+                            $('.voucher-container').printThis({
+                                pageTitle: 'Payment Voucher'
+                            });
+                        }
+                    });
+            }
+        );
+    }
+
+    function checkPayBill(status, paymentId, paymentNo) {
+        var Data = {
+            paymentId: paymentId,
+            status: status,
+            paymentNo: paymentNo || '',
+            ExpenseID: paymentId,
+            Status: status,
+            PaymentNo: paymentNo || ''
+        };
+
+        var handleSuccessCloseReload = function () {
+            try {
+                var m = document.getElementById('modal-default') || document.querySelector('.modal.show');
+                if (m && window.bootstrap && bootstrap.Modal) {
+                    var inst = bootstrap.Modal.getInstance(m) || bootstrap.Modal.getOrCreateInstance(m);
+                    if (inst) inst.hide();
+                }
+            } catch (e) { }
+
+            try {
+                if (typeof closeDialogClick === 'function') {
+                    closeDialogClick('modal-default');
+                }
+            } catch (e) { }
+
+            try {
+                $('#modal-default, .modal').modal('hide');
+            } catch (e) { }
+
+            setTimeout(function () {
+                $('#modal-default, .modal').removeClass('show in').hide();
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': 'auto' });
+
+                if ($('#BunSearch').length) {
+                    $('#BunSearch').click();
+                } else {
+                    location.reload();
+                }
+            }, 100);
+        };
+
+        if (typeof DoSaveChangeSweetCofirm === 'function') {
+            DoSaveChangeSweetCofirm(
+                "PayBill/ApprovalPaymentVoucher",
+                Data,
+                function (Response) {
+                    if (Response && !Response.success && Response.Result != 2 && Response.result != 2) {
+                        if (typeof DialogSweetAlert === 'function') {
+                            DialogSweetAlert("error", Response.message || Response.Message || "Failed to update status");
+                        }
+                        return;
+                    }
+                    handleSuccessCloseReload();
+                }
+            );
+        } else {
+            var doAction = function () {
+                if (typeof DialogSweetAlert === 'function') {
+                    DialogSweetAlert('load', 'Updating status to ' + status + '...');
+                }
+                $.ajax({
+                    url: '@Url.Action("ApprovalPaymentVoucher", "PayBill")',
+                    type: 'POST',
+                    data: Data,
+                    success: function (res) {
+                        if (res && (res.success || res.Result == 2 || res.result == 2)) {
+                            if (typeof DialogSweetAlert === 'function') {
+                                DialogSweetAlert('success', (res && (res.message || res.Message)) || 'Status updated successfully.');
+                            }
+                            handleSuccessCloseReload();
+                        } else {
+                            if (typeof DialogSweetAlert === 'function') {
+                                DialogSweetAlert('error', (res && (res.message || res.Message)) || 'Failed to update status.');
+                            }
+                        }
+                    },
+                    error: function () {
+                        if (typeof DialogSweetAlert === 'function') {
+                            DialogSweetAlert('error', 'An error occurred while updating status.');
+                        }
+                    }
+                });
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    position: "top",
+                    title: "Are you sure?",
+                    html: "You won't be able to revert this!",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, do it now!",
+                    cancelButtonText: "No, cancel!",
+                    allowOutsideClick: false
+                }).then(function (result) {
+                    if (result.value || result.isConfirmed) {
+                        doAction();
+                    }
+                });
+            } else {
+                doAction();
+            }
+        }
+    }
+
+    function deletePaymentVoucher(paymentId) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Delete Payment Voucher?',
+                text: 'Are you sure you want to delete this payment voucher? This will reverse vendor balance and ledger entries.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="ti ti-trash"></i> Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    doDeletePayment(paymentId);
+                }
+            });
+        } else {
+            doDeletePayment(paymentId);
+        }
+    }
+
+    function doDeletePayment(paymentId) {
+        if (typeof DialogSweetAlert === 'function') {
+            DialogSweetAlert('load', 'Deleting payment voucher...');
+        }
+        $.ajax({
+            url: '@Url.Action("DeletePayment", "PayBill")',
+            type: 'POST',
+            data: { id: paymentId },
+            success: function (res) {
+                if (res && res.success) {
+                    if (typeof DialogSweetAlert === 'function') {
+                        DialogSweetAlert('deleteted', 'Payment voucher deleted successfully.', function () {
+                            if ($('#BunSearch').length) {
+                                $('#BunSearch').click();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        if ($('#BunSearch').length) {
+                            $('#BunSearch').click();
+                        } else {
+                            location.reload();
+                        }
+                    }
+                } else {
+                    if (typeof DialogSweetAlert === 'function') {
+                        DialogSweetAlert('error', (res && res.message) || 'Failed to delete payment voucher.');
+                    }
+                }
+            },
+            error: function () {
+                if (typeof DialogSweetAlert === 'function') {
+                    DialogSweetAlert('error', 'An error occurred while deleting payment voucher.');
+                }
+            }
+        });
+    }
+</script>

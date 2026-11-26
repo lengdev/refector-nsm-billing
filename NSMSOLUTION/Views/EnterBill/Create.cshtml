@@ -1,0 +1,416 @@
+@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+<script>
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var Status = "@ViewBag.Status";
+    var ItemDescriptionData = "";
+    var DataTblEdit = "";
+    var KVendorName = "@ViewBag.VendorName";
+    var Type = "@ViewBag.Type";
+    var PONumber = "@ViewBag.PONumber";
+
+    async function processArray(array) {
+        try {
+            let i = 0;
+            for (const item of array) {
+                await Reload_ItemName(i, item);
+                i++;
+            }
+        }
+        catch (e) {
+            console.log("Error:", e);
+        }
+    }
+
+    async function Reload_ItemName(i, item) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                $("input[name=ItemName]").eq(i).val(item.ItemName);
+                $("input[name=ItemID]").eq(i).val(item.ItemID);
+                $("input[name=AccountName]").eq(i).val(item.AccountName);
+                $("input[name=ChartOfAccountID]").eq(i).val(item.ChartOfAccountID);
+                $("input[name=QTY]").eq(i).val(item.QTY);
+                $("input[name=UM]").eq(i).val(item.UM);
+                $("input[name=UnitPrice]").eq(i).val(item.UnitPrice);
+                $("input[name=SalePrice]").eq(i).val(item.SalePrice);
+                $("input[name=DisP]").eq(i).val(item.DisP);
+                $("input[name=DisUSD]").eq(i).val(item.DisUSD);
+                $("input[name=Amount]").eq(i).val(item.Amount);
+                $("div[name=ItemName_Description]:eq(" + i + ")").summernote('code', item.ItemDescription);
+                $("input[name=ItemName]").eq(i).focus();
+                resolve();
+            }, 1);
+        });
+    }
+
+    $(function () {
+        $("input[name=TxtDisUSD]").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisUSD]").on('focus', function () { $(this).select(); });
+        $("input[name=TxtDisUSD]").keyup(function () {
+            var DiscountUSD = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DiscountP = ((DiscountUSD / Amount) * 100);
+            $("input[name=TxtDisP]").val(accounting.formatMoney(DiscountP, ''));
+            TotalAll();
+        });
+
+        // Safe Tax & Rate synchronization without clearing rates
+        $("#Tax, #Tax_Rate").on("change input", function () {
+            var taxText = ($("#Tax").val() || "").trim();
+            var rateStr = $("#Tax_Rate").val();
+            var taxRate = (rateStr == null || rateStr === "") ? 0 : accounting.unformat(rateStr);
+
+            if (taxText !== "" && taxRate === 0) {
+                var m = taxText.match(/(\d+(\.\d+)?)\s*%/);
+                if (m) {
+                    taxRate = parseFloat(m[1]);
+                    $("#Tax_Rate").val(taxRate);
+                }
+            }
+
+            if (taxText !== "") {
+                $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / ' + taxText);
+            } else if (taxRate > 0) {
+                $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT [' + taxRate + '%]');
+            } else {
+                $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT 10%:');
+                $("#Tax_Rate").val(0);
+                $("label[name=VAT]").html('0.00');
+            }
+            TotalAll();
+        });
+
+        if (PONumber != "" && (Status == 'ConvertToBill' || Status == 'ConvertToBillFromReceived')) {
+            setTimeout(function () {
+                $("#PONumber").val(PONumber).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("#PONumber").blur();
+            }, 1000);
+        }
+
+        $("#PaymentTerms_NumberofDays").bind("change", function (e) {
+            var currentValue = $(this).val();
+            var ApplyDueDate = '';
+            if (currentValue != "Due on Receipt") {
+                ApplyDueDate = moment(new Date()).add(currentValue, 'day');
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            } else {
+                ApplyDueDate = moment(new Date());
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            }
+        });
+
+        if (Type == "Credit Note" && PrimaryFieldValue != "") {
+            $("#Type").val(Type);
+        }
+
+        // Automatically clean up trailing ghost rows and recalculate totals in Edit mode
+        if (PrimaryFieldValue && PrimaryFieldValue !== "0") {
+            setTimeout(CleanUpTrailingEmptyItemRows, 350);
+            setTimeout(CleanUpTrailingEmptyItemRows, 700);
+            setTimeout(CleanUpTrailingEmptyItemRows, 1100);
+            setTimeout(CleanUpTrailingEmptyItemRows, 1600);
+            setTimeout(CleanUpTrailingEmptyItemRows, 2200);
+        } else {
+            setTimeout(TotalAll, 300);
+        }
+
+        // Live calculation event listeners for category rows and item rows
+        $(document).on("keyup change", "#ExpenseDetails input[name=ExpenseDetailsAmount]", function () {
+            TotalAll();
+        });
+        $(document).on("keyup change", "#TableItemInformation input[name=QTY], #TableItemInformation input[name=UnitPrice], #TableItemInformation input[name=SalePrice], #TableItemInformation input[name=DisUSD], #TableItemInformation input[name=Amount]", function () {
+            TotalAll();
+        });
+
+        // Clean empty item rows before submitting form
+        $("form#CreateBills, form[name=CreateBills]").on("submit", function () {
+            CleanUpTrailingEmptyItemRows();
+        });
+        $(document).on("click", "button[name*='BtnSaveChange'], button[id*='BtnSaveChange'], a[id*='BtnSaveChange'], button[name=SaveChange]", function () {
+            CleanUpTrailingEmptyItemRows();
+        });
+    });
+
+
+
+    function onVendorChange() {
+        $("#PONumber").val("");
+    }
+
+    // Clean up phantom trailing blank item rows created by MVC SetValueTableRow
+    function CleanUpTrailingEmptyItemRows() {
+        var $rows = $("#TableItemInformation tbody tr[name=TRNo]");
+        if ($rows.length > 1) {
+            for (var i = $rows.length - 1; i >= 1; i--) {
+                var $r = $rows.eq(i);
+                var itm = ($r.find("input[name=ItemName]").val() || "").trim();
+                var itmId = ($r.find("input[name=ItemID]").val() || "").trim();
+                var desc = ($r.find("textarea[name=ItemName_Description]").val() || "").trim();
+                var amt = accounting.unformat($r.find("input[name=Amount]").val() || "0");
+                var price = accounting.unformat($r.find("input[name=UnitPrice]").val() || "0");
+
+                if (itm === "" && desc === "" && (itmId === "" || itmId === "0") && amt === 0 && price === 0) {
+                    $r.remove();
+                } else {
+                    break;
+                }
+            }
+
+            $("#TableItemInformation tbody tr[name=TRNo]").each(function (idx) {
+                $(this).find('td[name="TDNo"], label[name="TDNo"]').html(idx + 1);
+            });
+        }
+        TotalAll();
+    }
+
+    // Expose for MVC HtmlMyTable post-render callback (IL_1684)
+    window.TableItemInformation_TotalAll = function () {
+        CleanUpTrailingEmptyItemRows();
+    };
+
+    // Safe RemoveTableRow that removes the exact target row and recalculates totals
+    window.RemoveTableRow = function (TRName, TDNoName, THIS, RemoveCallBack, inputName, callbackfunction) {
+        TRName = TRName || 'TRNo';
+        TDNoName = TDNoName || 'TDNo';
+        var $row = $(THIS).closest("tr");
+        var $tbody = $row.closest("tbody");
+
+        var $visibleRows = $tbody.find('tr[name="' + TRName + '"]');
+        if ($visibleRows.length <= 1) {
+            // If only 1 row remains, clear inputs instead of leaving an empty table
+            $row.find("input, textarea").not("input[name=Type], input[name=DisP]").val("");
+            $row.find("input[name=QTY]").val("1");
+            $row.find("input[name=UnitPrice]").val("0");
+            $row.find("input[name=SalePrice]").val("0");
+            $row.find("input[name=DisUSD]").val("0");
+            $row.find("input[name=Amount]").val("0.00");
+            $row.find("input[name=ExpenseDetailsAmount]").val("");
+        } else {
+            $row.remove();
+        }
+
+        // Re-number remaining visible rows
+        $tbody.find('tr[name="' + TRName + '"]').each(function (i) {
+            $(this).find('td[name="' + TDNoName + '"], label[name="' + TDNoName + '"]').html(i + 1);
+        });
+
+        TotalAll();
+
+        if (typeof RemoveCallBack === "function") {
+            RemoveCallBack();
+        }
+        if (typeof callbackfunction === "function") {
+            callbackfunction();
+        } else if (typeof callbackfunction === "string" && callbackfunction !== "" && typeof window[callbackfunction] === "function") {
+            window[callbackfunction]();
+        }
+    };
+
+    function AmountKeyup(THIS) {
+        TotalAll();
+    }
+
+    function TotalAll() {
+        // 1. Sum Category Details from native ExpenseDetails table
+        var catSubTotal = 0;
+        $("#ExpenseDetails tbody tr[name=VTR_No]").each(function () {
+            var rawAmt = $(this).find("input[name=ExpenseDetailsAmount]").val();
+            if (rawAmt && rawAmt.trim() !== "") {
+                catSubTotal += accounting.unformat(rawAmt);
+            }
+        });
+
+        // 2. Sum Item Details from TableItemInformation
+        var itemSubTotal = 0;
+        $("#TableItemInformation tbody tr[name=TRNo]").each(function () {
+            var $row = $(this);
+            var itemName = ($row.find("input[name=ItemName]").val() || "").trim();
+            var desc = ($row.find("textarea[name=ItemName_Description]").val() || "").trim();
+            var itemId = ($row.find("input[name=ItemID]").val() || "").trim();
+            var rawAmount = $row.find("input[name=Amount]").val();
+
+            if (itemName !== "" || desc !== "" || (itemId !== "" && itemId !== "0")) {
+                var QTY = accounting.unformat($row.find("input[name=QTY]").val() || "0");
+                var UnitPrice = accounting.unformat($row.find("input[name=UnitPrice]").val() || "0");
+                var DisUSD = accounting.unformat($row.find("input[name=DisUSD]").val() || "0");
+                var Amount = (QTY * UnitPrice) - DisUSD;
+
+                if (Amount === 0 && rawAmount && accounting.unformat(rawAmount) > 0 && QTY === 0 && UnitPrice === 0) {
+                    Amount = accounting.unformat(rawAmount);
+                }
+
+                $row.find("input[name=Amount]").val(accounting.formatNumber(Amount, 2));
+                itemSubTotal += Amount;
+            } else if (rawAmount && accounting.unformat(rawAmount) > 0) {
+                var Amount = accounting.unformat(rawAmount);
+                $row.find("input[name=Amount]").val(accounting.formatNumber(Amount, 2));
+                itemSubTotal += Amount;
+            } else {
+                $row.find("input[name=Amount]").val("0.00");
+            }
+        });
+
+        // 3. Overall SubTotal
+        var SubTotal = catSubTotal + itemSubTotal;
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+
+        var Rate = $("#Tax_Rate").val();
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+        $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+
+        var Total = accounting.unformat($("label[name=SubTotal]").html()) + accounting.unformat($("label[name=VAT]").html());
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        if ($("input[name=TxtBalance]").length > 0) {
+            $("input[name=TxtBalance]").val(accounting.formatNumber(GrandTotal, 2));
+        }
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total As ' + cutext + ':');
+            $("label[name=TotalAS]").html(accounting.formatNumber(parseFloat(GrandTotal) * accounting.unformat(ex), 2));
+        } else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        var resData = null;
+        try {
+            if (response && response.Data) {
+                var parsed = typeof response.Data === 'string' ? JSON.parse(response.Data) : response.Data;
+                resData = Array.isArray(parsed) ? parsed[0] : parsed;
+            } else if (response) {
+                var parsed = typeof response === 'string' ? JSON.parse(response) : response;
+                resData = Array.isArray(parsed) ? parsed[0] : parsed;
+            }
+        } catch (e) { console.log(e); }
+
+        var billId = 0;
+        if (resData) {
+            billId = parseInt(resData.BillID || resData.ID || resData.PrimaryFieldValue || "0", 10);
+        }
+        if (!billId || isNaN(billId) || billId <= 0) {
+            billId = parseInt(PrimaryFieldValue || "0", 10);
+        }
+        var billNum = (resData && resData.BillNumber) ? resData.BillNumber : ($("#BillNumber").val() || "");
+
+        // Auto post to General Ledger (Dr Expense / Cr 210000 A/P)
+        $.ajax({
+            url: '@Url.Action("PostBillToGL", "EnterBill")',
+            type: 'POST',
+            data: { billId: billId, billNumber: billNum },
+            success: function (glRes) {
+                console.log("PostBillToGL result:", glRes);
+                completeBillSave(resData);
+            },
+            error: function (err) {
+                console.warn("PostBillToGL error:", err);
+                completeBillSave(resData);
+            }
+        });
+    }
+
+    function completeBillSave(response) {
+        // 1. Close Modal
+        $("#modal-default").modal('hide');
+
+        // 2. If in EnterBill grid, trigger search to refresh list
+        if ($("#BunSearch").length > 0) {
+            $("#BunSearch").click();
+        }
+
+        // 3. If in Vendor Center, stay on bills tab without navigating away
+        if ($("#Bills_Tap").length > 0) {
+            $("#BtnSearchVendorBills").click();
+            $("#Bills_Tap").click();
+            var bNum = response ? response.BillNumber : "";
+            if (bNum) $("#txtBillNumberBill").val(bNum);
+        } else if ($("#CreditNote_Tap").length > 0 && (Status == 'ConvertToCreditNote' || Status == 'Credit Note')) {
+            $("#BtnSearchVendorBillsCreditNote").click();
+            $("#CreditNote_Tap").click();
+            var bNum = response ? response.BillNumber : "";
+            if (bNum) $("#txtBillNumberCreditNote").val(bNum);
+        }
+
+        // 4. Success Toast Notification
+        if (typeof toastr !== "undefined") {
+            toastr.success("Bill saved successfully!", "Success");
+        }
+    }
+
+    function OnPONumberChange() {
+        var PONumber = "";
+        if (Type != "Credit Note")
+            PONumber = encodeURIComponent($("#PONumber").val());
+        else if (Type == "Credit Note")
+            PONumber = encodeURIComponent($("#BillNumber").val());
+
+        LoadData('EnterBill/LoadPO?PONumber=' + PONumber + '&Type=' + Type, function (result) {
+            var Itemdata = JSON.parse(result).data;
+            Itemdata = JSON.parse(Itemdata);
+            if (Itemdata && Itemdata.length > 0 && Itemdata[0]) {
+                var DeliverTo = Itemdata[0].DeliverTo;
+                var Tax = (Itemdata[0].Tax || "").trim();
+                var Rate = (Itemdata[0].Rate != null && Itemdata[0].Rate !== "") ? accounting.unformat(Itemdata[0].Rate) : 0;
+                if (Rate === 0 && Tax !== "") {
+                    var m = Tax.match(/(\d+(\.\d+)?)\s*%/);
+                    if (m) Rate = parseFloat(m[1]);
+                }
+                var VendorName = Itemdata[0].VendorName;
+                var PurchaseOrderID = Itemdata[0].PurchaseOrderID;
+
+                $("#VendorID").val(Itemdata[0].VendorID);
+                $("#PurchaseOrderID").val(PurchaseOrderID);
+                $("#Vendor_Name").val(VendorName);
+                $("#PaymentTerms").val(Itemdata[0].PaymentTerms);
+                $("#PaymentDueDate").val(Itemdata[0].PaymentDueDate);
+                $("#PaymentTerms_NumberofDays").val(Itemdata[0].NumberofDays);
+                $("#Warehouse_WID").val(Itemdata[0].WID);
+                $("#Warehouse").val(DeliverTo);
+
+                $("#Tax").val(Tax);
+                $("#Tax_Rate").val(Rate);
+                if (Tax !== "") {
+                    $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / ' + Tax);
+                } else if (Rate > 0) {
+                    $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT [' + Rate + '%]');
+                } else {
+                    $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT 10%:');
+                }
+
+                $("#TxtContactName").val(Itemdata[0].ContactName);
+                $("#TxtContactPhone").val(Itemdata[0].ContactPhone);
+                $("#ClassName_ClassID").val(Itemdata[0].ClassID);
+                $("#ClassName").val(Itemdata[0].ClassName);
+                $("#PODate").val(Itemdata[0].PODate);
+
+                // Remove previous item rows so no blank row is left behind
+                $("#TableItemInformation tbody tr[name=TRNo]").not(".tr-category-item-sync").remove();
+
+                SetValueTableRow(Itemdata, 'ItemName', 'TableItemInformation', 'TRNo', rowData_TableItemInformation, 'TDNo', this, 'CallSetAutoComplete_ItemName', '', '', '', '', '', '', RowFields2_TableItemInformation);
+
+                setTimeout(CleanUpTrailingEmptyItemRows, 450);
+                setTimeout(CleanUpTrailingEmptyItemRows, 850);
+            }
+            else {
+                $("#VendorID, #PurchaseOrderID, #Vendor_Name, #Warehouse_WID, #Warehouse, #Tax_Rate, #TxtContactName, #TxtContactPhone, #ClassName_ClassID, #ClassName, #PODate").val('');
+                $("#Tax").typeahead('val', '').trigger('change');
+            }
+        });
+    }
+</script>
+
+

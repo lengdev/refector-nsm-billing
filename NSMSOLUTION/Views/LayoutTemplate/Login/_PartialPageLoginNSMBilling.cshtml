@@ -1,0 +1,1338 @@
+﻿@{
+Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" ng-app="appInventory">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>NSM ISP Billing System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow">
+    <link rel="stylesheet" type="text/css" href="~/Content/LoginV1_files/font-awesome.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap">
+    <link href="~/Content/toastr/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange: #F89C39;
+            --orange-deep: #e07d15;
+            --orange-glow: rgba(248, 156, 57, 0.12);
+            --orange-glow-sm: rgba(248, 156, 57, 0.05);
+            /* LIGHT THEME VARIABLES */
+            --bg-main: #f6f8fa;
+            --panel-left: #fcfdfe;
+            --shell-bg: rgba(255, 255, 255, 0.85);
+            --border: rgba(0, 0, 0, 0.07);
+            --border-hover: rgba(248, 156, 57, 0.4);
+            --text-primary: #1a1a24;
+            --text-muted: #62627a;
+            --text-subtle: #9c9cb2;
+            --input-bg: #f9fafb;
+            --input-border: #e2e8f0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-main);
+            overflow: hidden;
+        }
+
+        /* ── BACKGROUND ── */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: var(--bg-main);
+            overflow: hidden;
+        }
+
+        /* Soft gradient accent */
+        .bg-scene::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 52%;
+            height: 100%;
+            background: linear-gradient(160deg, #fff7ed 0%, var(--bg-main) 60%);
+        }
+
+        /* Mesh glow top-left */
+        .bg-glow-1 {
+            position: absolute;
+            top: -120px;
+            left: -80px;
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(ellipse, rgba(248, 156, 57, 0.1) 0%, transparent 65%);
+        }
+
+        /* Mesh glow bottom-right */
+        .bg-glow-2 {
+            position: absolute;
+            bottom: -100px;
+            right: -60px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(ellipse, rgba(248, 156, 57, 0.05) 0%, transparent 65%);
+        }
+
+        /* Grid texture */
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(248, 156, 57, 0.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(248, 156, 57, 0.18) 1px, transparent 1px);
+            background-size: 52px 52px;
+            opacity: 0.9;
+        }
+
+        /* Animated pulse circles */
+        .pulse-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(248, 156, 57, 0.08);
+            animation: expand 6s ease-out infinite;
+        }
+
+        .pulse-ring:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -80px;
+            left: -80px;
+            animation-delay: 0s;
+        }
+
+        .pulse-ring:nth-child(2) {
+            width: 220px;
+            height: 220px;
+            top: -40px;
+            left: -40px;
+            animation-delay: 2s;
+        }
+
+        .pulse-ring:nth-child(3) {
+            width: 140px;
+            height: 140px;
+            top: 0px;
+            left: 0px;
+            animation-delay: 4s;
+        }
+
+        @@keyframes expand {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        /* Diagonal accent line */
+        .bg-diagonal {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, rgba(248, 156, 57, 0.15) 30%, rgba(248, 156, 57, 0.05) 70%, transparent);
+            transform: translateX(-50%) rotate(-8deg) scaleY(1.3);
+        }
+
+        /* Dot pattern */
+        .bg-dots {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(248, 156, 57, 0.05) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: linear-gradient(90deg, transparent 45%, rgba(0, 0, 0, 0.3) 55%, black 70%);
+        }
+
+        /* ── PRELOADER ── */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+
+        .preloader img {
+            width: 80px;
+            animation: wobble 1.5s ease-in-out infinite;
+        }
+
+        @@keyframes wobble {
+
+            0%,
+            100% {
+                transform: rotate(-4deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(4deg) scale(1.08);
+            }
+        }
+
+        /* ── LAYOUT ── */
+        .page-wrap {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-shell {
+            display: flex;
+            width: min(960px, 95vw);
+            min-height: 520px;
+            background: var(--shell-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            animation: slideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── LEFT PANEL ── */
+        .left-panel {
+            width: 42%;
+            flex-shrink: 0;
+            background: linear-gradient(150deg, #fffcf7 0%, #f4f6f9 100%);
+            border-right: 1px solid var(--border);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--orange-glow) 0%, transparent 70%);
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle, rgba(248, 156, 57, 0.04) 0%, transparent 70%);
+        }
+
+        .logo-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-img {
+            width: 160px;
+            filter: drop-shadow(0 4px 15px rgba(248, 156, 57, 0.15));
+            transition: filter 0.3s;
+        }
+
+        .logo-img:hover {
+            filter: drop-shadow(0 4px 20px rgba(248, 156, 57, 0.3));
+        }
+
+        .welcome-block {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+        .welcome-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .welcome-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-title span {
+            color: var(--orange);
+        }
+
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(248, 156, 57, 0.08);
+            border: 1px solid rgba(248, 156, 57, 0.2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.72rem;
+            color: var(--orange);
+            letter-spacing: 0.04em;
+            margin-top: 1rem;
+            width: fit-content;
+            font-weight: 500;
+        }
+
+        .vdot {
+            width: 5px;
+            height: 5px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @@keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.3
+            }
+        }
+
+        .meta-block {
+            position: relative;
+            z-index: 2;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .meta-item i {
+            color: var(--orange);
+            opacity: 0.8;
+            font-size: 0.65rem;
+        }
+
+        /* Signal bars decoration */
+        .signal-deco {
+            position: absolute;
+            bottom: 3rem;
+            right: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            opacity: 0.4;
+        }
+
+        .sig-bar {
+            background: var(--orange);
+            border-radius: 2px;
+            animation: sigpulse 1.8s ease-in-out infinite;
+        }
+
+        .sig-bar:nth-child(1) {
+            width: 3px;
+            height: 7px;
+            animation-delay: 0s
+        }
+
+        .sig-bar:nth-child(2) {
+            width: 3px;
+            height: 11px;
+            animation-delay: 0.2s
+        }
+
+        .sig-bar:nth-child(3) {
+            width: 3px;
+            height: 15px;
+            animation-delay: 0.4s
+        }
+
+        .sig-bar:nth-child(4) {
+            width: 3px;
+            height: 20px;
+            animation-delay: 0.6s
+        }
+
+        @@keyframes sigpulse {
+
+            0%,
+            100% {
+                opacity: .4
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            flex: 1;
+            padding: 3rem 2.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .form-header {
+            margin-bottom: 2.25rem;
+        }
+
+        .form-eyebrow {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--orange);
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .form-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
+        /* Fields */
+        .field-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.73rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-subtle);
+            font-size: 0.85rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .field-wrap input {
+            width: 100%;
+            height: 50px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 0 15px 0 44px;
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+
+        .field-wrap input::placeholder {
+            color: var(--text-subtle);
+        }
+
+        .field-wrap input:focus {
+            border-color: rgba(248, 156, 57, 0.6);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(248, 156, 57, 0.08);
+        }
+
+        .field-wrap input:focus+.field-icon-right,
+        .field-wrap input:focus~.field-icon {
+            color: var(--orange);
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-subtle);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+            z-index: 2;
+        }
+
+        .toggle-pw:hover {
+            color: var(--orange);
+        }
+
+        /* Divider */
+        .form-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 1.5rem 0;
+        }
+
+        /* Submit button */
+        .btn-login {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #F89C39 0%, #e07d15 100%);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.25s;
+            box-shadow: 0 6px 24px rgba(248, 156, 57, 0.25);
+            margin-top: 1.5rem;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(248, 156, 57, 0.35);
+        }
+
+        .btn-login:hover::before {
+            opacity: 1;
+        }
+
+        .btn-login:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        /* Forgot row */
+        .forgot-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.25rem;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .forgot-text {
+            color: var(--text-muted);
+        }
+
+        .forgot-link {
+            color: var(--orange);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .forgot-link:hover {
+            opacity: 0.75;
+            text-decoration: underline;
+        }
+
+        /* Alert validation */
+        .field-error-msg {
+            display: none;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #e5484d;
+            font-weight: 500;
+        }
+
+        .wrap-input100.alert-validate .field-error-msg {
+            display: block;
+        }
+
+        .wrap-input100.alert-validate input {
+            border-color: #e5484d !important;
+        }
+
+        .wrap-input100 {
+            position: relative;
+        }
+
+        /* Footer copyright */
+        .page-footer {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            z-index: 10;
+            letter-spacing: 0.02em;
+            opacity: 0.8;
+        }
+
+        /* Particles container */
+        #particles_effect {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            opacity: 0.2;
+            pointer-events: none;
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        /* ============================================================
+   THEME TOGGLE BUTTON
+   ============================================================ */
+        .login-theme-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--shell-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .login-theme-toggle:hover {
+            color: var(--orange);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .login-error-msg {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            align-items: center;
+            gap: 8px;
+            background: rgba(229, 72, 77, 0.08);
+            border: 1px solid rgba(229, 72, 77, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #e5484d;
+            animation: shakeError 0.4s ease;
+        }
+
+        .login-error-msg.is-visible {
+            display: flex;
+        }
+
+        .login-error-msg i {
+            font-size: 0.85rem;
+        }
+
+        @@keyframes shakeError {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* SweetAlert2 Light clean theme override */
+        .swal2-popup {
+            background: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-radius: 16px !important;
+            color: #1a1a24 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .swal2-title {
+            color: #1a1a24 !important;
+            font-family: 'Outfit', sans-serif !important;
+        }
+
+        .swal2-input {
+            background: #f9fafb !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            color: #1a1a24 !important;
+        }
+
+        .swal2-input:focus {
+            border-color: rgba(248, 156, 57, 0.6) !important;
+            box-shadow: 0 0 0 3px rgba(248, 156, 57, 0.1) !important;
+        }
+
+        .swal2-confirm {
+            background: linear-gradient(135deg, #F89C39, #e07d15) !important;
+            border-radius: 10px !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.04em !important;
+            box-shadow: 0 4px 12px rgba(248, 156, 57, 0.2) !important;
+        }
+
+        .swal2-validation-message {
+            background: #fff7ed !important;
+            color: var(--orange-deep) !important;
+            border: 1px solid rgba(248, 156, 57, 0.2);
+        }
+
+        /* ===== Modern Loading Overlay ===== */
+        .app-loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(17, 20, 24, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease;
+        }
+
+        .app-loading-overlay.is-visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .app-loading-card {
+            display: flex;
+            flex-direction: row;
+            /* was: column — puts spinner left of text */
+            align-items: center;
+            gap: 14px;
+            padding: 20px 32px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+            transform: translateY(6px) scale(0.98);
+            transition: transform 0.18s ease;
+        }
+
+        .app-loading-overlay.is-visible .app-loading-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .app-loading-spinner {
+            width: 22px;
+            /* was: auto — this is why it collapsed into a sliver */
+            height: 22px;
+            /* smaller, to sit nicely next to text */
+            flex-shrink: 0;
+            border-radius: 50%;
+            border: 3px solid rgba(59, 130, 246, 0.15);
+            border-top-color: #3b82f6;
+            animation: loading-spin 0.8s linear infinite;
+        }
+
+        .app-loading-text {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            letter-spacing: 0.2px;
+        }
+
+        .app-loading-text::after {
+            content: "";
+            display: inline-block;
+            width: 1ch;
+            animation: app-dots 1.2s steps(4, end) infinite;
+        }
+
+        .btn-logging-in {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: loading-spin 0.7s linear infinite;
+            vertical-align: middle;
+        }
+
+        .btn-login[disabled] {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        @@keyframes loading-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @@keyframes app-dots {
+            0% {
+                content: "";
+            }
+
+            25% {
+                content: ".";
+            }
+
+            50% {
+                content: "..";
+            }
+
+            75% {
+                content: "...";
+            }
+
+            100% {
+                content: "";
+            }
+        }
+
+        /* ── MOBILE RESPONSIVE ── */
+        @@media (max-width: 680px) {
+
+            html,
+            body {
+                height: auto;
+                min-height: 100%;
+                overflow-y: auto;
+            }
+
+            .page-wrap {
+                height: auto;
+                min-height: 100vh;
+                padding: 1.5rem 0.75rem 4.5rem;
+                /* bottom padding leaves room for footer */
+                align-items: flex-start;
+            }
+
+            .login-shell {
+                flex-direction: column;
+                width: 100%;
+                min-height: auto;
+                border-radius: 18px;
+            }
+
+            .left-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 1.75rem 1.5rem;
+            }
+
+            /* Collapse the welcome block's tall centered layout */
+            .welcome-block {
+                padding: 1rem 0 0;
+            }
+
+            .welcome-title {
+                font-size: 1.4rem;
+            }
+
+            /* Hide purely decorative elements on small screens */
+            .signal-deco,
+            .meta-block {
+                display: none;
+            }
+
+            .right-panel {
+                width: 100%;
+                padding: 1.75rem 1.5rem 2rem;
+            }
+
+            .form-title {
+                font-size: 1.3rem;
+            }
+
+            .field-wrap input {
+                height: 46px;
+                font-size: 0.85rem;
+            }
+
+            .btn-login {
+                height: 48px;
+                font-size: 0.9rem;
+            }
+
+            /* Footer: stop pinning it over content, let it flow after the card */
+            .page-footer {
+                position: static;
+                margin-top: 1.5rem;
+                padding: 0 1rem;
+                font-size: 0.65rem;
+                line-height: 1.4;
+            }
+
+            .login-theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        @@media (max-width: 380px) {
+
+            .left-panel,
+            .right-panel {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .welcome-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        body.dark-mode .login-error-msg {
+            background: rgba(229, 72, 77, 0.12);
+            border-color: rgba(229, 72, 77, 0.3);
+        }
+
+        body.dark-mode {
+            --bg-main: #0d0e12;
+            --panel-left: #16171c;
+            --shell-bg: rgba(22, 23, 28, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(248, 156, 57, 0.5);
+            --text-primary: #eceef1;
+            --text-muted: #9a9fac;
+            --text-subtle: #6b7180;
+            --input-bg: #1d1f26;
+            --input-border: #2a2d36;
+        }
+
+        body.dark-mode .bg-scene::before {
+            background: linear-gradient(160deg, #1c1712 0%, var(--bg-main) 60%);
+        }
+
+        body.dark-mode .login-shell {
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        body.dark-mode .left-panel {
+            background: linear-gradient(150deg, #1a1712 0%, #16171c 100%);
+        }
+
+        body.dark-mode .right-panel {
+            background: var(--panel-left);
+        }
+
+        body.dark-mode .form-divider {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        body.dark-mode .field-wrap input:focus {
+            background: var(--dark-bg-secondary, #1d1f26);
+        }
+
+        body.dark-mode .page-footer {
+            color: var(--text-muted);
+        }
+
+        /* SweetAlert2 dark override */
+        body.dark-mode .swal2-popup {
+            background: #16171c !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode .swal2-title {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode .swal2-input {
+            background: #1d1f26 !important;
+            border-color: #2a2d36 !important;
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode .app-loading-card {
+            background: rgba(22, 23, 28, 0.9) !important;
+        }
+
+        body.dark-mode .app-loading-text {
+            color: var(--text-primary) !important;
+        }
+    </style>
+</head>
+
+<body ng-controller="LoginController">
+
+    <button id="loginThemeToggle" class="login-theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <i class="fa fa-moon" id="loginThemeIcon"></i>
+    </button>
+
+    <div class="bg-scene">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-dots"></div>
+        <div class="bg-diagonal"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+    </div>
+
+    <div id="particles_effect"></div>
+
+    <div class="page-wrap">
+        <div class="login-shell">
+
+            <div class="left-panel">
+                <div class="logo-wrap">
+                    <img src="~/Content/NSMISPLogo.png" alt="NSM ISP LOGO" class="logo-img">
+                </div>
+
+                <div class="welcome-block">
+                    <div class="welcome-label">Internet Service Provider</div>
+                    <div class="welcome-title">
+                        Welcome to<br><span>NSM</span> Billing System
+                    </div>
+                    <div class="version-badge">
+                        <div class="vdot"></div>
+                        Version: 2.0.1
+                    </div>
+                </div>
+
+                <!-- <div class="meta-block">
+                    <div class="meta-item">
+                        <i class="fa fa-refresh"></i>
+                        Last update: @DateTime.Now.ToString("dd-MMMM-yyyy hh:mm tt") &#64;NSM
+                    </div>
+                    <div class="meta-item">
+                        <i class="fa fa-calendar"></i>
+                        Create Date: 01-June-2022 &#64;PP Factory
+                    </div>
+                </div> -->
+
+                <div class="signal-deco">
+                    <div class="sig-bar"></div>
+                    <div class="sig-bar"></div>
+                    <div class="sig-bar"></div>
+                    <div class="sig-bar"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="form-header">
+                    <div class="form-eyebrow">Secure Access</div>
+                    <div class="form-title">Sign in to your account</div>
+                    <div class="form-subtitle">Enter your credentials to access the billing portal</div>
+                </div>
+
+                <form class="login100-form validate-form" name="frm" novalidate>
+
+                    <div class="field-group wrap-input100 validate-input" data-validate="User Name is required">
+                        <label class="field-label">Username</label>
+                        <div class="field-wrap">
+                            <i class="fa fa-user field-icon"></i>
+                            <input autofocus="autofocus" class="input100" type="text" id="username" name="username"
+                                placeholder="Enter your username" data-ng-model="LoginData.UserName" />
+                        </div>
+                        <div class="field-error-msg"><i class="fa fa-exclamation-circle"></i>&nbsp; User Name is
+                            required
+                        </div>
+                    </div>
+
+                    <div class="field-group wrap-input100 validate-input" data-validate="Password is required">
+                        <label class="field-label">Password</label>
+                        <div class="field-wrap">
+                            <i class="fa fa-lock field-icon"></i>
+                            <input class="input100" type="password" name="password" id="password"
+                                placeholder="Enter your password" data-ng-model="LoginData.Password" />
+                            <span id="toggle-password" toggle="#password" class="fa fa-eye toggle-pw"></span>
+                        </div>
+                        <div class="field-error-msg"><i class="fa fa-exclamation-circle"></i>&nbsp; Password is required
+                        </div>
+                    </div>
+
+                    <div id="loginErrorMsg" class="login-error-msg">
+                        <i class="fa fa-exclamation-circle"></i>
+                        <span id="loginErrorText">Invalid username or password.</span>
+                    </div>
+
+                    <button class="btn-login" type="submit" id="Login">
+                        <span ng-if="!isLoggingIn">Login</span>
+                        <span ng-if="isLoggingIn" class="btn-logging-in">
+                            <span class="btn-spinner"></span>
+                            <span>Logging In...</span>
+                        </span>
+                    </button>
+
+                    <div class="forgot-row">
+                        <span class="forgot-text">Forgot your</span>
+                        <a class="forgot-link" href="#" id="ResetPassword">Password?</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="page-footer">
+        Copyright &copy; 2022&ndash;@DateTime.Now.Year NSM SOLUTION &amp; MAINTENANCE CO., LTD. All rights reserved.
+    </div>
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Content/LoginV1_files/tilt.jquery.min.js"></script>
+    <script src="~/Content/AdminLTE-3.2.0/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+
+    <script>
+        $(function () {
+            "use strict";
+
+            /* ── Theme init + toggle (shared 'theme' key with the rest of the app) ── */
+            function applyLoginTheme(theme) {
+                var isDark = theme === 'dark';
+                $('body').toggleClass('dark-mode', isDark);
+                $('#loginThemeIcon').toggleClass('fa-moon', !isDark).toggleClass('fa-sun', isDark);
+                localStorage.setItem('theme', theme);
+            }
+
+            $(function () {
+                var savedTheme = localStorage.getItem('theme') || 'light';
+                applyLoginTheme(savedTheme);
+
+                $('#loginThemeToggle').on('click', function () {
+                    var current = $('body').hasClass('dark-mode') ? 'dark' : 'light';
+                    applyLoginTheme(current === 'dark' ? 'light' : 'dark');
+                });
+            });
+
+            $("#toggle-password").click(function () {
+                $(this).toggleClass("fa-eye fa-eye-slash");
+                var input = $($(this).attr("toggle"));
+                if (input.attr("type") == "password") {
+                    input.attr("type", "text");
+                    $("#password").focus().select();
+                } else {
+                    input.attr("type", "password");
+                    $("#password").focus().select();
+                }
+            });
+
+            $("#ResetPassword").click(function () {
+                Swal.fire({
+                    title: 'Reset Password Form',
+                    html: `<input type="text" value="${$("#username").val()}" id="TxtUserName" class="swal2-input" placeholder="Username">
+                           <input type="text" id="TxtPhone" class="swal2-input" placeholder="Registered Phone Number">
+                           <input type="password" id="TxtPassword" class="swal2-input" placeholder="Password">
+                           <input type="password" id="TxtConfirmPassword" class="swal2-input" placeholder="Confirm Password">`,
+                    confirmButtonText: 'Reset Password',
+                    focusConfirm: false,
+                    width: '700px',
+                    position: 'top',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        const User_Name = Swal.getPopup().querySelector('#TxtUserName').value;
+                        const Phone = Swal.getPopup().querySelector('#TxtPhone').value;
+                        const Pass_word = Swal.getPopup().querySelector('#TxtPassword').value;
+                        const ConfirmPassword = Swal.getPopup().querySelector('#TxtConfirmPassword').value;
+                        if (!User_Name) { Swal.showValidationMessage(`Please enter User Name.`); Swal.getPopup().querySelector('#TxtUserName').focus(); return false; }
+                        else if (!Phone) { Swal.showValidationMessage(`Please enter Registerd Phone Number.`); Swal.getPopup().querySelector('#TxtPhone').focus(); return false; }
+                        else if (!Pass_word) { Swal.showValidationMessage(`Please enter Password.`); Swal.getPopup().querySelector('#TxtPassword').focus(); return false; }
+                        else if (!ConfirmPassword) { Swal.showValidationMessage(`Please enter Confirm Password.`); Swal.getPopup().querySelector('#TxtConfirmPassword').focus(); return false; }
+                        else if (Pass_word != ConfirmPassword) { Swal.showValidationMessage(`Your Password and Confirm Password not the same.`); Swal.getPopup().querySelector('#TxtPassword').focus(); return false; }
+                        validatePassword(Pass_word, function (valid, message) {
+                            if (!valid) { Swal.showValidationMessage(message); return false; }
+                            else {
+                                var DATA = { UserName: User_Name, Phone: Phone, Password: Pass_word };
+                                $.ajax({
+                                    url: ServerRoot + "Login/SaveChangeResetPassword",
+                                    dataType: "html", async: false, cache: false, type: 'POST', data: DATA,
+                                    beforeSend: function (xhr) { $("button").attr('disabled', true); },
+                                    success: function (response) {
+                                        $("button").attr('disabled', false);
+                                        var result = JSON.parse(response);
+                                        if (result.Result == 2) {
+                                            $("#username").val(User_Name); $("#password").val(Pass_word);
+                                            $("#username").trigger('input'); $("#password").trigger('input');
+                                            $("#Login").click(); return true;
+                                        } else { Swal.showValidationMessage(result.Message); return false; }
+                                    },
+                                    error: function (response) { $("button").attr('disabled', false); Swal.showValidationMessage(response.status + " " + response.statusText); return false; }
+                                });
+                            }
+                        });
+                        return false;
+                    }
+                }).then((result) => { if (result.isConfirmed) { } });
+            });
+
+            var input = $('.validate-input .input100');
+            $('.validate-form').on('submit', function () {
+                var check = true;
+                for (var i = 0; i < input.length; i++) {
+                    if ((input[i]).value == "") { showValidate(input[i]); check = false; }
+                }
+                if (check) { angular.element(document.getElementById('Login')).scope().Login(); }
+                return check;
+            });
+            $('.validate-form .input100').each(function () {
+                $(this).focus(function () { hideValidate(this); });
+            });
+
+            $('.validate-form .input100').on('input', function () {
+                $('#loginErrorMsg').removeClass('is-visible');
+            });
+        });
+
+        function showValidate(input) {
+            var thisAlert = $(input).closest('.wrap-input100');
+            $(thisAlert).addClass('alert-validate');
+        }
+
+        function hideValidate(input) {
+            var thisAlert = $(input).closest('.wrap-input100');
+            $(thisAlert).removeClass('alert-validate');
+        }
+    </script>
+
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-sanitize.min.js"></script>
+    <script src="~/Scripts/angular-route.min.js"></script>
+    <script src="~/Scripts/angular-cookies.min.js"></script>
+    <script src="~/Scripts/ngStorage.min.js"></script>
+    <script src="~/Scripts/ng-table.js"></script>
+    <script src="~/Scripts/restangular.min.js"></script>
+    <script src="~/Scripts/underscore-min.js"></script>
+    <script src="~/Scripts/loading-bar.min.js"></script>
+    <script src="~/Scripts/angular-local-storage.min.js"></script>
+    <script src="~/Scripts/angular-animate.min.js"></script>
+    <script src="~/Scripts/angular-filter.min.js"></script>
+    <script src="~/Scripts/angular-underscore.min.js"></script>
+    <script src="~/Scripts/ngHtmlCompile.js"></script>
+    <script src="~/Scripts/ng-idle/angular-idle.min.js"></script>
+    <script src="~/App/JScriptForm.js"></script>
+    <script src="~/Scripts/LocalStorage.js"></script>
+    <script src="~/Content/toastr/toastr.min.js"></script>
+    <script src="~/App/app.js"></script>
+    <script src="~/App/services/AuthData.js"></script>
+    <script src="~/App/services/AuthenticationService.js"></script>
+    <script src="~/App/services/LoginService.js"></script>
+    <script src="~/App/controllers/LoginController.js"></script>
+    <script src="~/Scripts/signalr/jquery.signalR.min.js"></script>
+    <script src="~/signalr/Hubs"></script>
+    <script src="~/Scripts/JScript_Function.js"></script>
+    <script src="~/Scripts/466ac529e3.js"></script>
+    <script src="~/Content/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/web-notification.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/angular-web-notification.js"></script>
+    <script src="~/Scripts/particles/particles.min.js"></script>
+    <script src="~/Scripts/particles/particles-app.js"></script>
+</body>
+
+</html>v

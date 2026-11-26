@@ -1,0 +1,223 @@
+﻿<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+	xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<link rel="apple-touch-icon" sizes="57x57" href="/Content/icon/apple-icon-57x57.png" />
+	<link rel="apple-touch-icon" sizes="60x60" href="/Content/icon/apple-icon-60x60.png" />
+	<link rel="apple-touch-icon" sizes="72x72" href="/Content/icon/apple-icon-72x72.png" />
+	<link rel="apple-touch-icon" sizes="76x76" href="/Content/icon/apple-icon-76x76.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="/Content/icon/apple-icon-114x114.png" />
+	<link rel="apple-touch-icon" sizes="120x120" href="/Content/icon/apple-icon-120x120.png" />
+	<link rel="apple-touch-icon" sizes="144x144" href="/Content/icon/apple-icon-144x144.png" />
+	<link rel="apple-touch-icon" sizes="152x152" href="/Content/icon/apple-icon-152x152.png" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/Content/icon/apple-icon-180x180.png" />
+	<link rel="icon" type="image/png" sizes="192x192" href="/Content/icon/android-icon-192x192.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/Content/icon/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="96x96" href="/Content/icon/favicon-96x96.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="/Content/icon/favicon-16x16.png" />
+	<link rel="manifest" href="/Content/icon/manifest.json" />
+	<meta name="msapplication-TileImage" content="/Content/icon/ms-icon-144x144.png" />
+	<meta name="msapplication-TileColor" content="#ffffff" />
+	<meta name="theme-color" content="#ffffff" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<link href="../Content/css/custom.css" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Siemreap&display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin />
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"
+		crossorigin />
+	<link href="https://fonts.googleapis.com/css?family=Bayon" rel="stylesheet" type="text/css" crossorigin />
+	<link href="https://fonts.googleapis.com/css?family=Bayon|Francois+One" rel="stylesheet" type="text/css"
+		crossorigin />
+	<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@200;300&display=swap" rel="stylesheet"
+		crossorigin />
+	<title>{Title}</title>
+	<link href="../Content/css/custom_bootstrap.css" rel="stylesheet" />
+	<script src="../Scripts/jquery-3.7.1.min.js"></script>
+</head>
+
+<body id="BoyMasterPage" class="khmerFont1" style="background-color: #fff !important">
+	<style>
+		.mytable th,
+		.mytable td {
+			border: 1px solid #000000 !important;
+		}
+
+		.rm-p-space p {
+			margin-bottom: 0 !important;
+		}
+
+		hr {
+			border-color: #000 !important;
+		}
+
+		@media print {
+			.hidden {
+				display: none !important;
+			}
+
+			.invoices {
+				margin: 0 !important;
+				padding: 0 !important;
+				/*counter-reset: page;*/
+			}
+
+			body {
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+
+			thead,
+			tfoot {
+				display: table-row-group;
+			}
+
+			td {
+				line-height: 1.5;
+				/* Adjust as needed */
+			}
+
+			@page {
+				size: A3 !important;
+				margin: 20px 20px 20px 70px !important;
+			}
+
+			.footer {
+				width: calc(100% - 20px);
+				position: fixed;
+				bottom: 0 !important;
+			}
+
+			.page-break {
+				display: block;
+				page-break-before: always;
+			}
+
+			.showPageNo {
+				display: block !important;
+			}
+		}
+	</style>
+	<div class="wrapper" id="Div_Content">
+		<section class="invoices">
+			<div class="row mt-4 mb-2 company-info {company-info}">
+				<table>
+					<tr>
+						<td>
+							<div class="col img">{LOGO}</div>
+						</td>
+						<td valign="top">
+							<div class="col mt-4 ml-4 text-center div-grow">
+								<div>
+									<span class="page-header text-uppercase"
+										style="font-family: &quot;Moul&quot;; font-size: 24px">
+										{MainTitle} </span><br />
+									<span class="text-uppercase" style="
+                        font-family: &quot;Times New Roman&quot;;
+                        font-size: 24px;
+                      ">
+										{SubTitle}
+									</span>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="rm-p-space">{CompanyInfo}</div>
+			<hr class="company-info {company-info}" />
+			<div class="invoice-title {mg-top}" style="text-align: center">
+				<h4 class="page-header text-uppercase" style="font-family: &quot;Moul&quot;">
+					{InvoiceTitleKH}
+				</h4>
+				<h4 class="text-uppercase" style="font-family: &quot;Times New Roman&quot;">
+					{InvoiceTitle}
+				</h4>
+			</div>
+			<!--<hr />-->
+			<div class="d-flex justify-content-between">{InvoiceHeaderInfo}</div>
+			<table class="table mytable">
+				{TblHead}
+				<tbody>
+					{TblBody}
+				</tbody>
+				{TblFoot}
+			</table>
+			<footer class="footer">
+				<div class="row justify-content-around" style="margin-top: 50px; margin-bottom: 20px !important">
+					<div class="col-5">
+						<div class="text-center" style="{whdiv}"></div>
+						<hr style="
+                  height: 2px;
+                  width: 100%;
+                  border-width: 0;
+                  color: #000;
+                  background-color: #000;
+                " />
+						<div class="row">
+							<div class="col text-center">
+								<h5 class="text-uppercase text-nowrap font-weight-bold">
+									ហត្ថលេខា និង ឈ្មោះអ្នកទិញ
+								</h5>
+								<label class="col-form-label text-uppercase text-nowrap">Customer`s Signature &
+									Name</label>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col nowrap">
+								<label class="col-form-label text-nowrap pb-0" style="font-size: 14px">សម្គាល់៖
+									ច្បាប់ដើមសម្រាប់អ្នកទិញ
+									ច្បាប់ចម្លងសម្រាប់អ្នកលក់</label><br />
+								<label class="col-form-label text-nowrap pt-0" style="font-size: 14px">Note: Original
+									invoice for
+									customer and copied invoice for
+									seller</label><br />
+							</div>
+						</div>
+					</div>
+					<div class="col-2"></div>
+					<div class="col-5">
+						<div class="text-center" style="{whdiv}">{IssuedBySignature}</div>
+						<hr style="
+                  height: 2px;
+                  width: 100%;
+                  border-width: 0;
+                  color: #000;
+                  background-color: #000;
+                " />
+						<div class="row">
+							<div class="col text-center">
+								<h5 class="text-uppercase text-nowrap font-weight-bold">
+									ហត្ថលេខា និង ឈ្មោះអ្នកលក់
+								</h5>
+								<label class="col-form-label text-uppercase text-nowrap">Seller`s Signature &
+									Name</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</section>
+	</div>
+
+	<script>
+		$(function () {
+			var contentHeight = $("#Div_Content").height();
+			var a3Height = 1587; //1587; // A3 size in pixels (assuming 96 DPI)
+
+			// Adjust footer position
+			if (contentHeight >= a3Height) {
+				$(".footer").css(
+					"cssText",
+					"position: static !important;width: 100%;",
+				);
+			}
+		});
+	</script>
+</body>
+
+</html>

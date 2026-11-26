@@ -1,0 +1,50 @@
+﻿@{Layout = null;}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function ShowSubItem(THIS) {
+        var index = ($(THIS).closest("tr").index() + 1);
+        var IsHaveSubItem = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+    }
+    $(function () {
+        //var row = '&nbsp;<button type="button" id="BunAddBundleItem" class="btn btn-success"><i class="fa fa-plus"></i> <span class="d-none d-md-inline">Add Bundle Item</span></button>';
+        //$("#BunAddItem").after(row);
+        //$("#BunAddBundleItem").click(function () {
+        //    ShowDialogBox2("Add Bundle Item", "auto", "", "Items/CreateBundleItem", 0, "DialogAddBundleItem", function () {
+        //        $("#DialogAddBundleItem").on('hide.bs.modal', function () {
+        //            if (SaveChangeResponse.length > 0) {                        
+        //                var ItemName = SaveChangeResponse.filter(function (item) {
+        //                    return item.name == "Txt_ItemName";
+        //                })[0];
+        //                $("input[name=RD]:eq(0)").click();
+        //                $("#CboSearchText").val(ItemName.value);
+        //                $("#BunSearch").click();
+        //                SaveChangeResponse = [];
+        //            }                    
+        //        });
+        //    });
+        //});
+        var row = '&nbsp;<button type="button" id="BunAddItemGroup" class="btn btn-success"><i class="fa fa-plus"></i> <span class="d-none d-md-inline">Add Item Group</span></button>';
+        $("#BunAddItem").after(row);
+        $("#BunAddItemGroup").click(function () {
+            ShowDialogBox2("Add Item Group", "auto", "", "Items/CreateItemGroup", 0, "DialogCreateItemGroup", function () {
+                $("#DialogCreateItemGroup").on('hide.bs.modal', function () {
+                    if (SaveChangeResponse.length > 0) {
+                        var ItemName = SaveChangeResponse.filter(function (item) {
+                            return item.name == "Txt_ItemGroupName";
+                        })[0];
+                        $("input[name=RD]:eq(0)").click();
+                        $("#CboSearchText").val(ItemName.value);
+                        $("#BunSearch").click();
+                        SaveChangeResponse = [];
+                    }                    
+                });
+            });
+        });
+    });
+    function Edit(THIS) {
+        var id = $(THIS).attr("id");
+        ShowDialogBox("Edit Item", 'Auto', 600, "AddItem/CreateItem", id, "", "", "", "", function (response) {
+        });
+    }
+</script>

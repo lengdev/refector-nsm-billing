@@ -1,0 +1,857 @@
+@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLForm)
+    </div>
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLFormTotal)
+        @Html.Raw(ViewBag.DrawHTMLFormAttachment)
+
+        @*<button type="button" onclick="AddAttachmentFile('Add Attachment File', 'CustomerAttFiles');" id="AddAttachmentFile" class="btn btn-info">
+            <i class="fas fa-paperclip"></i> Add Attachment File
+        </button>*@
+
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col">
+        <div class="card card-primary card-outline card-tabs">
+            <div class="card-header p-0 pt-1 border-bottom-0">
+                <ul class="nav nav-tabs" id="Customer_AddCollection_Tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="PaymentDetail_Tab" data-toggle="pill" href="#Payment_Tab" role="tab" aria-controls="Payment_Tab" aria-selected="true">Payment Detail</a>
+                    </li>
+                    <li class="nav-item d-none">
+                        <a class="nav-link" id="OtherCharge_Tab" data-toggle="pill" href="#Other_Tab" role="tab" aria-controls="Other_Tab" aria-selected="false">Other Charge</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="Payment_Tab" role="tabpanel" aria-labelledby="PaymentDetail_Tab">
+                        <div id="gridPaymentDetail"></div>
+                        <div id="paymentFooter" class="text-danger text-lg text-right"></div>
+
+                    </div>
+                    <div class="tab-pane fade" id="Other_Tab" role="tabpanel" aria-labelledby="OtherCharge_Tab">
+                        <div>
+                            @Html.Raw(ViewBag.DrawHTMLFormOtherCharge)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+
+<script>
+    var CustID = "@ViewBag.CustomerID";
+    var CustCode = "@ViewBag.CustomerCode";
+    $(function () {
+        $("#Customer_AddCollection_Tab a").click(function (e) {
+            e.preventDefault();
+        });
+
+        // Override generated onclick
+        var saveBtn = $("[id^='SaveChange_']");
+        saveBtn.attr("onclick", null);
+        saveBtn.off("click").on("click", function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            SaveChange_Data();
+        });
+
+        var divInfo = '<div id="divInfo" class="mr-auto text-danger"></div>';
+        $("div.modal-footer button:eq(0)").before(divInfo);
+
+        LoadAllCustInvoice(CustID);
+
+        $("#txtCustomerName_CustomerID").change(function () {
+            var CustomerID = $(this).val();
+            if (CustomerID != "")
+                LoadAllCustInvoice(CustomerID);
+            else
+                $("#gridPaymentDetail").html("");
+        });
+
+        $("#txtCustomerName_CustomerID").val(Customer_ID);
+        $("#txtCustomerName_CustName").val(Cust_Name);
+        $("#txtCustomerName_CID").val(CustCode);
+
+        // Allow manual typing in SubTotal and Discount to auto-calculate Grand Total
+        $(document).off("input change blur", "#SubTotal, #Discount").on("input change blur", "#SubTotal, #Discount", function (e) {
+            SumOtherCharge();
+            if (e.type === "blur" || e.type === "change") {
+                var v = accounting.unformat($(this).val());
+                $(this).val(v === 0 ? "" : kendo.toString(v, "n2"));
+            }
+        });
+
+        // InvoiceType is a Select2 widget — use event delegation to catch change events
+        $(document).off('change', '#InvoiceType').on('change', '#InvoiceType', function() {
+            ChangeInvoiceType(this);
+        });
+
+        function getChequeRow() {
+            var $input = $('#ChequeNumber, [name="ChequeNumber"]');
+            if ($input.length === 0) {
+                // Fallback: find by label text
+                return $('label:contains("Cheque No")').closest('tr, .form-group.row');
+            }
+            var $row = $input.closest('tr');
+            if ($row.length === 0) {
+                $row = $input.closest('.form-group.row');
+            }
+            return $row;
+        }
+
+        function toggleChequeField() {
+            var $cbo = $('[id^="PaymentMenthod"]').first();
+            var kCbo = $cbo.data('kendoComboBox') || $cbo.data('kendoDropDownList');
+            var txt = kCbo ? kCbo.text() : ($cbo.find('option:selected').text() || '');
+
+            var $row = getChequeRow();
+            if (txt && txt.toLowerCase().indexOf('cheque') >= 0) {
+                $row.show();
+            } else {
+                $row.hide();
+                $('#ChequeNumber').val('');
+            }
+        }
+
+        // Native change binding
+        $(document).on('change', '[id^="PaymentMenthod"]', function() {
+            toggleChequeField();
+        });
+
+        // Kendo-specific binding (runs after Kendo widgets initialize)
+        setTimeout(function() {
+            toggleChequeField();
+            // Force ChequeNumber editable in Add Collection screen
+            $('#ChequeNumber').prop('readonly', false).removeAttr('readonly').css('background-color', '');
+            var $cbo = $('[id^="PaymentMenthod"]').first();
+            var kCbo = $cbo.data('kendoComboBox') || $cbo.data('kendoDropDownList');
+            if (kCbo) {
+                kCbo.bind('change', function() { toggleChequeField(); });
+            }
+        }, 800);
+
+    });
+    //$(function () {
+    //    $("#Customer_AddCollection_Tab a").click(function (e) {
+    //        e.preventDefault();
+    //    });
+
+    //    // ADD THESE 3 LINES HERE ↓↓↓
+    //    //var fileInputRow = '<div style="display:none"><input type="file" name="CustomerAttFiles" multiple class="d-print-none" style="display: none; user-select: none; visibility: hidden;" /></div>';
+    //    //$("#FrmAddCollection").append(fileInputRow);
+
+
+    //    //$("div.modal-footer button:eq(0)").unbind("click");
+    //    //$("div.modal-footer button:eq(0)").click(function (e) {
+    //    //    e.preventDefault();
+    //    //    SaveChange_Data();
+    //    //    return true;
+    //    //});
+    //    // Option 1: target by ID pattern
+    //    $(document).off("click", "[id^='SaveChange_']").on("click", "[id^='SaveChange_']", function (e) {
+    //        e.preventDefault();
+    //        SaveChange_Data();
+    //    });
+
+    //    var btn = '<div id="divInfo" class="mr-auto text-danger"></div>';
+    //    $("div.modal-footer button:eq(0)").before(btn);
+    //    LoadAllCustInvoice(CustID);
+
+        
+
+    //    $("#txtCustomerName_CustomerID").change(function () {
+    //        var CustomerID = $(this).val();
+    //        if (CustomerID != "")
+    //            LoadAllCustInvoice(CustomerID);
+    //        else
+    //            $("#gridPaymentDetail").html("");
+    //    });
+
+    //    $("#txtCustomerName_CustomerID").val(Customer_ID);
+    //    $("#txtCustomerName_CustName").val(Cust_Name);
+    //    $("#txtCustomerName_CID").val(CustCode);
+
+
+    //});
+
+    function LoadAllCustInvoice(CustomerID) {
+        LoadData("CustomerCenter/LoadAllCustInvoice?CustomerID=" + CustomerID, function (response) {
+            var data = JSON.parse(JSON.parse(response).Data);
+
+            $("#gridPaymentDetail").kendoGrid({
+                dataSource: {
+                    data: data,
+                    schema: {
+                        model: {
+                            id: "InvoiceNo",
+                            fields: {
+                                InvoiceNo: { type: "string", editable: false },
+                                InvoiceDate: { type: "date", editable: false },
+                                GrandTotal: { type: "number", editable: false },
+                                OpenBalance: { type: "number", editable: false },
+                                DiscountUSD: { type: "number", editable: false },
+                                Payment: { type: "number" },
+                                _selected: { type: "boolean" }
+                            }
+                        }
+                    }
+                },
+                editable: {
+                    mode: "incell"
+                },
+                scrollable: true,
+                height: 400,
+                sortable: true,
+                selectable: "multiple, row",
+                pageable: false,
+                columns: [
+                    {
+                        title: "<input type='checkbox' id='checkAll' />",
+                        width: "50px",
+                        template: "<input type='checkbox' class='rowCheckbox' #= _selected ? 'checked' : '' # />"
+                    },
+                    { field: "InvoiceNo", title: "Invoice No" },
+                    { field: "InvoiceDate", title: "Invoice Date", format: "{0:dd-MM-yyyy}" },
+                    {
+                        field: "GrandTotal",
+                        title: "Grand Total",
+                        format: "{0:c}"
+                    },
+                    {
+                        field: "OpenBalance",
+                        title: "Open Balance",
+                        format: "{0:c}"
+                    },
+                    {
+                        field: "DiscountUSD",
+                        title: "Discount (USD)",
+                        format: "{0:c}",
+                        editor: function (container, options) {
+                            if (options.model._selected) {
+                                $('<input name="' + options.field + '" />')
+                                    .appendTo(container)
+                                    .kendoNumericTextBox({
+                                        format: "c",
+                                        decimals: 2,
+                                        change: function () {
+                                            if (options.model._selected) {
+                                                let discount = 0; // this.value() || 0;
+                                                options.model.set("Payment", options.model.OpenBalance - discount);
+
+                                                // Commit the change immediately
+                                                var grid = $("#gridPaymentDetail").data("kendoGrid");
+                                                grid.closeCell(); // This triggers the save event
+                                                grid.refresh();
+                                            }
+                                        }
+                                    });
+                            } else {
+                                $('<span style="color: #aaa;">(Select row to edit)</span>').appendTo(container);
+                            }
+                        }
+                    },
+                    {
+                        field: "Payment",
+                        title: "Payment",
+                        format: "{0:c}",
+                        editor: function (container, options) {
+                            if (options.model._selected) {
+                                $('<input name="' + options.field + '" />')
+                                    .appendTo(container)
+                                    .kendoNumericTextBox({
+                                        format: "c",
+                                        decimals: 2,
+                                        change: function () {
+                                            if (options.model._selected) {
+                                                let OpenBalance = this.value() || 0;
+                                                //options.model.set("Payment", OpenBalance - options.model.DiscountUSD);
+                                                options.model.set("Payment", OpenBalance);
+                                                // Commit the change immediately
+                                                var grid = $("#gridPaymentDetail").data("kendoGrid");
+                                                grid.closeCell(); // This triggers the save event
+                                                grid.refresh();
+                                                SumOtherCharge();
+                                            }
+                                        }
+                                    });
+                            } else {
+                                $('<span style="color: #aaa;">(Select row to edit)</span>').appendTo(container);
+                            }
+                        }
+                    }
+                ],
+
+                save: function (e) {
+                    if (e.field === "DiscountUSD" && e.model._selected) {
+                        let discount = e.model.DiscountUSD || 0;
+                        e.model.set("Payment", e.model.OpenBalance);
+                    }
+                },
+
+                dataBound: function () {
+                    var grid = this;
+
+                    // Manually calculate totals for OpenBalance and Payment
+                    var totalOpenBalance = 0;
+                    var totalPayment = 0;
+                    var subTotal = 0, totalDiscount = 0, GrandTotal = 0;
+                    grid.dataSource.view().forEach(function (item) {
+                        totalOpenBalance += item.OpenBalance || 0; // Make sure it's a valid number
+                        totalPayment += item.Payment || 0; // Make sure it's a valid number
+                        if (item._selected) {
+                            subTotal += item.OpenBalance || 0;
+                            //totalDiscount += item.DiscountUSD || 0;
+                        }
+                    });
+
+                    $("#SubTotal").val(subTotal === 0 ? "" : kendo.toString(subTotal, "n2"));
+                    $("#Discount").val(totalDiscount === 0 ? "" : kendo.toString(totalDiscount, "n2"));
+
+                    var OtherCharge = accounting.unformat($("#OtherCharge").val());
+                    GrandTotal = (accounting.unformat(subTotal) - accounting.unformat(totalDiscount)) + OtherCharge;
+                    $("#GrandTotal").val(GrandTotal === 0 ? "" : kendo.toString(GrandTotal, "n2"));
+
+                    // Update the footer for OpenBalance and Payment
+                    var footerRow = grid.tbody.find("tr.k-footer");
+                    if (footerRow.length) {
+                        footerRow.find("td[data-field='OpenBalance']").text(kendo.toString(totalOpenBalance, "n2"));
+                        footerRow.find("td[data-field='Payment']").text(kendo.toString(totalPayment, "n2"));
+                    }
+
+                    // Optional: Log totals for debugging
+                    $("#divInfo").html("Total Open Balance: " + kendo.toString(totalOpenBalance, "n2") + " Total Payment: <span id='TotalPayment'>" + kendo.toString(totalPayment, "n2")+"</span>");
+                    
+                    let currentAmount = accounting.unformat($("#PaymentAmount").val());
+                    if (GrandTotal === 0 && currentAmount === 0) {
+                        $("#PaymentAmount").val("");
+                    } else if (GrandTotal > 0 || subTotal > 0) { 
+                        $("#PaymentAmount").val(kendo.toString(GrandTotal, "n2"));
+                    }
+                    // Checkbox change event
+                    $(".rowCheckbox").off("change").on("change", function () {
+                        var row = $(this).closest("tr");
+                        var item = grid.dataItem(row);
+                        var isChecked = this.checked;
+
+                        item.set("_selected", isChecked);
+
+                        let discount = accounting.unformat(item.DiscountUSD) || 0;
+                        item.set("Payment", isChecked ? item.OpenBalance : 0);
+
+                        grid.refresh();
+
+                        $("#PaymentDescription").val("");
+
+                    });
+
+                    // "Check all" toggle
+                    $("#checkAll").off("change").on("change", function () {
+                        var checked = this.checked;
+                        var desc = "Payment for Invoice No.: ";
+                        var inv = "";
+                        grid.dataSource.view().forEach(function (item) {
+                            item.set("_selected", checked);                            
+                            let discount = accounting.unformat(item.DiscountUSD) || 0;
+                            item.set("Payment", checked ? item.OpenBalance : 0);
+
+                            if (checked) {
+                                if (inv == "")
+                                    inv = item.InvoiceNo;
+                                else
+                                    inv += ", " + item.InvoiceNo;
+                            }
+                            else {
+                                desc = "";
+                            }
+                        });
+                        grid.refresh();
+
+                        $("#PaymentDescription").val(desc + inv);
+
+                    });
+                },
+
+                footer: true // Enable footer in the grid
+            });
+
+
+        });
+    }
+
+    function SumOtherCharge() {
+        var OtherCharge = 0;
+        $("input[name=ExpenseAmount]").each(function () {
+            var cValue = accounting.unformat($(this).val());
+            if (cValue != "") {
+                OtherCharge += cValue;
+            }
+        });
+        $("#OtherCharge").val(kendo.toString(OtherCharge, "n2"));
+        
+        var subTotal = accounting.unformat($("#SubTotal").val());
+        var totalDiscount = accounting.unformat($("#Discount").val());
+        
+        var GrandTotal = (subTotal - totalDiscount) + OtherCharge;
+        $("#GrandTotal").val(kendo.toString(GrandTotal, "n2"));
+
+        // When updating Other Charges, also suggest updating Amount Received to match GrandTotal
+        // if the user hasn't manually typed an overriding unassigned amount
+        let currentAmount = accounting.unformat($("#PaymentAmount").val());
+        if (GrandTotal === 0 && currentAmount === 0) {
+            $("#PaymentAmount").val("0.00");
+        } else if (GrandTotal > 0 || subTotal > 0) {
+            $("#PaymentAmount").val(kendo.toString(GrandTotal, "n2"));
+        }
+    }
+
+    function createPaymentObject(data = {}, isExpense = false, ExpenseDescription = "") {
+        var custName = fullyDecodeHtml($.trim($("#txtCustomerName_CustName").val()));
+        return {
+            RVNumber: $("#RVNumber").val(),
+            InvoiceType: $("#InvoiceType").val(),
+            InvoiceNo: data.InvoiceNo || '',
+            Payer: data.Payer || custName,
+            PaymentDate: $("#PaymentDate").data('daterangepicker').startDate.format('YYYY-MM-DD'),
+            PaymentMenthod: $("#PaymentMenthod").val(),
+            ChequeNumber: $("#ChequeNumber").val(),
+            ToAccountNumber: $("#ChartOfAccountID").val(),
+            PaymentAmount: data.PaymentAmount || 0,
+            PaymentDescription: $("#PaymentDescription").val(),
+            ReceivedFromName: custName,
+            StatusID: 10,
+            BillingInvoiceID: 0,
+            CustomerCode: $.trim($("#txtCustomerName_CID").val()),
+            CustomerName: custName,
+            PaymentID: 0,
+            CustomerID: $.trim($("#txtCustomerName_CustomerID").val()),
+            ChartOfAccountID: $("#ChartOfAccountID").val(),
+            PaidByUserID: User_ID,
+            PaidBy: User_Full_Name,
+            SystemID: System_ID,
+            WarehouseID: Warehouse_ID,
+            DomainID: Domain_ID,
+            CreateDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+            ExpenseAccount: isExpense ? data.ExpenseAccount : undefined,
+            ExpenseDescription: ExpenseDescription
+        };
+    }
+
+
+    function validateInputs() {
+        if ($("#txtCustomerName").val().trim() === "") {
+            DialogSweetAlert("error", "Please enter Customer Name.", () => $("#txtCustomerName").focus());
+            return false;
+        }
+        if (!$("#PaymentMenthod").val()) {
+            DialogSweetAlert("error", "Please select Payment Method.", () => $("#PaymentMenthod").focus());
+            return false;
+        }
+        if (!$("#ChartOfAccountID").val()) {
+            DialogSweetAlert("error", "Please select Deposit To.", () => $("#ChartOfAccountID").focus());
+            return false;
+        }
+        if (accounting.unformat($("#PaymentAmount").val()) <= 0) {
+            DialogSweetAlert("error", "Please enter a valid Payment Amount.");
+            return false;
+        }
+        return true;
+    }
+
+    function SaveChange_Data() {
+        if (!validateInputs()) return false;
+
+        const grid = $("#gridPaymentDetail").data("kendoGrid");
+        const griddata = grid.dataSource.data();
+        const custName = fullyDecodeHtml($.trim($("#txtCustomerName_CustName").val()));
+        let PaymentInfos = [];
+        let OtherChargeInfos = [];
+        let isChecked = false;
+        let totalPayment = 0;
+
+        // Process grid items
+        grid.dataSource.view().forEach(item => {
+            if (item._selected) {
+                isChecked = true;
+                let openBal = accounting.unformat(item.OpenBalance);
+                let payAmt = accounting.unformat(item.Payment);
+                if (payAmt > openBal || payAmt < 0) {
+                    DialogSweetAlert("error", "Invalid payment amount.");
+                    return;
+                }
+                PaymentInfos.push(createPaymentObject({
+                    InvoiceNo: item.InvoiceNo,
+                    PaymentAmount: payAmt
+                }));
+            }
+        });
+
+        // Process Other Charges
+        $("input[name=ExpenseAmount]").each(function (i) {
+            let amount = accounting.unformat($(this).val());
+            let category = $("input[name=ExpenseCategory]").eq(i).val();
+            let ExpenseDescription = $("textarea[name=ExpenseDescription]").eq(i).val();
+            if (!isNaN(amount) && amount > 0 && amount!="") {
+                isChecked = true;
+                OtherChargeInfos.push(createPaymentObject({
+                    PaymentAmount: amount,
+                    ExpenseAccount: category                    
+                }, true, ExpenseDescription));
+            }
+        });
+
+        let enteredPaymentAmount = accounting.unformat($("#PaymentAmount").val());
+        let sumInvoicePayment = 0;
+        PaymentInfos.forEach(p => sumInvoicePayment += p.PaymentAmount);
+        let sumOtherCharge = 0;
+        OtherChargeInfos.forEach(o => sumOtherCharge += o.PaymentAmount);
+        
+        let unassignedAmount = enteredPaymentAmount - sumInvoicePayment - sumOtherCharge;
+        unassignedAmount = parseFloat(unassignedAmount.toFixed(2));
+        
+        if (unassignedAmount > 0) {
+            PaymentInfos.push(createPaymentObject({
+                InvoiceNo: '',
+                PaymentAmount: unassignedAmount
+            }));
+        }
+
+        if (PaymentInfos.length > 0 || OtherChargeInfos.length > 0) {
+            const URL = "CustomerCenter/SaveChangePayment";
+            
+            var formData = new FormData();
+            formData.append("PaymentData", JSON.stringify(PaymentInfos));
+            formData.append("OtherChargeData", JSON.stringify(OtherChargeInfos));
+
+            // Append files
+            var fileInput = $("#AttachmentFile")[0];
+            if (fileInput && fileInput.files.length > 0) {
+                for (var i = 0; i < fileInput.files.length; i++) {
+                    formData.append("AttachmentFile", fileInput.files[i]);
+                }
+            }
+
+            $.ajax({
+                url: ServerRoot + URL,
+                type: 'POST',
+                data: formData,
+                headers: { "Authorization": "Bearer " + access_Token },
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    DialogSweetAlert("load", "Saving...");
+                },
+                success: function (response) {
+                    if (response.Result == 2) { 
+                        $("div.modal-footer button:eq(1)").click();
+                        $("#Transaction-tab").click();
+                        GetCustomerBalance(CustID);
+                        Swal.close();
+                        toastr.success(response.Message || "Saved successfully");
+                    } else if (response.Result == 1 || response.Result == "1") {
+                         $("div.modal-footer button:eq(1)").click();
+                        $("#Transaction-tab").click();
+                        GetCustomerBalance(CustID);
+                        Swal.close();
+                        toastr.success(response.Message || "Saved successfully");
+                    }
+                    else {
+                        DialogSweetAlert("error", response.Message || "Error saving data.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                     DialogSweetAlert("error", "Error: " + error);
+                }
+            });
+        }
+    }
+    // modal for upload iamge 
+
+    //function AddAttachmentFile() {
+    //    var row = '<div style="margin-bottom:10px;">';
+    //    row += '<input type="file" name="CustomerAttFiles" class="form-control" />';
+    //    row += '</div>';
+    //    $("#AddAttachmentFile").before(row);
+    //}
+
+    //function SaveChange_Data() {
+    //    var CustomerName = $("#txtCustomerName").val();
+    //    var PaymentMenthod = $("#PaymentMenthod").val();
+    //    var DepositTo = $("#ChartOfAccountID").val();
+    //    var PaymentAmount = accounting.unformat($("#PaymentAmount").val());
+
+    //    var grid = $("#gridPaymentDetail").data("kendoGrid");
+    //    var griddata = grid.dataSource.data();
+
+    //    if (CustomerName == "") {
+    //        DialogSweetAlert("error", "Please enter Customer Name.", function () {
+    //            $("#txtCustomerName").focus();
+    //            return false;
+    //        });
+    //        return false;
+    //    }
+    //    else if (PaymentMenthod == "" || PaymentMenthod == null) {
+    //        DialogSweetAlert("error", "Please enter Payment Menthod.", function () {
+    //            $("#PaymentMenthod").focus();
+    //            return false;
+    //        });
+    //        return false;
+    //    }
+    //    else if (DepositTo == "" || DepositTo == null) {
+    //        DialogSweetAlert("error", "Please enter Deposit To.", function () {
+    //            $("#ChartOfAccountID").focus();
+    //            return false;
+    //        });
+    //        return false;
+    //    }
+    //    else if (PaymentAmount == 0) {
+    //        DialogSweetAlert("error", "Please enter Payment Amount.");
+    //        return false;
+    //    }        
+    //    var OtherCharge = 0;
+    //    var ischeckedItems = false;
+    //    var PaymentInfos = [];
+    //    var OtherChargeInfos = [];
+    //    var checkedItems = [];
+    //    var Payment = 0;
+    //    var TotalPayment = 0;
+    //    var obj = {};
+
+    //    var custName = fullyDecodeHtml($.trim($("#txtCustomerName_CustName").val()));
+
+    //    if (griddata.length > 0) {            
+    //        var dataItems = grid.dataSource.view();
+    //        for (var i = 0; i < dataItems.length; i++) {
+    //            if (dataItems[i]._selected) {
+    //                ischeckedItems = true;
+    //                checkedItems.push(dataItems[i]);
+    //                Payment += accounting.unformat(dataItems[i].Payment);
+
+    //                var OpenBalance = accounting.unformat(dataItems[i].OpenBalance);
+    //                var InputAmount = accounting.unformat(dataItems[i].Payment);
+
+    //                if (InputAmount > OpenBalance) {
+    //                    DialogSweetAlert("error", "Payment amount must be less than or equal to the open balance.");
+    //                    return true;
+    //                }
+    //                else if (InputAmount < 0) {
+    //                    DialogSweetAlert("error", "You cannot enter an payment amount less than 0.");
+    //                    return true;
+    //                }
+
+    //                obj = {
+    //                    InvoiceNo: dataItems[i].InvoiceNo,
+    //                    Payer: custName,
+    //                    PaymentDate: $("#PaymentDate").data('daterangepicker').startDate.format('YYYY-MM-DD'),
+    //                    PaymentMenthod: $("#PaymentMenthod").val(),
+    //                    ToAccountNumber: $("#ChartOfAccountID").val(),
+    //                    PaymentAmount: accounting.unformat(dataItems[i].Payment),
+    //                    PaymentDescription: $("#PaymentDescription").val(),
+    //                    ReceivedFromName: custName,
+    //                    StatusID: 10,
+    //                    BillingInvoiceID: 0,
+    //                    CustomerCode: $.trim($("#txtCustomerName_CID").val()),
+    //                    CustomerName: custName,
+    //                    PaymentID: 0,
+    //                    CustomerID: $.trim($("#txtCustomerName_CustomerID").val()),
+    //                    ChartOfAccountID: $("#ChartOfAccountID").val(),
+    //                    PaidByUserID: User_ID,
+    //                    PaidBy: User_Full_Name,
+    //                    SystemID: System_ID,
+    //                    WarehouseID: Warehouse_ID,
+    //                    DomainID: Domain_ID,
+    //                    CreateDate: moment().format("YYYY-MM-DD HH:mm:ss")
+    //                };
+    //                PaymentInfos.push(obj);
+    //            }
+    //        }
+    //        OtherChargeInfos = [];
+    //        $("input[name=ExpenseAmount]").each(function (index) {
+    //            var cValue = accounting.unformat($(this).val());
+    //            var objs = {};
+    //            if (cValue != "") {
+    //                OtherCharge += cValue;
+    //                var ExpenseCategory = $("input[name=ExpenseCategory]").eq(index).val();
+    //                objs = {
+    //                    InvoiceNo: '',
+    //                    Payer: custName,
+    //                    PaymentDate: $("#PaymentDate").data('daterangepicker').startDate.format('YYYY-MM-DD'),
+    //                    PaymentMenthod: $("#PaymentMenthod").val(),
+    //                    ToAccountNumber: $("#ChartOfAccountID").val(),
+    //                    PaymentAmount: accounting.unformat(cValue),
+    //                    PaymentDescription: $("#PaymentDescription").val(),
+    //                    ReceivedFromName: custName,
+    //                    StatusID: 10,
+    //                    BillingInvoiceID: 0,
+    //                    CustomerCode: $.trim($("#txtCustomerName_CID").val()),
+    //                    CustomerName: custName,
+    //                    PaymentID: 0,
+    //                    CustomerID: $.trim($("#txtCustomerName_CustomerID").val()),
+    //                    ChartOfAccountID: $("#ChartOfAccountID").val(),
+    //                    PaidByUserID: User_ID,
+    //                    PaidBy: User_Full_Name,
+    //                    SystemID: System_ID,
+    //                    WarehouseID: Warehouse_ID,
+    //                    DomainID: Domain_ID,
+    //                    CreateDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+    //                    ExpenseAccount: ExpenseCategory
+    //                };
+    //                OtherChargeInfos.push(objs);
+    //            }
+    //        });
+
+    //        TotalPayment = accounting.unformat(Payment + OtherCharge);            
+    //    }
+    //    else {
+    //        OtherCharge = 0;
+    //        ischeckedItems = true;
+    //        PaymentInfos = [];
+
+    //        $("input[name=ExpenseAmount]").each(function (index) {
+    //            var cValue = accounting.unformat($(this).val());
+    //            if (cValue != "") {
+    //                OtherCharge += cValue;
+    //                var ExpenseCategory = $("input[name=ExpenseCategory]").eq(index).val();
+    //                obj = {
+    //                    InvoiceNo: '',
+    //                    Payer: custName,
+    //                    PaymentDate: $("#PaymentDate").data('daterangepicker').startDate.format('YYYY-MM-DD'),
+    //                    PaymentMenthod: $("#PaymentMenthod").val(),
+    //                    ToAccountNumber: $("#ChartOfAccountID").val(),
+    //                    PaymentAmount: accounting.unformat(cValue),
+    //                    PaymentDescription: $("#PaymentDescription").val(),
+    //                    ReceivedFromName: custName,
+    //                    StatusID: 10,
+    //                    BillingInvoiceID: 0,
+    //                    CustomerCode: $.trim($("#txtCustomerName_CID").val()),
+    //                    CustomerName: custName,
+    //                    PaymentID: 0,
+    //                    CustomerID: $.trim($("#txtCustomerName_CustomerID").val()),
+    //                    ChartOfAccountID: $("#ChartOfAccountID").val(),
+    //                    PaidByUserID: User_ID,
+    //                    PaidBy: User_Full_Name,
+    //                    SystemID: System_ID,
+    //                    WarehouseID: Warehouse_ID,
+    //                    DomainID: Domain_ID,
+    //                    CreateDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+    //                    ExpenseAccount: ExpenseCategory
+    //                };
+    //                OtherChargeInfos.push(obj);
+    //            }
+    //        });
+
+    //        console.log(OtherCharge);
+    //    }
+
+    //    if (!ischeckedItems) {
+    //        OtherCharge = 0;
+    //        PaymentInfos = [];
+    //        OtherChargeInfos = [];
+    //        $("input[name=ExpenseAmount]").each(function (index) {
+    //            var cValue = accounting.unformat($(this).val());
+    //            if (cValue != "") {
+    //                OtherCharge += cValue;
+    //                //ExpenseCategory
+    //                var ExpenseCategory = $("input[name=ExpenseCategory]").eq(index).val();
+    //                obj = {
+    //                    InvoiceNo: '',
+    //                    Payer: custName,
+    //                    PaymentDate: $("#PaymentDate").data('daterangepicker').startDate.format('YYYY-MM-DD'),
+    //                    PaymentMenthod: $("#PaymentMenthod").val(),
+    //                    ToAccountNumber: $("#ChartOfAccountID").val(),
+    //                    PaymentAmount: accounting.unformat(cValue),
+    //                    PaymentDescription: $("#PaymentDescription").val(),
+    //                    ReceivedFromName: custName,
+    //                    StatusID: 10,
+    //                    BillingInvoiceID: 0,
+    //                    CustomerCode: $.trim($("#txtCustomerName_CID").val()),
+    //                    CustomerName: custName,
+    //                    PaymentID: 0,
+    //                    CustomerID: $.trim($("#txtCustomerName_CustomerID").val()),
+    //                    ChartOfAccountID: $("#ChartOfAccountID").val(),
+    //                    PaidByUserID: User_ID,
+    //                    PaidBy: User_Full_Name,
+    //                    SystemID: System_ID,
+    //                    WarehouseID: Warehouse_ID,
+    //                    DomainID: Domain_ID,
+    //                    CreateDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+    //                    ExpenseAccount: ExpenseCategory
+    //                };
+    //                OtherChargeInfos.push(obj);
+    //            }
+    //        });
+
+
+
+    //        console.log(OtherChargeInfos);
+    //    }
+
+    //    console.log(PaymentInfos.length);
+    //    console.log(PaymentInfos);
+    //    console.log(OtherChargeInfos);
+    //    Swal.close();
+    //    return;
+    //    if (PaymentInfos.length > 0 || OtherChargeInfos.length >0) {
+    //        var URL = "CustomerCenter/SaveChangePayment";
+    //        var DATA = { PaymentData: JSON.stringify(PaymentInfos), OtherChargeData: JSON.stringify(OtherChargeInfos) };
+
+    //        DoSaveChageAjaxForm("FrmAddCollection", URL, DATA, "", function (response) {
+    //            $("div.modal-footer button:eq(1)").click();
+    //            $("#Transaction-tab").click();
+    //            GetCustomerBalance(CustID);
+    //            Swal.close();
+    //        });
+    //    }
+    //}
+    function ChangeInvoiceType(e) {
+        var module = "";
+        // Get the value from the Kendo widget directly
+        var combo = $("#InvoiceType").data("kendoComboBox");
+        if (combo) {
+            module = combo.value();
+            // Fallback to text if value is empty
+            if (!module) module = combo.text();
+        }
+        var dropdown = $("#InvoiceType").data("kendoDropDownList");
+        if (dropdown) {
+            module = dropdown.value();
+            if (!module) module = dropdown.text();
+        }
+        // Last resort: try jQuery val
+        if (!module) {
+            module = $("#InvoiceType").val();
+        }
+
+        console.log("ChangeInvoiceType called, module = '" + module + "'");
+
+        if (module) {
+            $.ajax({
+                url: ServerRoot + "CustomerCenter/GetNextReceiptNumber",
+                type: 'GET',
+                data: { Module: module },
+                headers: { "Authorization": "Bearer " + access_Token },
+                success: function (response) {
+                    console.log("GetNextReceiptNumber response:", response);
+                    if (response && response.Number) {
+                        $("#RVNumber").val(response.Number);
+                        $("#RVNumber_PrefixOR").val(response.Prefix);
+                        // Trigger change to update any dependent logic
+                        $("#RVNumber").trigger("change");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching next number for module " + module + ": " + error);
+                }
+            });
+        }
+    }
+</script>
+

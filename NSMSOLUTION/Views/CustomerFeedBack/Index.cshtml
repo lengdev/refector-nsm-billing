@@ -1,0 +1,100 @@
+﻿@{ Layout = null; }
+<div class="row">
+    <div class="col">
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="customer-feedback-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Customer Feedback</a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedbackHistory();" class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="reportCustFeedback();" class="nav-link" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#custom-tabs-four-messages" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">Report</a>
+                    </li>
+                    <li id="lirst" class="nav-item" style="display:none">
+                        <a class="nav-link" id="custom-tabs-Result-messages-tab" data-toggle="pill" href="#custom-tabs-Result-messages" role="tab" aria-controls="custom-tabs-Result-messages" aria-selected="false">Result</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="custom-tabs-four-tabContent">
+                    <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                        <div id="divCustFeedback"></div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                        <div class="row"><div class="col">@Html.Raw(ViewBag.HistoryDateSearch)</div></div>
+                        <div id="divcustFeedbackHistory"></div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-four-messages" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
+                        <div class="row">
+                            <div class="col">
+                                @Html.Raw(ViewBag.DrawHTMLForm)
+                            </div>
+                        </div>
+                        <div id="divrepotcustfeedback"></div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-Result-messages" role="tabpanel" aria-labelledby="custom-tabs-Result-messages-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="divshowcustrst"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+
+<script>
+    var CustCode = "@ViewBag.CustomerCode";
+    $(function () {
+        $("#customer-feedback-tab").click(function (e) {
+            e.preventDefault();
+        });
+        LoadData("CustomerFeedBack/Feedback", function (response) {
+            $("#divCustFeedback").html(response);
+        });
+        if (CustCode != "") {
+            setTimeout(function () {
+                $("#Customer_Code_CID").val(CustCode).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("#Customer_Code_CID").blur();
+                var custID = $("#Customer_Code_CID_CustomerID").val();
+                var isFeedback = $("#Customer_Code_CID_IsFeedback").val();
+                if (isFeedback == "True") {
+                    $("#lirst").show();
+                    LoadData("CustomerFeedBack/ShowCustFeedbackResult?FeedbackID=0&CustomerID=" + custID, function (response) {                        
+                        $("#divshowcustrst").html(response);
+                    });
+                }
+            }, 1000);
+        }
+    });
+    function reportCustFeedback() {
+        var startDate = $("#DateSearch").data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = $("#DateSearch").data('daterangepicker').endDate.format('YYMMDD');
+        if ($("#DateSearch").val() == "") {
+            startDate = ""; endDate = "";
+        }
+        LoadData("CustomerFeedBack/ReportCustFeedback?startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            $("#divrepotcustfeedback").html(response);
+        });
+    }
+    function ShowCustFeedbackHistory() {
+        var startDate = $("#HistoryDateSearch").data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = $("#HistoryDateSearch").data('daterangepicker').endDate.format('YYMMDD');
+        if ($("#HistoryDateSearch").val() == "") {
+            startDate = ""; endDate = "";
+        }
+        LoadData("CustomerFeedBack/ShowCustFeedbackHistory?startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            $("#divcustFeedbackHistory").html(response);
+        });
+    }
+
+</script>

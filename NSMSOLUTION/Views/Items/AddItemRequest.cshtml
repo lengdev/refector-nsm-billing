@@ -1,0 +1,13 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    $(function() {
+        $('#NeedToApproval_NeedToApprovalUserID').on('change', function() {
+            var approvalId = $(this).val();
+            $('#IsRequestApprovalItemOut').val(approvalId == 0 ? 1 : 0);
+            $('#WaitingConfirmedReceivedStatus').val(approvalId == 0 ? 'Waiting Stock Confirm' : '');
+            $('#RequestApprovalItemOutStatus').val(approvalId == 0 ? 'Pending' : '');
+        }).trigger('change');
+    });
+</script>

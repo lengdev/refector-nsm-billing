@@ -1,0 +1,77 @@
+﻿namespace NSMSOLUTION.Models.EFCore.DataFields
+{
+    public class Item
+    {
+        public int ItemID { get; set; }
+        public int StockNameID { get; set; }
+        public string StockName { get; set; }
+        public int ItemTypeID { get; set; }
+        public string TypeName { get; set; }
+        public string ItemCode { get; set; }
+        public string ItemName { get; set; }
+        public int ItemSizeID { get; set; }
+        public string ItemSize { get; set; }
+        public int ItemBrandID { get; set; }
+        public string ItemBrand { get; set; }
+        public int ItemGroupID { get; set; }
+        public string ItemGroup { get; set; }
+        public string Barcode { get; set; }
+        public string SerialNumber { get; set; }
+        public string Model { get; set; }
+        public string SKU { get; set; }
+        public int UomID { get; set; }
+        public string UM { get; set; }
+        public int ReorderPoint { get; set; }
+        public int MaximumPoint { get; set; }
+        public int QTYOnHand { get; set; }
+        public int InventoryChartOfAccountID { get; set; }
+        public string InventoryAccountName { get; set; }
+        public string CreateBy { get; set; }
+        public System.DateTime CreateDate { get; set; }
+        public string DestinationFolder { get; set; }
+        public string AttachmentFile { get; set; }
+        public bool MaintainStock { get; set; }
+        public string MACAddress { get; set; }
+        public bool Notforselling { get; set; }
+        public string ItemDescription { get; set; }
+        public string ItemImage { get; set; }
+        public decimal? CostPrice { get; set; }
+        public int PurchaseChartOfAccountID { get; set; }
+        public string PurchaseChartOfAccount { get; set; }
+        public decimal? SellingPrice { get; set; }
+        public int SaleChartOfAccountID { get; set; }
+        public string SaleChartOfAccount { get; set; }
+        public double? Multiplier { get; set; }
+        public int ParentItemID { get; set; }
+        public bool IsHaveSubItem { get; set; }
+        public string Manufacturer { get; set; }
+        public bool ReturnableItem { get; set; }
+        public int OpeningStock { get; set; }
+        public decimal? OpeningStockRatePerUnit { get; set; }
+        public string ItemGroupName { get; set; }   
+        public int VendorID { get; set; }
+        public string VendorName { get; set; }
+        public string Reference_VendorName { get; set; }
+        public int ItemPriceID { get; set; }
+        public string Warehouse { get; set; }
+        public int WID { get; set; }
+        public string BaseOn { get; set; }
+        public string ItemExpirationDate { get; set; }
+        public int SystemID { get; set; }
+        public int WarehouseID { get; set; }
+        public string DomainID { get; set; }
+        public int ItemCodeSeq { get; set; }
+        public string OtherField { get; set; }
+        public bool IsUpdate { get; set; }
+        public System.DateTime UpdateDate { get; set; }
+        public string UpdateBy { get; set; }
+        public int ExpenseAccountID { get; set; }
+        public int IncomeAccountID { get; set; }
+        public int DeferredRevenueAccountID { get; set; }
+        public int OutputVATAccountID { get; set; }
+        public int InputVATAccountID { get; set; }
+        public int ARAccountID { get; set; }
+        public int SalesDiscountAccountID { get; set; }
+        public int PurchaseDiscountAccountID { get; set; }
+    }
+}

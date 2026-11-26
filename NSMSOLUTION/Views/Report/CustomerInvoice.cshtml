@@ -1,0 +1,246 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+@*<div id="TableGride"></div>
+<script>$(function () {
+        var kendoData_1716254362 = `"[{\"No\":1,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(148, 'CISP24-000654',0,10,'',false,this);\\\">CISP24-000654</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=148');\\\">UBL-013</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=148');\\\">Unit B1502</a>\",\"SaleName\":\"Tom Sophanara\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"120\",\"Unpaid\":\"0\",\"CustomerGroup\":\"SME\",\"CustomerID\":148,\"GrandTotal\":\"120\"},{\"No\":2,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(1880, 'CISP24-000655',0,10,'',false,this);\\\">CISP24-000655</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1880');\\\">081106</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1880');\\\">Ms. Rith Choulina</a>\",\"SaleName\":\"Kheang Khunlyden\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"90\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":1880,\"GrandTotal\":\"90\"},{\"No\":3,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(1340, 'CISP24-000656',0,10,'',false,this);\\\">CISP24-000656</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1340');\\\">PNHMC-100053</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1340');\\\">សុខ ធី</a>\",\"SaleName\":\"An Bunrith\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"15\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":1340,\"GrandTotal\":\"15\"},{\"No\":4,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(1377, 'CISP24-000657',0,10,'',false,this);\\\">CISP24-000657</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1377');\\\">KDLPH-100035</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=1377');\\\">ស៊ុន​ សោភ័ន</a>\",\"SaleName\":\"An Bunrith\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"15\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":1377,\"GrandTotal\":\"15\"},{\"No\":5,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2077, 'CISP24-000658',0,11,'',false,this);\\\">CISP24-000658</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2077');\\\">081118</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2077');\\\">sd</a>\",\"SaleName\":\"An Bunrith\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"230\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2077,\"GrandTotal\":\"230\"},{\"No\":6,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2078, 'CISP24-000659',0,10,'',false,this);\\\">CISP24-000659</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2078');\\\">081125</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2078');\\\">Test</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"105\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2078,\"GrandTotal\":\"105\"},{\"No\":7,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2078, 'CISP24-000660',0,10,'',false,this);\\\">CISP24-000660</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2078');\\\">081125</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2078');\\\">Test</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"90\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2078,\"GrandTotal\":\"90\"},{\"No\":8,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2079, 'CISP24-000661',0,10,'',false,this);\\\">CISP24-000661</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2079');\\\">081126</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2079');\\\">Test 15 M</a>\",\"SaleName\":\"Tom Sophanara\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"105\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2079,\"GrandTotal\":\"105\"},{\"No\":9,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2080, 'CISP24-000662',0,11,'',false,this);\\\">CISP24-000662</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2080');\\\">081127</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2080');\\\">Test 20 M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"135\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2080,\"GrandTotal\":\"135\"},{\"No\":10,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2081, 'CISP24-000663',0,11,'',false,this);\\\">CISP24-000663</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2081');\\\">081128</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2081');\\\">Test 30 M</a>\",\"SaleName\":\"Tom Sophanara\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"195\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2081,\"GrandTotal\":\"195\"},{\"No\":11,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2082, 'CISP24-000664',0,11,'',false,this);\\\">CISP24-000664</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2082');\\\">081129</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2082');\\\">Test 50 M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"620\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2082,\"GrandTotal\":\"620\"},{\"No\":12,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2083, 'CISP24-000665',0,11,'',false,this);\\\">CISP24-000665</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2083');\\\">081130</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2083');\\\">Test 60 M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"375\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2083,\"GrandTotal\":\"375\"},{\"No\":13,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2084, 'CISP24-000666',0,11,'',false,this);\\\">CISP24-000666</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2084');\\\">081131</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2084');\\\">Test 100 M</a>\",\"SaleName\":\"An Bunrith\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"615\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2084,\"GrandTotal\":\"615\"},{\"No\":14,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2079, 'CISP24-000667',0,10,'',false,this);\\\">CISP24-000667</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2079');\\\">081126</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2079');\\\">Test 15 M</a>\",\"SaleName\":\"Tom Sophanara\",\"Status\":\"<span class=\\\"badge bg-primary\\\">Paid</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"90\",\"Unpaid\":\"0\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2079,\"GrandTotal\":\"90\"},{\"No\":15,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2085, 'CISP24-000668',0,11,'',false,this);\\\">CISP24-000668</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2085');\\\">081132</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2085');\\\">Test New 15M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"105\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2085,\"GrandTotal\":\"105\"},{\"No\":16,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2086, 'CISP24-000669',0,11,'',false,this);\\\">CISP24-000669</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2086');\\\">120671</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2086');\\\">TestN20M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"135\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2086,\"GrandTotal\":\"135\"},{\"No\":17,\"InvoiceNo\":\"<a class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"PrintInvoice(2087, 'CISP24-000670',0,11,'',false,this);\\\">CISP24-000670</a>\",\"InvoiceDate\":\"20-05-2024\",\"PaymentDueDate\":\"20-05-2024\",\"CID\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2087');\\\">081133</a>\",\"CustomerName\":\"<a  class=\\\"text-primary\\\" href=\\\"javascript:void(0);\\\" onclick=\\\"OpenNewTap('#!/CustomerProfile?ID=2087');\\\">TestN30M</a>\",\"SaleName\":\"Pov SreyRoth\",\"Status\":\"<span class=\\\"badge bg-danger\\\">Over Due Payment</span>\",\"ClassName\":\"NSM ISP\",\"Paid\":\"0\",\"Unpaid\":\"195\",\"CustomerGroup\":\"FTTH\",\"CustomerID\":2087,\"GrandTotal\":\"195\"}]"`;
+        kendoData_1716254362 = JSON.parse(kendoData_1716254362.replace(/(^"|"$)/g, ''));
+        $("#TableGride").kendoGrid({
+            toolbar: ["excel", "pdf", "search"],
+            excel: { allPages: true },
+            excelExport: function (e) {
+                $("span.k-button-text").eq(0).html('Export...'); setTimeout(function () { $("span.k-button-text").eq(0).html('Export to Excel'); }, 1000); var rows = e.workbook.sheets[0].rows; for (var ri = 0; ri < rows.length; ri++) {
+                    var row = rows[ri];
+                    for (var ci = 0; ci < row.cells.length; ci++) {
+                        var cell = row.cells[ci]; cell.value = detectType(decodeEntities(cell.value));
+                    }
+                }
+            },
+            groupable: true,
+            selectable: "single",
+            resizable: true,
+            reorderable: true,
+            pageable: { alwaysVisible: true, pageSizes: [10, 20, 30, 50, 100, "All"], numeric: false },
+            columnMenu: { filterable: true },
+            filterable: true,
+            sortable: {
+                mode: "single",
+                allowUnsort: false
+            },
+            columns: [
+                {
+                    field: "No",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: right" },
+                    hidden: false,
+                    title: "No", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "InvoiceNo",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Invoice No", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "InvoiceDate",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Date", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "PaymentDueDate",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Due Date", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "GrandTotal",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: right" },
+                    attributes: { "class": "text-danger text-right" },
+                    hidden: false,
+                    title: "Amount", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "CID",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "CID", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "CustomerName",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Customer Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "CustomerGroup",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Group", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "SaleName",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Sale Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "Status",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: center" },
+                    hidden: false,
+                    title: "Status", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "ClassName",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: " },
+                    hidden: false,
+                    title: "Class Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    },
+                    footerTemplate: "Total : "
+                },
+                {
+                    field: "Paid",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: right" },
+                    attributes: { "class": "text-primary text-right" },
+                    hidden: false,
+                    title: "Paid", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    },
+                    type: "number",
+                    format: "{0:n}",
+                    //template: "#= kendo.toString(Paid, 'n2') #",
+                    //format: "{0:c2}",kendo.toString(number, "n")
+                    footerTemplate: "#: kendo.toString(sum,'n') #",
+                    footerAttributes: {"class":"text-right text-danger"}
+                },
+                {
+                    field: "Unpaid",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" }, attributes: { style: "text-align: right" },
+                    attributes: { "class": "text-danger text-right" },
+                    hidden: false,
+                    title: "Unpaid", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    },
+                    type: "number",
+                    format: "{0:n}",
+                    //template: "#= kendo.toString(Paid, 'n2') #",
+                    //format: "{0:c2}",kendo.toString(number, "n")
+                    footerTemplate: "#: kendo.toString(sum,'n') #",
+                    footerAttributes: { "class": "text-right text-danger" }
+                },
+            ],
+            dataSource: {
+                data: kendoData_1716254362,
+                aggregate: [{ field: "Paid", aggregate: "sum" },
+                    { field: "Unpaid", aggregate: "sum" }],
+                pageSize: 30,
+            },
+            dataBound: function (e) {
+                $('[title="Clear"]').remove();
+                var grid = $("#TableGride").data("kendoGrid");
+                setTimeout(function () {
+                    grid.autoFitColumn("No"); grid.autoFitColumn("InvoiceNo"); grid.autoFitColumn("InvoiceDate"); grid.autoFitColumn("PaymentDueDate"); grid.autoFitColumn("GrandTotal"); grid.autoFitColumn("CID"); grid.autoFitColumn("CustomerName"); grid.autoFitColumn("CustomerGroup"); grid.autoFitColumn("SaleName"); grid.autoFitColumn("Status"); grid.autoFitColumn("ClassName"); grid.autoFitColumn("Paid"); grid.autoFitColumn("Unpaid");
+                }, 200);
+            },
+        });
+        $("#TableGride").addClass('khmerFont1');
+});
+    </script>*@
+

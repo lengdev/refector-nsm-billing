@@ -1,0 +1,666 @@
+@{ Layout = null; }
+<style>
+    /* Ensure proper scrolling for the item list */
+    .scrollable-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        height: calc(100vh - 200px); /* Adjust height based on your layout (account for other elements like search box) */
+        overflow-y: auto; /* Enable vertical scroll */
+    }
+
+    /* Flex layout for the main layout */
+    #mypane, #vertical, #horizontal {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #horizontal {
+        display: flex;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Left and center panes */
+    /*#left-pane {
+        flex: 0 0 30%;
+        max-width: 30%;
+    }
+
+    #center-pane {
+        flex: 0 0 70%;
+        max-width: 70%;
+    }*/
+
+    .pane-content {
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    /* Ensure the sticky search box is within a scrollable container */
+    #itemList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        height: calc(100vh - 100px); /* Adjust based on your layout */
+        overflow-y: auto;        
+    }
+
+    .sticky-search {
+        position: sticky;
+        top: 0; /* Ensure it's stuck at the top of its container */
+        z-index: 10; /* Ensure it sits above other content */
+        background-color: white; /* Make sure the background is set so it is visible above other content */
+    }
+
+    .k-item {
+        padding: 8px;
+        cursor: pointer;
+        border-bottom: solid 1px #e8e5e5;
+    }
+
+        .k-item.k-state-selected {
+            background-color: #e0e0e0;
+        }
+</style>
+
+<div id="mypane">
+    <div id="vertical">
+        <div id="top-pane">
+            <div id="horizontal">
+                <div id="left-pane">
+                    <div class="pane-content">
+                        <div class="sticky-search">
+                            <input id="searchBox" class="form-control" placeholder="Press enter to search" />
+                        </div>
+                        <div class="pt-1">
+                            <ul id="itemList">
+                                <!-- Items will be listed here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="center-pane">
+                    <div class="pane-content">
+                        <section class="content" id="CustomerProfile">
+                            <div class="container-fluid" name="CustomerProfile" id="CustomerProfile">
+                                <div class="row khmerFont1">
+                                    <div class="col">
+                                        <div class="card card-widget widget-user p-1">
+                                            <div class="widget-user-header bg-danger p-1 m-0" style="height:180px !important;">
+                                                <div class="row g-2">
+                                                    <div class="col" id="CustInfo"></div>
+                                                    <div class="col" id="CustInfo-left"></div>
+                                                </div>
+                                            </div>
+                                            <div class="widget-user-image" style="z-index:2!important; margin-left:-65px; top:103px !important">
+                                                <div id="Cust_profilepic" class="profilepic elevation-2 bg-white" style="border:white 2px solid; border-top:none">
+                                                    <div class="profilepic__image">
+                                                        <i class="fa fa-8x fa-user-circle text-danger"></i>
+                                                    </div>
+                                                    <div class="profilepic__content" id="AddCustPicProfile" style="cursor:pointer">
+                                                        <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                                                        <span class="profilepic__text">Edit Profile</span>
+                                                    </div>
+                                                </div></div>
+                                            <div class="card-footer">
+                                                <div class="row">
+                                                    <div class="col-sm-3 border-right">
+                                                        <div class="description-block">
+                                                            <h5 class="description-header text-warning text-xl" id="TotalInv">0</h5>
+                                                            <span class="description-text text-uppercase">Total: <span id="CountInv">0</span></span>
+                                                        </div>
+                                                        <!-- /.description-block -->
+                                                    </div>
+                                                    <div class="col-sm-3 border-right">
+                                                        <div class="description-block">
+                                                            <h5 class="description-header text-primary text-xl" id="Paid">0</h5>
+                                                            <span class="description-text text-uppercase">Paid</span>
+                                                        </div>
+                                                        <!-- /.description-block -->
+                                                    </div>
+                                                    <!-- /.col -->
+                                                    <div class="col-sm-3 border-right">
+                                                        <div class="description-block">
+                                                            <h5 class="description-header text-info text-xl" id="Deposit">0</h5>
+                                                            <span class="description-text">Deposit</span>
+                                                        </div>
+                                                        <!-- /.description-block -->
+                                                    </div>
+                                                    <!-- /.col -->
+                                                    <div class="col-sm-3">
+                                                        <div class="description-block">
+                                                            <h5 class="description-header text-danger text-xl" id="Unpaid">0</h5>
+                                                            <span class="description-text">AR</span>
+                                                        </div>
+                                                        <!-- /.description-block -->
+                                                    </div>
+                                                    <!-- /.col -->
+                                                </div>
+                                                <!-- /.row -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card card-danger card-outline card-tabs">
+                                            <div class="card-header p-0 pt-1 border-bottom-0">
+                                                <ul class="nav nav-tabs" id="invoice_tab" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" id="Transcation_tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true">All Invices</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false">AR Invoice</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="custom-tabs-three-messages-tab" data-toggle="pill" href="#custom-tabs-three-messages" role="tab" aria-controls="custom-tabs-three-messages" aria-selected="false">Paid Invoice</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="Transaction-tab" data-toggle="pill" onclick="LoadTransaction();" href="#tabs-Transaction" role="tab" aria-controls="tabs-Transaction" aria-selected="false">Transaction</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="Receipt-tab" data-toggle="pill" onclick="LoadReceipt();" href="#tabs-Receipt" role="tab" aria-controls="tabs-Receipt" aria-selected="false">Receipt</a>
+                                                    </li>
+                                                    <li class="nav-item p-1">
+                                                        <a class="nav-link btn btn-sm btn-info p-1" onclick="AddCollection();" href="javascript:void(0);" role="tab">Payment</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="tab-content" id="custom-tabs-three-tabContent">
+                                                    <div class="tab-pane fade show active" id="custom-tabs-three-home" role="tabpanel" aria-labelledby="Transcation_tab">
+                                                        <div id="transactionsGrid"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
+                                                        <div id="DivCustInvoice"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="custom-tabs-three-messages" role="tabpanel" aria-labelledby="custom-tabs-three-messages-tab">
+                                                        <div id="showPaidInvoice"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="tabs-Transaction" role="tabpanel" aria-labelledby="tabs-Transaction">
+                                                        <div id="showTransaction"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="tabs-Receipt" role="tabpanel" aria-labelledby="tabs-Receipt">
+                                                        <div id="showReceipt"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- /.card -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var Cust_Name = "";
+    var Customer_ID = "";
+    var CustomerCode = "";
+    var grids = null;
+    var rowNumber = 0;
+    $(document).ready(function () {        
+        $("a[data-widget=pushmenu]").click();
+        $("#invoice_tab a").click(function (e) {
+            e.preventDefault();
+        });
+
+        setTimeout(function () {
+            LoadData("CustomerCenter/LoadCustomer", function (response) {
+                $("#vertical").kendoSplitter({
+                    orientation: "vertical",
+                    panes: [
+                        { collapsible: false }
+                    ]
+                });
+
+                $("#horizontal").kendoSplitter({
+                    panes: [
+                        { collapsible: true, size: "15%" },
+                        { collapsible: false, size: "85%" }
+                    ],
+                    height: "100%"  // Ensures the splitter height adjusts automatically
+                });
+
+                var items = JSON.parse(JSON.parse(response).Data);
+                renderList(items);
+                // Search functionality
+                $('#searchBox').on('input', function () {
+                    var keyword = $(this).val().trim().toLowerCase();
+                    var filtered = items.filter(item =>
+                        (item.CustomerName || '').toLowerCase().includes(keyword)
+                    );
+
+                    renderList(filtered);
+                });
+            });
+
+            Customer_ID = getFragmentParameterByName('id');
+            if (Customer_ID != null) {
+                $("#Transcation_tab").click();
+                LoadCustProfilePicture(Customer_ID);
+                LoadCustInfo(Customer_ID);
+                GetCustomerBalance(Customer_ID);
+            }
+        }, 500);
+        // Populate the list
+        function renderList(items) {
+            var $list = $('#itemList');
+            $list.empty();
+            items.forEach(function (item) {
+                $list.append('<li class="k-item" data-id="' + item.CustomerID + '">' + fullyDecodeHtml(item.CustomerName) + '</li>');
+            });
+            // rebind events
+            bindListEvents(items);
+        }
+        
+
+        function bindListEvents(data) {
+            $('#itemList .k-item').off('click').on('click', function () {
+                $('#itemList .k-item').removeClass('k-state-selected');
+                $(this).addClass('k-state-selected');
+
+                var selectedId = $(this).data('id');
+                var selectedItem = data.find(item => item.CustomerID === selectedId);
+
+                const newHash = `#!/customercenter?id=${selectedItem.CustomerID}`;
+                const currentURL = window.location.href.split('#')[0];
+                const newURL = `${currentURL}${newHash}`;
+                history.replaceState(null, '', newURL);
+
+                Cust_Name = fullyDecodeHtml(selectedItem.CustName);
+                Customer_ID = selectedItem.CustomerID;
+                CustomerCode = selectedItem.CustomerCode;
+
+                // Show loading alert
+                Swal.fire({
+                    title: 'Loading...',
+                    allowOutsideClick: false,
+                    position: 'top',
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                // Trigger default load
+                setTimeout(function () {
+                    $("#Transcation_tab").click();
+                    LoadCustProfilePicture(Customer_ID);
+                    LoadCustInfo(Customer_ID);
+                    GetCustomerBalance(Customer_ID);
+                }, 100);
+            });
+        }
+
+        $("#Transcation_tab").on('click', function () {
+            GetTransactions(Customer_ID);
+        });
+        $("#custom-tabs-three-messages-tab").on('click', function () {
+            LoadCustPaidInvoice(Customer_ID);
+        });
+        $("#custom-tabs-three-profile-tab").on('click', function () {
+            LoadCustInvoice(Customer_ID);
+        });
+    });
+
+    function getFragmentParameterByName(name) {
+        var hash = window.location.hash;
+        var match = hash.match(new RegExp('[?&]' + name + '=([^&]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function LoadCustProfilePicture(CustomerID) {
+        LoadData("CustomerProfile/LoadCustProfilePicture?ID=" + CustomerID, function (response) {
+            var data = JSON.parse(JSON.parse(response).data);
+            var CustomerProfilePicture = data[0].CustomerProfilePicture;
+            CustomerProfilePicture = (typeof CustomerProfilePicture == "undefined" ? "" : CustomerProfilePicture);
+            CustomerProfilePicture = (CustomerProfilePicture == null ? "" : CustomerProfilePicture);
+            var DestinationFile = data[0].DestinationFile;
+            var img = ServerRoot + DestinationFile + CustomerProfilePicture;
+            img = '<img class="profilepic__image" src="' + img + '" />';
+            var row = '<div>';
+            row += img;
+            row += '</div>';
+            row += "<div id=\"addCustPic\" class=\"profilepic__content\" style=\"cursor:pointer\">";
+            row += '<span class="profilepic__icon"><i class="fas fa-camera"></i> <i name="deletepiccust" class="far fa-trash-alt"></i> ';
+            row += '<a id="apreviewpropic" href="' + ServerRoot + DestinationFile + CustomerProfilePicture + '">';
+            row += '<i name="viewprofilepic" class="far fa-eye"></i>';
+            row += '</a></span>';
+            row += '<span class="profilepic__text">Edit Profile</span>';
+            row += '</div>';
+            if (CustomerProfilePicture != "") {
+                $("#Cust_profilepic").html(row);
+                baguetteBox.run('#apreviewpropic');
+            }
+            else {
+                row = '<div class="profilepic__image"><i class="fa fa-8x fa-user-circle text-danger"></i></div>';
+                row += '<div class="profilepic__content" id="addCustPic" style="cursor:pointer">';
+                row += '<span class="profilepic__icon"><i class="fas fa-camera"></i></span>';
+                row += '<span class="profilepic__text">Edit Profile</span></div>';
+                $("#Cust_profilepic").html(row);
+            }
+            $("#addCustPic").click(function (ev) {
+                elementClicked = $(ev.target);
+                var name = (typeof elementClicked.attr('name') == "undefined" ? "" : elementClicked.attr('name'));
+                if (name == "")
+                    AddCustomerAttachmentFile('AddCustomerProfilePic');
+                else if (name == "viewprofilepic") {
+
+                }
+                else {
+                    DialogSweetCofirm(function () {
+                        var URL = "CustomerProfile/SaveChangeCustomerProfilePicture";
+                        var DATA = {
+                            Data: JSON.stringify({ CustomerName: Cust_Name, CustomerID: Customer_ID, CustomerCode: CustomerCode })
+                        };
+                        DoSaveChangeData(URL, DATA);
+                        row = '<div class="profilepic__image"><i class="fa fa-8x fa-user-circle text-danger"></i></div>';
+                        row += "<div class=\"profilepic__content\" id=\"addCustPic\" onclick=\"AddCustomerAttachmentFile('AddCustomerProfilePic');\" style=\"cursor:pointer\">";
+                        row += '<span class="profilepic__icon"><i class="fas fa-camera"></i></span>';
+                        row += '<span class="profilepic__text">Edit Profile</span></div>';
+                        $("#Cust_profilepic").html(row);
+                    }, '', 'Do you to delete this file?');
+                }
+            });
+        });
+    }
+
+    function AddCustomerAttachmentFile(AddCustomerProfilePic) {
+        AddCustomerProfilePic = (typeof AddCustomerProfilePic == "undefined" ? "" : AddCustomerProfilePic)
+        var URL = "CustomerProfile/SaveChangeCustomerUploadFile";
+        var Title = "Add Attachment File to Customer";
+        if (AddCustomerProfilePic != "") {
+            URL = "CustomerProfile/SaveChangeCustomerProfilePicture";
+            Title = "Add Customer Profile Picture";
+        }
+        var PrimaryFieldValue = {
+            SaveOnItsForm: true,
+            CustomerName: Cust_Name,
+            CustomerID: Customer_ID,
+            URL: URL,
+            CustomerCode: CustomerCode,
+            TypeFor: "AttachmentFile"
+        };
+        var uri = "UploadFileForm?AllowOnlyImage=true&ShowAvatar=true";
+        if (AddCustomerProfilePic == "")
+            uri = "UploadFileForm";
+
+        ShowDialogBox2(Title, 700, 500, uri, PrimaryFieldValue, "DialogAddAttCustFile", function () {
+            $("#DialogAddAttCustFile").on('hide.bs.modal', function () {
+                if (AddCustomerProfilePic == "")
+                    LoadCustAttachmentFile(Customer_ID);
+                else
+                    LoadCustProfilePicture(Customer_ID);
+            });
+        });
+    }
+    function LoadCustInfo(CustomerID) {
+        LoadData("CustomerProfile/LoadCustInfo?ID=" + CustomerID, function (response) {
+            var CustInfo = JSON.parse(JSON.parse(response).data)[0];
+            Cust_Name = CustInfo.CustName;
+            CustomerCode = CustInfo.CustomerCode;
+            Customer_ID = CustomerID;
+            var row = '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="far fa-star"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerType + '</div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-user"></i></div>';
+            row += '<div class="col text-left"><label><a target="_blank" class="text-white" href="#!/CustomerProfile?ID=' + CustomerID +'">' + fullyDecodeHtml(CustInfo.CustomerName) + '</a></label></div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-phone"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerMobile + '</div>';
+            row += '</div>';
+            if (CustInfo.CustomerEmail != "") {
+                row += '<div class="row">';
+                row += '<div class="col-auto text-left"><i class="fa fa-envelope"></i></div>';
+                row += '<div class="col text-left">' + CustInfo.CustomerEmail + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-building"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.Address + '.</div>';
+            row += '</div>';
+            if (CustInfo.ATTName != "") {
+                row += '<div class="row">';
+                row += '<div class="col-auto text-left"><i class="fa-solid fa-user-tag"></i></div>';
+                row += '<div class="col text-left">ATT Name: ' + CustInfo.ATTName + '</div>';
+                row += '</div>';
+            }
+            $("div#CustInfo").html(row);
+            row = '';
+            if (CustInfo.IndustryType != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">Business Type:</div>';
+                row += '<div class="col-4 text-left">' + CustInfo.IndustryType + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Register Date:</div>';
+            row += '<div class="col-4 text-left">' + CustInfo.RegisterDate + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Register By:</div>';
+            row += '<div class="col-4 text-left">' + CustInfo.RegisterBy + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Nationality:</div>';
+            row += '<div class="col-4 text-left">' + CustInfo.CustomerNationality + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Identification / Passport No:</div>';
+            row += '<div class="col-4 text-left text-truncate" title="' + CustInfo.CustomerIdentification + '">' + CustInfo.CustomerIdentification + '</div>';
+            row += '</div>';
+            if (CustInfo.EmployeeName != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Sale's Name:" + '</div>';
+                row += '<div class="col-4 text-left text-nowrap">' + CustInfo.EmployeeName + '</div>';
+                row += '</div>';
+            }
+            if (CustInfo.ContactName != null && CustInfo.ContactName != "") {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Contact Name:" + '</div>';
+                row += '<div class="col-4 text-left">' + CustInfo.ContactName + '</div>';
+                row += '</div>';
+            }
+            $("div#CustInfo-left").html(row);
+        });
+    }
+    function GetCustomerBalance(CustomerID) {
+        LoadData("CustomerCenter/GetCustomerBalance?CustomerID=" + CustomerID, function (response) {
+            var data = JSON.parse(JSON.parse(response).Data);
+            Swal.close();
+            if (data) {
+                data = data[0];
+                var TotalInv = accounting.formatMoney(data.Total, '');
+                var CountInv = accounting.formatNumber(data.Invoice);
+                var paid = accounting.formatMoney(data.Paid, '');
+                var Deposit = accounting.formatMoney(data.DepositFee, '');
+                var AR = accounting.formatMoney(data.AR, '');
+                $("#TotalInv").html(TotalInv);
+                $("#CountInv").html(CountInv + ' invoice(s)');
+                $("#Paid").html(paid);
+                $("h5#Deposit").html(Deposit);
+                $("#Unpaid").html(AR);
+            }
+            
+        });
+    }
+
+    function GetTransactions(CustomerID) {
+        LoadData("CustomerCenter/GetTransactions?CustomerID=" + CustomerID, function (response) {
+            $("#transactionsGrid").html(response);
+        });
+        //grids = $("#transactionsGrid").kendoGrid({
+        //    dataSource: {
+        //        transport: {
+        //            read: {
+        //                url: "/CustomerCenter/GetTransactions",
+        //                dataType: "json",
+        //                type: "GET",
+        //                beforeSend: function (xhr) {
+        //                    xhr.setRequestHeader("Authorization", "Bearer " + access_Token);
+        //                },
+        //                data: function () {
+        //                    return {
+        //                        CustomerID: CustomerID,
+        //                        searchTerm: $('#searchInput').val()
+        //                    };
+        //                }
+        //            }
+        //        },
+        //        schema: {
+        //            data: "data",
+        //            total: "total"
+        //        },
+        //        pageSize: 20,
+        //        serverPaging: true,
+        //        serverFiltering: true
+        //    },
+        //    pageable: {
+        //        pageSizes: [10, 20, 50],
+        //        previousNext: true,
+        //        numeric: true
+        //    },
+        //    sortable: true,
+        //    resizable: true,
+        //    toolbar: ["excel"],
+        //    excel: {
+        //        fileName: "Transactions.xlsx",
+        //        allPages: true,
+        //        filterable: true
+        //    },
+        //    dataBinding: function () {
+        //        rowNumber = this.dataSource.pageSize() * (this.dataSource.page() - 1);
+        //    },
+        //    //dataBound: function () {
+        //    //    var grid = this;
+        //    //    for (var i = 0; i < grid.columns.length; i++) {
+        //    //        grid.autoFitColumn(i);
+        //    //    }
+        //    //},
+        //    columns: [
+        //        {
+        //            title: "#",
+        //            template: "#= ++rowNumber #"
+        //        },
+        //        { field: "TranType", title: "Type" },
+        //        { field: "TranDate", title: "Date" },
+        //        { field: "Number", title: "Invoice No" },
+        //        { field: "Amount", title: "Amount", format: "{0:c}" }
+        //    ]
+        //});
+
+        //$('#searchInput').on('input', function () {
+        //    $("#transactionsGrid").data("kendoGrid").dataSource.page(1);
+        //    $("#transactionsGrid").data("kendoGrid").dataSource.read();
+        //});
+    }
+
+    function LoadCustInvoice(CustomerID, PreviewInvoice) {
+        PreviewInvoice = typeof PreviewInvoice === "undefined" ? "" : PreviewInvoice;
+        Swal.fire({
+            title: 'Loading...',
+            allowOutsideClick: false,
+            position: 'top',
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        setTimeout(function () {
+            LoadData("CustomerProfile/LoadCustInvoice?ID=" + encodeURIComponent(CustomerID) + "&hideAction=true", function (response) {
+                Swal.close();
+                $("#DivCustInvoice").html(JSON.parse(response).data);
+
+                // Remove any existing listener to prevent duplicates
+                document.removeEventListener('click', handleInvoicePreviewClick);
+                document.addEventListener('click', handleInvoicePreviewClick);
+            });
+        }, 100);
+    }
+
+    // Put the click handler outside to avoid recreating it every time
+    function handleInvoicePreviewClick(e) {
+        if (e.target.name === "APreviewInv") {
+            e.preventDefault();
+        }
+    }
+    function LoadCustPaidInvoice(CustomerID) {
+        Swal.fire({
+            title: 'Loading...',
+            allowOutsideClick: false,
+            position: 'top',
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        setTimeout(function () {
+            LoadData("CustomerProfile/LoadCustPaidInvoice?ID=" + CustomerID, function (response) {
+                Swal.close();
+                $("#showPaidInvoice").html(JSON.parse(response).data);
+            });
+        }, 100);        
+    }
+
+    function AddCollection() {
+        var Unpaid = accounting.unformat($("#Unpaid").html());
+        //if (Unpaid == 0) {
+        //    DialogSweetAlert("error", "There is no AR available to make a payment.");
+        //    return true;
+        //}
+        if (Customer_ID == null) {
+            DialogSweetAlert("error", "Please select customer on the left side.");
+            return false;
+        }
+        ShowDialogBox2("Add Payment", "auto", "500", "CustomerCenter/AddCollection", Customer_ID);
+
+    }
+
+    function LoadTransaction() {
+        LoadData("CustomerProfile/LoadTransaction?CustomerID=" + Customer_ID, function (response) {
+            $("#showTransaction").html(JSON.parse(response).Data);
+        });
+    }
+
+    function LoadReceipt() {
+        LoadData("CustomerProfile/LoadReceipt?CustomerID=" + Customer_ID, function (response) {
+            $("#showReceipt").html(JSON.parse(response).Data);
+        });
+    }
+
+
+    function PreviewReceipt(paymentID, companyID, receiptNo, invoiceNo, systemID, warehouseID) {
+        paymentID   = (typeof paymentID   == "undefined" ? "0" : paymentID);
+        companyID   = (typeof companyID   == "undefined" ? "0" : companyID);
+        receiptNo   = (typeof receiptNo   == "undefined" ? "" : receiptNo);
+        invoiceNo   = (typeof invoiceNo   == "undefined" ? "" : invoiceNo);
+        systemID    = (typeof systemID    == "undefined" ? "" : systemID);
+        warehouseID = (typeof warehouseID == "undefined" ? "" : warehouseID);
+
+        var url = (typeof ServerRoot !== 'undefined' ? ServerRoot : '') + 'Payment/OfficialReceipt/?PaymentID=' + paymentID
+                + '&CompanyID='         + companyID
+                + '&OfficialReceiptNo=' + encodeURIComponent(receiptNo)
+                + '&InvoiceNo='         + encodeURIComponent(invoiceNo)
+                + '&SystemID='          + systemID
+                + '&WarehouseID='       + warehouseID;
+
+        var printWin = window.open(url, '_blank');
+        if (printWin) {
+            printWin.focus();
+        } else {
+            if (typeof DialogSweetAlert !== 'undefined') DialogSweetAlert('nopermission', 'Please allow popups.');
+            else alert('Please allow popups.');
+        }
+    }
+</script>
+
+
+

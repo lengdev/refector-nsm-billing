@@ -1,0 +1,65 @@
+﻿@using MVC;
+@{ Layout = null;}
+
+<div class="row aiz-pos-product-list c-scrollbar-light">
+    @{
+        HTML html = new HTML();
+        string imgpath = "", noimg = html.ServerRoot + "Content/images/placeholder.jpg", ItemName = "";
+        string[] img = null;
+        NSMSOLUTION.Controllers.Inventory.ItemsController itemsController = new NSMSOLUTION.Controllers.Inventory.ItemsController();
+        foreach (System.Data.DataRow dr in ViewBag.Item.Rows)
+        {
+            ItemName = dr["ItemName"].ToString();
+            int ItemID = int.Parse(dr["ItemID"].ToString());
+            System.Data.DataSet ds = itemsController.ItemDetail(ItemID);
+            <div class="col-auto mb-3">
+                <div class="slick-track" style="opacity: 1; transform: translate3d(0px, 0px, 0px);">
+                    <div class="slick-slide" style="width: 190px;">
+                        <div class="carousel-box has-transition hov-animate-outline hov-shadow-out border">
+                            <div class="px-3">
+                                <div class="aiz-card-box py-3 hov-scale-img" style="height:300px;">
+                                    <!-- Discount percentage tag -->
+                                    <span class="absolute-top-left bg-danger p-1 ml-1 mt-1 fs-11 fw-700 text-white text-center" style="padding-top:2px;padding-bottom:2px;">In Stock: @dr["InStock"].ToString()</span>
+                                    <div class="position-relative img-fit overflow-hidden">
+                                        <!-- Image -->
+                                        <a href="#!/ItemProfile?ID=@dr["ItemID"].ToString()" target="_blank" class="d-block">
+                                            @{
+                                                img = dr["ItemImage"].ToString().Split('~');
+                                                imgpath = html.ServerRoot + "Uploads/Items/" + img[0];
+                                                <img class="mx-auto img-fit has-transition ls-is-cached lazyloaded" src="@imgpath" alt="@ItemName" title="@ItemName" onerror="this.onerror=null;this.src='@noimg';">
+                                            }
+                                        </a>
+                                    </div>
+                                    <div class="">
+                                        <!-- Product name -->
+                                        <h3 class="fw-400 fs-13 text-truncate-2 lh-1-4 mb-0 text-center">
+                                            <a href="#!/ItemProfile?ID=@dr["ItemID"].ToString()" target="_blank" class="d-block text-reset hov-text-primary" title="@ItemName" tabindex="0">@ItemName</a>
+                                            @if (@dr["ItemSize"].ToString() != "")
+                                            {
+                                                <span class="fw-700" title="@dr["ItemSize"].ToString()">Size: @dr["ItemSize"].ToString()</span>
+                                            }
+                                        </h3>
+                                        <div class="fs-14 d-flex mt-3">
+                                            <!-- Previous price -->
+                                            <!-- price -->
+                                            <div class="">
+                                                @*<span class="fw-700 text-primary">$72.120</span>*@
+                                                @foreach (System.Data.DataRow dri in ds.Tables[0].Rows)
+                                                {
+                                                    if (@dri["ExpireDate"].ToString() != "")
+                                                    {
+                                                        <span class="fw-700 text-primary">Exp: @DateTime.Parse(dri["ExpireDate"].ToString()).ToString("dd-MM-yy") QTY: @dri["QTY"]</span>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

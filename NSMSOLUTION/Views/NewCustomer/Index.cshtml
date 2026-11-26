@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null;
+}
+
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+<script>
+    var CreateQuotation = "@ViewBag.CreateQuotation";
+    var FormStatusnewCust = "@ViewBag.FormStatus";
+    $(function () {
+        if (FormStatusnewCust == "quotation") {
+            var btn = '&nbsp;&nbsp;<button type="button" id="btnAddQuotation" class="btn btn-success" onclick="AddQuotation(';
+            btn += 1 + ');">';
+            btn += '<i class="far fa-address-book"></i> <span class="d-none d-md-inline">New Quot</span></button>';
+            $("#BunNewCustomer").after(btn);
+            $("#BunNewCustomer").hide();
+        }
+    });
+    function onGridClick_cust(THIS) {
+        //var url = window.location.hash;
+        //var FormStatus = url.substring(url.indexOf('?'));
+        //FormStatus = FormStatus.substring(FormStatus.indexOf('=')).replace(/=/g, '');
+        if ($(THIS).index() != 12 && $(THIS).index() != (FormStatusnewCust == 'quotation' ? 5 : 12)) {
+            let index = ($(THIS).parent().index() + 1);
+            let CustID = $("#TableGride_CustsQuotation tr:eq(" + index + ") td").eq(1).html();
+            let url = '#!/NewCustomerProfile?ID=' + CustID + "&ISSO=1" + "&isRegisterForm=" + (FormStatusnewCust == "" ? 0 : 1);
+            OpenNewTap(url);
+        }
+    }
+</script>

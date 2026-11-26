@@ -1,0 +1,439 @@
+﻿@{
+Layout = null;
+}
+
+<nav class="navbar sticky-top justify-content-end">
+    <div class="btn-group flex-wrap panel-toolbar gap-8 px-3 py-2" role="group">
+        <!-- Preview Buttons -->
+        <button id="PreviewContract" class="btn btn-dark btn-sm">
+            <i class="ti ti-eye"></i>
+            <span class="d-none d-md-inline">Preview Contract</span>
+        </button>
+
+        <button id="Preview_Invoice" class="btn btn-secondary btn-sm">
+            <i class="ti ti-file-invoice"></i>
+            <span class="d-none d-md-inline">Invoice</span>
+        </button>
+
+        <button id="Preview_ReceiptNo" class="btn btn-info btn-sm" style="display:none">
+            <i class="ti ti-file-invoice"></i>
+            <span class="d-none d-md-inline">Receipt</span>
+        </button>
+
+        <!-- Send Email Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"
+                aria-expanded="false">
+                <i class="ti ti-mail"></i>
+                <span class="d-none d-md-inline">Send Email</span>
+            </button>
+
+            <div class="dropdown-menu" role="menu">
+
+                <!-- Unpaid Invoice Email Options -->
+                <button class="dropdown-item" id="mail_invoice_created" onclick="sendEmail('mail_invoice_created')">
+                    Invoice Created
+                </button>
+
+                <button class="dropdown-item" id="mail_invoice_reminder" onclick="sendEmail('mail_invoice_reminder')">
+                    Invoice Payment Reminder
+                </button>
+
+                <button class="dropdown-item" id="mail_invoice_overdue" onclick="sendEmail('mail_invoice_overdue')">
+                    Invoice Overdue Notice
+                </button>
+
+                <!-- Paid Invoice Email Options -->
+                <button class="dropdown-item" id="mail_invoice_confirm" style="display:none"
+                    onclick="sendEmail('mail_invoice_confirm')">
+                    Payment Confirmation
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Payment Button -->
+        <button id="Make_Payment" class="btn btn-danger btn-sm">
+            <i class="ti ti-file-invoice"></i>
+            <span class="d-none d-md-inline">Payment</span>
+        </button>
+
+        <!-- PDF Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown"
+                aria-expanded="false">
+                <i class="ti ti-file-type-pdf"></i>
+                <span class="d-none d-md-inline">PDF</span>
+            </button>
+
+            <div class="dropdown-menu" role="menu">
+                <button id="View_PDF_Customer" class="dropdown-item">View PDF</button>
+                <button id="Download_PDF_Customer" class="dropdown-item">Download PDF</button>
+                <button id="Download_Excel_Customer" class="dropdown-item">Download Excel</button>
+            </div>
+        </div>
+
+        <!-- Other Actions -->
+        <button id="CloneInvoice" class="btn btn-sm btn-primary" title="Renew">
+            <i class="ti ti-recycle"></i>
+            <span class="d-none d-md-inline">Renew</span>
+        </button>
+
+        <button id="ToSaleOrder" class="btn btn-sm btn-success" style="display:none" title="To Sale Order">
+            <i class="ti ti-copy"></i>
+            <span class="d-none d-md-inline">To Sale Order</span>
+        </button>
+
+        <button id="PrintInv" class="btn btn-default btn-sm">
+            <i class="ti ti-printer"></i>
+            <span class="d-none d-md-inline">Print</span>
+        </button>
+
+    </div>
+</nav>
+
+<div id="div_CustInvoice" class="bg-white p-2">
+    @*<p id="bg-text">UNPAID</p>*@
+    <div id="divshowCustInvoice">
+        @Html.Raw(@ViewBag.InvoiceData)
+    </div>
+    <div id="divshowCustContract" style="display:none"></div>
+    <div id="divshowCustReceipt" style="display:none"></div>
+    @*<div style="padding:50px">&nbsp;</div>*@
+</div>
+
+<script>
+    var _InvoiceFileName = "@ViewBag.InvoiceFileName";
+    var ApprovalSaleOrder = "@ViewBag.ApprovalSaleOrder";
+    var Invoice_Type = "Invoice";
+    var ShowReceipt = "@ViewBag.ShowReceipt";
+    var CompanyID = "@ViewBag.CompanyID";
+    var PaymentID = "@ViewBag.PaymentID";
+    var ReceiptNo = "@ViewBag.ReceiptNo";
+    var PreviewContract = false;
+    var ContractData = "";
+    var InvoiceData = "";
+    //var TblInvoiceData = $("#CustInvoice table.table").parent().html();
+    var Data = "@ViewBag.Data";
+    Data = JSON.parse(Data.replace(/&quot;/ig, '"')).Data;
+    var Type = Data.Type;
+    var InvoiceType = Data.InvoiceType;
+    var TypeOfInvoice = Data.TypeOfInvoice;
+    var Cust_ID = Data.CustomerID;
+    var Inv_No = Data.InvoiceNo;
+    var Status_ID = Data.StatusID;
+    var InvoiceFileName = ServerRoot + Data.InvoiceFileName;
+    var FileName = Data.InvoiceFileName;
+    var PDF_FileName = Data.PDF_FileName;
+    var PNG_FileName = Data.PNG_FileName;
+    var NextInvoice_Date = Data.NextInvoiceDate;
+    var CustomerCode = Data.CustomerCode.trim();
+    var InvoiceStatusID = Data.InvoiceStatusID;
+    if (Status_ID == 10) { //(InvoiceType == "PaidInvoice") {
+        $("span[name=forUnpaidInvoice]").hide();
+        $("span[name=forPaidInvoice]").show();
+        $("#Make_Payment").hide();
+    }
+
+    var expireDate = typeof Data == "object" ? new Date(Data.EndDate) : null;
+    var customerType = typeof Data == "object" ? Data.ClassName : '';
+    var today = new Date();
+    var oneMonthAgo = today.setMonth(today.getMonth() - 1);
+    var isTerminated = expireDate < oneMonthAgo && customerType === "NSM";
+
+    //Data["TblInvoiceData"] = encodeURIComponent(TblInvoiceData);
+    var InvoiceNumber = "@ViewBag.InvoiceNumber";
+    var Preview_ReceiptNo = false;
+
+    $(function () {
+        var btn = "<div class=\"d-none\"><button type=\"button\" onclick=\"NewCustomerInvoice(" + Cust_ID + ");\" id=\"NewCustomerInvoice\" class=\"btn btn-primary\">";
+        btn += '<i class="ti ti-file-invoice"></i> New Invoice</button></div>';
+        $("#SaveChange2").before(btn);
+        if (Type != "ProformaInvoice") {
+            var btn = "<div class=\"mr-auto d-none\"><button type=\"button\" onclick=\"AddCreditNotes(" + Cust_ID + ",'" + Inv_No + "');\" id=\"AddCreditNotes\" class=\"btn btn-info\">";
+            btn += '<i class="ti ti-credit-card"></i> Add Credit Note</button></div>';
+            $("#SaveChange2").before(btn);
+        }
+        if (Status_ID == 20) {
+            $("#ToSaleOrder").show();
+            $("#Make_Payment").hide();
+            $("#CloneInvoice").attr("data-bs-original-title", "To Invoice");
+            $("#CloneInvoice").attr("data-original-title", "To Invoice");
+            $("#CloneInvoice").html('<i class="ti ti-copy"></i> To Invoice');
+            $("#CloneInvoice").click(function () {
+                /*$('[role="tooltip"]').remove();*/
+                //Edit_Tbl_Row("", "", Inv_No, false, NextInvoice_Date, Cust_ID, true);
+                RenewDialog(Cust_ID, Inv_No);
+            });
+            $("#ToSaleOrder").click(function () {
+                let obj = { PrimaryFieldValue: "0", InvoiceNo: Inv_No, CustomerID: Cust_ID, FormStatus: "CreateInvoice", ConnectionID: '', EditInvoice: false, IsRenew: false, ISSO: 2, ToSaleOrder: true };
+                AddQuotation(obj, "Customer Quotation to Sale Order");
+            });
+        }
+        else {
+            $("#CloneInvoice").click(function () {
+                $('[role="tooltip"]').remove();
+                //Edit_Tbl_Row("", "", Inv_No, true, NextInvoice_Date, Cust_ID);
+                RenewDialog(Cust_ID, Inv_No);
+            });
+        }
+        // Change:
+        // if (Type == "ProformaInvoice" || isTerminated) {
+        //     $("#CloneInvoice").hide();
+        // }
+        // To:
+        if (Type == "ProformaInvoice") {
+            $("#CloneInvoice").hide();
+        }
+        else if (Status_ID != 20 && Status_ID == 11) {
+            var btn = '<button type="button" onclick=CancelInvoice(); id="CancelInvoice" class="btn btn-outline-danger">';
+            btn += '<i class="ti ti-archive"></i> Void Invoice</button>';
+            $("#SaveChange2").before(btn);
+        }
+
+        setTimeout(function () {
+            if (ShowReceipt == "true") {
+                $("#Preview_ReceiptNo").click();
+            }
+        }, 200);
+        if (ReceiptNo != "") {
+            $("#CancelInvoice").hide();
+            $("#Preview_ReceiptNo").show();
+        }
+
+        if (Type == "Credit Notes") {
+            $("#Make_Payment").hide();
+            $("#CloneInvoice").hide();
+            Invoice_Type = "Credit Note";
+            $("#AddCreditNotes").parent().remove();
+        }
+
+        $("#View_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = CustomerCode;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response);
+            });
+            //window.open(InvoiceFileName, '_blank');
+            //CreatePDFfromHTML("div_CustInvoice", FileName);
+        });
+        $("#Download_Excel_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            ExportToExcel(HTMLData);
+        });
+        $("#Download_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = CustomerCode;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                let file_name = Invoice_Type + "-" + response.substring(response.lastIndexOf('/') + 1);
+                let link = document.createElement('a');
+                link.href = response;
+                link.download = file_name;
+                link.click();
+                link.remove();
+            });
+            //CreatePDFfromHTML("div_CustInvoice", FileName, "Download");
+        });
+        $("#Preview_Invoice").click(function () {
+            Invoice_Type = "Invoice";
+            $("#DownloadPDF").hide();
+            $("#DownloadImg").hide();
+            $("#divshowCustReceipt").hide();
+            if (InvoiceData != "") {
+                //$("#div_CustInvoice").html(InvoiceData);
+                $("#divshowCustContract").hide();
+                $("#divshowCustInvoice").show();
+            }
+            if (ReceiptNo == "") {
+                $("#CancelInvoice").show();
+            }
+            $("#NewCustomerInvoice").hide();
+            $("#AddCreditNotes").hide();
+            $("#CancelInvoice").hide();
+            $("#Make_Payment").remove();
+            $("#CloneInvoice").remove();
+        });
+        $("#PreviewContract").click(function () {
+            Invoice_Type = "Contract";
+            $("#divshowCustReceipt").hide();
+            $("#CancelInvoice").hide();
+            var PrimaryFieldValue = {
+                PrimaryFieldValue: JSON.stringify({
+                    PrimaryFieldValue: (Status_ID == 20 ? 1 : 0),
+                    InvoiceNo: Inv_No,
+                    CustomerID: Cust_ID,
+                    FormStatus: "CreateInvoice",
+                    IsPreviewContract: "True"
+                })
+            };
+            if (!PreviewContract) {
+                //showToast();
+                PostData("AddCustomer/CreateCustomer", PrimaryFieldValue, function (response) {
+                    if (InvoiceData == "")
+                        InvoiceData = $("#div_CustInvoice").html();
+                    ContractData = response;
+                    //$("#div_CustInvoice").html(ContractData);
+                    $("#divshowCustContract").html(ContractData);
+                    $("#divshowCustContract").show();
+                    $("#divshowCustInvoice").hide();
+                    PreviewContract = true;
+                });
+            }
+            else {
+                $("#DownloadPDF").show();
+                $("#DownloadImg").show();
+                $("#divshowCustContract").show();
+                $("#divshowCustInvoice").hide();
+                //$("#div_CustInvoice").html(ContractData);
+            }
+        });
+        $("#PrintInv").click(function () {
+            Invoice_Type = "Invoice";
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = _InvoiceFileName;
+            let scale = TypeOfInvoice == "VAT" ? 0.93 : 1;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response, "", true);
+            }, undefined, scale);
+        });
+
+        $("#Preview_ReceiptNo").click(function () {
+            Invoice_Type = "Receipt";
+            if (InvoiceData == "")
+                InvoiceData = $("#div_CustInvoice").html();
+            $("#DownloadPDF").hide();
+            $("#DownloadImg").hide();
+            $("#CancelInvoice").hide();
+            if (!Preview_ReceiptNo) {
+                Preview_ReceiptNo = true;
+                var url = "Payment/OfficialReceipt/?PaymentID=" + PaymentID + "&CompanyID=" + CompanyID + "&OfficialReceiptNo=" + ReceiptNo + "&InvoiceNo=" + InvoiceNumber + "&SystemID=0&WarehouseID=0&GetContainerSection=True";
+                LoadData(url, function (responetext) {
+                    $("#divshowCustInvoice").hide();
+                    $("#divshowCustContract").hide();
+                    $("#divshowCustReceipt").show();
+                    $("#divshowCustReceipt").html(responetext);
+                });
+            }
+            else {
+                $("#divshowCustInvoice").hide();
+                $("#divshowCustContract").hide();
+                $("#divshowCustReceipt").show();
+            }
+        });
+        if (Type == "Sale Order Invoice") {
+            $("#NewCustomerInvoice").hide();
+            $("#AddCreditNotes").hide();
+            $("#CancelInvoice").hide();
+            $("#Make_Payment").remove();
+            $("#CloneInvoice").remove();
+            if (InvoiceStatusID != 90) {
+                if (InvoiceStatusID != 94) {
+                    var btn = "";
+                    if (ApprovalSaleOrder == "True") {
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"cancelPI()\" id=\"cancelPi\" class=\"btn btn-danger\">";
+                        btn += '<i class="fa-regular fa-circle-xmark"></i> Cancel</button></div>';
+                        $("#SaveChange2").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"Edit_Tbl_Row('', '', '" + Inv_No + "', false, '', " + Cust_ID + ", true,'','" + Type + "');\" id=\"NewCustomerInvoice\" class=\"btn btn-primary\">";
+                        btn += '<i class="fa-sharp fa-regular fa-ballot-check"></i> Approve</button></div>';
+                        $("#SaveChange2").before(btn);
+                    } else {
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"cancelPI()\" id=\"cancelPi\" class=\"btn btn-danger\">";
+                        btn += '<i class="fa-regular fa-circle-xmark"></i> Cancel</button></div>';
+                        $("#SaveChange2").before(btn);
+                    }
+                }
+            }
+        }
+        var h = accounting.unformat(accounting.formatNumber($("#divshowCustInvoice").height(), ''));
+        //console.log(h);
+        if (h > 1626) {
+            $("footer").css("cssText", "position: static !important;");
+        }
+    });
+    function cancelPI() {
+        DoSaveChangeSweetCofirm("SaleOrder/CancelPI", { invoiceNo: Inv_No, customerId: Cust_ID, comment: $("#txtComment").val() },
+            function (result) {
+                //console.log(result)
+                if (result.Result == 2) {
+                    $("#CloseModal2").click();
+                    $("#BunSearch").click();
+                    LoadTableGrid(CurrentPage);
+                }
+            }, "", "", "Cancel This PI");
+    }
+    function sendEmail(EmailType) {
+        var URL = ServerRoot + "SendEmail?InvoiceNo=" + InvoiceNumber;
+        //CreatePDFfromHTML("div_CustInvoice", FileName, "", function (imgData, pdfData) {
+        //imgAttachmentFile = base64ToBlob(imgData);
+        //Data["pdfData"] = pdfData;
+        //Data["imgData"] = imgData;
+        //ImgData_PDFData_SendMail["pdfData"] = pdfData;
+        //ImgData_PDFData_SendMail["imgData"] = imgData;
+        Data["EmailType"] = EmailType;
+        let HTMLData = $("#div_CustInvoice").html();
+        let FileName = CustomerCode;
+        HTMLDataToPDF(HTMLData, FileName, function (response) {
+            response = JSON.parse(response).Data;
+            let OutPutFile = response.OutPutFile;
+            let OutPutUrlFile = response.OutPutUrlFile;
+            let OutPutUrlImg = response.OutPutUrlImg;
+            Data["PDF_FileName"] = OutPutUrlFile;
+            Data["PNG_FileName"] = OutPutUrlImg;
+            Data["InvoiceFileName"] = OutPutFile;
+            ShowDialogBox("Send Customer Invoice", 900, 500, URL, Data, "Dialog_SendMail", "", "", "", function (response) {
+                var row = '<i class="ti ti-mail"></i> Send E-mail';
+                $("#SaveChange2").html(row);
+            });
+        }, 'True');
+
+
+        //}, 5, "getPDF");
+    }
+
+    function CancelInvoice() {
+        //InvoiceNumber
+        var URL = "CustomerInvoice/CancelInvoice";
+        var Data = { InvoiceNo: InvoiceNumber };
+        DoSaveChangeSweetCofirm(URL, Data, function (result) {
+            LoadCustInvoice(Cust_ID);
+            $("#CloseModal2").click();
+            //FOR DMC
+            //let DT = JSON.parse(result.Data).Table;
+            //PostData("CustomerInvoice/UploadCancelInvoice", { Data: JSON.stringify(DT[0]) });
+        }, "", "Void this Invoice No: " + InvoiceNumber + "? <br /><br /> You won't be able to revert this!", "Do it now!");
+
+        //DoSaveChangeSweetCofirm(URL, Data, function (result) {
+        //    LoadCustInvoice(Cust_ID);
+        //    $("#CloseModal").click();
+        //}, "", "Void this Invoice No: " + InvoiceNumber + "? <br /><br /> You won't be able to revert this!");
+    }
+    var hidSignature = false;
+    $("img#Signature").parent().click(function () {
+        if (!hidSignature) {
+            $("img#Signature").css("visibility", "hidden");
+            hidSignature = true
+        }
+        else {
+            hidSignature = false;
+            $("img#Signature").css("visibility", "visible");
+        }
+    });
+</script>
+@*<canvas id='canvas'></canvas>
+<script>
+    var img = new Image();
+    img.src = 'http://www.javascripture.com/pic.jpg';
+    //img.onload = function () {
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Draw the Watermark
+    context.font = '48px sans-serif';
+    context.globalCompositeOperation = 'lighter';
+    context.fillStyle = 'red';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText('watermark', canvas.width / 2, canvas.height / 2);
+    //};
+</script>*@

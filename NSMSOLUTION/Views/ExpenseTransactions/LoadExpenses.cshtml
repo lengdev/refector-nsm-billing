@@ -1,0 +1,63 @@
+﻿@{ Layout = null; }
+<link rel="stylesheet" href="@Url.Content("~/Content/ExpenseAccountingUI/expense-entry.css")" />
+<script src="@Url.Content("~/Scripts/ExpenseAccountingUI/expense-entry.js")"></script>
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    //function Check(ExpenseID, Status, ExpenseType, PaymentNo) {
+    //    var Data = { ExpenseID: ExpenseID, Status: Status, ExpenseType: ExpenseType, PaymentNo: PaymentNo };
+    //    DoSaveChangeSweetCofirm("Expenses/Check", Data, function (response) {
+    //        $("#BunSearch").click();
+    //        $("#CloseModal2").click();
+    //    });
+    //}
+    //function showPaymentVoucher(ExpenseID, No, Status) {
+    //    ShowDialogBox(`Payment Voucher: ${No}`, "Auto", 500, "Expenses/PrintVoucher/?id=" + ExpenseID, 0, "", false, 0, 0,
+    //        function () {
+    //            if (Status == 'Draft') {
+    //                var btn = `<button type="button" id="btnCheck" onclick="check('Checked',${ExpenseID})" class="btn btn-outline-primary me-2">`;
+    //                btn += '<i class="ti ti-check me-1"></i>Check</button>';
+    //                $("#SaveChange").before(btn);
+
+    //                btn = `<button type="button" id="btnReject" onclick="check('Rejected',${ExpenseID})" class="btn btn-outline-danger me-2">`;
+    //                btn += '<i class="ti ti-x me-1"></i>Reject</button>';
+    //                $("#SaveChange").before(btn);
+    //            }
+    //            $("#SaveChange").html(`<i class="ti ti-printer" aria-hidden="true"></i> Print`);
+    //            $("#SaveChange").click(function () {
+    //                printVoucher(ExpenseID)
+    //                //$(".voucher-container").printThis({
+    //                //    title: "Payment Voucher",
+    //                //    //deferred: $.Deferred().done(function () {
+    //                //    //  window.close();
+    //                //    //})
+    //                //});
+    //            });
+    //        });
+    //}
+    //function printVoucher(id) {
+    //    //sendVoucherToTelegram(id);
+    //    window.open('/Expenses/PrintVoucherPdf?id=' + id, '_blank');
+    //}
+
+    function sendVoucherToTelegram(id) {
+
+        $.ajax({
+            url: '/Expenses/SendVoucherToTelegram',
+            type: 'POST',
+            data: { id: id },
+            success: function (response) {
+
+                if (response.success) {
+                    alert("✅ Voucher sent to Telegram successfully.");
+                } else {
+                    alert("❌ " + response.message);
+                }
+
+            },
+            error: function () {
+                alert("❌ Error sending voucher.");
+            }
+        });
+
+    }
+</script>

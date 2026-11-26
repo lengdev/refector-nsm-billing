@@ -1,0 +1,212 @@
+﻿@using System.Linq
+@using NSMSOLUTION.Models.EFCore.DataFields
+@using NSMSOLUTION.Models.EFCore
+@{
+Layout = null;
+
+// set by ReportARDailyForm
+var rows = ((List<CollectionDto>)ViewBag.ARData)
+  .OrderBy(x => x.ReceivedDate)
+  .ThenBy(x => x.ReceiptNo)
+  .ToList();
+
+  var companyInfo = ViewBag.CompanyInfo; // TblCompany (can be null)
+  var classInfo = ViewBag.ClassInfo; // TblClass (can be null)
+
+  string title = (string)ViewBag.ReportTitle ?? "Daily";
+  DateTime fromDate = (DateTime)ViewBag.FromDate;
+  DateTime toDate = (DateTime)ViewBag.ToDate;
+  bool oneDay = fromDate == toDate;
+
+  string className = classInfo == null ? "" : (string)classInfo.ClassName;
+  bool isNsm = className == "NSM";
+
+  Func<DateTime?, string> fmt = x => x.HasValue ? x.Value.ToString("dd-MMM-yyyy") : "";
+    Func<decimal, string> money = x => x.ToString("$ #,##0.00");
+
+      decimal totalBalance = rows.Sum(x => x.Balance);
+      decimal grandTotal = rows.Sum(x => x.Amount);
+      }
+      <style>
+        * {
+          padding: 0;
+          margin: 0;
+        }
+
+        .ar-daily {
+          font-family: Inter, 'Khmer OS Siemreap' !important;
+          padding: 48px 19px 10px;
+          width: 100%;
+        }
+
+        p {
+          font-size: 25px;
+          line-height: 0.9;
+        }
+
+        img {
+          height: 120px;
+          width: auto;
+        }
+
+        .data-table table {
+          width: 100% !important;
+          margin-top: 32px;
+        }
+
+        .data-table table thead tr th {
+          white-space: nowrap;
+          border: 1px solid #000000 !important;
+          background: #ee8c2b;
+          color: white;
+        }
+
+        .data-table table tr td {
+          white-space: nowrap;
+          border: 1px solid #000000 !important;
+          border-collapse: collapse;
+        }
+
+        .ar-header {
+          display: grid;
+          grid-template-columns: 150px 1fr;
+          align-items: center;
+          position: relative;
+          min-height: 150px;
+        }
+
+        .report-date {
+          position: absolute;
+          right: 10px;
+          bottom: 0;
+          color: darkred;
+          font-style: italic;
+          font-size: 22px;
+        }
+
+        .footer {
+          text-align: right;
+          font-style: italic;
+          font-weight: bold;
+          color: darkred;
+        }
+
+        .subtotal {
+          text-align: right;
+          font-style: italic;
+          font-weight: bold;
+          background: #fdf1e3;
+        }
+
+        @@media print {
+          @@page {
+            size: A3 landscape;
+          }
+
+          body {
+            display: block;
+          }
+        }
+      </style>
+
+      <div class="ar-daily">
+        <div class="row ar-header">
+          <div class="col-1">
+            @if (classInfo != null)
+            {
+            <img src="../Uploads/ClassLogo/@classInfo.FileLogo" alt="Logo" />
+            }
+          </div>
+          <div class="col-11 head-title">
+            <div class="text-center">
+              <p style="font-family: 'Moul'; font-size: 30px !important">@(isNsm && companyInfo != null ?
+                companyInfo.CompanyNameKH : "ក្រុមហ៊ុន​ អិនអេសអឹម អាយអេសភី")</p>
+              <p style="font-family: 'Times New Roman'; font-size: 25px !important">@(isNsm && companyInfo != null ?
+                companyInfo.CompanyName : "NSM INTERNET SERVICE PROVIDER")</p>
+              <p>~~~~~~~~~~~~~~</p>
+              <p>Report Income @title @className</p>
+            </div>
+          </div>
+          <p class="report-date">
+            @if (oneDay)
+            {
+            @fromDate.ToString("dd/MM/yyyy")
+            }
+            else
+            {
+            @(fromDate.ToString("dd/MM/yyyy") + " - " + toDate.ToString("dd/MM/yyyy"))
+            }
+          </p>
+        </div>
+
+        <div class="data-table">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th>No.</th>
+                <th>Paid Date</th>
+                <th>Receipt No.</th>
+                <th>Invoice No.</th>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Account Name</th>
+                <th>Memo</th>
+                <th>Balance</th>
+                <th>Amount</th>
+                <th>Paid By</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (rows.Count > 0)
+              {
+              int rowNum = 1;
+
+              // one-day report: a single list. Weekly / monthly: grouped by paid date with a subtotal per day.
+              foreach (var day in rows.GroupBy(x => x.ReceivedDate.HasValue ? x.ReceivedDate.Value.Date :
+              DateTime.MinValue))
+              {
+              foreach (var row in day)
+              {
+              <tr>
+                <td class="text-right">@rowNum</td>
+                <td>@fmt(row.ReceivedDate)</td>
+                <td>@row.ReceiptNo</td>
+                <td>@row.InvoiceNo</td>
+                <td>@row.Customer</td>
+                <td>@row.Class</td>
+                <td>@row.Account</td>
+                <td>@row.Memo</td>
+                <td class="text-right">@money(row.Balance)</td>
+                <td class="text-right">@money(row.Amount)</td>
+                <td>@row.ReceivedBy</td>
+              </tr>
+              rowNum++;
+              }
+
+              @*if (!oneDay)
+              {
+              <tr class="subtotal">
+                <td colspan="9" class="text-right">Subtotal @(day.Key == DateTime.MinValue ? "" :
+                  day.Key.ToString("dd/MM/yyyy")):</td>
+                <td class="text-right">@money(day.Sum(x => x.Amount))</td>
+              </tr>
+              }*@
+              }
+
+              <tr class="footer">
+                <td colspan="8" class="text-right">Total Amount @(isNsm ? "NSM" : "ISP"):</td>
+                <td class="text-right">@money(totalBalance)</td>
+                <td class="text-right">@money(grandTotal)</td>
+                <td></td>
+              </tr>
+              }
+              else
+              {
+              <tr>
+                <td colspan="11" class="text-danger text-center">No Data</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>

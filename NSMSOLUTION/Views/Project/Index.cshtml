@@ -1,0 +1,11 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    var ProjectID = 0;
+    function showUserProject(ProjectID) {
+        ShowDialogBox("Member Project", "Auto", "500", "Project/Project?ProjectID=" + ProjectID, 0, "dialogShowUserProject", "", "", "", function () {
+            $("#SaveChange").remove();
+        });
+    }
+    
+</script>

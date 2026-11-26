@@ -1,0 +1,192 @@
+@using System.Data
+@using System.Linq
+@{
+    Layout = null;
+    var dtARData = ViewBag.ARData as DataTable ?? new DataTable();
+    var ARData = dtARData.AsEnumerable().ToList();
+
+    Func<string, string> StripHtml = input =>
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+        var clean = System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", "");
+        var khmerMatch = System.Text.RegularExpressions.Regex.Match(clean, @"[\u1780-\u17FF].*");
+        if (khmerMatch.Success)
+        {
+            return khmerMatch.Value.Trim();
+        }
+        return clean.Trim();
+    };
+
+    var targetClassName = ViewBag.TargetClassName as string;
+    var groupedData = ARData
+        .Where(r => r.Table.Columns.Contains("ClassName")
+            && r["ClassName"] != DBNull.Value
+            && !string.IsNullOrWhiteSpace(r["ClassName"].ToString()))
+        .GroupBy(r => r["ClassName"].ToString().Trim())
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    var displayList = groupedData.Select(g => new { Key = g.Key, Rows = g.AsEnumerable() }).ToList();
+    if (!displayList.Any() && !string.IsNullOrEmpty(targetClassName))
+    {
+        displayList.Add(new { Key = targetClassName, Rows = Enumerable.Empty<DataRow>() });
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Khmer&family=Moul&family=Inter:wght@400;700&display=swap');
+        @@page { size: A3 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #ffffff; color: #000; }
+        .unpaid-report { font-family: Inter, 'Khmer OS Siemreap' !important; padding: 48px 19px 10px; width: 100%; }
+        p { font-size: 25px; line-height: 0.9; }
+        img { max-width: 100%; max-height: 150px; width: auto; height: auto; object-fit: contain; }
+        .kh { font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer', sans-serif !important; }
+        .kh-body { font-family: 'Khmer OS Siemreap', 'Khmer', sans-serif !important; }
+        .unpaid-header { position: relative; width: 100%; min-height: 160px; }
+        .logo-container { position: absolute; left: 0; top: 0; width: 280px; height: 150px; display: flex; align-items: center; justify-content: center; }
+        .report-title { text-align: center; }
+        .report-date { position: absolute; right: 10px; bottom: 0; color: darkred; font-style: italic; font-size: 22px; }
+        .data-table table { width: 100% !important; margin-top: 32px; border-collapse: collapse; }
+        .data-table table thead tr th { white-space: nowrap; border: 1px solid #000000 !important; background: #ee8c2b; color: white; padding: 12px 6px; }
+        .data-table table tr td { white-space: nowrap; border: 1px solid #000000 !important; padding: 12px 6px; vertical-align: middle; }
+        .text-right { text-align: right !important; }
+        .text-center { text-align: center !important; }
+        .footer-row td { font-weight: bold; color: darkred; font-style: italic; }
+        .no-data { text-align: center; color: darkred; padding: 24px; }
+        .page-break { page-break-after: always; }
+    </style>
+</head>
+<body>
+
+@if (!displayList.Any())
+{
+    <div class="no-data">No Data</div>
+}
+else
+{
+    if (!groupedData.Any())
+    {
+        <!-- No data available for @targetClassName -->
+    }
+
+    int groupIndex = 0;
+    foreach (var group in displayList)
+    {
+        bool isISP = group.Key.IndexOf("ISP", StringComparison.OrdinalIgnoreCase) >= 0;
+        string className   = group.Key;
+        string logoUrl     = isISP ? "../Content/CompanyLogo/NSM-ISPLogo.png" : "../Content/CompanyLogo/NSM Logo_803417095.png";
+        string companyKh   = isISP
+            ? "ក្រុមហ៊ុន អិនអេសអឹម អាយអេសភី"
+            : "ក្រុមហ៊ុន អិនអេសអិម សឹលូសិន អេន មេថឹណិន ឯ.ក";
+        string companyEn   = isISP ? "NSM INTERNET SERVICE PROVIDER" : "NSM SOLUTION AND MAINTENANCE CO., LTD";
+        string reportTitle = isISP ? "Receivables Report of NSM ISP" : "Receivables Report of NSM";
+
+        decimal classTotal = 0m;
+        foreach (var r in group.Rows)
+        {
+            decimal v = 0m;
+            if (r.Table.Columns.Contains("GrandTotal") && r["GrandTotal"] != DBNull.Value)
+            {
+                decimal.TryParse(r["GrandTotal"].ToString().Replace(",", ""), out v);
+            }
+            classTotal += v;
+        }
+
+        <div class="unpaid-report">
+            <div class="row unpaid-header">
+                <div class="logo-container">
+                    <img src="@logoUrl" alt="Logo" onerror="this.style.display='none'" />
+                </div>
+                <div class="text-center" style="width: 100%; padding-top: 10px;">
+                    <p style="font-family: 'Moul'; font-size: 30px !important">@companyKh</p>
+                    <p style="font-family: 'Times New Roman'; font-size: 25px !important">@companyEn</p>
+                    <p>~~~~~~~~~~~~~~</p>
+                    <p>@reportTitle</p>
+                </div>
+                <p class="report-date">@DateTime.Now.ToString("dd/MM/yyyy")</p>
+            </div>
+
+            <div class="data-table">
+                <table class="table">
+                    <thead>
+                        <tr class="text-center">
+                            <th style="width: 60px">No.</th>
+                            <th style="width: 150px">Invoice No.</th>
+                            <th style="width: 110px">Date</th>
+                            <th style="width: 110px">Due Date</th>
+                            <th style="width: 300px; word-wrap: break-word;">Customer Name</th>
+                            <th style="width: 120px">Amount</th>
+                            <th style="width: auto;">Remark </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (group.Rows.Any())
+                        {
+                            int rowNumber = 1;
+                            foreach (var row in group.Rows.OrderBy(r => r.Table.Columns.Contains("InvoiceNo") && r["InvoiceNo"] != DBNull.Value ? r["InvoiceNo"].ToString() : ""))
+                            {
+                                string invoiceNo   = StripHtml(row["InvoiceNo"]?.ToString() ?? "");
+                                string invoiceDate = row["InvoiceDate"] != DBNull.Value
+                                    ? Convert.ToDateTime(row["InvoiceDate"]).ToString("dd/MM/yyyy") : "";
+                                string dueDate     = "";
+                                if (row.Table.Columns.Contains("PaymentDueDate") && row["PaymentDueDate"] != DBNull.Value)
+                                {
+                                    dueDate = Convert.ToDateTime(row["PaymentDueDate"]).ToString("dd/MM/yyyy");
+                                }
+                                else if (row.Table.Columns.Contains("EndDate") && row["EndDate"] != DBNull.Value)
+                                {
+                                    dueDate = Convert.ToDateTime(row["EndDate"]).ToString("dd/MM/yyyy");
+                                }
+                                string custName    = StripHtml(row["CustomerName"]?.ToString() ?? "");
+                                decimal amount     = 0m;
+                                if (row.Table.Columns.Contains("GrandTotal") && row["GrandTotal"] != DBNull.Value)
+                                {
+                                    decimal.TryParse(row["GrandTotal"].ToString().Replace(",", ""), out amount);
+                                }
+                                string remark = row.Table.Columns.Contains("CommentUnpaid") && row["CommentUnpaid"] != DBNull.Value
+                                    ? row["CommentUnpaid"].ToString().Replace("\n", "<br/>") : "";
+
+                                <tr>
+                                    <td class="text-center">@rowNumber</td>
+                                    <td>@invoiceNo</td>
+                                    <td class="text-center">@invoiceDate</td>
+                                    <td class="text-center">@dueDate</td>
+                                    <td class="kh-body" style="white-space: normal">@custName</td>
+                                    <td class="text-right">@amount.ToString("$ #,##0.00")</td>
+                                    <td style="white-space: normal">@Html.Raw(remark)</td>
+                                </tr>
+                                rowNumber++;
+                            }
+                            <tr class="footer-row">
+                                <td colspan="5" class="text-right">Total Amount @className :</td>
+                                <td class="text-right">@classTotal.ToString("$ #,##0.00")</td>
+                                <td></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-danger text-center">No Data</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        if (groupIndex < displayList.Count - 1)
+        {
+            <div class="page-break"></div>
+        }
+        groupIndex++;
+    }
+}
+
+</body>
+</html>

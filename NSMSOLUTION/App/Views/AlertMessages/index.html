@@ -1,0 +1,283 @@
+﻿<!doctype html>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link
+  href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+  rel="stylesheet" />
+<link rel="stylesheet" href="App/Views/AlertMessages/style.css">
+
+
+<div ng-controller="AlertMessagesCtrl" class="am-page">
+
+  <!-- Metrics -->
+  <div class="am-metrics">
+    <div class="am-metric">
+      <div class="am-metric-label">Total</div>
+      <div class="am-metric-val">{{ metrics.Total }}</div>
+      <i class="ti ti-bell am-metric-bg" aria-hidden="true"></i>
+    </div>
+    <div class="am-metric">
+      <div class="am-metric-label">Unread</div>
+      <div class="am-metric-val c-blue">{{ metrics.Unread }}</div>
+      <i class="ti ti-circle-dot am-metric-bg" aria-hidden="true"></i>
+    </div>
+    <div class="am-metric">
+      <div class="am-metric-label">Urgent</div>
+      <div class="am-metric-val c-red">{{ metrics.Urgent }}</div>
+      <i class="ti ti-alert-triangle am-metric-bg" aria-hidden="true"></i>
+    </div>
+    <div class="am-metric">
+      <div class="am-metric-label">Customer</div>
+      <div class="am-metric-val">{{ metrics.Customer }}</div>
+      <i class="ti ti-user am-metric-bg" aria-hidden="true"></i>
+    </div>
+    <div class="am-metric">
+      <div class="am-metric-label">Ticket</div>
+      <div class="am-metric-val c-green">{{ metrics.Ticket }}</div>
+      <i class="ti ti-ticket am-metric-bg" aria-hidden="true"></i>
+    </div>
+    <div class="am-metric">
+      <div class="am-metric-label">Finance</div>
+      <div class="am-metric-val c-pink">{{ metrics.Finance }}</div>
+      <i class="ti ti-report-money am-metric-bg" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <!-- Section title -->
+  <div class="am-section-head">
+    <h1 class="am-title">Alert Messages</h1>
+    <span class="am-live">
+      <span class="am-live-dot"></span>
+      Live
+    </span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="am-toolbar">
+    <div class="am-filters">
+      <button class="am-filter-btn" ng-repeat="f in filterTypes" ng-class="{ active: currentFilter === f.key }"
+        ng-click="setFilter(f.key)">
+        <i class="ti {{ f.icon }}" aria-hidden="true"></i>
+        {{ f.label }}
+        <span class="am-fc">{{ filterCount(f.key) }}</span>
+      </button>
+    </div>
+    <div class="am-toolbar-right">
+      <div class="am-search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input class="am-search" ng-model="searchQuery" ng-change="applyFilter()"
+          placeholder="Search name, code, comment…" />
+      </div>
+      <button class="am-btn" ng-click="markAllRead()" title="Mark all as read">
+        <i class="ti ti-checks" aria-hidden="true"></i> Mark all read
+      </button>
+      <button class="am-btn icon-only" ng-click="loadAlerts(true)" title="Refresh">
+        <i class="ti ti-refresh" aria-hidden="true"></i>
+      </button>
+      <button class="am-btn primary" ng-click="openAddModal()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Add New
+      </button>
+    </div>
+  </div>
+
+  <!-- Alert table -->
+  <div class="am-table-wrap">
+
+    <!-- Loading -->
+    <div class="am-loading" ng-if="loading && filteredAlerts.length === 0">
+      <i class="ti ti-loader spin" style="font-size:22px;display:block;margin-bottom:8px;" aria-hidden="true"></i>
+      Loading alerts…
+    </div>
+
+    <!-- Empty -->
+    <div class="am-empty" ng-if="!loading && filteredAlerts.length === 0">
+      <div class="am-empty-icon"><i class="ti ti-bell-off" aria-hidden="true"></i></div>
+      <p>No alerts found for this filter.</p>
+    </div>
+
+    <table class="am-table" ng-if="filteredAlerts.length">
+      <thead>
+        <tr>
+          <th class="am-th-check">No.</th>
+          <th>Customer</th>
+          <th>Alert topic</th>
+          <th>Reason</th>
+          <th>Comment</th>
+          <th>Type</th>
+          <th>Created</th>
+          <th class="am-th-actions">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat-start="alert in filteredAlerts track by alert.AlertID"
+          ng-class="{ unread: !alert.IsRead, urgent: alert.IsUrgent, new: alert._isNew }" ng-click="markRead(alert)">
+          <td class="am-td-check">{{ $index + 1 }}</td>
+          <td>
+            <div class="am-table-customer">
+              <div class="am-avatar" ng-class="avatarClass(alert)">
+                {{ avatarInitials(alert.CustomerName, alert.CustomerCode) }}
+              </div>
+              <div class="am-table-customer-text">
+                <strong>{{ alert.CustomerName && alert.CustomerName.trim() ? alert.CustomerName :
+                  alert.CustomerCode }}</strong>
+                <span>{{ alert.CustomerCode }}<em ng-if="alert.CustomerMobile"> · {{
+                    alert.CustomerMobile }}</em></span>
+              </div>
+            </div>
+          </td>
+          <td class="am-td-topic" title="{{ alert.Comment }}">
+            <span>{{ alert.Comment || '—' }}</span>
+          </td>
+          <td class="am-td-copy" title="{{ alert.Reason }}">
+            <span>{{ alert.Reason || '—' }}</span>
+          </td>
+          <td class="am-td-copy" title="{{ alert.PostComment || '' }}">
+            <span ng-if="alert.PostComment">{{ alert.PostComment }}</span>
+            <span class="am-text-muted" ng-if="!alert.PostComment">No comment yet</span>
+          </td>
+          <td><span class="am-badge" ng-class="typeBadgeClass(alert)">{{ typeLabel(alert) }}</span></td>
+          <td class="am-td-date">
+            <strong>{{ relativeTime(alert.CreatedAt) }}</strong>
+            <span>{{ alert.CreatedAt | date:'dd MMM yyyy, h:mm a' }}</span>
+          </td>
+          <td class="am-td-actions">
+            <button class="am-cb comment" ng-class="{ 'has-comment': alert.PostComment }" data-toggle="tooltip"
+              data-placement="top" title="{{ alert.PostComment ? 'Edit comment' : 'Add comment' }}"
+              ng-click="toggleComment(alert, $event)">
+              <i class="ti" ng-class="alert.PostComment ? 'ti-pencil' : 'ti-message-circle'" aria-hidden="true"></i>
+            </button>
+            <button class="am-cb view" title="View detail" data-toggle="tooltip" data-placement="top"
+              ng-click="viewAlert(alert, $event)">
+              <i class="ti ti-eye" aria-hidden="true"></i>
+            </button>
+            <button class="am-cb dismiss d-none" title="Dismiss" data-toggle="tooltip" data-placement="top"
+              ng-click="dismiss(alert, $event)">
+              <i class="ti ti-x" aria-hidden="true"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="am-comment-row" ng-repeat-end ng-if="alert.showComment" ng-click="$event.stopPropagation()">
+          <td colspan="8">
+            <div class="am-comment-box">
+              <div class="am-comment-box-label">
+                <i class="ti ti-clipboard-text" aria-hidden="true"></i>
+                {{ alert.PostComment ? 'Edit comment' : 'Add comment' }}
+              </div>
+              <textarea class="am-comment-input" ng-model="alert.NewComment" ng-disabled="alert.isSending"
+                placeholder="Describe the comment for this alert…" rows="3"></textarea>
+              <div class="am-comment-actions">
+                <button class="am-comment-btn cancel" ng-click="alert.showComment = false"
+                  ng-disabled="alert.isSending">
+                  Cancel
+                </button>
+                <button class="am-comment-btn send" ng-click="saveComment(alert)" ng-disabled="alert.isSending">
+                  <i class="ti" ng-class="alert.isSending ? 'ti-loader spin' : 'ti-send'" aria-hidden="true"></i>
+                  {{ alert.isSending ? 'Sending…' : 'Send' }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="am-footer" ng-if="filteredAlerts.length > 0">
+    <span class="am-count-label">Showing {{ filteredAlerts.length }} of {{ metrics.Total }} alerts</span>
+    <div>
+      <button class="am-btn" ng-if="hasMore" ng-disabled="loading" ng-click="loadAlerts(false)">
+        <i class="ti" ng-class="loading ? 'ti-loader spin' : 'ti-chevron-down'" aria-hidden="true"></i>
+        {{ loading ? 'Loading…' : 'Load more' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Add New modal -->
+  <div class="am-modal-backdrop" ng-if="showAddModal" ng-click="closeAddModal()">
+    <div class="am-modal" role="dialog" aria-modal="true" aria-labelledby="am-modal-title"
+      ng-click="$event.stopPropagation()">
+      <form name="addForm" ng-submit="saveNewAlert(addForm)" novalidate>
+        <div class="am-modal-head">
+          <div>
+            <h2 class="am-modal-title" id="am-modal-title">Add new alert</h2>
+            <p class="am-modal-sub">Create an alert message for a customer</p>
+          </div>
+          <button type="button" class="am-cb" ng-click="closeAddModal()" aria-label="Close">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="am-modal-body">
+          <div class="am-field" ng-class="{ invalid: addForm.$submitted && addForm.customer.$invalid }">
+            <label for="am-f-customer">Customer <b>*</b></label>
+            <div class="am-combo" ng-class="{ open: cb.open }">
+              <i class="ti ti-search am-combo-icon" aria-hidden="true"></i>
+              <input id="am-f-customer" type="text" class="am-input am-combo-input" autocomplete="off"
+                placeholder="Search by name, code or phone…" ng-model="cb.query" ng-change="onCustomerInput()"
+                ng-focus="openCustomerList()" ng-click="openCustomerList()" ng-blur="cb.open = false"
+                ng-keydown="onCustomerKey($event)" role="combobox" aria-autocomplete="list"
+                aria-expanded="{{ cb.open }}" />
+              <button type="button" class="am-combo-btn" ng-if="cb.query" tabindex="-1"
+                ng-mousedown="$event.preventDefault(); clearCustomer()" aria-label="Clear">
+                <i class="ti ti-x" aria-hidden="true"></i>
+              </button>
+              <i class="ti ti-chevron-down am-combo-btn am-combo-caret" ng-if="!cb.query" aria-hidden="true"></i>
+              <input type="hidden" name="customer" ng-model="newAlert.CustomerID" required />
+
+              <ul class="am-combo-list" ng-if="cb.open" ng-style="cb.style" role="listbox">
+                <li class="am-combo-empty" ng-if="cb.loading">
+                  <i class="ti ti-loader spin" aria-hidden="true"></i> Loading customers…
+                </li>
+                <li class="am-combo-empty" ng-if="!cb.loading && !cb.results.length">
+                  No customers found
+                </li>
+                <li class="am-combo-option" ng-repeat="c in cb.results track by c.CustomerID"
+                  ng-class="{ active: $index === cb.index, selected: c.CustomerID === newAlert.CustomerID }"
+                  ng-mousedown="$event.preventDefault(); selectCustomer(c)" ng-mouseenter="cb.index = $index"
+                  role="option">
+                  <span class="am-combo-name">{{ customerLabel(c) || '—' }}</span>
+                  <span class="am-combo-meta" ng-if="customerMeta(c)">{{ customerMeta(c) }}</span>
+                  <i class="ti ti-check am-combo-check" ng-if="c.CustomerID === newAlert.CustomerID"
+                    aria-hidden="true"></i>
+                </li>
+              </ul>
+            </div>
+            <small class="am-error" ng-if="addForm.$submitted && addForm.customer.$invalid">Please select
+              a customer.</small>
+          </div>
+
+          <div class="am-field" ng-class="{ invalid: addForm.$submitted && addForm.topic.$invalid }">
+            <label for="am-f-topic">Alert topic <b>*</b></label>
+            <input id="am-f-topic" name="topic" type="text" class="am-input" ng-model="newAlert.Comment"
+              placeholder="e.g. Payment overdue" required />
+            <small class="am-error" ng-if="addForm.$submitted && addForm.topic.$invalid">Alert topic is
+              required.</small>
+          </div>
+
+          <div class="am-field">
+            <label for="am-f-reason">Reason</label>
+            <textarea id="am-f-reason" class="am-input" rows="3" ng-model="newAlert.Reason"
+              placeholder="Why is this alert needed?"></textarea>
+          </div>
+
+
+        </div>
+
+        <div class="am-modal-error" ng-if="addError">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i> {{ addError }}
+        </div>
+
+        <div class="am-modal-foot">
+          <button type="button" class="am-btn" ng-click="closeAddModal()" ng-disabled="isSavingNew">
+            Cancel
+          </button>
+          <button type="submit" class="am-btn primary" ng-disabled="isSavingNew">
+            <i class="ti" ng-class="isSavingNew ? 'ti-loader spin' : 'ti-plus'" aria-hidden="true"></i>
+            {{ isSavingNew ? 'Saving…' : 'Add alert' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

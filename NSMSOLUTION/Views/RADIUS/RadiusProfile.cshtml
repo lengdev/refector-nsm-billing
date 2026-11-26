@@ -1,0 +1,14 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function DeleteRediusProfile(THIS) {
+        var ID = $(THIS).attr("id");
+        var URL = "RADIUS/DeleteRediusProfile";
+        var DATA = { ID: ID };
+        DoDelete(URL, DATA, function (response) {
+            $("#BunSearch").click();
+        });
+    }
+</script>

@@ -1,0 +1,222 @@
+﻿@{
+    Layout = null;
+}
+<style>
+    /*.container {
+        margin: 20px auto;
+        max-width: 640px;
+    }
+    .cropper-view-box,
+    .cropper-face {
+        border-radius: 50%;
+    }*/
+
+    /* The css styles for `outline` do not follow `border-radius` on iOS/Safari (#979). */
+    /*.cropper-view-box {
+        outline: 0;
+        box-shadow: 0 0 0 1px #39f;
+    }*/
+
+    .avatar {
+        border: 4px solid #eee;
+        margin-bottom: 30px;
+    }
+
+    .avatar-preview {
+        padding: 1.5rem;
+    }
+
+    .avatar > pre {
+        border-top: 4px solid #eee;
+        margin: 0;
+    }
+
+    .no-html {
+        display: none;
+    }
+
+    .highlihgt-grid .row + .row {
+        margin-top: 1rem;
+    }
+
+    .highlihgt-grid [class^="col-"] {
+        padding-top: .75rem;
+        padding-bottom: .75rem;
+        background-color: rgba(86,61,124,.15);
+        border: 1px solid rgba(86,61,124,.2);
+    }
+</style>
+<div class="container">
+    <form id="frm_UploadFiles" name="frm_UploadFiles">
+        <input id="custFile" name="custFile" type="file" accept="*/*" multiple>
+        @*accept=".xlsx,.xls,image/*,.doc,audio/*,.docx,video/*,.ppt,.pptx,.txt,.pdf"*@
+    </form>
+</div>
+
+
+@*<div class="modal fade" id="EditPhoto" tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Crop the image</h5>
+                    <button type="button" class="close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="img_cropping" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="CloseEditPhoto" type="button" class="btn btn-secondary">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="crop">Save Change</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Razor variables
+        var AllowOnlyImage = "@ViewBag.AllowOnlyImage";
+        var ShowAvatar = "@ViewBag.ShowAvatar";
+        var SaveOnItsForm = "@ViewBag.SaveOnItsForm";
+        var ContolName = "@ViewBag.ContolName";
+
+        // Safely parse JSON from ViewBag.DataInfo
+        var DataInfo = @Html.Raw(!string.IsNullOrEmpty(ViewBag.DataInfo as string) ? HttpUtility.UrlDecode(ViewBag.DataInfo) : "null");
+        if (typeof DataInfo === "string" && DataInfo !== "") {
+            DataInfo = JSON.parse(DataInfo);
+        }
+
+        // Restrict file input to images if required
+        if (AllowOnlyImage === "True") {
+            $('input[name=custFile]').attr("accept", "image/*");
+        }
+
+        // Initialize image upload plugin
+        $('input[name=custFile]').imageuploadify();
+
+        // Add webcam capture button
+        var btn = `
+            <div class="mr-auto">
+                <button type="button" onclick="OpenWebcam();" id="ShowWebCam" class="btn btn-info">
+                    <i class="fas fa-photo-video"></i> Capture with Camera
+                </button>
+            </div>`;
+        $("#SaveChange2").before(btn);
+
+        // Save button click handler
+        $("#SaveChange2").click(function () {
+            var files = $("input[name=custFile]")[0].files;
+
+            function saveFiles(fileList) {
+                if (DataInfo) {
+                    DoSaveChageAjaxForm("frm_UploadFiles", DataInfo.URL, { Data: JSON.stringify(DataInfo) }, "", function () {
+                        $("#CloseModal2").click();
+                    });
+                } else {
+                    $("input[name='" + ContolName + "']")[0].files = fileList;
+                    $("#CloseModal2").click();
+                }
+            }
+
+            if (files.length > 0) {
+                if (SaveOnItsForm === "False") {
+                    saveFiles(files);
+                } else {
+                    saveFiles(files);
+                }
+            } else {
+                if (DataInfo) {
+                    if ($("input[name=ck2]").is(":checked")) {
+                        const $checked = $("input[name=ck2]:checked");
+                        if ($checked.length === 0) {
+                            DialogSweetAlert("error", "Please select a file for upload.");
+                            return;
+                        }
+                        // Find avatar image related to checked radio
+                        var imgSrc = $checked
+                            .closest(".custom-control")
+                            .find("img[name=avatar]")
+                            .attr("src");
+                        var img = new Image();
+                        var canvas = document.createElement("canvas");
+                        var ctx = canvas.getContext("2d");
+
+                        img.crossOrigin = ""; // handle cross-origin images
+                        img.onload = function () {
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            ctx.drawImage(img, 0, 0);
+
+                            canvas.toBlob(function (blob) {
+                                const file = new File([blob], 'avatar.png', { type: blob.type });
+                                var dt = new DataTransfer();
+                                dt.items.add(file);
+                                $("input[name=custFile]")[0].files = dt.files;
+
+                                saveFiles(dt.files);
+                            }, "image/png", 1);
+                        };
+                        img.src = imgSrc;
+
+                    } else {
+                        DialogSweetAlert("error", "Please select a file for upload.");
+                    }
+                } else {
+                    DialogSweetAlert("error", "Please select a file for upload.");
+                }
+            }
+        });
+
+        const files = [
+            { "avatar": [1, 2, 3, 4, 5, 6, 7] },
+            { "user": [1, 2, 3] }
+        ];
+
+        if (ShowAvatar === "True") {
+            let avatarHTML = `<div class="avatar"><div class="avatar-preview source-code"><div class="row">`;
+
+            files.forEach(obj => {
+                const key = Object.keys(obj)[0]; 
+                const arr = obj[key];
+
+                arr.forEach((num, index) => {
+                    const id = key + num;
+
+                    // Determine filename
+                    let filename;
+                    if (key === "user") {
+                        filename = index === 0 ? `${key}.png` : `${key}_${num}.jpg`;
+                    } else {
+                        filename = `${key}${num}.png`;
+                    }
+
+                    avatarHTML += `
+                <div class="col-md-3">
+                    <div class="custom-control custom-radio image-checkbox">
+                        <input type="radio" class="custom-control-input" id="ck${id}" name="ck2">
+                        <label class="custom-control-label" for="ck${id}">
+                            <img style="width:120px;height:120px;border-radius:50%;" name="avatar" src="Content/images/avatar/${filename}" class="img-fluid">
+                        </label>
+                    </div>
+                </div>
+            `;
+                });
+            });
+
+            avatarHTML += `</div></div></div>`;
+
+            $("form[name=frm_UploadFiles]").parent().after(avatarHTML);
+        }
+
+    });
+
+    function OpenWebcam() {
+        ShowDialogBox2("Capture image from camera", "Auto", 500, "UploadFileForm/WebCam", "", "DialogWebCam", "", "btnCloseWebCam", "btnSaveWebCam");
+        $("#DialogWebCam").on('hide.bs.modal', function () {
+            Webcam.reset();
+        });
+    }
+</script>

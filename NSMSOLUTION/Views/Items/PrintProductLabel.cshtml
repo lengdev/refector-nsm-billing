@@ -1,0 +1,55 @@
+﻿@using MVC;
+@{
+    Layout = null;
+    HTML html = new HTML();
+}
+<style>
+    #div_PrintProductLable{
+        margin:0 !important; 
+        padding:0 !important;
+    }
+    .label {
+        /*break-inside: avoid !important;
+        display: table !important;*/
+        display: block; 
+        /*display: table !important;*/
+        margin-top: 30px !important;
+        margin-bottom:0 !important;
+        /*width: 1.5748in;*/
+        /*margin-top: 40px !important;*/
+        margin-left: 28px !important;
+        /*page-break-inside: avoid;
+        page-break-after: always;*/
+    }
+
+        /*#div_PrintProductLable .label {*/
+            /* Avery 5160 labels -- CSS and HTML by MM at Boulder Information Services */
+            /*width: 1.5748in;*/ /* plus .6 inches from padding  40mm*/
+            /*height: 1.1811in;*/ /* plus .125 inches from padding 30mm */
+            /*padding: .125in .3in 0;
+            margin-right: .125in;*/
+
+            /*float: left;
+            text-align: center;
+            overflow: hidden;
+            outline: 1px dotted;*/ /* outline doesn't occupy space like border does */
+        /*}*/
+
+    /*.page-break {
+        clear: left;
+        display: block;
+        page-break-after: always;
+    }*/
+</style>
+<div id="div_PrintProductLable">
+    @for (int i = 1; i <= ViewBag.QTY; i++)
+    {
+        <div class="row p-0">
+            <div class="col-auto p-0">
+                <span class="label" style="font-size:16px">
+                    @Html.Raw(html.GenerateBarcode(@ViewBag.Barcode))
+                </span>
+            </div>
+        </div>
+    }
+</div>

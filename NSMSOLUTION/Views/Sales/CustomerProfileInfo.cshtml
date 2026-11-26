@@ -1,0 +1,12 @@
+﻿
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function showCustomerProfile(cusId) {
+        var url = '#!/Sales?ID=' + cusId;
+        OpenNewTap(url);
+    }
+</script>

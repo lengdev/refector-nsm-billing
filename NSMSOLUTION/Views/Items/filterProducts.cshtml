@@ -1,0 +1,29 @@
+﻿@using MVC;
+@{ Layout = null;}
+<div class="col-6 col-md-3">
+    <div id="div_show_product">
+        @{
+            HTML html = new HTML();
+            string imgpath = "", noimg = html.ServerRoot + "Content/images/placeholder.jpg", ItemName = "";
+            string[] img = null;
+            foreach (System.Data.DataRow dr in ViewBag.Item.Rows)
+            {
+                img = dr["ItemImage"].ToString().Split('~');
+                imgpath = html.ServerRoot + "Uploads/Items/" + img[0];
+                <div class="row">
+                    <div class="col">
+                        <img class="mx-auto img-fluid img-fit has-transition ls-is-cached lazyloaded" src="@imgpath" alt="@ItemName" title="@ItemName" onerror="this.onerror=null;this.src='@noimg';">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6>Item Name</h6>
+                    </div>
+                    <div class="col">
+                        <span>@dr["ItemName"].ToString()</span>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

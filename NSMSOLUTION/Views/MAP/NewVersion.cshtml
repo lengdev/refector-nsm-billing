@@ -1,0 +1,222 @@
+﻿@{ Layout = null;}
+@*<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyp56z33xH2M5YbQV95RdXB8vlqPTprAA&callback=initNewMap&sensor=false&libraries=places&language=KM&region=KH" async defer></script>*@
+<style>
+    #newmap {
+        height: 100%;
+    }
+</style>
+<script>
+    var map;
+    var featureLayer;
+    var infoWindow;
+    var applyfeatureLayer;
+    var mapID = "";
+    async function initMap() {
+        // Request needed libraries.
+        var { Map, InfoWindow } = await google.maps.importLibrary("maps");//libraries=places
+        map = new Map(document.getElementById("newmap"), {
+            center: { lat: 11.579654, lng: 104.7253748 },
+            zoom: 11,
+            // In the cloud console, configure this Map ID with a style that enables the
+            // "Administrative Area Level 2" Data Driven Styling type.
+            mapId: "a3efe1c035bad51b"//"a00750d95ff3aaae"//"a3efe1c035bad51b", // <YOUR_MAP_ID_HERE>,
+        });
+        // Add the feature layer.
+        //@@ts-ignore
+        featureLayer = map.getFeatureLayer("ADMINISTRATIVE_AREA_LEVEL_2");//ADMINISTRATIVE_AREA_LEVEL_1//ADMINISTRATIVE_AREA_LEVEL_2//LOCALITY//POSTAL_CODE//COUNTRY
+        applyfeatureLayer = map.getFeatureLayer("ADMINISTRATIVE_AREA_LEVEL_2");
+        // Add the event listener for the feature layer.
+        featureLayer.addListener("click", handlePlaceClick);
+        
+
+
+        var input = document.getElementById("pac-input");
+        var options = {
+            //bounds: defaultBounds,
+            componentRestrictions: { country: "kh" },
+            fields: ["address_components", "geometry", "icon", "name"],
+            strictBounds: false,
+            types: ["establishment"],
+        };
+        var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+        // Set initial restriction to the greater list of countries.
+        autocomplete.setComponentRestrictions({
+            country: ["kh"],
+        });
+
+        //const southwest = { lat: 5.6108, lng: 136.589326 };
+        //const northeast = { lat: 61.179287, lng: 2.64325 };
+        //const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+
+        //autocomplete.setBounds(newBounds);
+        infoWindow = new google.maps.InfoWindow();
+        //const infowindowContent = document.getElementById("infowindow-content");
+
+        //infowindow.setContent(infowindowContent);
+
+        const marker = new google.maps.Marker({
+            map,
+            anchorPoint: new google.maps.Point(0, -29),
+        });
+
+        autocomplete.addListener("place_changed", () => {
+            infoWindow.close();
+            marker.setVisible(false);
+
+            const place = autocomplete.getPlace();
+
+            if (!place.geometry || !place.geometry.location) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert("No details available for input: '" + place.name + "'");
+                return;
+            }
+
+            // If the place has a geometry, then present it on a map.
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+                map.setZoom(14);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(14); // Why 17? Because it looks good.
+            }
+
+            marker.setPosition(place.geometry.location);
+            marker.setVisible(true);
+
+            let address = "";
+
+            if (place.address_components) {
+                address = [
+                    (place.address_components[0] &&
+                        place.address_components[0].short_name) ||
+                    "",
+                    (place.address_components[1] &&
+                        place.address_components[1].short_name) ||
+                    "",
+                    (place.address_components[2] &&
+                        place.address_components[2].short_name) ||
+                    "",
+                ].join(" ");
+            }
+
+            //infowindowContent.children["place-icon"].src = place.icon;
+            //infowindowContent.children["place-name"].textContent = place.name;
+            //infowindowContent.children["place-address"].textContent = address;
+            //infoWindow.open(map);
+        });
+
+
+
+        //infoWindow = new InfoWindow({});
+        // Apply style on load, to enable clicking.
+        applyStyleToSelected();
+
+        //applyfeatureLayer.style = (options) => {
+        //    if (options.feature.placeId == "ChIJ48kri9JtDzER5DWHLQcYu7A") {
+        //        // Hana, HI
+        //        return featureStyleOptions;
+        //    }
+        //};
+    }
+
+    // Handle the click event.
+    async function handlePlaceClick(event) {
+
+        let feature = event.features[0];
+
+        if (!feature.placeId) return;
+
+        // Apply the style to the feature layer.
+        mapID = feature.placeId;
+        applyStyleToSelected(feature.placeId);
+
+        // Add the info window.
+        const place = await feature.fetchPlace();
+        let content =
+            '<span style="font-size:small">Display name: ' +
+            place.displayName +
+            "<br/> Place ID: " +
+            feature.placeId +
+            "<br/> Feature type: " +
+            feature.featureType +
+            "</span>";
+
+        updateInfoWindow(content, event.latLng);
+    }
+
+    // Stroke and fill with minimum opacity value.
+    //@@ts-ignore
+    var styleDefault = {
+        strokeColor: "#810FCB",
+        strokeOpacity: 1.0,
+        strokeWeight: 2.0,
+        fillColor: "white",
+        fillOpacity: 0.1, // Polygons must be visible to receive click events.
+    };
+    // Style for the clicked Administrative Area Level 2 polygon.
+    //@@ts-ignore
+    var styleClicked = {
+        //...styleDefault,
+        fillColor: "#810FCB",
+        fillOpacity: 0.5,
+    };
+
+    // Apply styles to the map.
+    function applyStyleToSelected(placeid) {
+        // Apply styles to the feature layer.
+        featureLayer.style = (options) => {
+            // Style fill and stroke for a polygon.
+            if (placeid && options.feature.placeId == placeid) {
+                return styleClicked;
+            }
+            // Style only the stroke for the entire feature type.
+            return styleDefault;
+        };
+    }
+
+    // Helper function to create an info window.
+    function updateInfoWindow(content, center) {
+        infoWindow.setContent(content);
+        infoWindow.setPosition(center);
+        infoWindow.open({
+            map,
+            shouldFocus: false,
+        });
+    }
+    $(function () {
+        initMap();
+        let divheight = $("#DialogGoogleMapmodalbody").height();
+        $("#newmap").height(divheight);
+    });
+    // Define a style with purple fill and border.
+    //@@ts-ignore
+    var featureStyleOptions = {
+    strokeColor: "#810FCB",
+    strokeOpacity: 1.0,
+    strokeWeight: 3.0,
+    fillColor: "#810FCB",
+    fillOpacity: 0.5,
+  };
+    $("#SaveChange2").click(function () {
+        if (mapID == "") {
+            DialogSweetAlert("error", "Please select location id.");
+        }
+        else {
+            $("#TxtMainMap_FullAddress").val(mapID);
+            $("#DialogGoogleMap").modal('toggle');
+        }
+    });
+</script>
+<div class="row p-2">    
+    <div class="col-12">
+        <input id="pac-input" class="form-control" type="text" placeholder="Enter a location" />
+    </div>
+</div>
+
+<div id="newmap"></div>
+@*<script>
+    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+        ({ key: "AIzaSyDyp56z33xH2M5YbQV95RdXB8vlqPTprAA", v: "beta" });</script>*@
+

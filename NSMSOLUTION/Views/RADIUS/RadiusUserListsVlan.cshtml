@@ -1,0 +1,31 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHtmlTable)
+<div class="row">
+    <div class="col text-right p-2">
+        <div class="panel-toolbar">
+            <div class="btn-group flex-wrap" role="group">
+                <a href="javascript:void(0);" title="Print" data-toggle="tooltip" id="Print_MT-CR01" onclick="$('#resultShowRadiusUserListsVlan').print();" class="btn btn-default btn-sm"><i class="fa fa-print"></i> <span class="d-none d-md-inline"></span></a>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="resultShowRadiusUserListsVlan" class="table-responsive"></div>
+<script>
+    $(function () {
+        //ShowRadiusUserListsVlan();
+        $("#txtStatus").change(function () {
+            ShowRadiusUserListsVlan();
+        });
+    });
+    function ShowRadiusUserListsVlan() {
+        let CID = $("#txtCID").val();
+        let Status = $("#txtStatus").val();
+        let RouterID = $("#txtRouterName").val();
+        LoadData("RADIUS/ShowRadiusUserListsVlan?CID=" + CID + "&Status=" + Status + "&RouterID=" + RouterID, function (respone) {
+            $("#resultShowRadiusUserListsVlan").html(respone);
+        }, true);
+    }
+</script>
+

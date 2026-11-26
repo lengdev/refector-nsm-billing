@@ -1,0 +1,260 @@
+@model NSMSOLUTION.ViewModels.JournalEntryVM
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Journal Voucher - @Model.JVNo</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #333;
+            margin: 20px;
+            background: #f8f9fa;
+        }
+        .voucher-box {
+            max-width: 860px;
+            margin: auto;
+            border: 1px solid #dee2e6;
+            background: #ffffff;
+            padding: 35px 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border-radius: 4px;
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .header h2 {
+            margin: 0;
+            color: #0056b3;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            color: #6c757d;
+        }
+        .status-stamp {
+            position: absolute;
+            right: 0;
+            top: 0;
+            border: 2px solid;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status-approved { color: #28a745; border-color: #28a745; }
+        .status-verified { color: #17a2b8; border-color: #17a2b8; }
+        .status-checked { color: #007bff; border-color: #007bff; }
+        .status-draft { color: #e0a800; border-color: #e0a800; }
+        .status-disapproved { color: #dc3545; border-color: #dc3545; }
+
+        .info-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .info-table td {
+            padding: 6px 8px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .grid-table th, .grid-table td {
+            border: 1px solid #ced4da;
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+        .grid-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            text-align: left;
+        }
+        .text-right {
+            text-align: right !important;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            gap: 15px;
+        }
+        .sig-block {
+            text-align: center;
+            flex: 1;
+            border-top: 1px solid #94a3b8;
+            padding-top: 8px;
+            font-size: 12px;
+            color: #334155;
+        }
+        .sig-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .sig-name {
+            font-weight: 600;
+            color: #0f172a;
+            min-height: 18px;
+        }
+        .sig-date {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        @@media print {
+            body {
+                background: #fff;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .voucher-box {
+                border: none;
+                box-shadow: none;
+                padding: 10px 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="max-width: 860px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; align-items: center;">
+        <a href="javascript:window.close();" style="color: #6c757d; text-decoration: none; font-size: 13px;">← Close Window</a>
+        <button onclick="window.print();" style="padding: 8px 18px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px;">
+            🖨️ Print Voucher
+        </button>
+    </div>
+
+    <div class="voucher-box">
+        <div class="header">
+            @if (Model.StatusID == 90)
+            {
+                <div class="status-stamp status-approved">✔ Approved</div>
+            }
+            else if (Model.StatusID == 102)
+            {
+                <div class="status-stamp status-verified">✔ Verified</div>
+            }
+            else if (Model.StatusID == 92)
+            {
+                <div class="status-stamp status-checked">✔ Checked</div>
+            }
+            else if (Model.StatusID == 91)
+            {
+                <div class="status-stamp status-disapproved">✖ Disapproved</div>
+            }
+            else
+            {
+                <div class="status-stamp status-draft">⏳ Draft</div>
+            }
+
+            <h2>JOURNAL VOUCHER</h2>
+            <p>Official Accounting & Financial Record</p>
+        </div>
+
+        <table class="info-table">
+            <tr>
+                <td style="width: 15%;" class="info-label">Entry Nº:</td>
+                <td style="width: 35%;">@Model.JVNo</td>
+                <td style="width: 15%;" class="info-label">Date:</td>
+                <td style="width: 35%;">@Model.EntryDate.ToString("dd-MM-yyyy")</td>
+            </tr>
+            <tr>
+                <td class="info-label">Memo / Ref:</td>
+                <td colspan="3">@Model.Memo @(Model.IsAdjustment ? " [Adjustment Entry]" : "")</td>
+            </tr>
+        </table>
+
+        <table class="grid-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;" class="text-center">#</th>
+                    <th style="width: 28%;">Account Name / Code</th>
+                    <th style="width: 25%;">Particulars / Line Memo</th>
+                    <th style="width: 18%;">Name (Customer/Vendor)</th>
+                    <th style="width: 12%;" class="text-right">Debit ($)</th>
+                    <th style="width: 12%;" class="text-right">Credit ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Lines != null && Model.Lines.Count > 0)
+                {
+                    int i = 1;
+                    foreach (var line in Model.Lines)
+                    {
+                        <tr>
+                            <td class="text-center text-muted">@(i++)</td>
+                            <td><strong>@line.AccountNo</strong> - @line.AccountName</td>
+                            <td>@line.LineMemo</td>
+                            <td>@(!string.IsNullOrEmpty(line.Name) ? line.Name : "-")</td>
+                            <td class="text-right">@(line.Debit > 0 ? line.Debit.ToString("#,##0.00") : "-")</td>
+                            <td class="text-right">@(line.Credit > 0 ? line.Credit.ToString("#,##0.00") : "-")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 700; background-color: #f8fafc;">
+                    <td colspan="4" class="text-right">TOTAL:</td>
+                    <td class="text-right" style="color: #0056b3;">$@Model.TotalAmount.ToString("#,##0.00")</td>
+                    <td class="text-right" style="color: #0056b3;">$@Model.TotalAmount.ToString("#,##0.00")</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- 4-Tier Signatures -->
+        <div class="signatures">
+            <div class="sig-block">
+                <div class="sig-title">Prepared By</div>
+                <div class="sig-name">Accounting</div>
+                <div class="sig-date">@Model.EntryDate.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-title">Checked By</div>
+                <div class="sig-name">@(!string.IsNullOrEmpty(Model.CheckedBy) ? Model.CheckedBy : "Pending")</div>
+                <div class="sig-date">@(Model.CheckedDate.HasValue ? Model.CheckedDate.Value.ToString("dd/MM/yyyy") : "-")</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-title">Verified By</div>
+                <div class="sig-name">@(!string.IsNullOrEmpty(Model.VerifiedBy) ? Model.VerifiedBy : "Pending")</div>
+                <div class="sig-date">@(Model.VerifiedDate.HasValue ? Model.VerifiedDate.Value.ToString("dd/MM/yyyy") : "-")</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-title">Approved By</div>
+                <div class="sig-name">@(!string.IsNullOrEmpty(Model.ApprovedBy) ? Model.ApprovedBy : "Pending")</div>
+                <div class="sig-date">@(Model.ApprovalDate.HasValue ? Model.ApprovalDate.Value.ToString("dd/MM/yyyy") : "-")</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

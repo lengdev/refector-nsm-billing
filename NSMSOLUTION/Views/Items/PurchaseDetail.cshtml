@@ -1,0 +1,10 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowPOInvoice(VendorID, POID, PONumber) {
+        var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + POID + "&Type=PO";
+        ShowDialogBox("Preview PO No.: " + PONumber, "Auto", "500", URL, "", "", "", "", "", function () {
+            $("#ShowHideImages").parent().parent().hide();
+        });
+    }
+</script>

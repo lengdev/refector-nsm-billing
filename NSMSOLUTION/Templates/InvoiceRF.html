@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/Content/icon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/Content/icon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/Content/icon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/Content/icon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/Content/icon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/Content/icon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/Content/icon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/Content/icon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Content/icon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/Content/icon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/Content/icon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/Content/icon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/Content/icon/favicon-16x16.png" />
+    <link rel="manifest" href="/Content/icon/manifest.json" />
+    <meta name="msapplication-TileImage" content="/Content/icon/ms-icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link href="../Content/css/custom.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Siemreap&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Bayon" rel="stylesheet" type="text/css" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Bayon|Francois+One" rel="stylesheet" type="text/css" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@200;300&display=swap" rel="stylesheet" crossorigin />
+    <title>{Title}</title>
+    <link href="../Content/css/custom_bootstrap.css" rel="stylesheet" />
+    <script src="../Scripts/jquery-3.7.1.min.js"></script>
+
+</head>
+<body id="BoyMasterPage" class="khmerFont1" style="background-color:#fff!important">
+    <style>
+        .mytable th, .mytable td {
+            border: 1px solid #000000 !important;
+        }
+
+        .mytable:first-of-type th, .mytable:first-of-type td {
+            border-bottom: 0 !important;
+        }
+
+        .invoice {
+            border: none !important;
+        }
+
+        @media print {
+            .invoice {
+                margin: 0 !important;
+                padding: 0 !important;
+                /*counter-reset: page;*/
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            thead, tfoot {
+                display: table-row-group;
+            }
+
+            @page {
+                size: A3 !important;
+                margin: 20px 20px 60px 50px !important;
+            }
+
+            .footer {
+                width: calc(100% - 20px);
+                position: fixed;
+                bottom: 0 !important;
+            }
+
+            .page-break {
+                display: block;
+                page-break-before: always;
+            }
+
+            /* .showPageNo::before {
+                    border: 1px solid blue !important;
+                    counter-increment: page;
+                    content: "Page " counter(page);
+                }*/
+            .showPageNo {
+                display: block !important;
+            }
+        }
+    </style>
+    <div class="wrapper" id="Div_Content">
+        <section class="invoice">
+            <div class="row mb-4 mt-4">
+                <div class="img col-5">
+                    {LOGO}
+                </div>
+                <div class="col-7 d-flex align-items-end">
+                    <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">{InvoiceName}</h4>
+                </div>
+            </div>
+            <table class="table table-bordered mb-0 mytable">
+                <tr>
+                    <th width="20%">Vendor Name:</th>
+                    <td style="border-right: 0 !important;">{VendorName}</td>
+                    <th class="text-right" style="border-left: 0 !important;" width="20%">RFN:</th>
+                    <td width="20%">{ReferenceNo}</td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td style="border-right: 0 !important;">{VendorAddress}</td>
+                    <th class="text-right" style="border-left: 0 !important;">Date:</th>
+                    <td>{RequestDate}</td>
+                </tr>
+                <tr>
+                    <th>Tel:</th>
+                    <td style="border-right: 0 !important;">{VendorContact}</td>
+                    <th class="text-right" style="border-left: 0 !important;">Requirement Date:</th>
+                    <td>{RequirementDate}</td>
+                </tr>
+                <tr>
+                    <th>Payment Mean:</th>
+                    <td style="border-right: 0 !important;">{PaymentMean}</td>
+                    <th class="text-right" style="border-left: 0 !important;">Requested By:</th>
+                    <td>{RequestBy}</td>
+                </tr>
+                <tr>
+                    <th>Delivery To:</th>
+                    <td style="border-right: 0 !important;">{DeliveryTo}</td>
+                    <th class="text-right" style="border-left: 0 !important;">Department:</th>
+                    <td>{Department}</td>
+                </tr>
+            </table>
+            <table class="table table-bordered mytable">
+                {TblHead}
+                {TblBody}
+                <tr>
+                    <td rowspan="4" colspan="2">
+                        <div class="img">
+                            {FileUpload}
+                        </div>
+                    </td>
+                    <th class="text-right" colspan="4">Total Amount (USD):</th>
+                    <td class="text-center">{TotalAmountUSD}</td>
+                </tr>
+                <tr>
+                    <th class="text-right" colspan="4">Total Amount (KHR):</th>
+                    <td class="text-center">{TotalAmountKHR}</td>
+                </tr>
+                <tr>
+                    <th class="text-right" colspan="4">Estimate Amount (USD):</th>
+                    <td class="text-center">{EstimateAmountUSD}</td>
+                </tr>
+                <tr>
+                    <th class="text-right" colspan="4">Estimate Amount (KHR):</th>
+                    <td class="text-center">{EstimateAmountKHR}</td>
+                </tr>
+            </table>
+            <div class="row">
+                <div class="col-6">
+                    <strong>{RemarkTitle}</strong>
+                    <p id="p_CustomerNotes" class="text-nowrap-pre well well-sm shadow-none">{Remark}</p>
+                    <strong>{BankInformationTitle}</strong>
+                    <p id="p_TermsConditions" class="text-nowrap-pre  well well-sm shadow-none" style="margin-top:10px">{BankInformation}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <strong>{PaymentMethodTitle}</strong>
+                    <span>{PaymentMethod}</span>
+                </div>
+            </div>
+
+            <footer class="footer" style="margin-bottom: 80px !important; ">
+                <div class="row justify-content-around" style="margin-top:100px; margin-bottom: 40px !important">
+                    <div class="col-3">
+                        <div class="text-center" style="height:90px">{CreatedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">Prepared By</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">Name: {CreatedByName}</label><br />
+                                <label class="col-form-label">Position: {CreatedByPosition}</label><br />
+                                <label class="col-form-label text-nowrap">Date: {CreatedByDate}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 {checkByClass}">
+                        <div class="text-center" style="height:90px">{CheckedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">Checked By</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">Name: {CheckedBy}</label><br />
+                                <label class="col-form-label">Position: {CheckedByPosition}</label><br />
+                                <label class="col-form-label text-nowrap">Date: {CheckedDate}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center" style="height:90px">{ApprovedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">Approved By</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">Name: {ApprovedBy}</label><br />
+                                <label class="col-form-label">Position: {ApprovedByPosition}</label><br />
+                                <label class="col-form-label text-nowrap">Date: {ApprovedDate}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 {nextApproveClass}">
+                        <div class="text-center" style="height:90px">{NextApprovedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">Next Approved By</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">Name: {NextApprovedBy}</label><br />
+                                <label class="col-form-label">Position: {NextApprovedByPosition}</label><br />
+                                <label class="col-form-label text-nowrap">Date: {NextApprovedDate}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center" style="height:90px">{ReceievedBySignature}</div>
+                        <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                        <div class="row">
+                            <div class="col text-center">
+                                <label class="col-form-label text-uppercase text-nowrap">Received By</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label text-nowrap">Name: {ReceievedBy}</label><br />
+                                <label class="col-form-label">Position: {ReceievedByPosition}</label><br />
+                                <label class="col-form-label text-nowrap">Date: {ReceievedDate}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 text-left">
+                        <div class="pageNumber"></div>
+                    </div>
+                    <div class="col-6 text-right">
+                        <div>
+                            <small class="text text-sm">Print Date: {PrintDate}</small>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <script>
+        $(function () {
+            var contentHeight = $("#Div_Content").height();
+            var a3Height = 1587; //1587; // A3 size in pixels (assuming 96 DPI)
+            var totalPages = Math.ceil(contentHeight / a3Height);
+            var pageNumber = $(".pageNumber");
+            var footerHeight = $('.footer').outerHeight(true);
+            var tableHeight = contentHeight - footerHeight;
+
+            //console.log(contentHeight, footerHeight, tableHeight)
+
+            //if (totalPages == 2) {
+            //    if (contentHeight >= tableHeight) {
+            //        $('<div class="page-break"></div>').insertBefore('.footer');
+            //    }
+            //}
+
+            //for (var i = 1; i <= totalPages; i++) {
+            //    if (i == 1) {
+            //        a3Height = a3Height - 55;
+            //    }
+            //    if (i == totalPages) {
+            //        var pageNoContent = $('<div class="showPageNo text-muted" style="display:none"></div>')
+            //            .insertBefore($(".footer"))
+            //            .text("Page " + i + "/" + totalPages);
+            //        pageNumber.append(pageNoContent);
+            //    } else {
+            //        $('<div class="showPageNo text-muted" style="position:absolute;top: calc(' + (a3Height * i) + 'px - 55px);display:none;"></div>')
+            //            .insertBefore($(".footer"))
+            //            .text("Page " + i + "/" + totalPages);
+            //    }
+            //}
+
+            // Adjust footer position
+            if (contentHeight >= a3Height) {
+                $(".footer").css("cssText", "position: static !important;width: 100%;");
+            }
+        });
+    </script>
+</body>
+</html>

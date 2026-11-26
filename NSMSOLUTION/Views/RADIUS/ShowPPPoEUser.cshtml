@@ -1,0 +1,37 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.CboRouterID)
+    </div>
+</div>
+<div class="row p-3">
+    <div class="col">
+        <div id="packagelist"></div>
+    </div>
+</div>
+<script>
+    $("#CboRouterID").select2().on("change", function (e) {
+        let id = $(this).val();
+        PostData("RADIUS/GetPackageName", {
+            RouterIP: id
+        }, function (response) {
+            if (JSON.parse(response).Data != "") {
+                response = JSON.parse(JSON.parse(response).Data);
+                let row = `<table id="tblShowPPPoEPackageList" class="table table-bordered table-head-fixed text-nowrap" width="100%" cellspacing="0" cellpadding="5" border="0">
+<thead>
+<tr class="header"><th>#</th><th>Package Name</th><th>Action</th></tr></thead><tbody>`;
+                $.each(response, function (key, val) {
+                    row += "<tr>";
+                    row += "<td align=\"right\">" + (key + 1) + "</td><td>" + val.Words.name + "</td>";
+                    row += `<td align="center"><a onclick="deleteProfile(` + id + `,'` + val.Words[".id"] + `', this);" name="Delete" class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete" alt="Delete"><i class="fa fa-trash"></i></a></td>`;
+                    row += "</tr>";
+                });
+                row += "</tbody></table>";
+                $("#packagelist").html(row);
+            }
+            else {
+                $("#packagelist").html('');
+            }
+        });
+    });
+</script>

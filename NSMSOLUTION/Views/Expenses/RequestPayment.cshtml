@@ -1,0 +1,79 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<style>
+    .section-banner {
+        background-color: #F89C39;
+        color: #fff;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+</style>
+
+<div class="row pt-2">
+    <div class="col-8">
+        <div class="section-banner">Payment Information</div>
+    </div>
+    <div class="col-4">
+
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#Description").val("");
+        $("#TblExpensesItem")
+            .find("input, select, textarea, button")
+            .prop("disabled", true);
+    });
+    function PaymentMothod(THIS) {
+        if (PrimaryFieldValue == "") PrimaryFieldValue = 0;
+        //var text = THIS.text();
+        var PaymentMethodID = $("#PaymentMethodID").val();
+        var ClassID = $("#ClassName").val();
+        if (!ClassID) return false;
+        //console.log(THIS.value());
+        if (!$("#PaymentMethodID").data("kendoComboBox")) return false;
+        var text = $("#PaymentMethodID").data("kendoComboBox").text();
+
+        //$("#ChequeTo").closest(".row").hide();
+        var $row = $("#ChequeTo").closest(".row");
+        //$row.stop(true, true).slideDown(150);
+        if (text == "Cheque")
+            $row.stop(true, true).slideDown(150);
+        else
+            $row.stop(true, true).slideUp(150);
+
+        $row = $("#BankAccountName").closest(".row");
+        if (text == "Bank Transfer" || text == "Petty Cash")
+            $row.stop(true, true).slideDown(150);
+        else
+            $row.stop(true, true).slideUp(150);
+        if (ClassID == "" || ClassID == null) {
+            DialogSweetAlert('error', "Please select Calss Name.", function () {
+                $("#ClassName").focus();
+                return true;
+            });
+            return true;
+        }
+        else if (PaymentMethodID != "" && PaymentMethodID != null) {
+            LoadData("Expenses/GetPostingNumber?PaymentMethodID=" + PaymentMethodID + "&ClassID=" + ClassID, function (response) {
+                var rst = JSON.parse(response);
+                $("#PostingNumber").val(rst.PostingNo);
+                $("#PostingNumber_PostingPrefix").val(rst.Prefix);
+            });
+            LoadData("Expenses/GetPostingNumber?PaymentMethodID=" + PaymentMethodID + "&ClassID=" + ClassID + "&Type=PrefixPV", function (response) {
+                var rst = JSON.parse(response);
+                $("#No").val(rst.PostingNo);
+                $("#No_NoPrefix").val(rst.Prefix);
+            });
+            LoadData("Expenses/GetPVNumber?ClassID=" + ClassID, function (response) {
+                var rst = JSON.parse(response);
+                $("#PVNo").val(rst.PVNo);
+                $("#PVNo_PVNoPrefix").val(rst.Prefix);
+            });
+        }
+    }
+</script>

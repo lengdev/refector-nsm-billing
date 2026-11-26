@@ -1,0 +1,214 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    var RediusProfileID = "@ViewBag.RediusProfileID";
+    var EditData = "@ViewBag.EditData";
+    var PackageData = "@ViewBag.PackageData";
+    var PackageDetailID = "@ViewBag.PackageDetailID";
+    $(function () {
+        if (EditData != "")
+            EditData = JSON.parse(EditData.replace(/&quot;/ig, '"'))[0];
+
+        appendTimeRow();
+    });
+    function getWeeksDiff(startDate, endDate) {
+        //const msInWeek = 1000 * 60 * 60 * 24 * 7;
+        //return Math.round(Math.abs(endDate - startDate) / msInWeek);
+        //Difference in number of days
+        return Math.abs(
+            moment(startDate, 'YYYY-MM-DD')
+                .startOf('day')
+                .diff(moment(endDate, 'YYYY-MM-DD').startOf('day'), 'days')
+        ) + 1
+    }
+
+    function CallbackOnPackageChange() {
+        setTimeout(function () {
+            var TxtStartEndDate = $("#TxtStartEndDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            var StartDate = moment(new Date(TxtStartEndDate)).startOf('month');
+            var Duration = (parseInt($("#Duration").val()) + parseInt($("#FreeDuration").val()));
+            var EndDate = moment(new Date(StartDate)).add(Duration, 'month');
+            $("#TxtStartEndDate").data('daterangepicker').setStartDate(StartDate);
+            $("#TxtStartEndDate").data('daterangepicker').setEndDate(EndDate);
+            var week = getWeeksDiff(StartDate, EndDate) + 'd';
+            $("#Validity").val(week);
+            var LimitationName = "Limitation_" + $("#ProfileName").val();
+            $("#LimitationName").val(LimitationName);
+
+            var limitationD = "Limitation_DS@9_" + $("#ProfileName").val();
+            $("#LimitationName_DoubleSpeed").val(limitationD);
+
+            if (RediusProfileID != 0) {
+                $("#ServiceID").attr("disabled", "disabled");
+                $("#ConnectionTypeID").attr("disabled", "disabled");
+                $("#PackageDetailID").attr("disabled", "disabled");
+                $("#ProfileName").attr("disabled", "disabled");                
+                if (EditData.IsDoubleSpeedAtNight) {
+                    $("#IsDSpeed").attr("checked", "checked");
+                    $("#FromTime").data('daterangepicker').setStartDate(EditData.FromTime1);
+                    $("#FromTime").data('daterangepicker').setEndDate(EditData.FromTime2);
+                    $("#ToTime").data('daterangepicker').setStartDate(EditData.ToTime1);
+                    $("#ToTime").data('daterangepicker').setEndDate(EditData.ToTime2);
+                }
+                else {
+                    $("#IsDSpeed").removeAttr("checked");
+                    appendTimeRow();
+                }
+            }
+            if (PackageData != "") {
+                $("#ServiceID").attr("disabled", "disabled");
+                $("#ConnectionTypeID").attr("disabled", "disabled");
+                $("#PackageDetailID").attr("disabled", "disabled");
+                PackageData = JSON.parse(PackageData.replace(/&quot;/ig, '"'))[0];
+                $("#ServiceID").val(PackageData.ServiceID).trigger('change');
+                $("#ConnectionTypeID").val(PackageData.PackageTypeID).trigger('change');
+                $("#PackageDetailID").val(PackageData.PackageDetailID).trigger('change');
+                PackageData = "";
+            }
+        }, 200);
+    }
+
+    function appendTimeRow() {
+        if ($("#IsDSpeed").is(':checked')) {
+            var row = '<tr id="RTTime"><td valign="top" align="right"><label for="FromTime" class="col-form-label">From Time:</label></td>';
+            row += '<td><div class="form-group">';
+            row += '<input type="text" class="form-control float-right" id="FromTime" required="true">';
+            row += '</div></td>';
+            row += '<td valign="top" align="right"><label for="ToTime" class="col-form-label">To Time:</label></td>';
+            row += '<td><div class="form-group">';
+            row += '<input type="text" class="form-control float-right" id="ToTime" required="true">';
+            row += '</div></td>';
+            row += '</tr>';
+
+            var td = '<td name="tdLimitationD" valign="top" align="right"><label class="col-form-label">Limitation Name:</label></td>';
+            td += '<td name="tdLimitationD"><div class="form-group">';
+            td += '<input type="text" class="form-control" id="LimitationName_DoubleSpeed" readonly="true" required="true">';
+            td += '</div></td>';
+            $("#IsDSpeed").parent().parent().parent().append(td);
+            $("#IsDSpeed").closest('tr').after(row);
+
+            $('#FromTime').daterangepicker({
+                timePicker: true,
+                //autoApply: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 1,
+                timePickerSeconds: true,
+                //autoUpdateInput: true,
+                parentEl: "#modal-default .modal-body",
+                locale: {
+                    format: 'HH:mm:ss'
+                }
+            }).on('show.daterangepicker', function (ev, picker) {
+                picker.container.find(".calendar-table").hide();
+            });
+            $('#ToTime').daterangepicker({
+                timePicker: true,
+                //autoApply: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 1,
+                timePickerSeconds: true,
+                //autoUpdateInput: true,
+                parentEl: "#modal-default .modal-body",
+                locale: {
+                    format: 'HH:mm:ss'
+                }
+            }).on('show.daterangepicker', function (ev, picker) {
+                picker.container.find(".calendar-table").hide();
+            });
+
+            $("#FromTime").data('daterangepicker').setStartDate('07:00:00');
+            $("#FromTime").data('daterangepicker').setEndDate('18:59:59');
+
+            $("#ToTime").data('daterangepicker').setStartDate('19:00:00');
+            $("#ToTime").data('daterangepicker').setEndDate('23:59:59');
+
+            var limitationD = "Limitation_DS@9_"+$("#ProfileName").val();
+            $("#LimitationName_DoubleSpeed").val(limitationD);
+        }
+        else {
+            $("td[name=tdLimitationD]").remove();
+            $("#RTTime").remove();
+        }
+    }
+    $("#IsDSpeed").click(function () {
+        appendTimeRow();
+    });
+    $("#ProfileName").keyup(function () {
+        $("#LimitationName").val("Limitation_" + $(this).val());
+        var limitationD = "Limitation_DS@9_" + $(this).val();
+        $("#LimitationName_DoubleSpeed").val(limitationD);
+    })
+    function SaveChagenRediusProfile() {
+        var objData = {};
+        var Data = [];
+
+        $("form[name=CreateRadiusProfileForm] input[type=text], form[name=CreateRadiusProfileForm] select").each(function (key, value) {
+            if (value.id != "") {
+                objData[value.id] = value.value;
+            }
+        });
+        if ($("#IsDSpeed").is(':checked')) {
+            objData["LimitationName_DoubleSpeed"] = $("#LimitationName_DoubleSpeed").val();//23h59m59s
+            if ($("#FromTime").data('daterangepicker').startDate.format('HH:mm:ss') == '00:00:00')
+                objData["FromTime1"] = '0s';
+            else
+                objData["FromTime1"] = $("#FromTime").data('daterangepicker').startDate.format('HH') + 'h' + $("#FromTime").data('daterangepicker').startDate.format('mm') + 'm' + $("#FromTime").data('daterangepicker').startDate.format('ss') + 's';
+            if ($("#FromTime").data('daterangepicker').endDate.format('HH:mm:ss') == '00:00:00')
+                objData["FromTime2"] = '0s';
+            else
+                objData["FromTime2"] = $("#FromTime").data('daterangepicker').endDate.format('HH') + 'h' + $("#FromTime").data('daterangepicker').endDate.format('mm') + 'm' + $("#FromTime").data('daterangepicker').endDate.format('ss') + 's';
+            if ($("#ToTime").data('daterangepicker').startDate.format('HH:mm:ss') == '00:00:00')
+                objData["ToTime1"] = '0s';
+            else
+                objData["ToTime1"] = $("#ToTime").data('daterangepicker').startDate.format('HH') + 'h' + $("#ToTime").data('daterangepicker').startDate.format('mm') + 'm' + $("#ToTime").data('daterangepicker').startDate.format('ss') + 's';
+            if ($("#ToTime").data('daterangepicker').endDate.format('HH:mm:ss') == '00:00:00')
+                objData["ToTime2"] = '0s';
+            else
+                objData["ToTime2"] = $("#ToTime").data('daterangepicker').endDate.format('HH') + 'h' + $("#ToTime").data('daterangepicker').endDate.format('mm') + 'm' + $("#ToTime").data('daterangepicker').endDate.format('ss') + 's';
+
+            objData["ToTime3"] = '0s';
+            var HH = $("#ToTime").data('daterangepicker').startDate.format('HH');
+            HH = (parseInt(HH) - 13) + "h";
+            objData["ToTime4"] = HH + '59m59s';
+        }
+        else {
+            objData["LimitationName_DoubleSpeed"] = "";
+            objData["FromTime1"] = "";
+            objData["FromTime2"] = "";
+            objData["ToTime1"] = "";
+            objData["ToTime2"] = "";
+            objData["ToTime3"] = "0s";
+            objData["ToTime4"] = "23h59m59s";
+        }
+        objData["RediusProfileID"] = RediusProfileID;
+        Data.push(objData);
+        var URL = "RADIUS/SaveChangeRediusProfile";
+        var DATA = { Data: JSON.stringify(Data[0]) };
+        DoSaveChangeData(URL, DATA, function (respone) {
+            if (respone.Result == 2) {
+                if (PackageDetailID == 0) {
+                    if (RediusProfileID != 0) {
+                        $("#CloseModal").click();
+                        $("#BunSearch").click();
+                    }
+                    else {
+                        $("#IPPOOL").val('');
+                        $("#IPPOOL").focus();
+                        $("input[name=RD]").click();
+                        $("#BunSearch").click();
+                    }
+                }
+                else {
+                    $("#CloseModal").click();
+                    $("#BunSearch").click();
+                }
+            }
+        });
+    }
+    
+</script>
+
+

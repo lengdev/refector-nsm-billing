@@ -1,0 +1,162 @@
+﻿<!-- bandwidth.html -->
+<!-- AngularJS 1.x partial view — sidebar + content layout, matching Settings -->
+<div class="bw-page" ng-controller="BandwidthController as vm">
+    <link rel="stylesheet" href="App/Views/Bandwidth/style.css" />
+    <div class="bw-layout">
+
+        <!-- ===== Sidebar: bandwidth tiers ===== -->
+        <div class="bw-sidebar">
+            <div class="bw-sidebar-heading">
+                <i class="ti ti-router"></i>
+                Bandwidth Tiers
+            </div>
+
+            <div class="bw-skeleton-row" ng-if="vm.loadingBandwidth">
+                <div class="bw-skeleton-chip" ng-repeat="n in [1,2,3,4,5]"></div>
+            </div>
+
+            <div class="bw-empty-state bw-empty-state-compact" ng-if="!vm.loadingBandwidth && !vm.bandwidthList.length">
+                <i class="ti ti-chart-bar"></i>
+                <p>No bandwidth data available.</p>
+            </div>
+
+            <div class="bw-nav" ng-if="!vm.loadingBandwidth && vm.bandwidthList.length">
+                <button type="button" class="bw-nav-item" ng-repeat="item in vm.bandwidthList track by $index"
+                    ng-class="{'bw-nav-item-active': vm.selectedBandwidth === item.bandwidth}"
+                    ng-click="vm.showCustomersByBandwidth(item.bandwidth)">
+                    <i class="ti ti-wifi"></i>
+                    <span class="bw-nav-item-label">{{ item.bandwidth | number:0 }} Mbps</span>
+                    <span class="bw-nav-item-count" ng-if="item.customerCount">{{ item.customerCount }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Content ===== -->
+        <div class="bw-content">
+
+            <div class="bw-content-topbar">
+                <div class="bw-breadcrumb">
+                    <span>Reports</span>
+                    <i class="ti ti-chevron-right"></i>
+                    <span class="bw-breadcrumb-current">Bandwidth</span>
+                </div>
+            </div>
+
+            <h1 class="bw-title">Bandwidth</h1>
+            <p class="bw-subtitle">Usage by capacity tier</p>
+
+            <!-- ===== Stat summary row ===== -->
+            <div class="bw-stat-row" ng-if="!vm.loadingBandwidth && vm.bandwidthList.length">
+                <div class="bw-stat-card bw-stat-accent">
+                    <div class="bw-stat-label">Tiers</div>
+                    <div class="bw-stat-value">{{ vm.bandwidthList.length }}</div>
+                </div>
+                <div class="bw-stat-card">
+                    <div class="bw-stat-label">Connections</div>
+                    <div class="bw-stat-value">{{ vm.totalConnections() | number:0 }}</div>
+                </div>
+                <div class="bw-stat-card">
+                    <div class="bw-stat-label">Top Tier</div>
+                    <div class="bw-stat-value">
+                        {{ vm.topBandwidth() | number:0 }}<span class="bw-stat-unit">Mbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Customer group drill-down ===== -->
+            <div class="bw-card" ng-if="vm.selectedBandwidth">
+                <div class="bw-card-header">
+                    <div>
+                        <h3 class="bw-card-title">
+                            <i class="ti ti-users"></i>
+                            Customers on {{ vm.selectedBandwidth | number:0 }} Mbps
+                        </h3>
+                    </div>
+                    <button type="button" class="bw-icon-btn" ng-click="vm.toggleCollapsed()" title="Collapse">
+                        <i class="ti" ng-class="vm.collapsed ? 'ti-plus' : 'ti-minus'"></i>
+                    </button>
+                </div>
+
+                <div class="bw-card-body" ng-show="!vm.collapsed">
+
+                    <div class="bw-skeleton-table" ng-if="vm.loadingGroups">
+                        <div class="bw-skeleton-line" ng-repeat="n in [1,2,3]"></div>
+                    </div>
+
+                    <div class="bw-empty-state" ng-if="!vm.loadingGroups && !vm.customerGroups.length">
+                        <i class="ti ti-user-off"></i>
+                        <p>No customer groups found for this tier.</p>
+                    </div>
+
+                    <div class="bw-group-layout" ng-if="!vm.loadingGroups && vm.customerGroups.length">
+                        <div class="bw-group-tabs">
+                            <button type="button" class="bw-group-tab"
+                                ng-repeat="g in vm.customerGroups track by $index"
+                                ng-class="{'bw-group-tab-active': vm.selectedGroupId === g.customerGroupId}"
+                                ng-click="vm.selectGroup(g)">
+                                <i class="ti ti-user"></i>
+                                <span class="bw-group-tab-label">{{ g.customerGroup }}</span>
+                                <span class="bw-group-tab-count" data-toggle="tooltip" data-placement="top"
+                                    title="Connection by group">{{ g.customer | number:0 }}</span>
+                            </button>
+
+                            <!-- <div class="bw-group-total">
+                                <i class="ti ti-user"></i>
+                                Customers: {{ vm.totalGroupCustomers() | number:0 }}
+                            </div> -->
+                        </div>
+
+                        <div class="bw-group-content">
+                            <div class="bw-skeleton-table" ng-if="vm.loadingDetail">
+                                <div class="bw-skeleton-line" ng-repeat="n in [1,2,3,4]"></div>
+                            </div>
+
+                            <div class="bw-empty-state" ng-if="!vm.loadingDetail && !vm.customerDetails.length">
+                                <i class="ti ti-user-off"></i>
+                                <p>No customers found for this group.</p>
+                            </div>
+
+                            <table class="bw-table" ng-if="!vm.loadingDetail && vm.customerDetails.length">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>CID</th>
+                                        <th>Customer</th>
+                                        <th>PPPoE/Vlan</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="c in vm.customerDetails track by $index">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td class="text-nowrap">
+                                            <a href="#!/CustomerProfile?ID={{c.CustomerID}}" target="_blank">{{
+                                                c.CustomerCode }}</a>
+                                        </td>
+                                        </td>
+                                        <td class="bw-cell-name">{{ c.CustomerName }}</td>
+                                        <td>{{ c.vp }}</td>
+                                        <td>
+                                            <span class="bw-badge"
+                                                ng-class="c.ConnectivityStatus === 40 ? 'bw-badge-active' : 'bw-badge-inactive'">
+                                                {{ c.ConnectivityStatus === 40 ? 'Active' : c.ConnectivityStatus === 41
+                                                ? 'Locked' : 'Terminate' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bw-empty-state"
+                ng-if="!vm.selectedBandwidth && !vm.loadingBandwidth && vm.bandwidthList.length">
+                <i class="ti ti-hand-click"></i>
+                <p>Select a bandwidth tier on the left to see customers.</p>
+            </div>
+
+        </div>
+    </div>
+</div>

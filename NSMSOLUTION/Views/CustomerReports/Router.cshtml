@@ -1,0 +1,373 @@
+﻿@{ Layout = null; }
+<div class="row mb-3 text-primary">
+    <div class="col"><h4><i class="fa-duotone fa-router"></i> Router</h4></div>
+</div>
+<div class="row">
+    <div class="col" id="ShowRouterData"></div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fa-regular fa-square-info"></i>
+                    Router Information - <span id="routerName" class="text-danger"></span>
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col" id="divRouterInfo"></div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card card-primary card-outline card-outline-tabs">
+                            <div class="card-header p-0 border-bottom-0">
+                                <ul class="nav nav-tabs" id="rounterInfoTab">
+                                    <li class="pt-2 px-3"><h3 class="card-title text-danger" id="hRouterName">Card Title</h3></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Matched <span class="badge bg-indigo color-palette" title="Matches with database"><span id="sMatches">0</span></span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Not Matches <span class="badge bg-danger" title="Not Matches with database"><span id="sNotMatches">2</span></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content" id="custom-tabs-four-tabContent">
+                                    <div class="tab-pane fade active show" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                                        <div id="showCustMatches"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                                        <div id="showCustNotMatches"></div>
+                                    </div>                                   
+                                </div>
+                            </div>
+                            <!-- /.card -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var RouterData = JSON.parse(`@Html.Raw(ViewBag.Data)`);
+    $(function () {
+        $("#rounterInfoTab a").click(function (e) {
+            e.preventDefault();
+        });
+        if (RouterData.length > 0) {
+            RouterData = RouterData[0].Table;
+            //console.log(RouterData);
+            var row = '<div class="row">';
+            $.each(RouterData, function (key, value) {
+                row += `<div class="col-md col-sm-6 col-12">
+        <a onclick="showByRouter(`+ value.RouterID + `,'` + value.RouterName +`');" href="javascript:void(0);">
+    <div class="info-box">
+        <span class="info-box-icon bg-success"><i class="fa-regular fa-router"></i></span>
+        <div class="info-box-content">
+            <span class="text-nowrap">`+ value.RouterName + `</span>
+            <span class="info-box-number"></span>
+        </div>
+    </div></a>
+</div>`;
+                if (key == 0)
+                    showByRouter(value.RouterID, value.RouterName);
+            });
+            row += '</div>';
+            $("#ShowRouterData").html(row);
+        }
+    });
+
+    async function showByRouter(RouterID, RouterName) {        
+        $("#routerName").html(RouterName);
+        var routerInfo = new Object();
+        var row = `<div class="row">
+        <div class="col-md col-sm-6 col-12">
+        <a id="aPPPoE" href="javascript:void(0);">
+    <div class="info-box">
+        <span class="info-box-icon bg-primary"><i class="fa-solid fa-house-laptop"></i></span>
+        <div class="info-box-content">
+            <span class="text-nowrap">PPPoE</span>
+            <span class="info-box-number">
+            <span class="badge bg-teal color-palette" title="User"><i class="fa-regular fa-user"></i> <span id="countPPPoE"></span></span>
+            <span class="badge bg-primary" title="Active"><i class="fa-solid fa-user-check"></i> <span id="countPPPoEActive"></span></span>
+            <span class="badge bg-danger" title="Inactive"><i class="fa-solid fa-user-xmark"></i> <span id="countPPPoEInactive"></span></span>
+            <span class="badge bg-indigo color-palette" title="Matches with database"><i class="fa-regular fa-user-plus"></i> <span id="countPPPoEMatches"></span></span>
+            <span class="badge bg-danger" title="Not Matches with database"><i class="fa-regular fa-user-minus"></i> <span id="countPPPoENotMatches"></span></span>
+            </span>
+        </div>
+    </div></a>
+</div>
+        <div class="col-md col-sm-6 col-12">
+        <a id="aStatic" href="javascript:void(0);">
+    <div class="info-box">
+        <span class="info-box-icon bg-indigo color-palette"><i class="fa-sharp fa-solid fa-link-horizontal"></i></span>
+        <div class="info-box-content">
+            <span class="text-nowrap">Static</span>
+            <span class="info-box-number">
+<span class="badge bg-teal color-palette" title="User"><i class="fa-regular fa-user"></i> <span id="countVlan"></span></span>
+<span class="badge bg-primary" title="Active"><i class="fa-solid fa-user-check"></i> <span id="countVlanActive"></span></span>
+<span class="badge bg-danger" title="Inactive"><i class="fa-solid fa-user-xmark"></i> <span id="countVlanInactive"></span></span>
+<span class="badge bg-indigo color-palette" title="Matches with database"><i class="fa-regular fa-user-plus"></i> <span id="countVlanMatches"></span></span>
+<span class="badge bg-danger" title="Not Matches with database"><i class="fa-regular fa-user-minus"></i> <span id="countVlanNotMatches"></span></span>
+</span>
+        </div>
+    </div></a>
+</div>
+</div>`;
+        $("#divRouterInfo").html(row);
+        routerInfo = await getRouterInfo(RouterID);
+        getRouterInfoDetail(RouterID, 'PPPoE', routerInfo.PPPoE);
+
+        $("#aPPPoE").click(function () {
+            getRouterInfoDetail(RouterID, 'PPPoE', routerInfo.PPPoE);
+        });
+        $("#aStatic").click(function () {
+            getRouterInfoDetail(RouterID, 'Static', routerInfo.Static);
+        });
+    }
+
+    async function getRouterInfo(RouterID) {
+        return new Promise(function (resolve) {
+            LoadData("CustomerReports/GetRouterInfoByID?RouterID=" + RouterID, function (response) {
+                response = JSON.parse(response);
+                //console.log(response);
+                var DataPPPoE = (response.DataPPPoE == 'null' ? [] : JSON.parse(response.DataPPPoE));
+                var DataVlan = (response.DataVlan == 'null' ? [] : JSON.parse(response.DataVlan));
+                $("#countPPPoE").html(accounting.formatNumber(DataPPPoE.length, 0));
+                $("#countVlan").html(accounting.formatNumber(DataVlan.length, 0));
+                if (DataPPPoE.length > 0) {
+                    var activeConnection = DataPPPoE.filter(function (item) {
+                        return item.Words.disabled == "false";
+                    });
+                    var inactiveConnection = DataPPPoE.filter(function (item) {
+                        return item.Words.disabled == "true";
+                    });
+                    $("#countPPPoEActive").html(accounting.formatNumber(activeConnection.length, 0));
+                    $("#countPPPoEInactive").html(accounting.formatNumber(inactiveConnection.length, 0));
+                }
+                else {
+                    $("#countPPPoEActive").html(0);
+                    $("#countPPPoEInactive").html(0);
+                }
+
+                if (DataVlan.length > 0) {
+                    var activeConnection = DataVlan.filter(function (item) {
+                        return item.Words.disabled == "false";
+                    });
+                    var inactiveConnection = DataVlan.filter(function (item) {
+                        return item.Words.disabled == "true";
+                    });
+                    $("#countVlanActive").html(accounting.formatNumber(activeConnection.length, 0));
+                    $("#countVlanInactive").html(accounting.formatNumber(inactiveConnection.length, 0));
+                }
+                else {
+                    $("#countVlanActive").html(0);
+                    $("#countVlanInactive").html(0);
+                }
+                var DataInDatabase = JSON.parse(response.DataInDatabase);
+
+                var matchPPPoE = DataInDatabase.filter(function (o2) {
+                    return DataPPPoE.some(function (o1) {
+                        return $.trim(o1.Words.username).toString() === $.trim(o2.PPPoEUserName).toString() && o2.ConnectionType === 'PPPoE';// assumes unique id
+                    });
+                });
+                var notMatchPPPoE = DataPPPoE.filter(function (o1) {
+                    return !DataInDatabase.some(function (o2) {
+                        return $.trim(o1.Words.username).toString() === $.trim(o2.PPPoEUserName).toString() && o2.ConnectionType === 'PPPoE';// assumes unique id
+                    });
+                });
+
+                $("#countPPPoEMatches").html(accounting.formatNumber(matchPPPoE.length, 0));
+                $("#countPPPoENotMatches").html(accounting.formatNumber(notMatchPPPoE.length, 0));
+
+                var matchVlan = DataInDatabase.filter(function (o2) {
+                    return DataVlan.some(function (o1) {
+                        return $.trim(o1.Words[".id"]).toString() === $.trim(o2.VLanID).toString() && o2.ConnectionType === 'Static';// assumes unique id
+                    });
+                });
+
+                var notMatchVlan = DataVlan.filter(function (o1) {
+                    return !DataInDatabase.some(function (o2) {
+                        return $.trim(o1.Words[".id"]).toString() === $.trim(o2.VLanID).toString() && o2.ConnectionType === 'Static';// assumes unique id
+                    });
+                });
+                $("#countVlanMatches").html(accounting.formatNumber(matchVlan.length, 0));
+                $("#countVlanNotMatches").html(accounting.formatNumber(notMatchVlan.length, 0));
+                var obj = new Object();
+                obj["PPPoE"] = {
+                    Data: matchPPPoE,
+                    match: matchPPPoE.length,
+                    notMatch: notMatchPPPoE.length,
+                    notMatchData: notMatchPPPoE
+                };
+
+                obj["Static"] = {
+                    Data: matchVlan,
+                    match: matchVlan.length,
+                    notMatch: notMatchVlan.length,
+                    notMatchData: notMatchVlan
+                };
+                resolve(obj);
+            });
+        });
+    }
+
+    function getRouterInfoDetail(RouterID, ConnectionType, routerInfo) {
+        $("#hRouterName").html(ConnectionType);
+        $("#sMatches").html(routerInfo.match);
+        $("#sNotMatches").html(routerInfo.notMatch);
+        var CustomerID = routerInfo.Data.map(function (a) { return a.CustomerID });
+        var Data = {
+            RouterID: RouterID,
+            ConnectionType: ConnectionType,
+            Data: JSON.stringify(CustomerID).replace(/['"]+/g, '')
+        };
+        PostData("CustomerReports/ShowCustomer", Data, function (response) {
+            $("#showCustMatches").html(response);
+        });
+        var row = '<table id="tblNotMatchData" class="table table-bordered table-head-fixed text-nowrap">';
+        if (ConnectionType == 'Static') {
+            row += `<thead><tr class="header"><th>No</th><th>Vlan Name</th><th>Status</th><th>Comment</th></tr></thead><tbody>`;
+            $.each(routerInfo.notMatchData, function (key, value) {
+                row += `<tr><td>` + (key + 1) + `</td>`;
+                row += `<td><span name="spVlanName">` + value.Words.name + `</span><br><button type="button" onclick="addVlanComment(` + RouterID + `,'` + value.Words[".id"] + `', this);" name="AddBtnComment" class="btn btn-outline-primary btn-xs">Add Comment</button>
+                <button type="button" onclick="renameVlan(` + RouterID + `,'` + value.Words[".id"] + `', this);" name="renameBtnComment" class="btn btn-outline-info btn-xs">Rename</button>
+                <button type="button" onclick="enableVlan(` + RouterID + `,'` + value.Words[".id"] + `', this,'` + (value.Words.disabled == "false" ? "Disable" : "Enable") +`');" name="statusBtn" class="btn btn-outline-danger btn-xs">
+                `+ (value.Words.disabled == "false" ? "Disable" : "Enable") + `</button></td>`;
+                row += '<td><span name="spStatus">' + (value.Words.disabled == "false" ? "Active" : "Disabled") + '</span></td>';
+                //row += '<td>' + value.Words.name + '</td>';
+                if (value.Words["comment"])
+                    row += '<td><span name="spVlanComment">' + value.Words["comment"].replace(";", "<br>").replace("; ", "<br>") + '</span></td>';
+                else
+                    row += '<td><span name="spVlanComment"></span></td>';
+                row += '</tr>';
+            });
+        }
+        else {
+            row += `<thead><tr class="header"><th>No</th><th>User Name</th><th>Status</th><th>Actual Profile</th><th>Last Seen</th><th>Comment</th></tr></thead><tbody>`;
+            $.each(routerInfo.notMatchData, function (key, value) {
+                row += '<tr><td>' + (key + 1) + '</td>';
+                row += `<td>` + value.Words.username + `<br><button type="button" onclick="addPPPoEComment(` + RouterID + `,'` + value.Words.username + `', this);" name="AddBtnComment" class="btn btn-outline-primary btn-xs">Add Comment</button>
+                <button type="button" onclick="enablePPPoE(` + RouterID + `,'` + value.Words[".id"] + `', this,'` + (value.Words.disabled == "false" ? "Disable" : "Enable") + `');" name="statusPPPoEBtn" class="btn btn-outline-danger btn-xs">
+`+ (value.Words.disabled == "false" ? "Disable" : "Enable") + `</button></td>`;
+                row += '<td><span name="spPPPoEStatus">' + (value.Words.disabled == "false" ? "Active" : "Disabled") + '</span></td>';
+                row += '<td>' + value.Words["actual-profile"] + '</td>';
+                row += '<td>' + value.Words["last-seen"] + '</td>';
+                if (value.Words["comment"])
+                    row += '<td><span name="spPPPoEComment">' + value.Words["comment"].replace(";", "<br>").replace("; ", "<br>") + '</span></td>';
+                else
+                    row += '<td><span name="spPPPoEComment"></span></td>';
+                row += '</tr>';
+            });
+        }
+        row += '</tbody></table>';
+        $("#showCustNotMatches").html(row);
+        var MyDataTable = $("#tblNotMatchData").DataTable({
+            //responsive: true,
+            lengthMenu: [[30, 50, 100, -1], ['30', '50', '100', 'Show all']],
+            //lengthChange: true,
+            //paging: true,
+            //language: {
+            //    emptyTable: "No items to display.",
+            //    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            //    infoEmpty: "Showing 0 to 0 of 0 entries",
+            //    searchPlaceholder: "Search"
+            //},
+            //dom: "<'row'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f >< 'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>> " + " < 'row' < 'col-sm-12'tr >> " + " < 'row' < 'col-sm-12 col-md-5'i >< 'col-sm-12 col-md-7'p >> ",
+            //buttons: ['pageLength', {
+            //    extend: 'colvis',
+            //    text: 'Column visibility',
+            //    exportOptions: {
+            //        columns: ':visible'
+            //    }
+            //}, {
+            //        extend: 'excelHtml5',
+            //        text: '<i class="fa - regular fa - file - excel"></i> <span class="d - none d - md - inline">Excel</span>',
+            //        titleAttr: 'Generate Excel',
+            //        className: 'btn btn-primary btn-sm'
+            //    }, {
+            //        extend: 'print',
+            //        exportOptions: {
+            //            columns: ':visible'
+            //        },
+            //        text: '<i class="fa fa - print"></i><span class="d - none d - md - inline">Print</span>',
+            //        titleAttr: 'Print Table',
+            //        className: 'btn btn-default btn-sm'
+            //    }]
+        });
+        //row = '';
+        //row += '<div class="form-group"><div class="input-group">'
+        //row += '<div class="input-group-prepend"><label for="myInputSearch" class="input-group-text"><i class="fas fa-search"></i></label></div>'
+        //row += '<input id="myInputSearch" type="search" class="form-control" placeholder="Search" />'; row += '</div></div>'
+        //$("#TableGride_filter").html(row);
+        //$("#TableGride_filter").removeClass("dataTables_filter");
+        //$('#myInputSearch').on('keyup', function () {
+        //    MyDataTable.search(this.value).draw();
+        //});
+        //$("div.dt-buttons").addClass('btn-group flex-wrap'); $("div.btn-group").removeClass('dt-buttons');
+    }
+    function addPPPoEComment(RouterID, PPPoEUserName, THIS) {
+        DoSaveChangeSweetCofirm("CustomerReports/AddPPPoEComment", { RouterID: RouterID, PPPoEUserName: PPPoEUserName, Comment: encodeURIComponent($("#txtComment").val()) }, function (response) {
+            var index = $(THIS).closest("tr").index();
+            $("span[name=spPPPoEComment]").eq(index).html(response.Comment);
+        }, "", "", "Apply Comment");
+    }
+
+    function addVlanComment(RouterID, ID, THIS) {
+        DoSaveChangeSweetCofirm("CustomerReports/AddVlanComment", { RouterID: RouterID, ID: ID, Comment: encodeURIComponent($("#txtComment").val()) }, function (response) {
+            var index = $(THIS).closest("tr").index();
+            $("span[name=spVlanComment]").eq(index).html(response.Comment);
+        }, "", "", "Apply Comment");
+    }
+    function renameVlan(RouterID, ID, THIS) {
+        DoSaveChangeSweetCofirm("CustomerReports/RenameVlan", { RouterID: RouterID, ID: ID, Comment: encodeURIComponent($("#txtComment").val()) }, function (response) {
+            var index = $(THIS).closest("tr").index();
+            $("span[name=spVlanName]").eq(index).html(response.NewName);
+        }, "", "", "Rename");
+    }
+    function enableVlan(RouterID, ID, THIS, Status) {
+        DoSaveChangeSweetCofirm("CustomerReports/ChangStatus", { RouterID: RouterID, ID: ID, Status: Status, Comment: encodeURIComponent($("#txtComment").val()) }, function (response) {
+            var index = $(THIS).closest("tr").index();
+            $("span[name=spVlanComment]").eq(index).html(response.Comment);
+            if (Status == "Disable") {
+                $("button[name=statusBtn]").eq(index).html("Enable");
+                $("span[name=spStatus]").eq(index).html("Disabled");
+                $("button[name=statusBtn]").eq(index).click(function (e) {
+                    enableVlan(RouterID, ID, THIS, 'Enable');
+                });
+            }
+            else {
+                $("button[name=statusBtn]").eq(index).html("Disable");
+                $("span[name=spStatus]").eq(index).html("Active");
+                $("button[name=statusBtn]").eq(index).click(function (e) {
+                    enableVlan(RouterID, ID, THIS, 'Disable');
+                });
+            }
+        }, "", "", "Apply");
+    }
+    function enablePPPoE(RouterID, ID, THIS, Status) {
+        DoSaveChangeSweetCofirm("CustomerReports/ChangStatusPPPoE", { RouterID: RouterID, ID: ID, Status: Status, Comment: encodeURIComponent($("#txtComment").val()) }, function (response) {
+            var index = $(THIS).closest("tr").index();
+            $("span[name=spPPPoEComment]").eq(index).html(response.Comment);
+            if (Status == "Disable") {
+                $("button[name=statusPPPoEBtn]").eq(index).html("Enable");
+                $("span[name=spPPPoEStatus]").eq(index).html("Disabled");
+                $("button[name=statusPPPoEBtn]").eq(index).click(function (e) {
+                    enablePPPoE(RouterID, ID, THIS, 'Enable');
+                });
+            }
+            else {
+                $("button[name=statusPPPoEBtn]").eq(index).html("Disable");
+                $("span[name=spPPPoEStatus]").eq(index).html("Active");
+                $("button[name=statusPPPoEBtn]").eq(index).click(function (e) {
+                    enablePPPoE(RouterID, ID, THIS, 'Disable');
+                });
+            }
+        }, "", "", "Apply");
+    }
+
+
+</script>
+

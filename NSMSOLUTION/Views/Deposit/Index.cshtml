@@ -1,0 +1,299 @@
+﻿@{ Layout = null; }
+
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<div class="k-d-flex k-justify-content-center d-none" style="padding-top: 54px;">
+    <div class="k-w-300">
+        <label for="customers">Find a Customer</label>
+        <input id="customers" />
+        <div class="demo-hint">Hint: type "an"</div>
+    </div>
+</div>
+
+<script>
+    var Data = [
+        {
+            "VendorID": 1,
+            "VendorName": "BDCOM Connecting a Better Word "
+        },
+        {
+            "VendorID": 2,
+            "VendorName": "Hangzhou Zion Communication"
+        },
+        {
+            "VendorID": 3,
+            "VendorName": "ELITECH Distributor Co.,Ltd"
+        },
+        {
+            "VendorID": 4,
+            "VendorName": "Shenzhen Xinyu (YRC) Tech Co.,Ltd"
+        },
+        {
+            "VendorID": 5,
+            "VendorName": "Loxu Digital (Cambodia) Co.,LTD"
+        },
+        {
+            "VendorID": 6,
+            "VendorName": "SMC"
+        },
+        {
+            "VendorID": 7,
+            "VendorName": "URBAN HUB (CAMBODIA) CO.,LTD"
+        },
+        {
+            "VendorID": 8,
+            "VendorName": "China Unicom(Cambodia) Operations Co.,Ltd"
+        },
+        {
+            "VendorID": 9,
+            "VendorName": "China Unicom(Cambodia) Operations Co.,Ltd"
+        },
+        {
+            "VendorID": 10,
+            "VendorName": "Hurricane Electric LLC"
+        },
+        {
+            "VendorID": 11,
+            "VendorName": "ANF INTERNATIONAL HONGKONG "
+        },
+        {
+            "VendorID": 12,
+            "VendorName": "LINK INFINITY"
+        },
+        {
+            "VendorID": 13,
+            "VendorName": "ATLANTIC IMPORT EXPORT CO.,LTD"
+        },
+        {
+            "VendorID": 14,
+            "VendorName": "(Cambodia) Fiber Optic Communication Network Co.,Ltd"
+        },
+        {
+            "VendorID": 19,
+            "VendorName": "Sabay Digital Corporation Ltd"
+        },
+        {
+            "VendorID": 20,
+            "VendorName": "General"
+        },
+        {
+            "VendorID": 21,
+            "VendorName": "international Communication Instrument Co., Ltd."
+        },
+        {
+            "VendorID": 22,
+            "VendorName": "Hurricane Electric LLC"
+        },
+        {
+            "VendorID": 23,
+            "VendorName": "Mi Home ‐ Chbar Ampov"
+        },
+        {
+            "VendorID": 24,
+            "VendorName": "Chim SamAth"
+        },
+        {
+            "VendorID": 25,
+            "VendorName": "VIETTEL (CAMBODIA)PTE.,LTD"
+        },
+        {
+            "VendorID": 26,
+            "VendorName": "Mekong Net "
+        },
+        {
+            "VendorID": 27,
+            "VendorName": "Cambodian Network Exchange Co.,Ltd"
+        },
+        {
+            "VendorID": 28,
+            "VendorName": " SMC"
+        },
+        {
+            "VendorID": 29,
+            "VendorName": "ណេត ស្រីនាង"
+        },
+        {
+            "VendorID": 30,
+            "VendorName": "URBAN HUB (CAMBODIA) CO.,LTD"
+        },
+        {
+            "VendorID": 31,
+            "VendorName": "VTS Cambodia Logistics & Freight Forwarder"
+        },
+        {
+            "VendorID": 32,
+            "VendorName": "Mr. Chim SamAth"
+        },
+        {
+            "VendorID": 33,
+            "VendorName": "CAMBODIA TECHNOLOGY"
+        },
+        {
+            "VendorID": 34,
+            "VendorName": "Shenzhen Chinastar Optoelectronic Co.,Limited "
+        },
+        {
+            "VendorID": 35,
+            "VendorName": "ELITECH Distributor Co., Ltd"
+        },
+        {
+            "VendorID": 36,
+            "VendorName": "THE Chantha"
+        },
+        {
+            "VendorID": 37,
+            "VendorName": "VTS Express"
+        },
+        {
+            "VendorID": 38,
+            "VendorName": "Smart Axiata Co.,Ltd"
+        },
+        {
+            "VendorID": 39,
+            "VendorName": "Smart Axiata Co.,Ltd"
+        },
+        {
+            "VendorID": 40,
+            "VendorName": "Mengly  Technology"
+        },
+        {
+            "VendorID": 41,
+            "VendorName": "Gold One Computer"
+        },
+        {
+            "VendorID": 42,
+            "VendorName": "Cambodia Technology"
+        },
+        {
+            "VendorID": 43,
+            "VendorName": "Opening Stock"
+        },
+        {
+            "VendorID": 44,
+            "VendorName": "NeocomISP Limited"
+        },
+        {
+            "VendorID": 45,
+            "VendorName": "Opening Stock"
+        },
+        {
+            "VendorID": 46,
+            "VendorName": "MyCam  Camera Store"
+        },
+        {
+            "VendorID": 47,
+            "VendorName": "KSH PRINTING-CUTTING-ADVERTISING"
+        },
+        {
+            "VendorID": 48,
+            "VendorName": "Lucky Super market"
+        },
+        {
+            "VendorID": 49,
+            "VendorName": "General Vender"
+        },
+        {
+            "VendorID": 50,
+            "VendorName": "ឌី អេហ្វ អាយ ឡាក់គី ប្រាយវេត លីមីធីត"
+        },
+        {
+            "VendorID": 51,
+            "VendorName": "ណេត ​ស្រីនាង​"
+        },
+        {
+            "VendorID": 52,
+            "VendorName": "សារព័ត៌មាន ហង្សតូច​"
+        },
+        {
+            "VendorID": 53,
+            "VendorName": "Vinh Savoeun"
+        },
+        {
+            "VendorID": 54,
+            "VendorName": "ត្រីកោណ"
+        },
+        {
+            "VendorID": 55,
+            "VendorName": "IBC internationl Book Store"
+        },
+        {
+            "VendorID": 56,
+            "VendorName": "AEON MALL (Cambodia )Co.,Ltd"
+        },
+        {
+            "VendorID": 57,
+            "VendorName": "សួន​ និរោធ"
+        },
+        {
+            "VendorID": 58,
+            "VendorName": "ធី អឹម អិល អេនធើប្រាយ"
+        },
+        {
+            "VendorID": 59,
+            "VendorName": "Mr Peang Ratana (freelancer )"
+        },
+        {
+            "VendorID": 60,
+            "VendorName": "ភីអេច អេឡិចត្រូនិច ២"
+        },
+        {
+            "VendorID": 61,
+            "VendorName": "ICI Network Expertise"
+        },
+        {
+            "VendorID": 62,
+            "VendorName": "SKTECH FIBER SOLUTION"
+        },
+        {
+            "VendorID": 63,
+            "VendorName": "ពូជាង​ អឿន"
+        },
+        {
+            "VendorID": 64,
+            "VendorName": "BS PRINTING AND ADVERTISING CO ., LTD"
+        },
+        {
+            "VendorID": 65,
+            "VendorName": "អាម៉ាហ្សូន​  លក់គ្រឿងអេឡិចត្រូចនិច​ និងគ្រឿងសង្ហារឺម"
+        },
+        {
+            "VendorID": 66,
+            "VendorName": "Cambodia Technology"
+        },
+        {
+            "VendorID": 67,
+            "VendorName": "ផ្គត់ផ្គង់សម្ភារៈសំណង់គ្រប់ប្រភេទ(​ម៉ៅ គីមសៀន)"
+        },
+        {
+            "VendorID": 68,
+            "VendorName": "Angkor Computer"
+        },
+        {
+            "VendorID": 69,
+            "VendorName": "Mi Home   - Mao Tse Toung"
+        },
+        {
+            "VendorID": 70,
+            "VendorName": "ពូអូន លក់គ្រឿងសំណង់"
+        },
+        {
+            "VendorID": 71,
+            "VendorName": "ដេប៉ូ ​ប៉ោគន្ធី"
+        }
+    ]
+                $(document).ready(function() {
+                    $("#customers").kendoAutoComplete({
+                        dataTextField: "VendorName",
+                        dataValueField:"VendorID",
+                        height: 400,
+                        dataSource: {
+                            data: Data,
+                            //type: "odata",
+                            //transport: {
+                            //    read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Customers"
+                            //},
+                            //group: { field: "Country" }
+                        }
+                    });
+                });
+</script>

@@ -1,0 +1,87 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLFormV1)
+<script>
+    $(function () {
+        //$('input[name="ReferenceRequestItemID"]').on('change', function () {
+        //    ShowRequestItem();
+        //});
+
+        var btnConfirmPrepare = $('.btn-confirm-prepare');
+        var isClicked = btnConfirmPrepare.data('is-click');
+        isClicked = typeof isClicked == "undefined" ? 1 : isClicked;
+        if (isClicked == 1) {
+            ShowRequestItem();
+        }
+
+
+        // Initialize autocomplete for expire date input
+        $(document).on('focus', 'input[name="ExpireDate"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            LoadCustomExpireDateAutoComplete(this, wid);
+        });
+
+        $(document).on('change', 'input[name="ItemID"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            applyRequireToExpireDate(wid)
+        });
+
+    });
+function ShowRequestItem() {
+    var RequestItemID = $("#RequestNo_ReferenceRequestItemID").val();
+        var divmain1 = $('#divmain1').find('table>tbody');
+        if (RequestItemID != "" && RequestItemID != 0) {
+            LoadData("Items/ShowRequestItem?ID=" + RequestItemID,
+                function (response) {
+                    var rst = JSON.parse(JSON.parse(response));
+                    var dataTr = '';
+                    var receivedName = rst[0].RequestName;
+                    var receivedUserId = rst[0].ReceivedUserID;
+                    var receivedTelegaramUserName = rst[0].ReceivedTelegaramUserName;
+                    var department = rst[0].Department;
+                    var addr = rst[0].Address;
+                    $('#divmain').find('input[name="ReceivedBy"]').attr('value', receivedName);
+                    $('#divmain').find('input[name="ReceivedBy_ReceivedUserID"]').attr('value', receivedUserId);
+                    $('#divmain').find('input[name="ReceivedBy_ReceivedTelegaramUserName"]').attr('value', receivedTelegaramUserName);
+                    $('#divmain').find('input[name="Department"]').attr('value', department);
+                    $('#divmain').find('input[name="Address"]').attr('value', addr);
+                    var totalQty = 0;
+                    if (rst.length > 0) {
+                        $('input[name="ItemName"]').attr("disabled", false);
+                        $('.input-delete').show();
+
+                        $.each(rst,
+                            (index, value) => {
+                                totalQty += value.QTY;
+                                if (value.QTY > 0) {
+                                    dataTr += `<tr>
+                                        <td>${index + 1}</td>
+                                        <td>${value.ItemCode}</td>
+                                        <td>${value.ItemNameFull}</td>
+                                        <td>${value.QTY}</td>
+                                        <td>${value.Unit}</td>
+                                        <td>${value.ProjectName}</td>
+                                        <td>${value.Block}</td>
+                                    </tr>`;
+                                }
+                            });
+
+                        divmain1.html(dataTr);
+                    }
+                    if (totalQty === 0){
+                        $('input[name="ItemName"]').attr("disabled", true);
+                        $('.input-delete').hide();
+                        DialogSweetAlert("error", "No stock request pending!");
+                    }
+                    
+                    //SetValueTableRow(TblData, 'ItemName', 'Table_Request_Item', 'TR_Items_Request', rowData_Table_Request_Item, 'TD_Items_Request', this, `CallSetAutoComplete_ItemName`, '', '', '', '', '', '', RowFields2_Table_Request_Item);
+                });
+        }
+    }
+    function SaveChangeCallbackFunction(response) {
+        var res = JSON.parse(response.Data)[0];
+        var reqItemId = res.RequestItemID;
+        PostData("Items/SaveChangeRequestApprovalItem", { "ID": reqItemId }, function (res) {
+            PostData("Items/SendNotificationRequestItem", { "ID": reqItemId });
+        });
+    }
+</script>

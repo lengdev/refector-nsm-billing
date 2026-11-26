@@ -1,0 +1,102 @@
+﻿
+@{
+    Layout = null;
+}
+
+<style>
+    .preview-wrapper button {
+        margin-right: 10px;
+    }
+
+    .select2-container--bootstrap4 .select2-selection--single {
+        background: #fff !important;
+        height: calc(1.6em + .75rem + 2px) !important;
+    }
+
+    .file-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 8px;
+        grid-auto-flow: row;
+    }
+
+        .file-container .item {
+            background: white;
+            padding: 10px;
+            border: 1px solid #fff;
+            border-radius: 8px;
+        }
+</style>
+
+<div class="tabs-showcase">
+    <div class="tabs-showcase__container">
+        <h1 class="tabs-showcase__title">Customer Infrastructure</h1>
+        <div class="tabs-showcase__card">
+            <div class="tabs-showcase__grid">
+                <!-- Gray Tabs -->
+                <div class="tabs-showcase__item">
+                    <div class="tab-group" data-variant="gray">
+                        <div class="tab-container tab-container--gray">
+                            <div class="tab-list">
+                                <button class="tab-item tab-item--gray active" data-tab-index="customer-infra-report">Report Customer Infra</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="customer-infra-list">Customer Infra List</button>
+                            </div>
+                        </div>
+                        <div class="tab-content tab-content--gray"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        const getListReport= async () => {
+            return await new Promise(resolve => {
+                PostData(`ReportCustomerInfrastructure/LoadListReport`, "", res => resolve(res));
+            });
+        };
+        const getNewInfra = async () => {
+            return await new Promise(resolve => {
+                PostData(`ReportCustomerInfrastructure/LoadNewInfra`, "", res => resolve(res));
+            });
+        };
+
+        // Tabs content action
+        const tabContents = {
+            "customer-infra-report": getListReport,
+            "customer-infra-list": getNewInfra,
+        };
+
+        $('.tab-group').each(function () {
+            const $group = $(this);
+            const $buttons = $group.find('.tab-item');
+            const $contentDiv = $group.find('.tab-content');
+
+            $buttons.on('click', async function () {
+
+                $buttons.removeClass('active');
+                $(this).addClass('active');
+
+                const tabIndex = $(this).data('tab-index');
+
+                const handler = tabContents[tabIndex];
+                destroyKendoWidgets($contentDiv);
+                try {
+                    $contentDiv.html("Loading...");
+                    const result = await handler();
+                    $contentDiv.html(result);
+                } catch (err) {
+                    console.error(err);
+                    $contentDiv.html("Error loading content");
+                }
+            });
+        });
+
+        // Initial tab load
+        $('.tab-group .tab-item.active').click();
+    });
+</script>
+
+
+

@@ -1,0 +1,1476 @@
+﻿@{
+    ViewBag.Title = "Create Expense";
+    Layout = null;
+}
+
+<style>
+    .expense-attachment-card {
+        border: 1px solid #dce8f8;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(30, 100, 180, 0.06);
+    }
+
+        .expense-attachment-card .card-header {
+            background: linear-gradient(90deg, #e5f0ff, #f3f8ff);
+            color: #006bff;
+            font-weight: 600;
+            padding: 14px 16px;
+        }
+
+    .attachment-dropzone {
+        padding: 24px 12px;
+        text-align: center;
+        border: 1px dashed #a8caff;
+        border-radius: 6px;
+        background: #f8fbff;
+    }
+
+    .attachment-icon {
+        display: block;
+        font-size: 36px;
+        color: #1683ff;
+        margin-bottom: 10px;
+    }
+
+    .attachment-browse-link {
+        color: #006bff;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .attachment-dropzone.drag-over {
+        background: #e8f3ff;
+        border-color: #006bff;
+    }
+
+    #attachmentTableBody td {
+        vertical-align: middle;
+    }
+
+    .attachment-delete {
+        border: 1px solid #ff4d4f;
+        background: white;
+        color: #ff4d4f;
+        border-radius: 4px;
+        padding: 3px 8px;
+    }
+    :root {
+        --expense-primary: #2878ed;
+        --expense-primary-light: #eaf3ff;
+        --expense-border: #dce5f0;
+        --expense-bg: #f5f8fc;
+        --expense-text: #24344d;
+        --expense-muted: #718096;
+        --expense-success: #15966b;
+        --expense-danger: #e5484d;
+    }
+
+    .expense-page {
+        padding: 15px;
+        background: var(--expense-bg);
+        color: var(--expense-text);
+        min-height: 100vh;
+        font-size: 13px;
+    }
+
+        .expense-page * {
+            box-sizing: border-box;
+        }
+
+    .expense-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .expense-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .expense-title-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: var(--expense-primary-light);
+        color: var(--expense-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .expense-title h3 {
+        margin: 0 0 4px;
+        font-size: 23px;
+        font-weight: 700;
+    }
+
+    .expense-subtitle {
+        color: var(--expense-muted);
+    }
+
+    .expense-card {
+        background: #fff;
+        border: 1px solid var(--expense-border);
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(31, 75, 130, .045);
+        margin-bottom: 15px;
+        overflow: visible;
+    }
+
+    .expense-card-header {
+        background: linear-gradient( 100deg, #2878ed, #39a8f5 );
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 9px 9px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .expense-card-body {
+        padding: 16px;
+    }
+
+    .expense-label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+        color: #34445e;
+    }
+
+    .required {
+        color: var(--expense-danger);
+    }
+
+    .expense-page .form-control {
+        height: 38px;
+        border: 1px solid #d7e0eb;
+        border-radius: 6px;
+        box-shadow: none;
+        font-size: 12px;
+        color: var(--expense-text);
+    }
+
+    .expense-page textarea.form-control {
+        height: auto;
+        min-height: 76px;
+        resize: vertical;
+    }
+
+    .expense-page .form-control:focus {
+        border-color: #70a9ff;
+        box-shadow: 0 0 0 3px rgba(40, 120, 237, .09);
+    }
+
+    .expense-field {
+        margin-bottom: 14px;
+    }
+
+    .expense-summary {
+        position: sticky;
+        top: 15px;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf1f6;
+    }
+
+        .summary-row:last-child {
+            border-bottom: 0;
+        }
+
+    .summary-label {
+        color: #506079;
+        font-weight: 500;
+    }
+
+    .summary-value {
+        font-weight: 700;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .summary-item-total {
+        color: var(--expense-primary);
+    }
+
+    .summary-expense-total {
+        color: var(--expense-success);
+    }
+
+    .summary-input {
+        max-width: 120px;
+        text-align: right;
+    }
+
+    .summary-grand-total {
+        margin-top: 12px;
+        background: linear-gradient( 100deg, #eaf3ff, #dbeaff );
+        border: 1px solid #d0e4ff;
+        border-radius: 8px;
+        padding: 15px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+        .summary-grand-total span:first-child {
+            color: #155dc5;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .summary-grand-total strong {
+            font-size: 22px;
+            color: #0866df;
+            white-space: nowrap;
+        }
+
+    .expense-tabs {
+        display: flex;
+        gap: 6px;
+        border-bottom: 1px solid var(--expense-border);
+        padding: 0 10px;
+        background: #f0f6ff;
+        border-radius: 9px 9px 0 0;
+    }
+
+    .expense-tab {
+        border: 0;
+        background: transparent;
+        color: #52627b;
+        padding: 13px 18px;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .expense-tab.active {
+            color: var(--expense-primary);
+            background: #fff;
+            border-bottom-color: var(--expense-primary);
+        }
+
+        .expense-tab .badge {
+            margin-left: 5px;
+            background: #e8f1ff;
+            color: var(--expense-primary);
+            border-radius: 20px;
+        }
+
+    .expense-tab-panel {
+        display: none;
+        padding: 14px;
+    }
+
+        .expense-tab-panel.active {
+            display: block;
+        }
+
+    .expense-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .expense-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+    }
+
+        .expense-table th {
+            background: #f3f7fc;
+            color: #34445e;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 12px 8px;
+            border-top: 1px solid var(--expense-border);
+            border-bottom: 1px solid var(--expense-border);
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .expense-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e8edf4;
+            vertical-align: middle;
+        }
+
+        .expense-table .form-control {
+            min-width: 75px;
+        }
+
+        .expense-table textarea.form-control {
+            min-height: 38px;
+        }
+
+    .expense-section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #eaf3ff;
+        border: 1px solid #d8e8ff;
+        border-radius: 7px 7px 0 0;
+        color: #1767d1;
+        font-weight: 700;
+    }
+
+        .expense-section-heading .btn {
+            margin-left: 4px;
+        }
+
+    .btn-expense-primary {
+        background: var(--expense-primary);
+        border-color: var(--expense-primary);
+        color: #fff;
+    }
+
+        .btn-expense-primary:hover,
+        .btn-expense-primary:focus {
+            background: #1766d5;
+            color: #fff;
+        }
+
+    .btn-expense-light {
+        background: #fff;
+        border: 1px solid var(--expense-border);
+        color: #34445e;
+    }
+
+    .btn-expense-danger {
+        color: var(--expense-danger);
+        background: #fff;
+        border: 1px solid #ffc9cb;
+    }
+
+    .expense-page .btn {
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 9px 12px;
+    }
+
+        .expense-page .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    .line-number {
+        width: 35px;
+        text-align: center;
+        font-weight: 600;
+        color: #6b7b92;
+    }
+
+    .line-amount {
+        background: #f5f8fc !important;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .expense-attachment {
+        border: 2px dashed #c9ddfa;
+        border-radius: 9px;
+        background: #f8fbff;
+        padding: 20px 12px;
+        text-align: center;
+        transition: .2s;
+    }
+
+        .expense-attachment.drag-over {
+            background: #eaf3ff;
+            border-color: var(--expense-primary);
+        }
+
+    .expense-attachment-icon {
+        color: var(--expense-primary);
+        font-size: 30px;
+        margin-bottom: 8px;
+    }
+
+    .expense-attachment-title {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .expense-attachment-hint {
+        font-size: 11px;
+        color: var(--expense-muted);
+        margin-bottom: 12px;
+    }
+
+    .attachment-list {
+        margin-top: 14px;
+    }
+
+    .attachment-file {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--expense-border);
+        border-radius: 7px;
+        margin-bottom: 8px;
+        background: #fff;
+    }
+
+    .attachment-file-icon {
+        color: var(--expense-primary);
+        font-size: 20px;
+    }
+
+    .attachment-file-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .attachment-file-name {
+        font-size: 12px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .attachment-file-size {
+        font-size: 11px;
+        color: var(--expense-muted);
+        margin-top: 3px;
+    }
+
+    .attachment-empty {
+        padding: 15px;
+        color: var(--expense-muted);
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .expense-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, .97);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--expense-border);
+        margin: 15px -15px -15px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .expense-footer-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .expense-page .select2-container {
+        width: 100% !important;
+    }
+
+    .expense-page .select2-container--default
+    .select2-selection--single {
+        height: 38px;
+        border: 1px solid #d7e0eb;
+        border-radius: 6px;
+    }
+
+        .expense-page .select2-container--default
+        .select2-selection--single
+        .select2-selection__rendered {
+            line-height: 36px;
+            font-size: 12px;
+            padding-left: 10px;
+            color: var(--expense-text);
+        }
+
+        .expense-page .select2-container--default
+        .select2-selection--single
+        .select2-selection__arrow {
+            height: 36px;
+        }
+
+    .expense-page .select2-dropdown {
+        border-color: #d7e0eb;
+    }
+
+    .expense-page .select2-results__option {
+        font-size: 12px;
+    }
+
+    .expense-page .select2-container--open {
+        z-index: 10000;
+    }
+
+    @@media (max-width: 991px) {
+        .expense-summary {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .expense-page {
+            padding: 8px;
+        }
+
+        .expense-card-body {
+            padding: 12px;
+        }
+
+        .expense-header {
+            align-items: flex-start;
+        }
+
+        .expense-title h3 {
+            font-size: 19px;
+        }
+
+        .expense-footer {
+            margin-left: -8px;
+            margin-right: -8px;
+            padding: 10px 8px;
+        }
+
+        .expense-footer-actions {
+            justify-content: flex-end;
+        }
+
+        .summary-grand-total strong {
+            font-size: 18px;
+        }
+    }
+    .text-ellipsis {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="expense-page">
+
+    @using (Html.BeginForm(
+        "Create",
+        "Expense",
+        FormMethod.Post,
+        new
+        {
+            id = "expenseForm",
+            enctype = "multipart/form-data"
+        }))
+    {
+        @*@Html.AntiForgeryToken()*@
+
+        <input type="hidden" id="ExpenseId" name="ExpenseId" value="0" />
+
+        <div class="row">
+
+            <!-- MAIN CONTENT -->
+            <div class="col-lg-9">
+
+                <!-- EXPENSE INFORMATION -->
+                <div class="expense-card">
+
+                    <div class="expense-card-header">
+                        <span>
+                            <i class="fa fa-file-text-o"></i>
+                            &nbsp; Expense Information
+                        </span>
+
+                        <i class="fa fa-chevron-up"></i>
+                    </div>
+
+                    <div class="expense-card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Class Name
+                                </label>
+
+                                <select id="ClassID"
+                                        name="ClassID"
+                                        class="form-control select2"
+                                        data-placeholder="Select class name">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Payee
+                                </label>
+                                <span id="span_PayeeID">
+                                    <input id="PayeeID" name="PayeeID" />
+                                </span>
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Payment Account
+                                </label>
+
+                                <select id="PaymentAccountID"
+                                        name="PaymentAccountID"
+                                        class="form-control select2"
+                                        data-placeholder="Select payment account">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Payment Method
+                                </label>
+
+                                <select id="PaymentMethod"
+                                        name="PaymentMethod"
+                                        class="form-control select2"
+                                        data-placeholder="Select payment method">
+                                    <option value=""></option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank Transfer</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Date <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       id="PaymentDate"
+                                       name="PaymentDate"
+                                       class="form-control date-picker"
+                                       value="@DateTime.Today.ToString("dd/MM/yyyy")"
+                                       autocomplete="off"
+                                       required />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Terms
+                                </label>
+
+                                <input type="text"
+                                       id="Terms"
+                                       name="Terms"
+                                       class="form-control"
+                                       placeholder="Enter terms" />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Paid On Date
+                                </label>
+
+                                <input type="text"
+                                       id="PaidOnDate"
+                                       name="PaidOnDate"
+                                       class="form-control date-picker"
+                                       placeholder="Select paid on date"
+                                       autocomplete="off" />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Checked By <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       id="CheckedBy"
+                                       name="CheckedBy"
+                                       class="form-control"
+                                       placeholder="Enter checked by"
+                                       required />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Verified By
+                                </label>
+
+                                <input type="text"
+                                       id="VerifiedBy"
+                                       name="VerifiedBy"
+                                       class="form-control"
+                                       placeholder="Enter verified by" />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Posted By <span class="required">*</span>
+                                </label>
+
+                                <input type="text"
+                                       id="PostedBy"
+                                       name="PostedBy"
+                                       class="form-control"
+                                       placeholder="Enter posted by"
+                                       required />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    PO/RF/ADV No.
+                                </label>
+
+                                <input type="text"
+                                       id="PORFADVNo"
+                                       name="PORFADVNo"
+                                       class="form-control"
+                                       placeholder="Enter PO/RF/ADV No." />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Bill/Invoice No.
+                                </label>
+
+                                <input type="text"
+                                       id="BillInvoiceNo"
+                                       name="BillInvoiceNo"
+                                       class="form-control"
+                                       placeholder="Enter bill/invoice number" />
+                            </div>
+
+                            <div class="col-md-4 expense-field">
+                                <label class="expense-label">
+                                    Exchange Rate
+                                </label>
+
+                                <input type="number"
+                                       id="ExchangeRate"
+                                       name="ExchangeRate"
+                                       class="form-control"
+                                       min="0"
+                                       step="0.000001"
+                                       placeholder="Enter exchange rate" />
+                            </div>
+
+                            <div class="col-md-12 expense-field">
+                                <label class="expense-label">
+                                    Description
+                                </label>
+
+                                <textarea id="Description"
+                                          name="Description"
+                                          class="form-control"
+                                          rows="2"
+                                          placeholder="Enter expense description"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ITEM DETAILS / EXPENSES TABS -->
+                <div class="expense-card">
+
+                    <div class="expense-tabs" role="tablist">
+
+                        <button type="button"
+                                class="expense-tab active"
+                                data-tab="itemTab"
+                                role="tab"
+                                aria-selected="true">
+
+                            <i class="fa fa-list-alt"></i>
+                            Item Details
+
+                            <span class="badge" id="itemCount">2</span>
+                        </button>
+
+                        <button type="button"
+                                class="expense-tab"
+                                data-tab="additionalExpenseTab"
+                                role="tab"
+                                aria-selected="false">
+
+                            <i class="fa fa-database"></i>
+                            Expenses
+
+                            <span class="badge" id="expenseCount">1</span>
+                        </button>
+
+                    </div>
+
+                    <!-- ITEM DETAILS TAB -->
+                    <div id="itemTab"
+                         class="expense-tab-panel active"
+                         role="tabpanel">
+
+                        <div class="expense-section-heading">
+
+                            <span>
+                                <i class="fa fa-list"></i>
+                                &nbsp; Item Details (Item/Service)
+                            </span>
+
+                            <div>
+                                <button type="button"
+                                        class="btn btn-expense-primary"
+                                        id="btnAddItem">
+                                    <i class="fa fa-plus"></i>
+                                    Add Row
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-expense-light"
+                                        id="btnImportItems">
+                                    <i class="fa fa-upload"></i>
+                                    Import
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-expense-danger"
+                                        id="btnDeleteItems">
+                                    <i class="fa fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="expense-table-wrap">
+
+                            <table class="expense-table" id="itemTable">
+
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px">#</th>
+                                        <th style="min-width:180px">Account</th>
+                                        <th style="min-width:180px">Item/Service</th>
+                                        <th style="min-width:100px">UOM</th>
+                                        <th style="min-width:100px">QTY</th>
+                                        <th style="min-width:120px">Unit Price</th>
+                                        <th style="min-width:120px">Dis$</th>
+                                        <th style="min-width:130px">Total</th>
+                                        <th style="width:65px">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="itemTableBody">
+
+                                    <!-- Initial rows are added by JavaScript -->
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    </div>
+
+                    <!-- ADDITIONAL EXPENSES TAB -->
+                    <div id="additionalExpenseTab"
+                         class="expense-tab-panel"
+                         role="tabpanel">
+
+                        <div class="expense-section-heading">
+
+                            <span>
+                                <i class="fa fa-database"></i>
+                                &nbsp; Expenses (Additional Costs)
+                            </span>
+
+                            <div>
+                                <button type="button"
+                                        class="btn btn-expense-primary"
+                                        id="btnAddExpense">
+                                    <i class="fa fa-plus"></i>
+                                    Add Row
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-expense-light"
+                                        id="btnImportExpenses">
+                                    <i class="fa fa-upload"></i>
+                                    Import
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-expense-danger"
+                                        id="btnDeleteExpenses">
+                                    <i class="fa fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="expense-table-wrap">
+
+                            <table class="expense-table" id="additionalExpenseTable">
+
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px">#</th>
+                                        <th style="min-width:200px">Account</th>
+                                        <th style="min-width:300px">Description</th>
+                                        <th style="min-width:140px">Amount</th>
+                                        <th style="width:65px">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="additionalExpenseTableBody">
+
+                                    <!-- Initial rows are added by JavaScript -->
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <div class="alert alert-info"
+                             style="margin-top:12px;margin-bottom:0;font-size:12px">
+
+                            <i class="fa fa-info-circle"></i>
+
+                            Additional expenses are included in the transaction total.
+                            Select the appropriate expense account for each cost.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDEBAR -->
+            <div class="col-lg-3">
+
+                <!-- SUMMARY -->
+                <div class="expense-card expense-summary">
+
+                    <div class="expense-card-header">
+                        <span>
+                            <i class="fa fa-calculator"></i>
+                            &nbsp; Summary
+                        </span>
+                    </div>
+
+                    <div class="expense-card-body">
+
+                        <div class="summary-row">
+                            <span class="summary-label">Item Details Total</span>
+
+                            <strong class="summary-value summary-item-total"
+                                    id="summaryItemTotal">
+                                $0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Expense Total</span>
+
+                            <strong class="summary-value summary-expense-total"
+                                    id="summaryExpenseTotal">
+                                $0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal</span>
+
+                            <strong class="summary-value"
+                                    id="summarySubtotal">
+                                $0.00
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <label for="Discount"
+                                   class="summary-label">
+                                Discount
+                            </label>
+
+                            <div class="input-group summary-input">
+
+                                <input type="number"
+                                       id="Discount"
+                                       name="Discount"
+                                       class="form-control"
+                                       value="0"
+                                       min="0"
+                                       step="0.01" />
+
+                                <div class="input-group-append">
+                                    <select id="DiscountType"
+                                            name="DiscountType"
+                                            class="form-control"
+                                            style="width:65px;padding:3px">
+                                        <option value="Amount">$</option>
+                                        <option value="Percent">%</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="summary-row">
+                            <label for="VATRate"
+                                   class="summary-label">
+                                VAT
+                            </label>
+
+                            <select id="VATRate"
+                                    name="VATRate"
+                                    class="form-control"
+                                    style="max-width:145px">
+
+                                <option value="0">NONE VAT</option>
+                                <option value="10">VAT 10%</option>
+                                <option value="15">VAT 15%</option>
+
+                            </select>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Discount Amount</span>
+
+                            <strong id="summaryDiscountAmount">$0.00</strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">VAT Amount</span>
+
+                            <strong id="summaryVATAmount">$0.00</strong>
+                        </div>
+
+                        <div class="summary-grand-total">
+                            <span>Grand Total (USD)</span>
+
+                            <strong id="summaryGrandTotal">$0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ATTACHMENTS -->
+                <!-- Attachment Card -->
+                <div class="card expense-attachment-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-paperclip"></i>
+                            Attachment
+                            <span class="badge bg-primary" id="attachmentCount">0</span>
+                        </span>
+                    </div>
+
+                    <div class="collapse show" id="attachmentContent">
+                        <div class="card-body">
+
+                            <div class="attachment-dropzone"
+                                 id="attachmentDropzone">
+
+                                <i class="bi bi-cloud-arrow-up attachment-icon"></i>
+
+                                <p class="mb-1">
+                                    Drag &amp; drop files here or
+                                    <label for="expenseAttachments"
+                                           class="attachment-browse-link">
+                                        click to browse
+                                    </label>
+                                </p>
+
+                                <small class="text-muted">
+                                    Supported: PDF, JPG, JPEG, PNG (Max 10 MB each)
+                                </small>
+
+                                <div class="mt-3">
+                                    <button type="button"
+                                            class="btn btn-outline-primary"
+                                            onclick="document.getElementById('expenseAttachments').click()">
+                                        <i class="bi bi-folder2-open"></i>
+                                        Browse Files
+                                    </button>
+                                </div>
+
+                                <input type="file"
+                                       id="expenseAttachments"
+                                       name="Attachments"
+                                       multiple
+                                       accept=".pdf,.jpg,.jpeg,.png"
+                                       hidden />
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+                                <strong>Attached Files</strong>
+                                <small id="attachmentTotalSize" class="text-muted">
+                                    0 files
+                                </small>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>File Name</th>
+                                            <th>Size</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="attachmentTableBody">
+                                        <tr id="noAttachmentRow">
+                                            <td colspan="4" class="text-center py-4">
+                                                <i class="bi bi-file-earmark fs-3 d-block text-muted"></i>
+                                                <span class="text-muted">
+                                                    No files attached
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+<script>
+    var DataClass = @Html.Raw(ViewBag.DataClass);
+    var DataPayee = `@Html.Raw(ViewBag.DataPayee)`;
+
+    $(function () {
+        $("#modal-defaultmodalbody, #modal-defaultmodalbody p").css({
+            "padding": "0"
+        });
+        var $class = $("#ClassID");
+        // Populate dropdown
+        $class.empty();
+        $class.append(new Option("", "", false, false));
+        $.each(DataClass, function (index, item) {
+            $class.append(
+                new Option(item.ClassName, item.ClassID, false, false)
+            );
+        });
+        // Initialize Select2
+        $class.select2({
+            placeholder: $class.data("placeholder"),
+            allowClear: true,
+            width: "100%"
+        });
+
+
+        var attachmentFiles = [];
+        var maxFileSize = 10 * 1024 * 1024;
+
+        var allowedExtensions = ["pdf", "jpg", "jpeg", "png"];
+
+        function addFiles(fileList) {
+            $.each(Array.from(fileList), function (_, file) {
+                var extension = file.name.split(".").pop().toLowerCase();
+
+                if ($.inArray(extension, allowedExtensions) === -1) {
+                    alert("Unsupported file type: " + file.name);
+                    return;
+                }
+
+                if (file.size > maxFileSize) {
+                    alert(file.name + " exceeds the 10 MB limit.");
+                    return;
+                }
+
+                // Avoid adding the same file twice.
+                var duplicate = attachmentFiles.some(function (item) {
+                    return item.name === file.name &&
+                        item.size === file.size &&
+                        item.lastModified === file.lastModified;
+                });
+
+                if (!duplicate) {
+                    attachmentFiles.push(file);
+                }
+            });
+
+            renderAttachments();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024)
+                return (bytes / 1024).toFixed(1) + " KB";
+
+            return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+        }
+
+        function renderAttachments() {
+            var $tbody = $("#attachmentTableBody");
+            $tbody.empty();
+
+            var totalSize = 0;
+
+            if (attachmentFiles.length === 0) {
+                $tbody.append(
+                    '<tr id="noAttachmentRow">' +
+                    '<td colspan="4" class="text-center py-4">' +
+                    '<i class="bi bi-file-earmark fs-3 d-block text-muted"></i>' +
+                    '<span class="text-muted">No files attached</span>' +
+                    '</td>' +
+                    '</tr>'
+                );
+            } else {
+                $.each(attachmentFiles, function (index, file) {
+                    totalSize += file.size;
+
+                    var $row = $("<tr>");
+
+                    $("<td>")
+                        .text(index + 1)
+                        .appendTo($row);
+
+                    // File name with ellipsis
+                    var $fileName = $("<div>", {
+                        class: "text-ellipsis",
+                        title: file.name
+                    }).text(file.name);
+
+                    $("<td>")
+                        .append($fileName)
+                        .appendTo($row);
+
+                    $('<td class="text-nowrap">')
+                        .text(formatFileSize(file.size))
+                        .appendTo($row);
+
+                    var $button = $("<button>", {
+                        type: "button",
+                        class: "attachment-delete",
+                        title: "Remove attachment"
+                    }).append(
+                        $("<i>", { class: "bi bi-trash" })
+                    );
+
+                    $button.on("click", function () {
+                        attachmentFiles.splice(index, 1);
+                        renderAttachments();
+                    });
+
+                    $("<td>")
+                        .addClass("text-center")
+                        .append($button)
+                        .appendTo($row);
+
+                    $tbody.append($row);
+                });
+            }
+
+            $("#attachmentCount").text(attachmentFiles.length);
+
+            $("#attachmentTotalSize").text(
+                attachmentFiles.length + " file(s) · " +
+                formatFileSize(totalSize)
+            );
+        }
+
+        $("#expenseAttachments").on("change", function () {
+            addFiles(this.files);
+
+            // Reset so the same file can be selected again.
+            this.value = "";
+        });
+
+        var $dropzone = $("#attachmentDropzone");
+
+        $dropzone.on("dragover", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $dropzone.addClass("drag-over");
+        });
+
+        $dropzone.on("dragleave", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $dropzone.removeClass("drag-over");
+        });
+
+        $dropzone.on("drop", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            $dropzone.removeClass("drag-over");
+
+            var files = e.originalEvent.dataTransfer.files;
+            addFiles(files);
+        });
+
+        // Expose selected files for your existing save handler.
+        window.getExpenseAttachments = function () {
+            return attachmentFiles.slice();
+        };
+
+        renderAttachments();
+    });
+</script>
+
+
+<script>
+    $(function () {
+        PaymentDate_ApplyDatePicker();
+        Reload_PayeeID();
+    });
+    function PaymentDate_ApplyDatePicker() {
+        $("#PaymentDate").daterangepicker({
+            drops: 'auto',
+            showDropdowns: true,
+            singleDatePicker: true,
+            autoApply: true,
+            parentEl: "body",
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+        });
+        $("#PaymentDate").on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+        });
+        $("#PaymentDate").on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+    }
+</script>
+
+<script>
+    // Handle Add New button click
+    $(document)
+        .off("click", "#btnAddNewFooter")
+        .on("click", "#btnAddNewFooter", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            AddNewPayee();
+        });
+
+
+    function Reload_PayeeID(index) {
+
+        index = (typeof index === "undefined" ? "0" : index);
+
+        PostData("DoActionData/ReturnSQLJson/", { SQL: DataPayee }, function (response) {
+
+            var dataSource_PayeeID = JSON.parse(JSON.parse(response).Data);
+
+            dataSource_PayeeID.forEach(function (item) {
+                for (var key in item) {
+                    if (typeof item[key] === "string") {
+                        item[key] = $("<textarea/>").html(item[key]).text();
+                    }
+                }
+            });
+
+            $("#span_PayeeID").html(
+                '<input style="width:100%" ' +
+                'data-placeholder="Enter payee" ' +
+                'id="PayeeID" ' +
+                'name="PayeeID" ' +
+                'data-validate="Payee is required." />'
+            );
+
+            $("#PayeeID").kendoMultiColumnComboBox({
+
+                height: 350,
+
+                filter: "contains",
+
+                dataTextField: "Name",
+                dataValueField: "PayeeID",
+
+                dataSource: {
+                    data: dataSource_PayeeID
+                },
+
+                change: function (e) {
+                    // LoadVendorBankInfo();
+                },
+
+                footerTemplate: `
+                <div style="padding:8px;text-align:center;">
+                    <button type="button"
+                            class="k-button k-primary"
+                            id="btnAddNewFooter">
+                        <i class="k-icon k-i-plus"></i>
+                        Add New
+                    </button>
+                </div>
+            `,
+
+                columns: [
+                    {
+                        field: "Name",
+                        title: "Name",
+                        width: 550
+                    },
+                    {
+                        field: "Type",
+                        title: "Type",
+                        width: 120
+                    }
+                ]
+            });
+
+            $("input[name='PayeeID_input']")
+                .off("click.payee")
+                .on("click.payee", function (e) {
+                    e.preventDefault();
+
+                    $(this)
+                        .parent()
+                        .find("button.k-input-button")
+                        .trigger("click");
+                });
+
+        });
+    }
+    function AddNewPayee(ID) {
+    var combo = $("#PayeeID").data("kendoMultiColumnComboBox");
+
+    if (combo) {
+        combo.close();
+    }
+
+        ID = (typeof ID == "undefined" ? 0 : ID);
+        var Type = "AddNewVendor";
+        var Title = "New Vendor";
+        if (ID != 0) {
+            Type = "EditVendor";
+            Title = "Edit Vendor";
+        }
+        var URL = "AddVendor/CreateVendor?PrimaryFieldValue=" + ID + "&Type=" + Type;
+        ShowDialogBox2(Title, "Auto", "", URL, ID, "DialogAddNewVendor", function() {
+            $("#DialogAddNewVendor").on('hide.bs.modal', function () {
+                Reload_PayeeID();
+            });
+        });
+    }
+</script>

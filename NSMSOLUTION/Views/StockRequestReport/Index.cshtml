@@ -1,0 +1,14 @@
+﻿
+@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function SRForm(RequestNo, RequestItemID, IsRequestApprovalItemOut) {
+        ShowDialogBox2("Request No:. " + RequestNo, "auto", "500", "Items/ItemRequestForm?ID=" + RequestItemID + "&IsRequestApprovalItemOut=" + IsRequestApprovalItemOut, 0, "dialogitemrequest", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#divItemRequestForm").printThis();
+            });
+        });
+    }
+</script>

@@ -1,0 +1,432 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+<script>
+    var TblRow = '';
+    var rowData = "";
+    var PackageData = "";
+    var PrimaryValue = "@ViewBag.PrimaryValue";
+    var isSaveChange = false;
+    $(function () {
+        PackageData = "@ViewBag.PackageData";
+        rowData = '<div class="row">';
+        rowData += '<div class="col">';
+        rowData += '<table class="table table-bordered" id="tblPackages">';
+        rowData += '<thead class="bg-gray">';
+        rowData += '<tr>';
+        rowData += '<th>#</th><th>Bandwidth(Mbps)</th><th>Duration</th><th>UM</th><th>Cost</th><th>Price</th><th>DowSpeed</th><th>UpSpeed</th>';
+        rowData += '<th class="d-none">DepositFee</th><th class="d-none">FreeMonth</th>';
+        rowData += '<th class="col-2">Feature</th><th>Status</th><th></th>';
+        rowData += '</tr>';
+        rowData += '</thead>';
+        rowData += '<tbody>';
+        rowData += '<tr name="rowNo">';
+        rowData += '<td align="right" name="tdNo">1</td>';
+        rowData += '<td><input class="form-control text-center" onchange=onBandwidthChange(this); name="Bandwidth" type="text" required/><input type="hidden" name="PackageDetailID" value="0"/></td>';
+        rowData += '<td><input class="form-control text-center" name="Duration" type="text" required/></td>';
+        rowData += '<td><input class="form-control text-center" name="UM" type="text" required/></td>';
+        rowData += '<td><input class="form-control text-center" name="Cost" type="text" required/></td>';
+        rowData += '<td><input class="form-control text-center" name="Price" type="text" required/></td>';
+        rowData += '<td><input class="form-control text-center" name="DowSpeed" type="text" required/></td>';
+        rowData += '<td><input class="form-control text-center" name="UpSpeed" type="text" required/></td>';
+        rowData += '<td class="d-none"><input class="form-control text-center" name="DepositFee" type="text"/></td>';
+        rowData += '<td class="d-none"><input class="form-control text-center" name="FreeDuration" type="text"/></td>';
+        rowData += '<td><textarea class="form-control" name="Feature"></textarea></td><td><select class="form-control" name="Status"><option value="Enable">Enable</option><option value="Disable">Disable</option></select></td><td></td>';
+        rowData += '</tr>';
+        rowData += '</tbody>';
+        rowData += '</table>';
+        rowData += '</div></div>';
+
+        TblRow = '<tr name="rowNo">';
+        TblRow += '<td align="right" name="tdNo">1</td>';
+        TblRow += '<td><input class="form-control text-center" onchange=onBandwidthChange(this); name="Bandwidth" type="text" required/><input type="hidden" name="PackageDetailID" value="0"/></td>';
+        TblRow += '<td><input class="form-control text-center" name="Duration" type="text" required/></td>';
+        TblRow += '<td><input class="form-control text-center" name="UM" type="text" required/></td>';
+        TblRow += '<td><input class="form-control text-center" name="Cost" type="text" required/></td>';
+        TblRow += '<td><input class="form-control text-center" name="Price" type="text" required/></td>';
+        TblRow += '<td><input class="form-control text-center" name="DowSpeed" type="text" required/></td>';
+        TblRow += '<td><input class="form-control text-center" name="UpSpeed" type="text" required/></td>';
+        TblRow += '<td class="d-none"><input class="form-control text-center" name="DepositFee" type="text"/></td>';
+        TblRow += '<td class="d-none"><input class="form-control text-center" name="FreeDuration" type="text"/></td>';
+        TblRow += '<td><textarea class="form-control" name="Feature"></textarea></td><td><select class="form-control" name="Status"><option value="Enable">Enable</option><option value="Disable">Disable</option></select></td>';
+        TblRow += '<td><div class="btn-group"><a name="Delete" onclick="RemoveTableRow(' + "'rowNo'" + ', ' + "'tdNo'" + ', this);" class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete" alt="Delete"><i class="ti ti-trash"></i></a></div></td>';
+        TblRow += '</tr>';
+
+        $("form[name=CreatePackage] table").after(rowData);
+        AddTableRow("Bandwidth", "tblPackages", "rowNo", TblRow, "tdNo", this, function () {
+            $("input[name=Bandwidth]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=Duration]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=Cost]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=Price]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=DowSpeed]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=UpSpeed]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=DepositFee]").keypress(function (event) { allowInputOnlyNumber(event); });
+            $("input[name=FreeDuration]").keypress(function (event) { allowInputOnlyNumber(event); });
+
+            $("input[name=Bandwidth], input[name=Duration], input[name=Cost], input[name=Price], input[name=DowSpeed], input[name=UpSpeed], input[name=DepositFee], input[name=FreeDuration], input[name=UM]").on('keydown', function (e) {
+                if (e.which == 40) {
+                    var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                    var THIS = $('input[name=' + $(this).attr('name') + ']');
+                    $(this).closest('tr').next().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                    var scrollPosition = (THIS.eq(index).offset().top - 120);
+                    $(window).scrollTop(scrollPosition);
+                    delete e.which;
+                    return false;
+                }
+                if (e.which == 38) {
+                    var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                    var THIS = $('input[name=' + $(this).attr('name') + ']');
+                    $(this).closest('tr').prev().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                    var scrollPosition = (THIS.eq(index).offset().top - 200);
+                    $(window).scrollTop(scrollPosition);
+                    delete e.which;
+                    return false;
+                }
+            });
+        });
+        if (PackageData != "") {
+            PackageData = JSON.parse(PackageData.replace(/&quot;/ig, '"'));
+            $.each(PackageData, function (index) {
+                AddTableRow("Bandwidth", "tblPackages", "rowNo", TblRow, "tdNo", this);
+                $.each(PackageData[index], function (key, value) {
+                    if ($("input[name=" + key + "]:eq(" + index + ")").is("input"))
+                        $("input[name=" + key + "]:eq(" + index + ")").val(value);
+                    else if ($("input[name=" + key + "]:eq(" + index + ")").is("checkbox")) {
+                        if (value)
+                            $("input[name=" + key + "]:eq(" + index + ")").attr("checked", "checked");
+                        else
+                            $("input[name=" + key + "]:eq(" + index + ")").removeAttr("checked");
+                    }
+                    else if ($("textarea[name=" + key + "]:eq(" + index + ")").is("textarea")) {
+                        if (value != "") {
+                            $("textarea[name=" + key + "]:eq(" + index + ")").append($.parseHTML(value)[0].data);
+                        }
+                    }
+                    else if ($("select[name=" + key + "]:eq(" + index + ")").is("select"))
+                        $("select[name=" + key + "]:eq(" + index + ")").val(value);
+                });
+            });
+        }
+    });
+    function onBandwidthChange(THIS) {
+        var index = $("input[name=Bandwidth]").index(THIS);
+        var value = $(THIS).val();
+        $("input[name=DowSpeed]").eq(index).val(value);
+        $("input[name=UpSpeed]").eq(index).val(value);
+    }
+
+    function SaveChangeAddPackage() {
+        var check = true;
+        isSaveChange = true;
+        var Package = [];
+        var PackageDetail = [];
+        var ServiceNameID = $("#TxtServiceName").val();
+        var ConnectionTypeID = $("#TxtPackageTypeName").val();
+        var ServiceName = $("#TxtServiceName option:selected").text();
+        var PackageCode = "";// encodeURIComponent(nl2br($("#TxtPackageCode").val()));
+        var PackageName = encodeURIComponent(nl2br($("#TxtPackageName").val()));
+        var SpecialNote = encodeURIComponent(nl2br($("#TxtSpecialNote").val()));
+        var TermsandCondition = encodeURIComponent(nl2br($("#TxtTermsandCondition").val()));
+        var Remark = encodeURIComponent(nl2br($("#TxtRemark").val()));
+        var ExpenseAccountID = $("#TxtExpenseAccountID").val();
+        var ARAccountID = $("#Txt_ARAccount").val();
+        var IncomeAccountID = $("#TxtIncomeAccount").val();
+
+        var InputVATAccountID = $("#TxtInputVATAccount").val();
+        var DeferredRevenueAccountID = $("#TxtDeferredRevenueAccount").val();
+        var OutputVATAccountID = $("#TxtOutputVATAccount").val();
+        var SalesDiscountAccountID = $("#Txt_SalesDiscountAccount").val();
+        var PurchaseDiscountAccountID = $("#Txt_PurchaseDiscountAccount").val();
+        var PackageType = $("#TxtPackageType").val();
+        var PackageStatus = $("#TxtPackageStatus").val();
+
+        var IsDoubleSpeedAtNight = $("#IsDoubleSpeedAtNight").val();
+        if (ServiceNameID == '0') {
+            DialogSweetAlert('error', "Service Name is required.");
+            $("#TxtServiceName").focus();
+            check = false;
+        }
+        else if (ConnectionTypeID == '') {
+            DialogSweetAlert('error', "Connection Type is required.");
+            $("#TxtPackageTypeName").focus();
+            check = false;
+        }
+        else if (PackageName == '') {
+            DialogSweetAlert('error', "Package Name is required.");
+            $("#TxtPackageName").focus();
+            check = false;
+        }
+
+        if (check) {
+            RowFields = [];
+            addRowFiled("PackageDetailID", "PackageDetailID", "");
+            addRowFiled("Bandwidth", "Bandwidth", "Required");
+            addRowFiled("Duration", "Duration", "Required");
+            addRowFiled("UM", "UM", "Required");
+            addRowFiled("Cost", "Cost", "");
+            addRowFiled("Price", "Price", "Required");
+            addRowFiled("DowSpeed", "DowSpeed", "Required");
+            addRowFiled("UpSpeed", "UpSpeed", "Required");
+            //addRowFiled("DepositFee", "DepositFee", "Required");
+            //addRowFiled("FreeDuration", "FreeDuration", "Required");
+            addRowFiled("Feature", "Feature");
+            addRowFiled("Status", "Status");
+            PackageDetail = getRowData('rowNo', RowFields);
+            Package = [{
+                PackageID: PrimaryValue,
+                ServiceNameID: ServiceNameID, ConnectionTypeID: ConnectionTypeID, PackageName: PackageName,
+                PackageCode: PackageCode, SpecialNote: SpecialNote, TermsandCondition: TermsandCondition, Remark: Remark,
+                ServiceName: ServiceName, ExpenseAccountID: ExpenseAccountID, IncomeAccountID: IncomeAccountID, IsDoubleSpeedAtNight: IsDoubleSpeedAtNight,
+                InputVATAccountID: InputVATAccountID, DeferredRevenueAccountID: DeferredRevenueAccountID,
+                OutputVATAccountID: OutputVATAccountID, PackageType: PackageType, ARAccountID: ARAccountID, SalesDiscountAccountID: SalesDiscountAccountID, PurchaseDiscountAccountID: PurchaseDiscountAccountID, PackageStatus: PackageStatus
+            }];
+            if (PackageDetail.length > 0) {
+                var DATA = { Package: JSON.stringify(Package), PackageDetail: JSON.stringify(PackageDetail) };
+                var URL = "/AddPackages/SaveChangePackage";
+                DoSaveChangeData(URL, DATA, function (response) {
+                    //$("#BunSearch").click();
+                    //$("input[name=RD]").click();
+                    //$("#TxtServiceName").val('');
+                    //$("#TxtPackageTypeName").val('');
+                    $("#TxtPackageName").val('');
+                    //$("#TxtSpecialNote").val('');
+                    //$("#TxtTermsandCondition").val('');
+                    //$("#TxtRemark").val('');
+                    $("tr[name=rowNo]").not(':last').remove();
+                    AddTableRow("Bandwidth", "tblPackages", "rowNo", TblRow, "tdNo", this);
+                    setTimeout(function () {
+                        $("#TxtPackageName").focus();
+                    }, 350);
+                    //if (PackageData != "") {
+                    $("#CloseModal").click();
+                    //}
+                });
+            }
+        }
+        return check;
+    }
+
+    $("#modal-default").on('hide.bs.modal', function () {
+        if (isSaveChange) {
+            $("#BunSearch").click();
+            $("input[name=RD]").click();
+        }
+    });
+
+</script>
+@*<button class="btn btn-primary" onclick="console.log($('#TxtIncomeAccount').val())">test</button>*@
+@*<div id="comboBox"></div>
+<div id="child"></div>
+<script>
+    $("#child").kendoMultiColumnComboBox({
+        dataTextField: "childName",
+        dataValueField: "childId",
+        dataSource: [
+            { childName: "Child1", childId: 1, parentId: 1 },
+            { childName: "Child2", childId: 2, parentId: 2 },
+            { childName: "Child3", childId: 3, parentId: 1 },
+            { childName: "Child4", childId: 4, parentId: 2 }
+        ],
+        columns: [
+            { field: "childName" },
+            { field: "childId" },
+            { field: "parentId" }
+        ]
+    });
+    $(function () {
+        $("#comboBox").attr("required", "true");
+        TxtIncomeAccount();
+    });
+    function TxtIncomeAccount() {
+        PostData("DoActionData/ReturnSQLJson/", { SQL: "3TtlkwE/oimH/PjLA8FOW7t6W/YAjTTtWREbNU0a/YToGbWCvDzT+08LCfATJ86HQk3kJNmgpTXwYym9O3BhqfxeatVXEdCjbcsdbU8sR5bXi9u/trC2UvbM9L16ZBOQ5bsQzGy8YELrp1QthT0dP/w1iZwvyXNRqk2FJSQvaf4cGnG0D1arpLAhrAhLwdGLBVHRIu6v82zINjgHyZyoPDSoT2EjMa3JXurgIBDi1/CWCdj5Loed9UXway0rf1y+vrzVvhsJ+ug8Q2hSj392HhupXyoKQtHDqVL28s9lPM8DpoEsuYI2TNFQpL2g8/kfw+QX1v41YThUpKAYmNEj7c6rYA5ur36qlHXJy4rMwLExRmOXEAGs+cOt9CcLUuxuZZfED1P2fPaEgioPxni+VP3+cNdvlho1UMW6vMw03AmK9KE7SXeZbAQpfH21RusDq4Z9HXZk9fL6pPNdZF3yx7t6M6QE8Z3QZXbUetIVz7nTORCIutL6vJJcwyDaSV+rHQyyr0fI3USZ3SZjKIN49/uemxFvN/Jy0W7n6YbWo77ypL7DOqLXveX0s87uEzb57gOW6u6UrvHHYCzPA12fieueUIqYPia9z+BDslqSUVY=" }, function (response) {
+            var dataSource = JSON.parse(JSON.parse(response).Data);
+            $("#comboBox").kendoMultiColumnComboBox({
+                animation: {
+                    close: {
+                        effects: "fadeOut zoom:out",
+                        duration: 300
+                    },
+                    open: {
+                        effects: "fadeIn zoom:in",
+                        duration: 300
+                    }
+                },
+                filter: "contains", dataTextField: "AccountName", dataValueField: "ChartOfAccountID",
+                dataSource: {
+                    data: dataSource,
+                    group: { field: "AccountTypes" }
+                },
+                columns: [
+                    { field: "AccountNo", title: "Account No", width: 250 },
+                    { field: "AccountName", title: "Account Name" },
+                ]
+            });            
+            var comboBox = $("#comboBox").data("kendoMultiColumnComboBox"); comboBox.list.width("auto");
+        });
+    };
+</script>*@
+@*<div id="kd-place-chooser"></div>*@
+<!--<script>
+    var dataTest = JSON.parse(`@Html.Raw(ViewBag.Datatest)`);
+    $(document).ready(function () {
+        console.log(dataTest);
+        $("#comboBox").kendoMultiColumnComboBox({
+            height: 500,
+            filter: "contains",
+            dataTextField: "AccountName",
+            dataValueField: "ChartOfAccountID",
+            dataSource: {
+                data: dataTest,
+                //data:[
+                //    { ShipName: "Item1", OrderID: "1", ShipCountry: "ShipCountry1", AccountName: "AccountName" },
+                //    { ShipName: "Item2", OrderID: "2", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item3", OrderID: "3", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item4", OrderID: "4", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item5", OrderID: "5", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item6", OrderID: "6", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item7", OrderID: "7", ShipCountry: "ShipCountry2", AccountName: "AccountName" },
+                //    { ShipName: "Item8", OrderID: "8", ShipCountry: "ShipCountry3", AccountName: "AccountName1" },
+                //    { ShipName: "Item9", OrderID: "9", ShipCountry: "ShipCountry4", AccountName: "AccountName1" },
+                //],
+                group: { field: "AccountCategory" }
+            },
+            columns: [
+                //{ field: "text", title: "Text" },
+                //{ field: "value", title: "Value" }
+                //{ field: "OrderID", title: "Order", width: 100 },
+                { field: "AccountTypes", title: "Account Type" },
+                { field: "AccountNo", title: "Account No" },
+                { field: "AccountName", title: "Account Name" }
+            ]
+        });
+
+
+        //var words = {
+        //    'count': 4,
+        //    'input': 'kendo',
+        //    'groups': [{
+        //        'field': 'length',
+        //        'value': '5',
+        //        'itemCount': '1', // Specify the number of items in the group.
+        //        'items': [{
+        //            'w': 'kendo'
+        //        }],
+        //        'hasSubgroups': false,
+        //        'aggregates': {}
+        //    }, {
+        //        'field': 'length',
+        //        'value': '4',
+        //        'itemCount': '3',
+        //        'items': [
+        //            { 'w': 'done' },
+        //            { 'w': 'keno' },
+        //            { 'w': 'node' }
+        //        ],
+        //        'hasSubgroups': false,
+        //        'aggregates': {}
+        //    }, {
+        //        'field': 'length',
+        //        'value': '4',
+        //        'subgroupCount': '1', // Specify the number of subgroups when hasSubgroups is true.
+        //        'items': [
+        //            {
+        //                'field': 'anotherField',
+        //                'value': 'test',
+        //                'itemCount': '1',
+        //                'items': [{
+        //                    's': 'my-item'
+        //                }],
+        //                'hasSubgroups': false,
+        //                'aggregates': {}
+        //            }
+        //        ],
+        //        'hasSubgroups': true,
+        //        'aggregates': {}
+        //    }]
+        //};
+
+        //var wordsDataSource = new kendo.data.DataSource({
+        //    data: words,
+        //    schema: {
+        //        groups: 'groups'
+        //    },
+        //    group: {
+        //        field: 'length'
+        //    },
+        //    serverGrouping: true
+        //});
+        //var data = [
+        //    {
+        //    "EmployeeId": 6,
+        //    "FullName": "Michael Suyama",
+        //    "HasEmployees": false,
+        //    "ReportsTo": 5
+        //    },
+        //    {
+        //        "EmployeeId": 7,
+        //        "FullName": "Robert King",
+        //        "HasEmployees": false,
+        //        "ReportsTo": 5
+        //    }, { "EmployeeId": 9, "FullName": "Anne Dodsworth", "HasEmployees": false, "ReportsTo": 5 }];
+        //var dataSource = new kendo.data.HierarchicalDataSource({
+        //    //sort: { field: "cityName", dir: "asc" },
+        //    data: [
+        //        {
+        //            cityId: 1, cityName: "Italy",
+        //            expanded: true,
+        //            items: [
+        //                {
+        //                    cityId: 2, cityName: "Napoli",
+        //                    items: [
+        //                        { cityId: 30, cityName: "Napoli" },
+        //                        { cityId: 31, cityName: "Rome" },
+        //                        { cityId: 32, cityName: "Venice" }
+        //                    ]
+        //                },
+        //                { cityId: 3, cityName: "Rome" },
+        //                { cityId: 4, cityName: "Venice" }
+        //            ],                    
+        //        },
+        //        {
+        //            cityId: 5, cityName: "France", items: [
+        //                { cityId: 6, cityName: "Nice" },
+        //                { cityId: 7, cityName: "Paris" },
+        //                { cityId: 8, cityName: "Marseille" }
+        //            ]
+        //        },
+        //        {
+        //            cityId: 9, cityName: "Portugal", items: [
+        //                { cityId: 10, cityName: "Porto" },
+        //                { cityId: 11, cityName: "Lisbon" },
+        //                { cityId: 12, cityName: "Braga" }
+        //            ]
+        //        },
+        //        {
+        //            cityId: 13, cityName: "Brazil", items: [
+        //                { cityId: 14, cityName: "Rio De Janeiro" },
+        //                { cityId: 15, cityName: "Sao Paulo" }
+        //            ]
+        //        },
+        //        {
+        //            cityId: 16, cityName: "USA", items: [
+        //                { cityId: 18, cityName: "New York" },
+        //                { cityId: 19, cityName: "Atlanta" },
+        //                { cityId: 20, cityName: "Los Angeles" }
+        //            ]
+        //        }
+        //    ]
+        //});
+
+
+        //$("#kd-place-chooser").kendoDropDownTree({
+        //    filter: "startswith",
+        //    placeholder: "Please select city or country ...",
+        //    group: { field: "cityName" } ,
+        //    //height: "auto",
+        //    dataSource: dataSource,
+        //    dataValueField: "cityId",
+        //    dataTextField: "cityName",
+        //});
+    });
+</script>-->

@@ -1,0 +1,34 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHtmlTable)
+<div class="row">
+    <div id="resultShowRadiusUserListsPPPoE" class="col table-responsive"></div>
+</div>
+<script>
+    $(function () {
+        /*ShowRadiusUserListsPPPoE();*/
+        $("#txtStatus").change(function () {
+            ShowRadiusUserListsPPPoE();
+        });
+    });
+    function ShowRadiusUserListsPPPoE() {
+        let CID = $("#txtCID").val();
+        let Status = $("#txtStatus").val();
+        let RouterID = $("#txtRouterName").val();
+        LoadData("RADIUS/ShowRadiusUserListsPPPoE?CID=" + CID + "&Status=" + Status + "&RouterID=" + RouterID, function (respone) {
+            $("#resultShowRadiusUserListsPPPoE").html(respone);
+        }, true);
+    }
+    function delPPPoEUser(RouterID, UserID) {
+        var DATA = {
+            RouterID: RouterID,
+            UserID: UserID
+        };
+        DoSaveChangeSweetCofirm("RADIUS/DeletePPPoEUser", DATA, function (response) {
+            if (response.Result == 2) {
+                $("#BunSearch").click();
+            }
+        });
+    }
+</script>

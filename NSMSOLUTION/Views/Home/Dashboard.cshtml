@@ -1,0 +1,587 @@
+﻿@{
+Layout = null;
+}
+@using System.Web.Optimization
+
+<!DOCTYPE html>
+<html lang="en" data-ng-app="appInventory">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>NSM SYSTEM | DASHBOARD</title>
+  <link rel="apple-touch-icon" sizes="76x76" href="~/Content/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="~/Logo-NSM-ISP.ico" />
+
+  <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <link href="~/Content/toastr/toastr.min.css" rel="stylesheet" />
+
+  <script src="~/Content/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
+  <script src="~/Content/AdminLTE-3.2.0/plugins/sweetalert2/sweetalert2.min.js"></script>
+
+  <style>
+    :root {
+      --orange: #F89C39;
+      --orange-deep: #e07d15;
+      --orange-glow: rgba(248, 156, 57, 0.08);
+      --bg-main: #f6f8fa;
+      --surface: #ffffff;
+      --text-primary: #1e1e2f;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    body.dark-mode {
+      --bg-main: #0d0e12;
+      --surface: #16171c;
+      --text-primary: #eceef1;
+      --text-muted: #8a90a0;
+      --border: #262832;
+      --orange-glow: rgba(248, 156, 57, 0.12);
+      background-color: var(--bg-main) !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-primary);
+    }
+
+    /* ── CUSTOM NAVIGATION ── */
+    .custom-navbar {
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border) !important;
+      box-shadow: var(--shadow-sm);
+      padding: 0.75rem 0;
+    }
+
+    .navbar-brand-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+      color: var(--text-primary);
+    }
+
+    .navbar-brand-text span {
+      color: var(--orange);
+    }
+
+    .nav-user-greeting {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-user-greeting strong {
+      color: var(--text-primary);
+    }
+
+    .btn-logout {
+      color: #ef4444 !important;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 6px 16px !important;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.08);
+      text-decoration: none;
+    }
+
+    /* ── MAIN LAYOUT CONTAINERS ── */
+    .content-wrapper {
+      background: transparent !important;
+      padding-top: 2rem;
+      padding-bottom: 4rem;
+    }
+
+    /* 主主主 Heading Section */
+    .hub-header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .hub-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .hub-header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── HUB LAYOUT & GRID ── */
+    .system-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @@media (max-width: 576px) {
+      .system-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* System Module Block */
+    .system-group-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .system-group-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .system-group-header {
+      background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .system-group-header i {
+      color: var(--orange);
+      font-size: 1.1rem;
+    }
+
+    .system-group-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .system-group-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── INTERACTIVE WAREHOUSE CONNECTOR LINKS ── */
+    .warehouse-link-node {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-decoration: none !important;
+      color: var(--text-primary) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warehouse-link-node::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--orange);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .warehouse-link-node:hover {
+      border-color: rgba(248, 156, 57, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(248, 156, 57, 0.06);
+    }
+
+    .warehouse-link-node:hover::before {
+      opacity: 1;
+    }
+
+    .node-thumb-container {
+      width: 72px;
+      height: 72px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      margin-right: 1.25rem;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .warehouse-link-node:hover .node-thumb-container {
+      background: #fffbfe;
+      border-color: rgba(248, 156, 57, 0.15);
+    }
+
+    .node-thumb-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .node-meta-content {
+      flex-grow: 1;
+    }
+
+    .node-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.15rem 0;
+      color: var(--text-primary);
+      transition: color 0.2s;
+    }
+
+    .warehouse-link-node:hover .node-title {
+      color: var(--orange-deep);
+    }
+
+    .node-caption {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .node-action-arrow {
+      width: 32px;
+      height: 32px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+      transition: all 0.25s;
+    }
+
+    .warehouse-link-node:hover .node-action-arrow {
+      background: var(--orange);
+      color: #ffffff;
+      transform: translateX(3px);
+    }
+
+    /* ── CONTROL SIDEBAR ── */
+    .control-sidebar {
+      border-left: 1px solid var(--border);
+      background: #ffffff !important;
+      color: var(--text-primary) !important;
+    }
+
+    /* ── SYSTEM FOOTER ── */
+    .main-footer {
+      background: #ffffff !important;
+      border-top: 1px solid var(--border) !important;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 1.25rem 0;
+    }
+
+    /* ============================================================
+        DARK MODE — System Hub page
+        ============================================================ */
+
+    body.dark-mode .custom-navbar {
+      background: rgba(22, 23, 28, 0.85) !important;
+      border-bottom-color: var(--border) !important;
+    }
+
+    body.dark-mode .navbar-brand-text {
+      color: var(--text-primary);
+    }
+
+    body.dark-mode .nav-user-greeting {
+      background: #1d1f26;
+      color: var(--text-muted);
+    }
+
+    body.dark-mode .nav-user-greeting strong {
+      color: var(--text-primary);
+    }
+
+    body.dark-mode .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    body.dark-mode .system-group-card {
+      background: var(--surface);
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    body.dark-mode .system-group-header {
+      background: linear-gradient(135deg, #16171c 0%, #1a1b21 100%);
+      border-bottom-color: var(--border);
+    }
+
+    body.dark-mode .system-group-title {
+      color: var(--text-primary);
+    }
+
+    body.dark-mode .warehouse-link-node {
+      background: #1a1b21;
+      border-color: var(--border);
+      color: var(--text-primary) !important;
+    }
+
+    body.dark-mode .warehouse-link-node:hover {
+      border-color: rgba(248, 156, 57, 0.35);
+      box-shadow: 0 6px 16px rgba(248, 156, 57, 0.1);
+    }
+
+    body.dark-mode .node-thumb-container {
+      background: #1d1f26;
+      border-color: var(--border);
+    }
+
+    body.dark-mode .warehouse-link-node:hover .node-thumb-container {
+      background: #22232b;
+      border-color: rgba(248, 156, 57, 0.2);
+    }
+
+    body.dark-mode .node-title {
+      color: var(--text-primary);
+    }
+
+    body.dark-mode .node-caption {
+      color: var(--text-muted);
+    }
+
+    body.dark-mode .node-action-arrow {
+      background: #262832;
+      color: var(--text-muted);
+    }
+
+    body.dark-mode .control-sidebar {
+      background: var(--surface) !important;
+      border-left-color: var(--border);
+      color: var(--text-primary) !important;
+    }
+
+    body.dark-mode .main-footer {
+      background: var(--surface) !important;
+      border-top-color: var(--border) !important;
+      color: var(--text-muted);
+    }
+
+    .nav-icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50% !important;
+      background: transparent;
+      border: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 16px;
+      transition: background 0.15s;
+    }
+
+    .nav-icon-btn:hover {
+      background: #f3f4f6;
+    }
+  </style>
+</head>
+
+<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed" ng-cloak>
+  <div class="wrapper" data-ng-controller="dashboardController">
+
+    <nav class="main-header navbar navbar-expand-md navbar-light custom-navbar">
+      <div class="container">
+        <div class="navbar-brand-text">
+          <span>SYSTEM</span>
+        </div>
+
+        <ul class="navbar-nav ml-auto align-items-center">
+          <li class="nav-item mr-3">
+            <span class="nav-user-greeting">
+              <i class="far fa-user-circle text-muted"></i>
+              Welcome To: <strong style="text-transform: uppercase;">{{UserName}}</strong>
+            </span>
+          </li>
+          <li class="nav-item mr-3">
+            <button onclick="toggleDarkMode()" class="nav-icon-btn" id="darkModeBtn" aria-label="Toggle dark mode">
+              <i class="fa fa-moon" id="darkModeIcon"></i>
+            </button>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="btn-logout" ng-click="Logout();">
+              <i class="fas fa-sign-out-alt mr-1"></i>Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="content-wrapper">
+      <div class="container">
+
+        <div class="hub-header">
+          <h1>Choose Accessing System</h1>
+          <p>Select an operational subsystem group to launch your operational portal</p>
+        </div>
+
+        <div class="system-grid">
+
+          <div class="system-group-card" ng-repeat="(key, value) in SysAndWH | groupBy:'SystemName'">
+            <div class="system-group-header">
+              <i class="fas fa-cubes"></i>
+              <h5 class="system-group-title">{{key}}</h5>
+            </div>
+
+            <div class="system-group-body">
+              <a href="#" ng-repeat="val in value"
+                ng-click="Click(val.UserID, val.SystemID, val.SystemName, val.WarehouseID, val.WarehouseName, val.DefaultDashboardPage, val.WarehouseLogo, val.AsideLightSidebar, val.Body);"
+                class="warehouse-link-node">
+
+                <div class="node-thumb-container">
+                  <img ng-src="{{absUrl}}Uploads/WarehouseLogo/{{val.WarehouseLogo}}"
+                    err-src="{{absUrl}}Content/images/placeholder.jpg" alt="{{val.WarehouseName}} Base Logo" />
+                </div>
+
+                <div class="node-meta-content">
+                  <h4 class="node-title">{{ val.WarehouseName }}</h4>
+                  <div class="node-caption">
+                    <i class="fas fa-door-open text-orange-deep"></i> Launch Workspace Platform
+                  </div>
+                </div>
+
+                <div class="node-action-arrow">
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <aside class="control-sidebar control-sidebar-light">
+      <div class="p-3">
+        <h5>Control Workspace</h5>
+        <p>Sidebar settings options go here.</p>
+      </div>
+    </aside>
+
+    <footer class="main-footer">
+      <div class="container">
+        <div class="float-right d-none d-sm-inline">
+          <strong>NSM TEAM</strong> <span class="text-muted mx-1">|</span> Start Date: 01/06/2022
+        </div>
+        <span>
+          Copyright &copy; 2022&ndash;@DateTime.Now.Year <strong>
+            NSM SOLUTION & MAINTENANCE CO.,
+            LTD.
+          </strong> All rights
+          reserved.
+        </span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="~/Content/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="~/Content/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
+  <script src="~/Content/toastr/toastr.min.js"></script>
+  <script src="~/Scripts/angular.min.js"></script>
+  <script src="~/Scripts/angular-sanitize.min.js"></script>
+  <script src="~/Scripts/angular-route.min.js"></script>
+  <script src="~/Scripts/angular-cookies.min.js"></script>
+  <script src="~/Scripts/ngStorage.min.js"></script>
+  <script src="~/Scripts/ng-table.js"></script>
+  <script src="~/Scripts/restangular.min.js"></script>
+  <script src="~/Scripts/underscore-min.js"></script>
+  <script src="~/Scripts/loading-bar.min.js"></script>
+  <script src="~/Scripts/angular-local-storage.min.js"></script>
+  <script src="~/Scripts/angular-animate.min.js"></script>
+  <script src="~/Scripts/angular-filter.min.js"></script>
+  <script src="~/Scripts/ng-idle/angular-idle.min.js"></script>
+  <script src="~/Scripts/LocalStorage.js"></script>
+  <script src="~/Scripts/ngHtmlCompile.js"></script>
+  <script src="~/App/JScriptForm.js"></script>
+  <script src="~/App/app.js"></script>
+  <script src="~/App/services/AuthData.js"></script>
+  <script src="~/App/services/AuthenticationService.js"></script>
+  <script src="~/App/services/LoginService.js"></script>
+  <script src="~/App/controllers/DashboardController.js"></script>
+  <script src="~/Scripts/angular-web-notification-master/web-notification.js"></script>
+  <script src="~/Scripts/angular-web-notification-master/angular-web-notification.js"></script>
+  <script src="~/Scripts/signalr/jquery.signalR.min.js"></script>
+  <script src="~/signalr/Hubs"></script>
+
+  <script src="~/Scripts/JScript_Function.js"></script>
+
+  <script>
+    // Local to this page only — the System Hub is a standalone entry
+    // point and doesn't share theme logic with the main dashboard app.
+    function applyTheme(theme) {
+      const $body = $("body");
+      const $navbar = $(".main-header");
+      const $icon = $("#darkModeIcon");
+
+      const isDarkMode = theme === "dark";
+      $body.toggleClass("dark-mode", isDarkMode);
+      $navbar
+        .toggleClass("navbar-dark", isDarkMode)
+        .toggleClass("navbar-white", !isDarkMode);
+      if ($icon.length) {
+        $icon
+          .removeClass("fa-sun fa-moon")
+          .addClass(isDarkMode ? "fa-sun" : "fa-moon");
+      }
+      localStorage.setItem("theme", theme);
+    }
+
+    function toggleDarkMode() {
+      const theme = $("body").hasClass("dark-mode") ? "light" : "dark";
+      if (theme === "dark") $(".theme-picker").removeClass("d-none");
+      else $(".theme-picker").addClass("d-none");
+      applyTheme(theme);
+    }
+
+    $(document).ready(function () {
+      // Restore the saved theme on load — previously this never ran.
+      applyTheme(localStorage.getItem("theme") || "light");
+    });
+  </script>
+
+</body>
+
+</html>

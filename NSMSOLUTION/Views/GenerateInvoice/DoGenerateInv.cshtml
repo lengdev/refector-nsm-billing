@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/BlankPage.cshtml";
+}
+<script>
+    $(function () {
+        DoGenerateInvoice("GenerateInvoice/GenerateInvoices", function (respone) {
+        }, "true");
+    });
+
+    function DoGenerateInvoice(endPointName, CallBackFunction, UploadFileOnCompleted) {
+        CallBackFunction = (typeof CallBackFunction == 'undefined') ? "" : CallBackFunction;
+        UploadFileOnCompleted = (typeof UploadFileOnCompleted == "undefined" ? "" : UploadFileOnCompleted);
+        $.ajax({
+            url: ServerRoot + endPointName,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            cache: false,
+            type: 'POST',
+            complete: function (response) {
+
+            },
+            beforeSend: function (xhr) {
+
+            },
+            success: function (response) {
+                if (UploadFileOnCompleted != "") {
+                    if (response.Data != "") {
+                        var Data = JSON.parse(response.Data);
+                        $.each(Data, function (key, value) {
+                            var CustomerID = value[key].CustomerID;
+                            var InvoiceNo = value[key].InvoiceNumber;
+                            var IsIncludedVAT = value[key].IsIncludedVAT;
+                            var StatusID = value[key].StatusID;
+                            var SystemID = value[key].SystemID;
+                            var WarehouseID = value[key].WarehouseID;
+                            var CustomerName = value[key].CustomerName;
+                            var dt = {};
+                            dt = {
+                                CustomerID: CustomerID,
+                                InvoiceNo: InvoiceNo,
+                                IsIncludedVAT: IsIncludedVAT,
+                                StatusID: StatusID,
+                                SystemID: SystemID,
+                                WarehouseID: WarehouseID,
+                                CustomerName: CustomerName
+                            };
+                            var Data = [];
+                            Data = { Data: JSON.stringify(dt) };
+                            Post_Data("CustomerInvoice/InvoiceToPDF", Data, function (response) {
+                                response = JSON.parse(response);
+                                var InvoiceData = '<div id=\"div_Cust_Invoice' + key + '\" class=\"bg-white p-2\">';
+                                InvoiceData += response.InvData;
+                                InvoiceData += '</div>';
+                                var CustomerName = response.CustomerName;
+                                $("#BoyMasterPage").append(InvoiceData);
+                                //$("#div_Cust_Invoice" + key).css("visibility", "hidden");
+                                HTMLToPDF("div_Cust_Invoice" + key, "CustomerInvoice.pdf", function (pdfData) {
+                                    //$("#div_Cust_Invoice" + key).remove();
+                                    var DATA = { CustomerName: CustomerName, InvoiceNo: InvoiceNo, pdfData: pdfData };
+                                    Post_Data("CustomerInvoice/SaveInvoiceToPDF", DATA, function (response) {
+                                        //console.log(response);
+                                    });
+                                });
+                            });
+                        });
+                    }
+                }
+            },
+            error: function (response, callStatus, errorThrown) {
+
+            }
+        }).done(function (response) {
+
+        }).then(function (response) {
+
+        });
+    }
+    function Post_Data(endPointName, DATA, CallBackFunction) {
+        CallBackFunction = (typeof CallBackFunction == 'undefined') ? "" : CallBackFunction;
+        $.ajax({
+            url: ServerRoot + endPointName,
+            dataType: "html",
+            async: false,
+            cache: false,
+            type: 'POST',
+            data: DATA,
+            beforeSend: function (xhr) {
+
+            },
+            success: function (response) {
+                //DialogSweetAlert("loadsuccess", "Your data has been loaded.");
+                //var result = JSON.parse(response);
+
+                //if (result.Result == 2)
+                //
+                //else
+                //    DialogSweetAlert("error", result.Message);
+
+
+            },
+            error: function (response, callStatus, errorThrown) {
+                DialogSweetAlert("error", response.status + " " + response.statusText);
+            }
+        }).done(function (response) {
+            if (typeof CallBackFunction === 'function') {
+                CallBackFunction(response);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,405 @@
+﻿@{
+    Layout = null;
+}
+<div class="row card mb-3 widget-chart widget-chart2 text-left card-btm-border card-shadow-success border-success">
+    <div class="col-12 widget-chat-wrapper-outer">
+        <div class="widget-chart-content pt-3 pl-3 pb-1">
+            <div class="row">
+                <div class="col">
+                    <h1 class="text-uppercase text-info">Customer Payment</h1>
+                </div>
+                <div class="col-sm-auto">
+                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span></span> <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="row"><div class="col">&nbsp;</div></div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="p-3 mt-4">
+                        <div class="widget-chart-flex">
+                            <div class="widget-numbers">
+                                <div class="widget-chart-flex">
+                                    <div class="">
+                                        <span id="CustomerInvoiceAmount"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto"><h5 class="widget-subheading mb-0 opacity-5">Total All Customer Invoice Amount</h5></div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="widget-numbers"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto"><h5 id="CountCustomer" class="widget-subheading mb-0 opacity-5"></h5></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8" id="PaymentChart">
+                    <canvas id="CustPaymentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-xl-3">
+        <div id="div_CustomerPaidAmount" class="card mb-3 widget-chart widget-chart2 shadow widget-chart-hover text-left card-btm-border card-shadow-primary border-primary">
+            <div class="widget-chat-wrapper-outer">
+                <div class="widget-chart-content pt-3 pl-3 pb-1">
+                    <div class="widget-chart-flex">
+                        <div class="widget-numbers">
+                            <div class="widget-chart-flex">
+                                <div class="fsize-4">
+                                    @*<small class="opacity-5">$</small>*@
+                                    <span id="CustomerPaidAmount"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6 class="widget-subheading mb-0 opacity-5">Paid Amount</h6>
+
+                    <div class="widget-content p-0 mt-3">
+                        <div class="widget-content-outer">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="widget-numbers text-sm text-nowrap text-primary" id="paidP"></div>
+                                </div>
+                                <div class="widget-content-right w-100 p-1">
+                                    <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                        <div class="progress-bar bg-primary" role="progressbar" id="paidper" aria-valuenow="54" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div id="div_UnpaidAmount" class="card mb-3 widget-chart widget-chart2 shadow widget-chart-hover text-left card-btm-border card-shadow-danger border-danger">
+            <div class="widget-chat-wrapper-outer">
+                <div class="widget-chart-content pt-3 pl-3 pb-1">
+                    <div class="widget-chart-flex">
+                        <div class="widget-numbers">
+                            <div class="widget-chart-flex">
+                                <div class="fsize-4">
+                                    @*<small class="opacity-5">$</small>*@
+                                    <span id="CustomerUnpaidAmount"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6 class="widget-subheading mb-0 opacity-5">Unpaid Amount</h6>
+                    <div class="widget-content p-0 mt-3">
+                        <div class="widget-content-outer">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="widget-numbers text-sm text-nowrap text-danger" id="unpaidP"></div>
+                                </div>
+                                <div class="widget-content-right w-100 p-1">
+                                    <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                        <div class="progress-bar bg-danger" role="progressbar" id="unpaidper" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div id="div_PartiallyPaid" class="card mb-3 shadow widget-chart-hover widget-chart widget-chart2 text-left card-btm-border card-shadow-warning border-warning">
+            <div class="widget-chat-wrapper-outer">
+                <div class="widget-chart-content pt-3 pl-3 pb-1">
+                    <div class="widget-chart-flex">
+                        <div class="widget-numbers">
+                            <div class="widget-chart-flex">
+                                <div class="fsize-4">
+                                    @*<small class="opacity-5">$</small>*@
+                                    <span id="CustomerPartiallyPaid"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6 class="widget-subheading mb-0 opacity-5">Partially Paid</h6>
+                    <div class="widget-content p-0 mt-3">
+                        <div class="widget-content-outer">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="widget-numbers text-sm text-nowrap text-warning" id="parpaidP"></div>
+                                </div>
+                                <div class="widget-content-right w-100 p-1">
+                                    <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                        <div class="progress-bar bg-warning" role="progressbar" id="parpaidper" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card mb-3 shadow widget-chart-hover widget-chart widget-chart2 text-left card-btm-border card-shadow-info border-info">
+            <div class="widget-chat-wrapper-outer">
+                <div class="widget-chart-content pt-3 pl-3 pb-1">
+                    <div class="widget-chart-flex">
+                        <div class="widget-numbers">
+                            <div class="widget-chart-flex">
+                                <div class="fsize-4">
+                                    @*<small class="opacity-5">$</small>*@
+                                    <span id="CustomerBalance"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6 class="widget-subheading mb-0 opacity-5">Customer Balance</h6>
+                    <div class="widget-content p-0 mt-3">
+                        <div class="widget-content-outer">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="widget-numbers text-sm text-nowrap text-info" id="balanceP"></div>
+                                </div>
+                                <div class="widget-content-right w-100 p-1">
+                                    <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                        <div class="progress-bar bg-info" role="progressbar" id="balanceper" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row"><div class="col">&nbsp;</div></div>
+<div class="row">
+    <div class="col">
+        <div class="card card-success card-outline p-2">
+            <div id="showGData" class="p-2"></div>
+        </div>
+    </div>
+</div>
+<script>
+    //Chart.register(ChartDataLabels);
+    Chart.unregister(ChartDataLabels);
+    //var Data = "@ViewBag.Data";
+    //Data = JSON.parse(Data.replace(/&quot;/ig, '"'))[0];
+    $(function () {
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            LoadPayment(start.format('YYYY/MM/DD'), end.format('YYYY/MM/DD'))
+        }
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb).on('apply.daterangepicker', function (ev, picker) {
+            start = picker.startDate.format('YYYY/MM/DD');
+            end = picker.endDate.format('YYYY/MM/DD');
+        });
+
+        cb(start, end);
+
+        $("#div_CustomerPaidAmount").click(function () {
+            LoadPayment(moment(start).format('YYYY/MM/DD'), moment(end).format('YYYY/MM/DD'), 10)
+        });
+        $("#div_UnpaidAmount").click(function () {
+            LoadPayment(moment(start).format('YYYY/MM/DD'), moment(end).format('YYYY/MM/DD'), 11)
+        });
+        $("#div_PartiallyPaid").click(function () {
+            LoadPayment(moment(start).format('YYYY/MM/DD'), moment(end).format('YYYY/MM/DD'), 15)
+        });
+    });
+
+    function LoadPayment(StartDate, EndDate, StatusID) {
+        StatusID = (typeof StatusID == "undefined" ? "" : StatusID);
+        LoadData('Customer/LoadPayment?StartDate=' + StartDate + '&EndDate=' + EndDate + '&StatusID=' + StatusID, function (result) {
+            $("#showGData").html(JSON.parse(result).GData);
+            var Data = JSON.parse(result).Data;
+            Data = JSON.parse(Data)[0];
+
+            var InvoiceAmount = accounting.formatMoney(Data.InvoiceAmount);
+            var PaidAmount = accounting.formatMoney(Data.PaidAmount);
+            var UnpaidAmount = accounting.formatMoney(Data.UnpaidAmount);
+            var PartiallyPaid = accounting.formatMoney(Data.PartiallyPaid);
+            var AdvancePaymentAmount = accounting.formatMoney(Data.AdvancePaymentAmount);
+            $("#CustomerInvoiceAmount").html(InvoiceAmount);
+            $("#CountCustomer").html('Customers: ' + Data.Customer);
+            $("#CustomerPaidAmount").html(PaidAmount);
+            $("#CustomerUnpaidAmount").html(UnpaidAmount);
+            $("#CustomerPartiallyPaid").html(PartiallyPaid);
+            $("#CustomerBalance").html(AdvancePaymentAmount);
+
+            var TotalPaid = (Data.PaidAmount * 100) / Data.InvoiceAmount;
+            TotalPaid = Math.round(TotalPaid * 100) / 100;
+            $("#paidP").html(accounting.formatMoney(TotalPaid, { symbol: "%", format: "%v %s" }));
+            $("#paidper").attr("aria-valuenow", TotalPaid);
+            $("#paidper").css("width", TotalPaid + "%");
+
+            var TotalUnPaid = (Data.UnpaidAmount * 100) / Data.InvoiceAmount;
+            TotalUnPaid = Math.round(TotalUnPaid * 100) / 100;
+            $("#unpaidP").html(accounting.formatMoney(TotalUnPaid, { symbol: "%", format: "%v %s" }));
+            $("#unpaidper").attr("aria-valuenow", TotalUnPaid);
+            $("#unpaidper").css("width", TotalUnPaid + "%");
+
+            var TotalPartiallyPaid = (Data.PartiallyPaid * 100) / Data.InvoiceAmount;
+            TotalPartiallyPaid = Math.round(TotalPartiallyPaid * 100) / 100;
+            $("#parpaidP").html(accounting.formatMoney(TotalPartiallyPaid, { symbol: "%", format: "%v %s" }));
+            $("#parpaidper").attr("aria-valuenow", TotalPartiallyPaid);
+            $("#parpaidper").css("width", TotalPartiallyPaid + "%");
+
+            var TotalBalance = (Data.AdvancePaymentAmount * 100) / Data.InvoiceAmount;
+            TotalBalance = Math.round(TotalBalance * 100) / 100;
+            $("#balanceP").html(accounting.formatMoney(TotalBalance, { symbol: "%", format: "%v %s" }));
+            $("#balanceper").attr("aria-valuenow", TotalBalance);
+            $("#balanceper").css("width", TotalBalance + "%");
+            $("#CustPaymentChart").remove();
+            $("#PaymentChart").html('<canvas id="CustPaymentChart"></canvas>');
+            var ctx = $('#CustPaymentChart').get(0).getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Paid', 'Unpaid', 'Partially Paid', 'Customer Balance', 'Customer Invoice Amount'],
+                    datasets: [{
+                        //data: [700, 500, 400, 600, 300],
+                        //backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc']
+                        //label: '# of Votes',
+                        data: [
+                            (Data.PaidAmount == "" ? 0 : Data.PaidAmount),
+                            (Data.UnpaidAmount == "" ? 0 : Data.UnpaidAmount),
+                            (Data.PartiallyPaid == "" ? 0 : Data.PartiallyPaid),
+                            (Data.AdvancePaymentAmount == "" ? 0 : Data.AdvancePaymentAmount),
+                            (Data.InvoiceAmount == "" ? 0 : Data.InvoiceAmount)
+                        ],
+                        backgroundColor: [
+                            '#387CFF',// rgba(54, 162, 235, 0.2)
+                            '#cd1076',
+                            '#F89C39',// rgba(255, 206, 86, 0.2)
+                            '#16AAFF',
+                            '#4FCA9E', //rgba(255, 99, 132, 0.2)
+                            //'#2acaea',
+                            //'#5ce1e6'//rgba(54, 162, 235, 0.2)
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: {
+                        datalabels: {
+                            //anchor: "end", //start, center, end
+                            //rotation: function (ctx) {
+                            //    const valuesBefore = ctx.dataset.data.slice(0, ctx.dataIndex).reduce((a, b) => a + b, 0);
+                            //    const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            //    const rotation = ((valuesBefore + ctx.dataset.data[ctx.dataIndex] / 2) / sum * 360);
+                            //    return rotation < 180 ? rotation - 90 : rotation + 90;
+                            //},
+                            color: 'white',
+                            formatter: (val, ctx) => {
+                                const totalDatasetSum = ctx.chart.data.datasets[ctx.datasetIndex].data.reduce((a, b) => (parseInt(a) + parseInt(b)), 0);
+                                const percentage = val * 100 / totalDatasetSum;
+                                const roundedPercentage = Math.round(percentage * 100) / 100;
+                                //return `${roundedPercentage}% \n\r${accounting.formatMoney(val)}`;
+                                //return `${roundedPercentage}%`;
+                                return (val == 0 ? '' : `${accounting.formatMoney(val)}`);
+                            },
+                        },
+                        legend: {
+                            position: 'left',
+                            labels: {
+                                font: {
+                                    size: 16
+                                },
+                                generateLabels: function (chart) {
+
+                                    // Get the default label list
+                                    const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
+                                    const labelsOriginal = original.call(this, chart);
+
+                                    // Build an array of colors used in the datasets of the chart
+                                    var datasetColors = chart.data.datasets.map(function (e) {
+                                        return e.backgroundColor;
+                                    });
+                                    var datasetData = function (index) {
+                                        return chart.data.datasets.map(function (e) {
+                                            return e.data[index];
+                                        })[0];
+                                    };
+
+                                    datasetColors = datasetColors.flat();
+
+                                    // Modify the color and hide state of each label
+                                    labelsOriginal.forEach(label => {
+                                        var value = datasetData(label.index);
+                                        label.text = label.text + " : " + accounting.formatMoney(value),
+                                            // Change the color to match the dataset
+                                            label.fillStyle = datasetColors[label.index];
+                                    });
+
+                                    return labelsOriginal;
+                                }
+                            },
+                            //onClick: function (mouseEvent, legendItem, legend) {
+                            //    // toggle the visibility of the dataset from what it currently is
+                            //    legend.chart.getDatasetMeta(
+                            //        legendItem.datasetIndex
+                            //    ).hidden = legend.chart.isDatasetVisible(legendItem.datasetIndex);
+                            //    legend.chart.update();
+                            //}
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const labelIndex = (context.datasetIndex * 2) + context.dataIndex;
+                                    return context.chart.data.labels[labelIndex] + ': ' + accounting.formatMoney(context.formattedValue);
+                                }
+                            },
+                            bodyFont: {
+                                size: 18
+                            },
+                            bodyColor: '#cd1076',
+                            backgroundColor: '#FFF',
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    function Show_Preview_CustInv(THIS) {
+        if ($(THIS).index() != 1) {
+            var index = $(THIS).parent().index();
+            if ($("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(1) a")[0])
+                $("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(1) a")[0].click();
+            return true;
+        }
+    }
+</script>

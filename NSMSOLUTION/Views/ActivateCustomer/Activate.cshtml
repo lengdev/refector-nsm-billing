@@ -1,0 +1,1625 @@
+﻿@{
+Layout = null;
+}
+<section>
+  <div class="row">
+    <div class="col">
+      <div class="card card-outline card-success">
+        <div class="card-header">
+          <h5 class="card-title">Customer Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row p-3">
+            <div class="col-12">
+              @Html.Raw(ViewBag.DrawHTMLForm)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card card-outline card-success">
+        @*<div class="card-header">
+          <h5 class="card-title">Device Information</h5>
+        </div>*@
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              @Html.Raw(ViewBag.DrawHTMLFormDeviceInformation)
+            </div>
+          </div>
+          <!--<div class="row" style="display:none">
+                        <div class="col table-responsive">
+                            <table id="TblCustEquipment" class="table table-bordered text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>-->
+          @*<th>Barcode</th>*@
+          <!--<th>Item Name</th>
+                    <th>MAC Address</th>
+                    <th>Serial No</th>
+                    <th>Reason</th>-->
+          @*<th>Status</th>*@
+          <!--<th>NSM</th>
+                                        <th>Customer</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" id="divNetConfig">
+    <div class="col">
+      <div class="card card-outline card-success">
+        <div class="card-header">
+          <h5 class="card-title">Network Configuration</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6" id="divUserNetInfo">
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label for="ActivateCustDate" class="col-form-label text-nowrap">Activate Date:</label>
+                </div>
+                <div class="col">
+                  <input ondblclick="ActivateDate_ApplyDatePicker()" type="text" name="ActivateCustDate"
+                    id="ActivateCustDate" value="" required="" placeholder="" class="form-control">
+                </div>
+              </div>
+              <div class="row form-group" id="divSID" style="display:none">
+                <div class="col-3 text-right">
+                  <label class="col-form-label text-nowrap" for="TxtSID">SID:</label>
+                </div>
+                <div class="col">
+                  <input id="TxtSID" name="TxtSID" type="text" class="form-control" readonly="readonly" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label text-nowrap" for="Cbo_RouterName">Router Name:</label>
+                </div>
+                <div class="col">
+                  @Html.Raw(ViewBag.RouterName)
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label text-nowrap">Connection Type:</label>
+                </div>
+                <div class="col">
+                  <select id="Cbo_ConnectionTyp" name="ConnectionType" class="form-control select2"
+                    style="width: 100%;">
+                    <option value="PPPoE">PPPoE</option>
+                    <option value="Static">Static</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+              </div>
+              <div id="NetworkConfig_Static">
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">Vlan Name:</label>
+                  </div>
+                  <div class="col">
+                    <div id="divVlanName"></div>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label" for="VLanIPAddress">Address IP:</label>
+                  </div>
+                  <div class="col">
+                    <input id="VLanIPAddress" name="VLanIPAddress" type="text" class="form-control" />
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label" for="TxtNetwork">Network:</label>
+                  </div>
+                  <div class="col">
+                    <input id="TxtNetwork" name="TxtNetwork" type="text" class="form-control" />
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">Customer IP:</label>
+                  </div>
+                  <div class="col" data-validate="IP Address is required.">
+                    <input id="IPAddress" name="IPAddress" type="text" class="form-control"
+                      data-inputmask="'alias': 'ip'" data-mask>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">Default Getway IP:</label>
+                  </div>
+                  <div class="col" data-validate="Getway IP is required.">
+                    <input id="GetwayIP" name="GetwayIP" type="text" class="form-control" data-inputmask="'alias': 'ip'"
+                      data-mask>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">Subnet IP:</label>
+                  </div>
+                  <div class="col" data-validate="Subnet IP Address is required.">
+                    <input id="Subnet" name="SubnetIP" type="text" class="form-control" data-inputmask="'alias': 'ip'"
+                      data-mask>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">DNS1:</label>
+                  </div>
+                  <div class="col" data-validate="DNS1 is required.">
+                    <input id="DNS1" name="DNS1" type="text" class="form-control" data-inputmask="'alias': 'ip'"
+                      data-mask>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label class="col-form-label">DNS2:</label>
+                  </div>
+                  <div class="col" data-validate="DNS2 is required.">
+                    <input id="DNS2" name="DNS2" type="text" class="form-control" data-inputmask="'alias': 'ip'"
+                      data-mask>
+                  </div>
+                </div>
+              </div>
+              <div id="NetworkConfig_PPPoE">
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label for="PPPoEUserName" class="col-form-label">User Name:</label>
+                  </div>
+                  <div class="col" data-validate="User Name is required.">
+                    <input id="PPPoEUserName" name="PPPoEUserName" value="@ViewBag.RecommentCID" type="text"
+                      class="form-control" />
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label for="PPPoEPassword" class="col-form-label">Password:</label>
+                  </div>
+                  <div class="col" data-validate="Password is required.">
+                    <input id="PPPoEPassword" name="PPPoEPassword" value="NSM@2022" type="text" class="form-control" />
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-3 text-right">
+                    <label for="PPPoEIPAddress" class="col-form-label">IP Address:</label>
+                  </div>
+                  <div class="col">
+                    <input id="PPPoEIPAddress" name="PPPoEIPAddress" type="text" class="form-control"
+                      data-inputmask="'alias': 'ip'" data-mask />
+                  </div>
+                </div>
+                <div class="row form-group justify-content-end">
+                  <div class="col text-right">
+                    <button id="btnGeneratePWD" type="button" class="btn btn-primary"
+                      onclick="GetGeneratPWD();">Generate Password</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="divUserWifiInfo" class="col-6">
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label">Device Name:</label>
+                </div>
+                <div class="col">
+                  <input name="CustDeviceName" id="CustDeviceName" type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label">Router IP:</label>
+                </div>
+                <div class="col">
+                  <input name="WifiIP" id="WifiIP" value="192.168.1.1" type="text" class="form-control"
+                    data-inputmask="'alias': 'ip'" data-mask />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label">Wifi Name:</label>
+                </div>
+                <div class="col">
+                  <input name="WifiName" id="WifiName" type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label">Wifi Key:</label>
+                </div>
+                <div class="col">
+                  <input name="WifiKey" id="WifiKey" type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label">Router Login Name:</label>
+                </div>
+                <div class="col">
+                  <input name="WifiLoginName" value="user" id="WifiLoginName" type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-3 text-right">
+                  <label class="col-form-label text-nowrap">Router Login PWD:</label>
+                </div>
+                <div class="col">
+                  <input name="WifiLoginPassword" id="WifiLoginPassword" value="user" type="text"
+                    class="form-control" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function ActivateDate_ApplyDatePicker() {
+    $("#ActivateCustDate").removeAttr("readonly");
+    $("#ActivateCustDate").daterangepicker({
+      drops: 'auto',
+      showDropdowns: true, singleDatePicker: true, autoApply: true,
+      locale: {
+        format: 'DD/MM/YYYY'
+      }
+    }).on('apply.daterangepicker', function (ev, picker) {
+      $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    }).on('cancel.daterangepicker', function (ev, picker) {
+      $(this).val('');
+    });
+  }
+</script>
+<script>
+  var AllowCreatePPPoEUser = "@ViewBag.AllowCreatePPPoEUser";
+  var UserPPPoEOnRadius = false;
+  var TicketNumber = "";
+  var ApplyCons = [];
+  var VLanData = "";
+  var ConnectionList = JSON.parse(`@Html.Raw(ViewBag.ConnectionLists)`);
+  var ConnectionListsActivated = JSON.parse(`@Html.Raw(ViewBag.ConnectionListsActivated)`);
+  var ConnectionLists = [];
+  if (ConnectionList.length > 0) {
+    var ConnLists = ConnectionList[0].Data;
+    ConnectionLists = ConnLists.map(element => {
+      return element.trim();
+    });
+  }
+  var IsNeedReActivate = false;
+  var RouterDeviceStatus = `@Html.Raw(ViewBag.RouterDeviceStatus)`;
+  var DeviceName = "";
+  //var Equipment = JSON.parse(`@Html.Raw(ViewBag.Equipment)`);
+  var InvoiceNo = "";
+  var ActiveCustomerData = "@ViewBag.ActiveCustomerData";
+  var ConnectivityStatus = "";
+  var oldPPPoEUserName = "";
+  var oldPPPoEPassword = "";
+  var SID = "";
+  var custData = @Html.Raw(ViewBag.CustData);
+  var GoogleMap = @Html.Raw(ViewBag.GoogleMap);
+  var CurrentIP = "";
+  var OldIP = "";
+  var ISReActivate = false;
+  var ActivateCustomerID = 0;
+  var SaveChangeUserNetConfig = false;
+  var CID = "";
+  var CustomerID = "";
+  var CustInfoDetail = "";
+  var DataInfo = @Html.Raw(ViewBag.DataInfo);
+  var ISAlreadyActivate = false;
+  var IsOnCustProfile = false;
+  var ActivateCustomerData = "";
+  var CustomerName = "";
+  var ServiceID = "";
+  var ConnectionTypeID = "";
+  var PackageDetailID = "";
+  var BillingInvoiceID = "";
+  var IsLoaded = false;
+  var inputName = "ItemName";
+  var TblID = "TblCustEquipment";
+  var TRName = "TRBody";
+  var TDNoName = "TDNo";
+  var TblRow = "";
+  TblRow = '<tr name="TRBody">';
+  TblRow += '<td name="TDNo" align="right">1</td>';
+  //TblRow += '<td></td>';
+  TblRow += '<td><input type="hidden" name="Remark" class="form-control" /><input type="hidden" name="Status" class="form-control" /><input type="hidden" name="Barcode" class="form-control" /><input type="hidden" name="EquipmentID" class="form-control" value="0" /><input type="hidden" name="ItemID" class="form-control" value="0" /><input type="text" name="ItemName" class="form-control" /></td>';
+  TblRow += '<td><input type="text" name="MACAddress" class="form-control" /></td>';
+  TblRow += '<td><input type="text" name="SerialNo" class="form-control" /></td>';
+  TblRow += '<td><input type="text" name="Reason" class="form-control" value="New Installtion" /></td>';
+  //TblRow += '<td><div name="DivRouterDeviceStatus"></div></td>';
+  TblRow += '<td><input type="checkbox" name="NSM" class="form-control" value="true" /></td>';
+  TblRow += '<td><input type="checkbox" name="Customer" class="form-control" value="true" /></td>';
+  TblRow += '<td align="center" valign="middle"><div><button onclick="removerow(this);" type="button"><i class="fas fa-trash"></i></button></div></td>';
+  TblRow += '</tr>';
+
+  function LoadConnectionList() {
+
+  }
+  var ViewBagConnectionName = "@ViewBag.ConnectionName";
+  $(function () {
+
+    var ActCustData = custData[0];
+
+    $("#ActivateCustDate").val(moment(new Date()).format('DD/MM/YYYY'));
+    $("#ActivateCustDate").attr("readonly", "readonly");
+    $(".modal-footer button").each(function (key, value) {
+      let btid = $(value).attr("id").split("_");
+      $(value).attr("id", btid[0]);
+      $(value).attr("name", btid[0]);
+    });
+
+    ActiveCustomerData = @Html.Raw(@ViewBag.ActiveCustomerData);
+    if (ActiveCustomerData != "[]" && ActiveCustomerData != "") {
+      ActiveCustomerData = JSON.parse(ActiveCustomerData)[0];
+      if (ActiveCustomerData.RenewBy != "")
+        $("#ActivateCustDate").parent().parent().hide();
+    }
+    var GoogleMapFullAddress = "";
+    var GoogleMapLatitude = "";
+    var GoogleMapLongitude = "";
+    if (GoogleMap != "") {
+      GoogleMapFullAddress = GoogleMap.GoogleMapFullAddress;
+      GoogleMapLatitude = GoogleMap.GoogleMapLatitude;
+      GoogleMapLongitude = GoogleMap.GoogleMapLongitude;
+    }
+    if (GoogleMapFullAddress != "") {
+      var row = '<tr><td valign="top" align="right"><label class="col-form-label text-nowrap" for="TxtGoogleMap">Google Map:</label></td>';
+      row += '<td><a target="_blank" href="https://www.google.com/maps/place/' + GoogleMapLatitude + ',' + GoogleMapLongitude + '/@@' + GoogleMapLatitude + ',' + GoogleMapLongitude + ',15z" tabindex="0">' + GoogleMapFullAddress + '</a></td>';
+      row += "</tr>";
+      $("form[name=ActivateCustomerForm] table tbody").append(row);
+    }
+
+    $('[data-mask]').inputmask();
+    $("#Cbo_RouterName").select2({
+      placeholder: {
+        id: '-1', // the value of the option
+        text: 'Select router name'
+      },
+      minimumResultsForSearch: Infinity,
+      theme: 'bootstrap4',
+    }).on('change', function () {
+      $('#Cbo_ConnectionTyp').val("PPPoE").trigger("change");
+      var RouterID = $("#Cbo_RouterName").val();
+      LoadData('ActivateCustomer/GetPPPeEProfile?RouterID=' + RouterID, function (response) {
+        var rst = JSON.parse(response);
+        var ProfileName = rst.ProfileName;
+        var UserGroups = rst.UserGroups;
+        $("#divprofilepppoe, #divprofilepppoeusergroup").remove();
+        if (response != "") {
+          var row = '<div id="divprofilepppoe" class="row form-group"><div class="col-3 text-right"><label class="col-form-label text-nowrap" for="CboProfileName">Profile Name:</label></div>';
+          row += '<div class="col">' + ProfileName + '</div></div>';
+
+          if (UserGroups != "") {
+            row += '<div id="divprofilepppoeusergroup" class="row form-group"><div class="col-3 text-right"><label class="col-form-label text-nowrap" for="CboUserGroups">User Group:</label></div>';
+            row += '<div class="col">' + UserGroups + '</div></div>';
+          }
+
+          $("#NetworkConfig_PPPoE").prepend(row);
+          $("#CboProfileName").prepend('<option value=""></option>');
+          $("#CboProfileName").select2({
+            placeholder: "Select a Profile Name",
+            allowClear: true,
+            width: '100%',
+            theme: 'bootstrap4',
+          });
+          if (UserGroups != "") {
+            $("#CboUserGroups").prepend('<option value=""></option>');
+            $("#CboUserGroups").select2({
+              placeholder: "Select a User Group",
+              allowClear: true,
+              width: '100%',
+              theme: 'bootstrap4',
+            });
+          }
+
+          $("#CboProfileName > option").each(function (key, val) {
+            var text = $(this).val();
+            var a = $.trim(accounting.unformat(text)).replace('-', '');
+            if (ActCustData.Speed == a) {
+              $("#CboProfileName").val(text).trigger("change");
+              return false;
+            }
+            else if (text.indexOf(ActCustData.Speed) > 0) {
+              $("#CboProfileName").val(text).trigger("change");
+              return false;
+            }
+          });
+
+          $("#CboUserGroups > option").each(function (key, val) {
+            var text = $(this).val();
+            var a = $.trim(accounting.unformat(text)).replace('-', '');
+            if (ActCustData.Speed == a) {
+              $("#CboUserGroups").val(text).trigger("change");
+              return false;
+            }
+            else if (text.indexOf(ActCustData.Speed) > 0) {
+              $("#CboUserGroups").val(text).trigger("change");
+              return false;
+            }
+          });
+
+          // if (ActiveCustomerData != "[]" && ActiveCustomerData != "") {
+          //   if (ActiveCustomerData.ActualProfile != "")
+          //     $("#CboProfileName").val(ActiveCustomerData.ActualProfile).trigger("change");
+          // }
+          // if (ActiveCustomerData != "[]" && ActiveCustomerData != "") {
+          //   if (ActiveCustomerData.UserGroup != "")
+          //     $("#CboUserGroups").val(ActiveCustomerData.UserGroup).trigger("change");
+          // }
+        }
+      });
+    });
+
+    ActivateCustomerID = DataInfo.ActivateCustomerID;
+    CustomerID = DataInfo.CustomerID;
+    // IsOnCustProfile = DataInfo.IsOnCustProfile;
+    BillingInvoiceID = DataInfo.BillingInvoiceID;
+    $('#Cbo_ConnectionTyp').select2({
+      theme: 'bootstrap4',
+      minimumResultsForSearch: Infinity
+    }).on('change', function () {
+      $("#TxtNetwork").parent().parent().hide();
+      var ConnectionType = $(this).val();
+      if (ConnectionType == "PPPoE") {
+        $("#NetworkConfig_Static").hide();
+        //if (SID != "")
+        $("#NetworkConfig_PPPoE").show();
+      }
+      else if (ConnectionType == "Static") {
+        $("#NetworkConfig_Static").show();
+        $("#NetworkConfig_PPPoE").hide();
+        LoadVlanName(function () {
+          if (ActCustData.SID != 0 && ActiveCustomerData != "[]") {
+            setTimeout(function () {
+              $("#VLanID").val(ActiveCustomerData.VLanID).trigger("change");
+              $.each(ActiveCustomerData, function (key, value) {
+                if ($("input[name=" + key + "]").is("input[type=text]"))
+                  $("input[name=" + key + "]").val(value);
+              });
+              $("#btnGeneratePWD").attr("disabled", "disabled");
+            }, 500);
+          }
+          if (ConnectionLists.length > 0) {
+            $("#ApplyCon").parent().remove();
+            let row = `<div class="col-auto"><a href="javascript:void(0);" onclick="ApplyCon();" id="ApplyCon" name="ApplyCon" class="text-uppercase btn btn-app bg-primary">
+                  <span class="badge bg-success" id="applyCount">0</span>
+                  <i class="fas fa-regular fa-check"></i> Apply
+                </a></div>`;
+            $("#DNS2").parent().after(row);
+          }
+        });
+      }
+      else if (ConnectionType == "Manual") {
+        $("#NetworkConfig_Static").hide();
+        $("#NetworkConfig_PPPoE").hide();
+      }
+    });
+    $("#Cbo_ConnectionTyp").trigger("change");
+    //LoadCustEquipment();
+
+
+    var IsChangePlan = ActCustData.IsChangePlan;
+    var IsAlreadyApplyProfile = ActCustData.IsAlreadyApplyProfile;
+    InvoiceNo = ActCustData.InvoiceNo;
+    TicketNumber = ActCustData.TicketNumber;
+    if (ActCustData.SID != 0 && ActiveCustomerData != "[]") {
+      ConnectivityStatus = ActCustData.ConnectivityStatus;
+      SID = ActCustData.SID;
+      OldIP = ActCustData.IPAddress;
+      $("#divUserNetInfo input").each(function (key, element) {
+        element.readOnly = true;
+      });
+      $("#TxtSID").val(ActCustData.SID);
+      $("#divSID").show();
+      $("#NetworkConfig_PPPoE").show();
+      $("#PPPoEUserName").val(ActCustData.PPPoEUserName);
+      $("#PPPoEPassword").val(ActCustData.PPPoEPassword);
+      //$("#Cbo_RouterName").attr("disabled", "disabled");
+      //$("#Cbo_ConnectionTyp").attr("disabled", "disabled");
+
+      $("#Cbo_RouterName").val(DataInfo.RouterID);
+      $("#Cbo_RouterName").trigger("change");
+      $("#ActivateCustDate").val(ActiveCustomerData.ActivateDate);
+      $("#Cbo_ConnectionTyp").val(ActiveCustomerData.ConnectionType);
+      $("#Cbo_ConnectionTyp").trigger("change");
+      $("#CustDeviceName").val(ActCustData.DeviceName);
+      $("#WifiIP").val(ActCustData.WifiIP);
+      $("#WifiName").val(ActCustData.WifiName);
+      $("#WifiKey").val(ActCustData.WifiKey);
+      $("#WifiLoginName").val(ActCustData.WifiLoginName);
+      $("#WifiLoginPassword").val(ActCustData.WifiLoginPassword);
+      //setTimeout(function () {
+      //    $("#VLanID").attr("disabled", "disabled");
+      //    if (ActiveCustomerData != "[]") {
+      //        $.each(ActiveCustomerData, function (key, value) {
+      //            if ($("input[name=" + key + "]").is("input[type=text]"))
+      //                $("input[name=" + key + "]").val(value);
+      //        });
+      //    }
+      //    $("#btnGeneratePWD").attr("disabled", "disabled");
+      //}, 1500);
+
+    }
+    if (ActivateCustomerID == 0) {
+      var row = '<i class="fa fa-save"></i> Save Change And Activate';
+      $("#SaveChange").html(row);
+    }
+    else {
+      var btn = '';
+
+      if (ConnectivityStatus == 40) {
+        btn = '<div id="divactInfo" class="mr-auto">';
+        btn += '<div class="row"><div class="col text-primary text-nowrap">Activate By: ' + ActCustData.ActivateBy + '</div><div class="col text-info text-nowrap">Activate Date: ' + ActCustData.ActivateDate + '</div></div></div>';
+        $("#SaveChange").before(btn);
+        if (IsChangePlan && IsAlreadyApplyProfile) {
+          btn = '<button type="button" id="ReActivate" onclick="ReActivate();" class="btn btn-info">';
+          btn += '<i class="ti ti-edit"></i> Edit</button>';
+          $("#SaveChange").before(btn);
+          btn = '<button type="button" id="Terminate" onclick="LockCustService(' + ActivateCustomerID + ', 42);" class="btn btn-danger">';
+          btn += '<i class="ti ti-wifi-off"></i> Terminate</button>';
+          btn += '<button type="button" id="Lock" onclick="LockCustService(' + ActivateCustomerID + ', 41);" class="btn btn-outline-danger">';
+          btn += '<i class="ti ti-lock-pause"></i> Lock</button>';
+          $("#SaveChange").before(btn);
+        }
+        else if (IsChangePlan && !IsAlreadyApplyProfile) {
+          btn = `<button type="button" id="Lock" onclick="ApplyChangePlanNow('` + InvoiceNo + `');" class="btn btn-outline-warning">`;
+          //btn = '<button type="button" id="Lock" onclick="SaveChangeCustActivation();" class="btn btn-outline-warning">';
+          btn += '<i class="fas fa-lock"></i> Apply Change Plan Now</button>';
+          $("#SaveChange").before(btn);
+          $("#SaveChange").hide();
+        }
+        else {
+          btn = '<button type="button" id="ReActivate" onclick="ReActivate();" class="btn btn-info">';
+          btn += '<i class="ti ti-edit"></i> Edit</button>';
+          $("#SaveChange").before(btn);
+          btn = '<button type="button" id="Terminate" onclick="LockCustService(' + ActivateCustomerID + ', 42);" class="btn btn-danger">';
+          btn += '<i class="ti ti-wifi-off"></i> Terminate</button>';
+          btn += '<button type="button" id="Lock" onclick="LockCustService(' + ActivateCustomerID + ', 41);" class="btn btn-outline-danger">';
+          btn += '<i class="ti ti-lock-pause"></i> Lock</button>';
+          $("#SaveChange").before(btn);
+        }
+
+      }
+      else {
+        IsNeedReActivate = true;
+        btn = '<div id="divactInfo" class="mr-auto">';
+        btn += '<div class="row"><div class="col text-danger text-nowrap">Locked By: ' + ActCustData.LockedBy + '</div><div class="col text-danger text-nowrap">Locked Date: ' + ActCustData.LockedDate + '</div></div></div>';
+        $("#SaveChange").before(btn);
+        btn = '<button type="button" id="Lock" onclick="LockCustService(' + ActivateCustomerID + ', 40);" class="btn btn-outline-warning">';
+        //btn = '<button type="button" id="Lock" onclick="SaveChangeCustActivation();" class="btn btn-outline-warning">';
+        btn += '<i class="ti ti-refresh"></i> Re-Activate</button>';
+        $("#SaveChange").before(btn);
+        $("#SaveChange").hide();
+      }
+    }
+
+    btn = '<button type="button" id="SetPPPoESameRadius" onclick="GetUserOnPPPeE();" class="btn btn-outline-success">';
+    btn += '<i class="ti ti-edit"></i> Set PPPeE User Same Previous User</button>';
+    $("#SaveChange").before(btn);
+
+    if (ConnectionLists.length > 0) {
+      let row = '<div class="row form-group"><div class="col-3 text-right">';
+      row += '<label for="CustConn" class="col-form-label text-nowrap">Connection:</label></div>';
+      row += '<div class="col"><select style="width:100%" id="CustConn" name="CustConn">';
+      $.each(ConnectionLists, function (key, val) {
+        let selected = "";
+        if ($.trim(val) == $.trim(ActCustData.ConnectionName)) {
+          let selected = " selected";
+        }
+        let str = "";
+        let allowadd = true;
+        if (ActivateCustomerID == 0 && ConnectionListsActivated.length > 0) {
+          str = ConnectionListsActivated.filter(function (item) {
+            return item.ConnectionName == val;
+          })[0];
+          str = typeof str == "undefined" ? "" : str;
+        }
+        if (str != "") {
+          if (str.ConnectionName == val)
+            allowadd = false;
+        }
+        if (allowadd)
+          row += '<option' + selected + ' value="' + val + '">' + val + '</option>';
+      });
+      row += '</select></div></div>';
+      $("#ActivateCustDate").parent().parent().after(row);
+      $('#CustConn').select2({
+        theme: 'bootstrap4',
+        //minimumResultsForSearch: Infinity
+      });
+      if (ActCustData.ConnectionName != "" && ViewBagConnectionName == "") {
+        $('#CustConn').val(ActCustData.ConnectionName).trigger('change');
+      }
+      else if (ViewBagConnectionName != "") {
+        $('#CustConn').val(ViewBagConnectionName).trigger('change');
+      }
+    }
+  });
+
+  $('.form-control').each(function () {
+    $(this).on('blur', function () {
+      if ($(this).val().trim() != "") {
+        $(this).parent().addClass('has-val');
+        $(this).parent().removeClass('alert-validate');
+      }
+      else {
+        $(this).parent().removeClass('has-val');
+      }
+    })
+  });
+  function LoadVlanName(callback) {
+    callback = (typeof callback == "undefined" ? "" : callback);
+    var RouterID = $("#Cbo_RouterName").val();
+    LoadData('ActivateCustomer/LoadVlanName?ActivateCustomerID=' + ActivateCustomerID + "&RouterID=" + RouterID, function (response) {
+      var result = JSON.parse(response);
+      VLanData = JSON.parse(result.VLanData);
+      $("#divVlanName").html(result.Data);
+      $('#VLanID').select2({
+        theme: 'bootstrap4',
+        dropdownParent: '.modal',
+        placeholder: "Select a Vlan Name",
+        allowClear: true,
+        // minimumResultsForSearch: Infinity
+      }).on('change', function () {
+        var data = $('#VLanID').select2('data');
+        if (data.length > 0) {
+          LoadData('ActivateCustomer/LoadVlanIPAddress?VlanName=' + data[0].text + "&RouterID=" + RouterID, function (result) {
+            result = JSON.parse(result);
+            $("#VLanIPAddress").val(result.AddressIP);
+            $("#TxtNetwork").val(result.Network);
+            var IP = result.AddressIP[0];
+            IP = calculateIPCIDR(IP);
+            $("#IPAddress").val(IP.CustomerIP);
+            $("#Subnet").val(IP.SubnetMask);
+            $("#GetwayIP").val(IP.DefaultGetwayIP);
+            $("#DNS1").val("103.134.177.26");
+            $("#DNS2").val("8.8.8.8");
+            $("#TxtNetwork").parent().parent().hide();
+            //$("#VLanIPAddress").attr("disabled", "disabled");
+            if (CurrentIP != "") {
+              $("#IPAddress").val(CurrentIP);
+            }
+          });
+        }
+        //$("#VLanID").each((_i, e) => {
+        //    var $e = $(e);
+        //    $e.select2({
+        //        theme: 'bootstrap4',
+        //        dropdownParent: $e.parent()
+        //    });
+        //})
+      });
+      if (callback != "") {
+        return callback();
+      }
+      //$('#VLanID').change();
+    });
+  }
+
+  function showValidate(input) {
+    var thisAlert = $(input).parent();
+
+    $(thisAlert).addClass('alert-validate');
+  }
+
+  function hideValidate(input) {
+    var thisAlert = $(input).parent();
+
+    $(thisAlert).removeClass('alert-validate');
+  }
+
+  function removerow(THIS) {
+    RemoveTableRow(TRName, TDNoName, THIS, "", inputName);
+  }
+
+  function AddNewStatus() {
+    var URL = "AddRouterDeviceStatus/AddRouterDeviceStatus?PrimaryFieldValue=0&Type=NewItem";
+    ShowDialogBox2("Add Router Device Status", "", "", URL, 0, "AddNewStatus", function () {
+      $("#AddNewStatus").on('hide.bs.modal', function () {
+        LoadRouterDeviceStatus();
+      });
+    });
+  }
+
+  function LoadRouterDeviceStatus() {
+    LoadData('ActivateCustomer/LoadRouterDeviceStatus', function (result) {
+      var Data = JSON.parse(result).Data;
+      $("div[name=DivRouterDeviceStatus]").html(Data);
+      $("select[name=Cbo_RouterDeviceStatus]").select2({
+        minimumResultsForSearch: Infinity,
+        theme: 'bootstrap4',
+        //dropdownParent: $("select[name=Cbo_RouterDeviceStatus]").eq(index).parent().parent(),
+      }).on('select2:open', () => {
+        $("span.select2-dropdown--below").css({ "border-top": "1px solid #80bdff", "border-top-right-radius": "0.25rem", "border-top-left-radius": "0.25rem" });
+        $(".select2-results:not(:has(a))").append(`<a class="btn btn-block btn-default btn-flat text-primary" href="javascript:void(0);" onclick="AddNewStatus();" style="padding: 6px;height: 20px;display: inline-table;"><i class="fa fa-plus"></i> Add New</a>`);
+      })
+    });
+  }
+
+  function applyRouterDeviceStatus(index, value) {
+    value = (typeof value == "undefined" ? "" : value);
+    $("div[name=DivRouterDeviceStatus]").eq(index).html(RouterDeviceStatus);
+    $("select[name=Cbo_RouterDeviceStatus]").eq(index).select2({
+      minimumResultsForSearch: Infinity,
+      theme: 'bootstrap4',
+      //dropdownParent: $("select[name=Cbo_RouterDeviceStatus]").eq(index).parent().parent(),
+    }).on('select2:open', () => {
+      $("span.select2-dropdown--below").css({ "border-top": "1px solid #80bdff", "border-top-right-radius": "0.25rem", "border-top-left-radius": "0.25rem" });
+      $(".select2-results:not(:has(a))").append(`<a class="btn btn-block btn-default btn-flat text-primary" href="javascript:void(0);" onclick="AddNewStatus(); $('select[name=Cbo_RouterDeviceStatus]').eq(` + index + `).select2('close');" style="padding: 6px;height: 20px;display: inline-table;"><i class="fa fa-plus"></i> Add New</a>`);
+    });
+    if (value != "")
+      $("select[name=Cbo_RouterDeviceStatus]").eq(index).val(value).trigger("change");
+    //console.log(index, value);
+  }
+  function LoadCustEquipment() {
+    LoadData('ActivateCustomer/LoadCustEquipment/?ActivateCustomerID=' + ActivateCustomerID + "&CustomerID=" + CustomerID + "&ConnectionID=" + $("#ConnectionID").val(), function (result) {
+      var Data = JSON.parse(result);
+      $("tr[name=TRBody]").remove();
+      AddTableRow(inputName, TblID, TRName, TblRow, TDNoName, "", function (Index) {
+        //applyRouterDeviceStatus(Index);
+      });
+      if (Data.Data != "" & Data.Data != "[]") {
+        Data = JSON.parse(Data.Data);
+        $.each(Data, function (index, val) {
+          AddTableRow(inputName, TblID, TRName, TblRow, TDNoName, "", function (Index) {
+            //applyRouterDeviceStatus(Index);
+          });
+          $.each(val, function (key, value) {
+            if ($("input[name=" + key + "]:eq(" + index + ")").is("input[type=text]"))
+              $("input[name=" + key + "]:eq(" + index + ")").val(value);
+            else if ($("input[name=" + key + "]:eq(" + index + ")").is("input[type=checkbox]")) {
+              if (value)
+                $("input[name=" + key + "]:eq(" + index + ")").attr("checked", "checked");
+            }
+            else if ($("input[name=" + key + "]:eq(" + index + ")").is("input[type=hidden]"))
+              $("input[name=" + key + "]:eq(" + index + ")").val(value);
+          });
+          //setTimeout(function () {
+          //    $("select[name=Cbo_RouterDeviceStatus]").eq(index).val(val.StatusID).trigger("change");
+          //}, 50);
+        });
+      }
+      else {
+        $.each(Equipment, function (key, value) {
+          AddTableRow(inputName, TblID, TRName, TblRow, TDNoName, "", function (Index) {
+            //applyRouterDeviceStatus(Index);
+          });
+          $("input[name=ItemID]").eq(key).val(value.ItemID);
+          $("input[name=Barcode]").eq(key).val(value.Barcode);
+          $("input[name=ItemName]").eq(key).val(value.ItemName);
+          $("input[name=SerialNo]").eq(key).val(value.SerialNumber);
+          $("input[name=Status]").eq(key).val(value.Status);
+          $("input[name=Remark]").eq(key).val(value.Remark);
+          $("#CustDeviceName").val(value.DeviceName);
+        });
+      }
+    });
+  }
+
+  function ReActivate() {
+    ISReActivate = true;
+    //SaveChangeUserNetConfig = false;
+    $("#divUserNetInfo input").each(function (key, element) {
+      element.readOnly = false;
+    });
+    $("#TxtSID").attr("readonly", "readonly");
+    $("#Cbo_ConnectionTyp").removeAttr("disabled");
+    $("#btnGeneratePWD").removeAttr("disabled");
+    $("#Cbo_RouterName").removeAttr("disabled");
+    $("#VLanID").removeAttr("disabled");
+    $("#Cbo_ConnectionTyp").focus();
+
+    oldPPPoEUserName = $("#PPPoEUserName").val();
+    oldPPPoEPassword = $("#PPPoEPassword").val();
+  }
+
+  function LockCustService(ActivateCustomerID, ConnectivityStatus) {
+    if (IsNeedReActivate) {
+      var check = true;
+      var RouterID = $("#Cbo_RouterName").val();
+      var ConnectionType = $("#Cbo_ConnectionTyp").val();
+      var ActivateCustomerData = [];
+      var obj = {};
+      obj["ActivateCustomerID"] = ActivateCustomerID;
+      obj["RouterID"] = RouterID;
+      obj["BillingInvoiceID"] = BillingInvoiceID;
+      obj["InvoiceNo"] = InvoiceNo;
+      obj["SID"] = SID;
+      obj["CustomerID"] = CustomerID;
+      obj["ConnectionID"] = $("#ConnectionID").val();
+      obj["ConnectionType"] = ConnectionType;
+      obj["PPPoEUserName"] = $("#PPPoEUserName").val();
+      obj["PPPoEPassword"] = $("#PPPoEPassword").val();
+      obj["PPPoEProfileName"] = $("#PackageName").val();
+      if (ConnectionType == "PPPoE") {
+        check = true;
+      }
+      else if (ConnectionType == "Static") {
+        var IPAddress = $("#IPAddress");
+        var GetwayIP = $("#GetwayIP");
+        var Subnet = $("#Subnet");
+        var DNS1 = $("#DNS1");
+        var DNS2 = $("#DNS2");
+
+        if ($(IPAddress).val().trim() == '') {
+          showValidate(IPAddress);
+          check = false;
+        }
+        if ($(GetwayIP).val().trim() == '') {
+          showValidate(GetwayIP);
+          check = false;
+        }
+        if ($(Subnet).val().trim() == '') {
+          showValidate(Subnet);
+          check = false;
+        }
+        if ($(DNS1).val().trim() == '') {
+          showValidate(DNS1);
+          check = false;
+        }
+        if ($(DNS2).val().trim() == '') {
+          showValidate(DNS2);
+          check = false;
+        }
+        obj["VLanID"] = $("#VLanID").val();
+        var data = "";
+        if ($('#VLanID').select2('data')) {
+          data = $('#VLanID').select2('data');
+          if (data[0])
+            obj["VLanName"] = data[0].text;
+        }
+        obj["VLanIPAddress"] = $("#VLanIPAddress").val();
+        obj["IPAddress"] = $("#IPAddress").val();
+        obj["GetwayIP"] = $("#GetwayIP").val();
+        obj["SubnetIP"] = $("#Subnet").val();
+        obj["DNS1"] = $("#DNS1").val();
+        obj["DNS2"] = $("#DNS2").val();
+      }
+      obj["DeviceName"] = $("#CustDeviceName").val();
+      obj["WifiIP"] = $("#WifiIP").val();
+      obj["WifiName"] = $("#WifiName").val();
+      obj["WifiKey"] = $("#WifiKey").val();
+      obj["WifiLoginName"] = $("#WifiLoginName").val();
+      obj["WifiLoginPassword"] = $("#WifiLoginPassword").val();
+      obj["ISReActivate"] = ISReActivate;
+      ActivateCustomerData.push(obj);
+
+      //var DATA = {
+      //    CustEquipmentData: JSON.stringify(CustEquipmentData),
+      //    ActivateCustomerData: JSON.stringify(ActivateCustomerData)
+      //};
+      if ($("#Cbo_RouterName").val() == null) {
+        DialogSweetAlert("error", "Please select router name.");
+        check = false;
+      }
+      if (check) {
+        CheckIPIsExisiting(function (isvalid) {
+          if (isvalid) {
+            var Message = "This customer will be unable to access this service.";
+            var btnInputCommentText = "Do it now";
+            if (ConnectivityStatus == 40) {
+              Message = "This customer will be re-active this service.";
+              btnInputCommentText = "Activate Now";
+            }
+            var URL = "ActivateCustomer/LockCustomerService";
+            var DATA = {
+              ActivateCustomerID: ActivateCustomerID,
+              ConnectivityStatus: ConnectivityStatus,
+              //CustEquipmentData: JSON.stringify(CustEquipmentData),
+              ActivateCustomerData: JSON.stringify(ActivateCustomerData)
+            };
+            DoSaveChangeSweetCofirm(URL, DATA, function (response) {
+              $("#CloseModal").click();
+              if (!IsOnCustProfile) {
+                $("#CboSearchText").val(CustomerName);
+                $("#BunSearch").click();
+                var url = '#!/CustomerProfile?ID=' + CustomerID;
+                OpenNewTap(url);
+              }
+              else {
+                CheckConnectivityStatus(CustomerID);
+                LoadCustomerServices(CustomerID);
+                LoadCustConnection(CustomerID);
+                LoadCustServices(CustomerID);
+                $("#Customer-Connection-tab").click();
+              }
+            }, "", Message, btnInputCommentText);
+          }
+        });
+      }
+    }
+    else {
+      CheckIPIsExisiting(function (isvalid) {
+        if (isvalid) {
+          var Message = "This customer will be unable to access this service.";
+          var btnInputCommentText = "Do it now";
+          if (ConnectivityStatus == 40) {
+            Message = "This customer will be re-active this service.";
+            btnInputCommentText = "Activate Now";
+          }
+          var URL = "ActivateCustomer/LockCustomerService";
+          var DATA = { ActivateCustomerID: ActivateCustomerID, ConnectivityStatus: ConnectivityStatus };
+          DoSaveChangeSweetCofirm(URL, DATA, function (response) {
+            $("#CloseModal").click();
+            if (!IsOnCustProfile) {
+              $("#CboSearchText").val(CustomerName);
+              $("#BunSearch").click();
+              var url = '#!/CustomerProfile?ID=' + CustomerID;
+              OpenNewTap(url);
+            }
+            else {
+              CheckConnectivityStatus(CustomerID);
+              LoadCustomerServices(CustomerID);
+              LoadCustConnection(CustomerID);
+              LoadCustServices(CustomerID);
+            }
+          }, "", Message, btnInputCommentText);
+        }
+      });
+    }
+  }
+
+  function GetUserOnPPPeE() {
+    UserPPPoEOnRadius = false;
+    var RouterID = $("#Cbo_RouterName").val();
+    if ($("#Cbo_ConnectionTyp").val() == "PPPoE") {
+      LoadData('ActivateCustomer/GetUserOnPPPeE?RouterID=' + RouterID, function (response) {
+        if (response.toString() != '""') {
+          var rst = JSON.parse(response);
+          $("#showUserPPPoEOnRadius").remove();
+          var row = '<div id="showUserPPPoEOnRadius" class="row form-group"><div class="col-3 text-right"><label class="col-form-label text-nowrap">PPPoE User:</label></div><div class="col"><select style="width: 100%" id="UserPPPoEOnRadius">';
+          $.each(rst, function (key, value) {
+            row += '<option value=""></option>';
+            $.each(value, function (k, val) {
+              if (val && typeof val === "object") {
+                var id = val["password"] || val[".id"];
+                var username = val["username"] || val["name"];
+
+                if (id && username) {
+                  row += '<option value="' + id + '">' + username + '</option>';
+                }
+              }
+            });
+          });
+          row += '</select></div></div>';
+          $("#Cbo_ConnectionTyp").closest("div").parent().after(row);
+          $('#UserPPPoEOnRadius').select2({
+            placeholder: "Select a PPPoE User",
+            allowClear: true,
+            theme: 'bootstrap4',
+            width: 'resolve' // need to override the changed default
+          }).on('change', function () {
+            UserPPPoEOnRadius = true;
+            $("#PPPoEUserName").val($(this).select2('data')[0].text);
+            $("#PPPoEPassword").val($(this).select2('data')[0].id);
+          });
+        }
+      });
+    }
+  }
+
+  function CheckIPIsExisiting(callback, NIP, OIP) {
+    var RouterID = $("#Cbo_RouterName").val();
+    NIP = typeof NIP == "undefined" ? $("#IPAddress").val() : NIP;
+    OIP = typeof OIP == "undefined" ? OldIP : OIP;
+
+    var valid = false;
+    var ConnectionTyp = $("#Cbo_ConnectionTyp").val();
+    if (ConnectionTyp == 'Static') {
+      var NewIP = NIP;
+      if (OIP != NewIP) {
+        return new Promise(function (resolve) {
+          LoadData('ActivateCustomer/CheckIPIsExisiting/?oldIP=' + OIP + "&NewIP=" + NewIP + "&RouterID=" + RouterID, function (result) {
+            var Data = JSON.parse(result);
+            if (Data.Result == 2)
+              valid = true;
+            else {
+              DialogSweetAlert("error", Data.Message);
+            }
+            resolve();
+            return callback(valid);
+          });
+        });
+      }
+      else {
+        return callback(true);
+      }
+    } else {
+      return callback(true);
+    }
+  }
+  async function ApplyCon() {
+    let ActivateDate = StringToDate($("#ActivateCustDate").val());
+    let Connection = $("#CustConn").val();
+    let RouterName = $("#Cbo_RouterName").val();
+    let ConnectionType = $("#Cbo_ConnectionTyp").val();
+    let VlanName = $("#VLanID").val();
+    let AddressIP = $("#VLanIPAddress").val();
+    let Network = $("#TxtNetwork").val();
+    let CustomerIP = $("#IPAddress").val();
+    let DefaultGetwayIP = $("#GetwayIP").val();
+    let SubnetIP = $("#Subnet").val();
+    let DNS1 = $("#DNS1").val();
+    let DNS2 = $("#DNS2").val();
+    ////
+    let CustDeviceName = $("#CustDeviceName").val();
+    let WifiIP = $("#WifiIP").val();
+    let WifiName = $("#WifiName").val();
+    let WifiKey = $("#WifiKey").val();
+    let WifiLoginName = $("#WifiLoginName").val();
+    let WifiLoginPassword = $("#WifiLoginPassword").val();
+    ////
+    if (VlanName == "" || VlanName == null) {
+      DialogSweetAlert("error", "Please entery Vlan Name.", function () {
+        $("#VLanID").focus();
+      });
+      return false;
+    }
+    else if (AddressIP == "") {
+      DialogSweetAlert("error", "Please entery Address IP.", function () {
+        $("#VLanIPAddress").focus();
+      });
+      return false;
+    }
+    //else if (Network == "") {
+    //    DialogSweetAlert("error", "Please entery Network.", function () {
+    //        $("#TxtNetwork").focus();
+    //    });
+    //    return false;
+    //}
+    else if (CustomerIP == "") {
+      DialogSweetAlert("error", "Please entery Customer IP.", function () {
+        $("#IPAddress").focus();
+      });
+      return false;
+    }
+    else if (DefaultGetwayIP == "") {
+      DialogSweetAlert("error", "Please entery Default Getway IP.", function () {
+        $("#GetwayIP").focus();
+      });
+      return false;
+    }
+    else if (SubnetIP == "") {
+      DialogSweetAlert("error", "Please entery Subnet IP.", function () {
+        $("#Subnet").focus();
+      });
+      return false;
+    }
+    else if (DNS1 == "") {
+      DialogSweetAlert("error", "Please entery DNS1.", function () {
+        $("#DNS1").focus();
+      });
+      return false;
+    }
+    else if (DNS2 == "") {
+      DialogSweetAlert("error", "Please entery DNS2.", function () {
+        $("#DNS2").focus();
+      });
+      return false;
+    }
+    var data = $('#VLanID').select2('data');
+    let obj = {
+      PPPoEProfileName: $("#PackageName").val(),
+      BillingInvoiceID: BillingInvoiceID,
+      RouterID: RouterName,
+      CustomerID: CustomerID,
+      ConnectionID: $("#ConnectionID").val(),
+      SID: SID,
+      InvoiceNo: InvoiceNo,
+      ActivateDate: ActivateDate,
+      Connection: Connection,
+      RouterName: RouterName,
+      ISReActivate: ISReActivate,
+      ConnectionType: ConnectionType,
+      VLanID: VlanName,
+      VLanName: data[0].text,
+      VLanIPAddress: AddressIP,
+      Network: Network,
+      IPAddress: CustomerIP,
+      GetwayIP: DefaultGetwayIP,
+      SubnetIP: SubnetIP,
+      DNS1: DNS1,
+      DNS2: DNS2,
+      DeviceName: CustDeviceName,
+      WifiIP: WifiIP,
+      WifiName: WifiName,
+      WifiKey: WifiKey,
+      WifiLoginName: WifiLoginName,
+      WifiLoginPassword: WifiLoginPassword,
+      TicketNumber: TicketNumber
+    };
+
+    var checkip = true;
+    await CheckIPIsExisiting(function (isvalid) {
+      if (!isvalid) {
+        checkip = false;
+        return false;
+      }
+    }, $("#IPAddress").val(), "");
+    if (!checkip)
+      return false;
+
+    ApplyCons.push(obj);
+    $("#applyCount").html(ApplyCons.length);
+
+    ConnectionLists.remove(Connection);
+    row = '<select style="width:100%" id="CustConn" name="CustConn">';
+    $.each(ConnectionLists, function (key, val) {
+      row += '<option value="' + val + '">' + val + '</option>';
+    });
+    row += '</select>';
+    $("#CustConn").parent().html(row);
+    $('#CustConn').select2({
+      theme: 'bootstrap4',
+    });
+
+    VLanData = VLanData.filter(function (item) {
+      return item.ItemArray[0] != VlanName;
+    });
+
+    row = '<select style="width:100%" id="VLanID" name="VLanID">';
+    $.each(VLanData, function (key, val) {
+      row += '<option value="' + val.ItemArray[0] + '">' + val.ItemArray[1] + '</option>';
+    });
+    row += '</select>';
+    $("#VLanID").parent().html(row);
+
+    $('#VLanID').select2({
+      theme: 'bootstrap4',
+      dropdownParent: '.modal',
+      // minimumResultsForSearch: Infinity
+    }).on('change', function () {
+      var data = $('#VLanID').select2('data');
+      if (data.length > 0) {
+        var RouterID = $("#Cbo_RouterName").val();
+        LoadData('ActivateCustomer/LoadVlanIPAddress?VlanName=' + data[0].text + "&RouterID=" + RouterID, function (result) {
+          result = JSON.parse(result);
+          $("#VLanIPAddress").val(result.AddressIP);
+          $("#TxtNetwork").val(result.Network);
+          var IP = result.AddressIP[0];
+          IP = calculateIPCIDR(IP);
+          $("#IPAddress").val(IP.CustomerIP);
+          $("#Subnet").val(IP.SubnetMask);
+          $("#GetwayIP").val(IP.DefaultGetwayIP);
+          $("#DNS1").val("103.134.177.26");
+          $("#DNS2").val("8.8.8.8");
+          $("#TxtNetwork").parent().parent().hide();
+          //$("#VLanIPAddress").attr("disabled", "disabled");
+          if (CurrentIP != "") {
+            $("#IPAddress").val(CurrentIP);
+          }
+        });
+      }
+    });
+
+    $("#VLanID").val("");
+    $("#VLanID").select2("val", "0");
+    $("#VLanID").trigger("change");
+    $("#VLanIPAddress").val("");
+    $("#TxtNetwork").val("");
+    $("#IPAddress").val("");
+    $("#GetwayIP").val("");
+    $("#Subnet").val("");
+    $("#DNS1").val("");
+    $("#DNS2").val("");
+    ////
+    $("#CustDeviceName").val("");
+    $("#WifiIP").val("192.168.1.1");
+    $("#WifiName").val("");
+    $("#WifiKey").val("");
+    $("#WifiLoginName").val("user");
+    $("#WifiLoginPassword").val("user");
+  }
+  function SaveChangeCustActivation() {
+    RowFields = [];
+    addRowFiled("ItemID", "ItemID", "Required");
+    addRowFiled("ItemSerialDetailID", "ItemSerialDetailID", "Required");
+    addRowFiled("CustomerDeviceInfoDetailID", "CustomerDeviceInfoDetailID", "");
+    addRowFiled("ItemName", "ItemName", "Required");
+    addRowFiled("UM", "UM", "Required");
+    addRowFiled("Type", "StockName", "Required");
+    addRowFiled("LocationID", "LocationID", "");
+    addRowFiled("WarehouseName", "WarehouseName", "");
+    addRowFiled("QTY", "QTY", "");
+    addRowFiled("SerialNumber", "SerialNumber", "");
+    addRowFiled("MACAddress", "MACAddress", "");
+    addRowFiled("CostPrice", "CostPrice", "", "Unformat");
+    addRowFiled("Connection", "Connection", "", "");
+    addRowFiled("Reason", "Note", "", "");
+    addRowFiled("InstallBy", "InstallBy", "", "", "", "", "", "", "", "", $("#InstallBy").val());
+    addRowFiled("CompleteInstallDate", "CompleteInstallDate", "", "", "", "", "", "", "", "", $("#CompleteInstallDate").data('daterangepicker').startDate.format('YYYYMMDD hh:mm A'));
+
+    let checkpppoeusername = false;
+    var check = true;
+    var RouterID = $("#Cbo_RouterName").val();
+    var RouterName = $("#Cbo_RouterName").select2('data')[0].text;
+    var ConnectionType = $("#Cbo_ConnectionTyp").val();
+    var ActivateCustomerData = [];
+    var obj = {};
+    var CustEquipmentData = [];
+    let isHaveItemName = false;
+    $("input[name=ItemName]").each(function (key, val) {
+      if ($("input[name=ItemName]").eq(key).val() != "") {
+        isHaveItemName = true;
+        return false;
+      }
+    });
+    if (isHaveItemName) {
+      CustEquipmentData = getRowData('TRNo_ItemInfon', RowFields);
+      if (!CustEquipmentData)
+        return false;
+    }
+
+    obj["DeviceName"] = $("#DeviceName").val();
+    obj["DeviceNameID"] = $("#DeviceName_OLTNameID").val();
+    obj["PONPORT"] = $("#PON").val();
+    obj["OLTID"] = $("#OLTID").val();
+    obj["SplitterName"] = $("#SplitterName").val();
+    obj["Port"] = $("#Port").val();
+    obj["Length"] = $("#Length").val();
+    obj["LossDB"] = $("#LossDB").val();
+    obj["GoogleMap"] = $("#GoogleMap").val();
+    obj["Warehouse"] = $("#Warehouse").val();
+    obj["WID"] = $("#Warehouse_WID").val();
+    obj["InstallBy"] = $("#InstallBy").val();
+    obj["CompleteInstallDate"] = $("#CompleteInstallDate").data('daterangepicker').startDate.format('YYYYMMDD hh:mm A')
+    obj["CustomerNotes"] = encodeURIComponent(nl2br($("#Customer_Notes").val()));
+    var DeviceInformation = [];
+    DeviceInformation.push(obj);
+
+
+    obj = {};
+    obj["ActivateCustomerID"] = ActivateCustomerID;
+    if (ConnectionList.length == 0 || ActivateCustomerID != 0) {
+      obj["RouterID"] = RouterID;
+      obj["RouterName"] = RouterName;
+      obj["BillingInvoiceID"] = BillingInvoiceID;
+      obj["InvoiceNo"] = InvoiceNo;
+      obj["SID"] = SID;
+      obj["CustomerID"] = CustomerID;
+      obj["ConnectionID"] = $("#ConnectionID").val();
+      obj["ConnectionType"] = ConnectionType;
+      obj["PPPoEUserName"] = $("#PPPoEUserName").val();
+      obj["PPPoEPassword"] = $("#PPPoEPassword").val();
+      obj["PPPoEIPAddress"] = $("#PPPoEIPAddress").val();
+      obj["PPPoEProfileName"] = $("#PackageName").val();
+      var PPPoEUserName = $("#PPPoEUserName").val();
+      var PPPoEPassword = $("#PPPoEPassword").val();
+      if (ConnectionType == "PPPoE") {
+        if (AllowCreatePPPoEUser == "False" && UserPPPoEOnRadius == false && ActivateCustomerID == 0) {
+          DialogSweetAlert("error", "You don't have permission for create new PPPoE User. Please click on Set PPPeE User Same Previous User.");
+          return false;
+        }
+        if ($("#PPPoEUserName").val() == "") {
+          check = false;
+          DialogSweetAlert("error", "Please enter PPPoE User Name.", function () {
+            $("#PPPoEUserName").focus();
+            return false;
+          });
+          return false;
+        }
+        else if ($("#PPPoEPassword").val() == "") {
+          check = false;
+          DialogSweetAlert("error", "Please enter PPPoE Password.", function () {
+            $("#PPPoEPassword").focus();
+            return false;
+          });
+          return false;
+        }
+        if (SID == "")
+          checkpppoeusername = true;
+        check = true;
+        if (ISReActivate && SID != "") {
+          var PPPoEPassword = $("#PPPoEPassword").val();
+          if (PPPoEUserName != oldPPPoEUserName)
+            checkpppoeusername = true;
+          if (PPPoEPassword != oldPPPoEPassword)
+            checkpppoeusername = true;
+        }
+      }
+      else if (ConnectionType == "Static") {
+        var IPAddress = $("#IPAddress");
+        var GetwayIP = $("#GetwayIP");
+        var Subnet = $("#Subnet");
+        var DNS1 = $("#DNS1");
+        var DNS2 = $("#DNS2");
+
+        if ($(IPAddress).val().trim() == '') {
+          showValidate(IPAddress);
+          check = false;
+        }
+        if ($(GetwayIP).val().trim() == '') {
+          showValidate(GetwayIP);
+          check = false;
+        }
+        if ($(Subnet).val().trim() == '') {
+          showValidate(Subnet);
+          check = false;
+        }
+        if ($(DNS1).val().trim() == '') {
+          showValidate(DNS1);
+          check = false;
+        }
+        if ($(DNS2).val().trim() == '') {
+          showValidate(DNS2);
+          check = false;
+        }
+        obj["VLanID"] = $("#VLanID").val();
+        var data = $('#VLanID').select2('data');
+        obj["VLanName"] = data[0].text;
+        obj["VLanIPAddress"] = $("#VLanIPAddress").val();
+        obj["IPAddress"] = $("#IPAddress").val();
+        obj["GetwayIP"] = $("#GetwayIP").val();
+        obj["SubnetIP"] = $("#Subnet").val();
+        obj["DNS1"] = $("#DNS1").val();
+        obj["DNS2"] = $("#DNS2").val();
+      }
+      obj["TicketNumber"] = TicketNumber;
+      obj["DeviceName"] = $("#CustDeviceName").val();
+      obj["WifiIP"] = $("#WifiIP").val();
+      obj["WifiName"] = $("#WifiName").val();
+      obj["WifiKey"] = $("#WifiKey").val();
+      obj["WifiLoginName"] = $("#WifiLoginName").val();
+      obj["WifiLoginPassword"] = $("#WifiLoginPassword").val();
+      obj["ISReActivate"] = ISReActivate;
+      obj["ActivateDate"] = StringToDate($("#ActivateCustDate").val());
+
+      if ($("#CboProfileName").val())
+        obj["ManualPPPoEProfile"] = $("#CboProfileName").val();
+      else
+        obj["ManualPPPoEProfile"] = "";
+
+      if ($("#CboUserGroups").val())
+        obj["UserGroup"] = $("#CboUserGroups").val();
+      else
+        obj["UserGroup"] = "";
+      if (UserPPPoEOnRadius) {
+        checkpppoeusername = false;
+        if ($("#UserPPPoEOnRadius").val() == "") {
+          DialogSweetAlert("error", "Please select a PPPoE User Name.", function () {
+            $("#UserPPPoEOnRadius").focus();
+            return false;
+          });
+          return false;
+        }
+        obj["UserPPPoEOnRadiusID"] = $("#UserPPPoEOnRadius").val();
+        var data = $('#UserPPPoEOnRadius').select2('data');
+        obj["UserPPPoEOnRadius"] = data[0].text;
+      }
+      else {
+        obj["UserPPPoEOnRadiusID"] = "";
+        obj["UserPPPoEOnRadius"] = "";
+      }
+      ActivateCustomerData.push(obj);
+    }
+    else {
+      if (ConnectionType == "PPPoE") {
+        DialogSweetAlert("error", "This connection cannot ativate on connection type: PPPoE. Please change to connection type static.");
+        return false;
+      }
+      else if (ApplyCons.length == 0 && ISReActivate == false && ActivateCustomerID == 0) {
+        DialogSweetAlert("error", "Please apply connection information.");
+        return false;
+      }
+      else if (ISReActivate) {
+        obj["RouterID"] = RouterID;
+        obj["RouterName"] = RouterName;
+        obj["BillingInvoiceID"] = BillingInvoiceID;
+        obj["InvoiceNo"] = InvoiceNo;
+        obj["SID"] = SID;
+        obj["CustomerID"] = CustomerID;
+        obj["ConnectionID"] = $("#ConnectionID").val();
+        obj["ConnectionType"] = ConnectionType;
+        obj["PPPoEUserName"] = $("#PPPoEUserName").val();
+        obj["PPPoEPassword"] = $("#PPPoEPassword").val();
+        obj["PPPoEProfileName"] = $("#PackageName").val();
+        var PPPoEUserName = $("#PPPoEUserName").val();
+        var PPPoEPassword = $("#PPPoEPassword").val();
+        if (ConnectionType == "PPPoE") {
+          check = true;
+          if (ISReActivate && SID != "") {
+            var PPPoEPassword = $("#PPPoEPassword").val();
+            if (PPPoEUserName != oldPPPoEUserName)
+              checkpppoeusername = true;
+            if (PPPoEPassword != oldPPPoEPassword)
+              checkpppoeusername = true;
+          }
+        }
+        else if (ConnectionType == "Static") {
+          var IPAddress = $("#IPAddress");
+          var GetwayIP = $("#GetwayIP");
+          var Subnet = $("#Subnet");
+          var DNS1 = $("#DNS1");
+          var DNS2 = $("#DNS2");
+
+          if ($(IPAddress).val().trim() == '') {
+            showValidate(IPAddress);
+            check = false;
+          }
+          if ($(GetwayIP).val().trim() == '') {
+            showValidate(GetwayIP);
+            check = false;
+          }
+          if ($(Subnet).val().trim() == '') {
+            showValidate(Subnet);
+            check = false;
+          }
+          if ($(DNS1).val().trim() == '') {
+            showValidate(DNS1);
+            check = false;
+          }
+          if ($(DNS2).val().trim() == '') {
+            showValidate(DNS2);
+            check = false;
+          }
+          obj["VLanID"] = $("#VLanID").val();
+          var data = $('#VLanID').select2('data');
+          obj["VLanName"] = data[0].text;
+          obj["VLanIPAddress"] = $("#VLanIPAddress").val();
+          obj["IPAddress"] = $("#IPAddress").val();
+          obj["GetwayIP"] = $("#GetwayIP").val();
+          obj["SubnetIP"] = $("#Subnet").val();
+          obj["DNS1"] = $("#DNS1").val();
+          obj["DNS2"] = $("#DNS2").val();
+        }
+        obj["TicketNumber"] = TicketNumber;
+        obj["DeviceName"] = $("#CustDeviceName").val();
+        obj["WifiIP"] = $("#WifiIP").val();
+        obj["WifiName"] = $("#WifiName").val();
+        obj["WifiKey"] = $("#WifiKey").val();
+        obj["WifiLoginName"] = $("#WifiLoginName").val();
+        obj["WifiLoginPassword"] = $("#WifiLoginPassword").val();
+        obj["ISReActivate"] = ISReActivate;
+        obj["ActivateDate"] = StringToDate($("#ActivateCustDate").val());
+        ActivateCustomerData.push(obj);
+      }
+    }
+    var DATA = {
+      CheckPPPoEUserName: JSON.stringify({
+        CheckPPPoEUserName: checkpppoeusername,
+        RouterID: RouterID,
+        ActivateCustomerID: ActivateCustomerID,
+        oldPPPoEUserName: oldPPPoEUserName,
+        oldPPPoEPassword: oldPPPoEPassword,
+        PPPoEUserName: PPPoEUserName,
+        PPPoEPassword: PPPoEPassword
+      }),
+      DeviceInformation: JSON.stringify(DeviceInformation),
+      DeviceInformationDetail: JSON.stringify(CustEquipmentData),
+      ActivateCustomerData: JSON.stringify(ActivateCustomerData),
+      ApplyCons: JSON.stringify(ApplyCons)
+    };
+    if ($("#Cbo_RouterName").val() == null) {
+      DialogSweetAlert("error", "Please select router name.");
+      check = false;
+    }
+    if (check) {
+      CheckIPIsExisiting(function (isvalid) {
+        if (isvalid) {
+          DoSaveChangeData("ActivateCustomer/SaveChangeActivate", DATA, function (result) {
+            if (IsOnCustProfile) {
+              CheckConnectivityStatus(CustomerID);
+              LoadCustomerServices(CustomerID);
+              LoadCustConnection(CustomerID);
+              LoadCustServices(CustomerID);
+              $("#Customer-Connection-tab").click();
+              //$("#deviceinfo-tabs").click();
+            }
+            else {
+              $("input[name=RD]").eq(0).click();
+              //$("#CboSearchText").val(Data.SID);
+              // $("#txtCID").val(Data.CID);
+              $("#BunSearch").click();
+            }
+            if (result.Data != "") {
+              var Data = JSON.parse(result.Data)[0];
+              if (Data.ConnectionType == "PPPoE") {
+                if (SID == "" && !UserPPPoEOnRadius) {
+                  var ActivateCustomerID = Data.ActivateCustomerID;
+                  var RouterID = Data.RouterID;
+                  var URL = "ActivateCustomer/PPPoEUser?PrimaryFieldValue=0&ActivateCustomerID=" + ActivateCustomerID + "&RouterID=" + RouterID;
+                  //ShowDialogBox("PPPoE User Activated", "", "", URL, 0, "DialogPPPoEUser");
+                  $("#CloseModal").click();
+                }
+                else
+                  $("#CloseModal").click();
+              }
+              else {
+                $("#CloseModal").click();
+              }
+            }
+            else if (result.Result == 2) {
+              $("#CloseModal").click();
+            }
+          });
+        }
+      });
+    }
+  };
+
+  function ApplyChangePlanNow(InvoiceNo) {
+    var ProfileName = "";
+    if ($("#CboProfileName").val()) {
+      ProfileName = $("#CboProfileName").val();
+    }
+    var DATA = { InvoiceNo: InvoiceNo, ProfileName: ProfileName };
+    DoSaveChangeData("ActivateCustomer/ApplyChangePlanNow", DATA, function (result) {
+      if (result.Result == 2) {
+        if (IsOnCustProfile) {
+          CheckConnectivityStatus(CustomerID);
+          LoadCustomerServices(CustomerID);
+          LoadCustConnection(CustomerID);
+          LoadCustServices(CustomerID);
+          //$("#Customer-Connection-tab").click();
+          $("#CloseModal").click();
+        }
+        else {
+          $("input[name=RD]").eq(0).click();
+          //$("#CboSearchText").val(Data.SID);
+          $("#txtCID").val(Data.CID);
+          $("#BunSearch").click();
+        }
+      }
+    });
+  }
+
+
+
+  Array.prototype.remove = function () {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+      what = $.trim(a[--L]);
+      while ((ax = this.indexOf(what)) !== -1) {
+        this.splice(ax, 1);
+      }
+    }
+    return this;
+  };
+
+  //(function (logger) {
+  //    console.old = console.log;
+  //    console.log = function () {
+  //        var output = "", arg, i;
+
+  //        for (i = 0; i < arguments.length; i++) {
+  //            arg = arguments[i];
+  //            output += "<span class=\"log-" + (typeof arg) + "\">";
+
+  //            if (
+  //                typeof arg === "object" &&
+  //                typeof JSON === "object" &&
+  //                typeof JSON.stringify === "function"
+  //            ) {
+  //                output += JSON.stringify(arg);
+  //            } else {
+  //                output += arg;
+  //            }
+
+  //            output += "</span>&nbsp;";
+  //        }
+
+  //        logger.innerHTML += output + "<br>";
+  //        console.old.apply(undefined, arguments);
+  //    };
+  //})(document.getElementById("logger"));
+
+  // Testing
+  //console.log("Hi!", { a: 3, b: 6 }, 42, true);
+  //console.log("Multiple", "arguments", "here");
+  //console.log(null, undefined);
+  //console.old("Eyy, that's the old and boring one.");
+
+</script>

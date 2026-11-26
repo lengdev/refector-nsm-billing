@@ -1,0 +1,211 @@
+@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+
+<script>
+    var PaymentID = "@ViewBag.PaymentID";
+    var Type = "@ViewBag.Type";
+    var CustomerID = "@ViewBag.CustomerID";
+    var row = '<div style="display:none"><input type="file" name="CustomerAttFiles" class="d-print-none" style="display: none; user-select: none; visibility: hidden;" /></div>';
+    $("#ReceivedFromName").append(row);
+    var StatusID = "@ViewBag.Status";
+    var CustIsActivate = "@ViewBag.CustIsActivate";
+    var Unpaid = "@ViewBag.Unpaid";
+    window.refData = @Html.Raw(ViewBag.refDataJson ?? "[]");
+
+    function getPaymentMethodId() {
+        var kCbo = $('#PaymentMenthod').data('kendoComboBox') || $('#PaymentMenthod').data('kendoDropDownList');
+        var val = kCbo ? String(kCbo.value()) : String($('#PaymentMenthod').val());
+        if (!val || val === '' || val === 'undefined') val = window.refData.length > 0 ? String(window.refData[0].methodId) : '';
+        return val;
+    }
+
+    function filterRefs() {
+        var isNewPayment = "@ViewBag.StatusID" == "10";
+        if (!isNewPayment) return;
+        var selectedMethodId = getPaymentMethodId();
+        var refSelect = $('#ReferenceNo');
+        if (refSelect.length === 0) return;
+        var matching = selectedMethodId && selectedMethodId !== 'undefined' ? window.refData.filter(function (r) { return String(r.methodId) === selectedMethodId; }) : [];
+        
+        var $row = refSelect.closest('.form-group.row, tr');
+        if (matching.length > 0) {
+            $row.show();
+            var currentRef = refSelect.val();
+            var currentMatch = matching.find(function (m) { return m.refNo == currentRef; });
+            if (!currentMatch) {
+                var kcbRef = refSelect.data('kendoComboBox') || refSelect.data('kendoDropDownList');
+                if (kcbRef) { kcbRef.value(matching[0].refNo); kcbRef.trigger('change'); }
+                else { refSelect.val(matching[0].refNo).trigger('change'); }
+            }
+        } else {
+            $row.hide();
+            var kcbRef = refSelect.data('kendoComboBox') || refSelect.data('kendoDropDownList');
+            if (kcbRef && kcbRef.value() !== '') { kcbRef.value(''); kcbRef.trigger('change'); }
+            else if (!kcbRef && refSelect.val() !== '') { refSelect.val('').trigger('change'); }
+        }
+    }
+
+    function toggleChequeField() {
+        var $cbo = $('#PaymentMenthod');
+        var kCbo = $cbo.data('kendoComboBox') || $cbo.data('kendoDropDownList');
+        var txt = kCbo ? kCbo.text() : ($cbo.find('option:selected').text() || $cbo.val() || '');
+        var $chequeInput = $('#ChequeNumber');
+        var $row = $chequeInput.closest('tr');
+        if ($row.length === 0) $row = $('label:contains("Cheque")').closest('tr, .form-group.row');
+
+        if (txt && txt.toLowerCase().indexOf('cheque') >= 0) {
+            $row.show();
+        } else {
+            $row.hide();
+            $chequeInput.val('');
+        }
+    }
+
+    $(function () {
+        $("#PaymentMenthod").on("change", function () {
+            var PaymentMethod = $("#PaymentMenthod option:selected").text();
+            $("tr[name=TR_Payment_Menthod]").remove();
+            
+            if (PaymentMethod == 'Bank Transfer') {
+                var row = '<tr name="TR_Payment_Menthod"><td class="text-right"><label for="FromBankName" class="col-form-label">From Bank Name:</label></td>';
+                row += '<td><input required id="FromBankName" name="FromBankName" type="text" class="form-control" placeholder="Enter from bank name" /></td>';
+                row += '</tr>';
+                row += '<tr name="TR_Payment_Menthod"><td class="text-right"><label for="FromAccountNumber" class="col-form-label">From Account Number:</label></td>';
+                row += '<td><input required id="FromAccountNumber" name="FromAccountNumber" type="text" class="form-control" placeholder="Enter from account number" /></td>';
+                row += '</tr>';
+                row += '<tr name="TR_Payment_Menthod"><td class="text-right"><label for="FromAccountName" class="col-form-label">From Account Name:</label></td>';
+                row += '<td><input required id="FromAccountName" name="FromAccountName" type="text" class="form-control" placeholder="Enter from account name" /></td>';
+                row += '</tr>';
+                $("#PaymentMenthod").closest("tr").after(row);
+            }
+            else if (PaymentMethod == 'Wing Transfer' || PaymentMethod == 'True Money Transfer' || PaymentMethod == 'E-Money Transfer') {
+                var row = '<tr name="TR_Payment_Menthod"><td class="text-right"><label for="FromPhoneNumber" class="col-form-label">From Phone Number:</label></td>';
+                row += '<td><input required id="FromPhoneNumber" name="FromPhoneNumber" type="text" class="form-control" placeholder="Enter from phone number" /></td>';
+                row += '</tr>';
+                row += '<tr name="TR_Payment_Menthod"><td class="text-right"><label for="ToPhoneNumber" class="col-form-label">To Phone Number:</label></td>';
+                row += '<td><input required name="ToPhoneNumber" id="ToPhoneNumber" type="text" class="form-control" placeholder="Enter to phone number" /></td>';
+                row += '</tr>';
+                $("#PaymentMenthod").closest("tr").after(row);
+            }
+
+            filterRefs();
+            toggleChequeField();
+        });
+
+        function syncReceiptData() {
+            var $ref = $('#ReferenceNo');
+            var kcbRef = $ref.data('kendoComboBox') || $ref.data('kendoDropDownList');
+            var refNo = kcbRef ? kcbRef.value() : $ref.val();
+            
+            if (!refNo) return;
+            var match = window.refData.find(function (r) { return r.refNo === refNo; });
+            console.log('[ReceiptSync] Found match for ' + refNo + ':', match);
+
+            if (match) {
+                // Sync Deposit To
+                var kcbAcc = $('#ChartOfAccountID').data('kendoMultiColumnComboBox');
+                if (kcbAcc && String(kcbAcc.value()) !== String(match.account)) { kcbAcc.value(match.account); kcbAcc.trigger('change'); }
+                else if (!kcbAcc && String($('#ChartOfAccountID').val()) !== String(match.account)) { $('#ChartOfAccountID').val(match.account).trigger('change'); }
+                
+                // Sync Payment Method
+                var kcbMethod = $('#PaymentMenthod').data('kendoComboBox') || $('#PaymentMenthod').data('kendoDropDownList');
+                if (kcbMethod && String(kcbMethod.value()) !== String(match.methodId)) { kcbMethod.value(match.methodId); kcbMethod.trigger('change'); }
+                else if (!kcbMethod && String($('#PaymentMenthod').val()) !== String(match.methodId)) { $('#PaymentMenthod').val(match.methodId).trigger('change'); }
+                
+                // Sync Cheque Number
+                $('#ChequeNumber').val(match.cheque || '');
+                toggleChequeField();
+            }
+        }
+
+        $(document).on("change", "#ReferenceNo", function () {
+            syncReceiptData();
+        });
+
+        if (StatusID == 11) {
+            $("#PaymentAmount").attr("readonly", true);
+        }
+        else {
+            var btn = '<div class="mr-auto"><button type="button" onclick="AddAttachmentFile();" id="AddAttachmentFile" class="btn btn-info">';
+            btn += '<i class="fas fa-paperclip"></i> Add Attachment File</button></div>';
+            $("#SaveChange").before(btn);
+        }
+
+        setTimeout(function () {
+            filterRefs();
+            syncReceiptData();
+            toggleChequeField();
+        }, 800);
+    });
+
+    function SaveChangePayment() {
+        var FormData = $("form[name=PaymentInvoice]").serializeObject();        
+        FormData["PaymentID"] = PaymentID;
+        FormData["CustomerID"] = CustomerID;
+        FormData["PaymentDate"] = StringToDate(FormData.PaymentDate);
+        FormData["PaymentAmount"] = accounting.unformat(FormData.PaymentAmount);
+        FormData["ChartOfAccountID"] = $("form[name=PaymentInvoice] #ChartOfAccountID").val();
+
+        var PaymentAmount = accounting.unformat(FormData.PaymentAmount);
+        Unpaid = accounting.unformat(Unpaid);
+        if (PaymentAmount > Unpaid) {
+            DialogSweetAlert("error", "Amount Received must be less than or equal to the Invoice Amount.", function () {
+                $("#PaymentAmount").focus();
+            });
+            return true;
+        }
+        else if (PaymentAmount < 0) {
+            DialogSweetAlert("error", "You cannot enter an Amount Received less than 0.", function () {
+                $("#PaymentAmount").focus();
+            });
+            return true;
+        }
+        else if ($("form[name=PaymentInvoice] #ChartOfAccountID").val() == "" || $("form[name=PaymentInvoice] #ChartOfAccountID").val() == null) {
+            DialogSweetAlert("error", "Please choose deposit to.", function () {
+                $("form[name=PaymentInvoice] #ChartOfAccountID").focus();
+            });
+            return true;
+        }
+
+        if (FormData.StatusID == 10) {
+            var URL = "CustomerProfile/ProformatInvoiceToOfficialInvoice";
+            var DATA = { Data: JSON.stringify({ InvoiceNo: FormData.InvoiceNo, InvoiceDate: FormData.PaymentDate }) };
+                URL = "Payment/SaveChangePayment";
+                DATA = { PaymentData: JSON.stringify(FormData) };
+                DoSaveChageAjaxForm("PaymentInvoice", URL, DATA, "", function (response) {
+                    Swal.close();
+                    response = JSON.parse(response.OfficialReceiptData)[0];
+                    $("#CloseModal").click();
+                    location.reload();
+                    DATA = {
+                        CustomerID: response.CustomerID,
+                        InvoiceNo: response.InvoiceNo,
+                        UploadToDMC: false
+                        //CustomerName: result.CustomerName,
+                        //CustomerCode: result.CustomerCode,
+                        //CustomerID: result.CustomerID,
+                        //InvoiceNo: result.InvoiceNo,
+                        //InvoiceDate: result.InvoiceDate,
+                        //IsIncludedVAT: result.ISVAT,
+                        //StatusID: result.StatusID,
+                        //UploadToServer: false,
+                        //OfficialReceiptNo: OfficialReceiptNo
+                    };
+                    if (Domain_ID == "001,002") {
+                        PostData("CustomerReports/UploadInvoiceTODMC", DATA);
+                    }
+                });
+        }
+        else {
+            var URL = "Payment/SaveChangePayment";
+            var DATA = { PaymentData: JSON.stringify(FormData) };
+            DoSaveChageAjaxForm("PaymentInvoice", URL, DATA, "", () => {
+                Swal.close();
+                $("#CloseModal").click();
+                location.reload();
+            });
+        }
+    }
+</script>

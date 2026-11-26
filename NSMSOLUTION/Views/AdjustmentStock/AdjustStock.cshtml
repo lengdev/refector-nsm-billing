@@ -1,0 +1,142 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    var ItemID = "@ViewBag.ItemID";
+    var ItemName = "@ViewBag.ItemName";
+    $(function () {
+        if (ItemID != "") {
+            setTimeout(function () {
+                $("input[name=ItemName]").val(ItemName).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("input[name=ItemName]").blur();
+            }, 1000);
+        }
+        $(document).on('focus', 'input[name="ExpireDate"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            LoadCustomExpireDateAutoComplete(this, wid);
+        });
+        $(document).on('change', 'input[name="ItemID"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            applyRequireToExpireDate(wid)
+        });
+
+        // Initialize autocomplete for SerialNumber input
+        $(document).on('focus', 'input[name="SerialNumber"]', function () {
+            $(this).autocomplete({
+                source: function (request, response) {
+                    // Get the current row and find ItemID input within it
+                    var itemId = $(this.element).closest('tr').find('input[name="ItemID"]').val();
+                    const warehouseId = $('#Warehouse_WID').val();
+                    if (itemId && warehouseId) {
+                        $.ajax({
+                            url: ServerRoot + "Items/JquerySerialNumberByItem",
+                            type: "GET",
+                            data: {
+                                itemId: itemId,
+                                warehouseId: warehouseId,
+                                term: request.term
+                            },
+                            success: function (data) {
+                                response($.map(JSON.parse(data.data),
+                                    function (s) {
+                                        return {
+                                            itemId: s.ItemID,
+                                            label: s.SerialNumber,
+                                            value: s.SerialNumberID
+                                        };
+                                    })
+                                );
+                            }
+                        });
+                    }
+                },
+                minLength: 0,
+                select: function (event, ui) {
+                    // Update values in the same row
+                    var $currentRow = $(this).closest('tr');
+                    const totalQtyItemWarehouse = $('input[name="QUANTITYAVAILABLE"]').val();
+                    $currentRow.find('input[name="SerialNumberID"]').val(ui.item.value).trigger('change');
+                    $currentRow.find('input[name="SerialNumber"]').val(ui.item.label);
+                    getQOHBySerialID($currentRow, ui.item, totalQtyItemWarehouse);
+                    return false;
+                }
+            }).click(function () {
+                $(this).data("uiAutocomplete").search($(this).val());
+            });
+        });
+
+    });
+    function NEQTYONHAND(THIS)
+    {
+        var index = $(THIS).closest("tr").index();
+        let NewQuantityOnHand = accounting.unformat(($(THIS).val() == "" ? 0 : $(THIS).val()));
+        let QuantityAvailable = accounting.unformat($("input[name=QUANTITYAVAILABLE]").eq(index).val());
+        let QuantityAdjusted = accounting.formatMoney((NewQuantityOnHand - QuantityAvailable), '', 0);
+        $("input[name=QTYADJUST]").eq(index).val(QuantityAdjusted);
+        QuantityAdjusted = accounting.unformat(QuantityAdjusted);
+        QuantityAdjusted = Math.abs(QuantityAdjusted);
+        $("input[name=QTYOUT]").eq(index).val(QuantityAdjusted);
+
+        if (NewQuantityOnHand > QuantityAvailable) {
+            $("input[name=QTYOUT]").eq(index).val(0);
+            $("input[name=QTYIN]").eq(index).val(QuantityAdjusted);
+            $("input[name=Type]").eq(index).val('Stock In');
+        }
+        else {
+            $("input[name=QTYIN]").eq(index).val(0);
+            $("input[name=Type]").eq(index).val('Stock Out');
+        }
+    }
+
+    function QTYADJUSTED(THIS) {
+
+        $("input[name=QTYADJUST]").focus(function () { $(this).select(); });
+        $("input[name=QTYADJUST]").autoNumeric({ vMin: "-99999999999.99", vMax: "9999999999999999999999999999999999999999999999999999999.99" });
+        var index = $(THIS).closest("tr").index();
+        let NewQuantityOnHand = accounting.unformat(($(THIS).val() == "" ? 0 : $(THIS).val()));
+        let QuantityAvailable = accounting.unformat($("input[name=QUANTITYAVAILABLE]").eq(index).val());
+        let QuantityAdjusted = accounting.formatMoney((NewQuantityOnHand + QuantityAvailable), '', 0);
+        $("input[name=NEWQUANTITYONHAND]").eq(index).val(QuantityAdjusted);
+
+        NewQuantityOnHand = accounting.unformat(QuantityAdjusted);
+        QuantityAvailable = accounting.unformat($("input[name=QUANTITYAVAILABLE]").eq(index).val());
+        QuantityAdjusted = accounting.formatMoney((NewQuantityOnHand - QuantityAvailable), '', 0);
+        QuantityAdjusted = accounting.unformat(QuantityAdjusted);
+        QuantityAdjusted = Math.abs(QuantityAdjusted);
+        $("input[name=QTYOUT]").eq(index).val(QuantityAdjusted);
+
+        if (NewQuantityOnHand > QuantityAvailable) {
+            $("input[name=QTYOUT]").eq(index).val(0);
+            $("input[name=QTYIN]").eq(index).val(QuantityAdjusted);
+            $("input[name=Type]").eq(index).val('Stock In');
+        }
+        else {
+            $("input[name=QTYIN]").eq(index).val(0);
+            $("input[name=Type]").eq(index).val('Stock Out');
+        }
+    }
+
+    function getQOHBySerialID(curRow,data,qty) {
+        const warehouseId = $('#Warehouse_WID').val();
+        LoadData('Items/GetQohBySerialNumber?ItemID=' + data.itemId + '&SerialNumberID=' + data.value + '&SerialNumber=' + data.label + "&WarehouseID=" + warehouseId,
+            function (response) {
+                const res = JSON.parse(JSON.parse(response).data);
+                curRow.find('input[name="QUANTITYAVAILABLE"]').val(res[0].QTY)
+            }
+        );
+    }
+
+
+    function SaveChangeCallbackFunction(response) {
+        let responses = JSON.parse(response.Data)[0];
+        PostData("AdjustmentStock/UpdateSerialNumberStatus?StockInID=" + responses.StockInID, "", function (result) {
+            //console.log(result)
+        });
+        PostData("AdjustmentStock/UpdateQtyCal?StockInID=" + responses.StockInID);
+        PostData(`Items/SaveChangeStockExpire?TranID=${responses.StockInID}&TranType=StockAdjustment`);
+        $("#modal-default").modal('hide');
+    }
+</script>

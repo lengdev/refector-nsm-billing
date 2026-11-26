@@ -1,0 +1,18 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    var Type = "@ViewBag.Type";
+    $(function () {
+        $("#TxtFormatMask").keyup(function (event) {
+            var Prefix = $("#TxtPrefix").val();
+            var StartNumber = $("#TxtStartNumber").val();
+            var FormatMask = $(this).val().length;
+            FormatMask = String(StartNumber).padStart(FormatMask, $(this).val()); 
+            Prefix = Prefix + FormatMask;
+            $("#TxtDisplay").val(Prefix);
+        });
+    });
+</script>

@@ -1,0 +1,866 @@
+@{ Layout = null; }
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap');
+
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Muol Light';
+        src: local('Khmer OS Muol Light'), local('Khmer OS Muol');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    #trial-balance-view-wrapper {
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #1e293b;
+    }
+
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    .report-header-print {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+        .report-header-print .metadata-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+            border-bottom: 1.5px solid #475569;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+    .table-responsive-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            white-space: nowrap;
+        }
+
+        .report-table th {
+            background: #f2f2f2;
+            text-align: center;
+        }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .total-row {
+        font-weight: bold !important;
+    }
+
+        .total-row td {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+    .custom-search-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        margin-bottom: 20px;
+    }
+
+    .tb-class-filter select {
+        min-width: 180px;
+        padding: 6px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+    }
+
+    .toolbar-left, .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+        .toolbar-left label {
+            font-weight: bold;
+            margin: 0;
+            color: #333;
+        }
+
+        .toolbar-left .k-datepicker {
+            width: 250px;
+        }
+
+    .btn-custom-search {
+        background-color: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #c7d2fe;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .btn-custom-search:hover {
+            background-color: #e0e7ff;
+            border-color: #a5b4fc;
+        }
+
+    .btn-icon-outline {
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .btn-icon-outline:hover {
+            background-color: #f9fafb;
+        }
+
+    .btn-icon-pdf {
+        color: #3b82f6;
+        border-color: #bfdbfe;
+        background-color: #eff6ff;
+    }
+
+        .btn-icon-pdf:hover {
+            background-color: #dbeafe;
+        }
+
+    .btn-icon-excel {
+        color: #10b981;
+        border-color: #a7f3d0;
+        background-color: #ecfdf5;
+    }
+
+        .btn-icon-excel:hover {
+            background-color: #d1fae5;
+        }
+</style>
+
+<div class="custom-search-toolbar">
+    <div class="toolbar-left">
+        <label>To Date:</label>
+        <input id="ToDate" />
+        <button class="btn-custom-search" onclick="SearchTrialBalance();">
+            <i class="fa fa-search"></i> Search
+        </button>
+    </div>
+
+    <div class="toolbar-right">
+        <button class="btn-icon-outline btn-icon-pdf" onclick="PrintReport();" title="Print / PDF">
+            <i class="fa fa-print"></i>
+        </button>
+        <button class="btn-icon-outline btn-icon-excel" onclick="ExportExcel();" title="Export Excel">
+            <i class="fa fa-file-excel"></i>
+        </button>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "TB" } })
+
+<div class="pl-report-header" id="tbReportHeader">
+    <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+    <div class="bs-company-kh" id="lblCompanyNameKh">@ViewBag.CompanyNameKh</div>
+    <div class="bs-company-en" id="lblCompanyNameEn">@ViewBag.CompanyNameEn</div>
+    <div class="bs-company-divider">
+        ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+    </div>
+    <h3 id="lblReportTitle">Trial balance standard</h3>
+    <div class="tb-date-range-bar" id="lblDateRangeBar">
+        @DateTime.Now.ToString("dd/MM/yyyy")
+    </div>
+</div>
+
+<div id="reportContainer"></div>
+<script>
+
+    var ReportData = [];
+    var record = 0;
+    var trialBalanceSystemCompanyHeader = null;
+
+    function setTrialBalanceCompanyHeader(companyKh, companyEn) {
+        companyKh = $.trim(companyKh || "");
+        companyEn = $.trim(companyEn || "");
+        if (companyKh && !companyKh.startsWith('ក្រុមហ៊ុន')) {
+            companyKh = 'ក្រុមហ៊ុន ' + companyKh;
+        }
+        $("#tbReportHeader #lblCompanyNameKh").text(companyKh);
+        $("#tbReportHeader #lblCompanyNameEn").text(companyEn);
+    }
+
+    function PrintReport() {
+        var currentData = getVisibleTrialBalanceData();
+        var content = GeneratePrintHTML(currentData);
+        var toDateObj = $("#ToDate").data("kendoDatePicker").value();
+        var toDisplayStr = toDateObj ? kendo.toString(toDateObj, "dd/MM/yyyy") : "All";
+        var printDateStr = kendo.toString(new Date(), "dd-MMM-yyyy HH:mm");
+        var compKh = $("#tbReportHeader #lblCompanyNameKh").text();
+        var compEn = $("#tbReportHeader #lblCompanyNameEn").text();
+
+        var win = window.open('', '', 'width=1200,height=900');
+        win.document.write(`
+            <html>
+            <head>
+                <title>Trial Balance</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+                <style>
+                    body { font-family: 'Kantumruy Pro', Arial, sans-serif; font-size:12px; color: #1e293b; }
+                    table { width:100%; border-collapse:collapse; }
+                    th, td { border:1px solid #ccc; padding:6px 8px; }
+                    th { background:#f2f2f2; font-weight: 700; }
+                    .text-right { text-align:right; }
+                    .text-center { text-align:center; }
+                    .total-row { font-weight:bold; }
+                    .total-row td { border-left:none !important; border-right:none !important; }
+                    .table-responsive-wrapper { border: none !important; overflow: visible !important; }
+                    .bs-company-kh {
+                        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+                        font-size: 20px !important;
+                        font-weight: normal;
+                        line-height: 1.6;
+                        margin-bottom: 4px;
+                        color: #000;
+                    }
+                    .bs-company-en {
+                        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+                        font-size: 16px;
+                        font-weight: 900;
+                        margin-bottom: 6px;
+                        color: #000;
+                        letter-spacing: 0.5px;
+                    }
+                    .bs-company-divider {
+                        font-size: 10px;
+                        margin-bottom: 12px;
+                        color: #000;
+                        letter-spacing: 2px;
+                    }
+                    .tb-title {
+                        margin: 0 0 6px 0;
+                        font-weight: 600;
+                        color: #0f172a;
+                        font-size: 14px;
+                        font-family: 'Kantumruy Pro', sans-serif;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .tb-date-range-bar {
+                        margin-top: 12px;
+                        border-top: 0;
+                        border-bottom: 0;
+                        padding: 5px 0;
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: #0f172a;
+                        text-align: left;
+                        font-family: 'Kantumruy Pro', sans-serif;
+                    }
+                </style>
+            </head>
+            <body>
+                <div style="text-align: center; position: relative; margin-bottom: 20px;">
+                    <div style="position: absolute; left: 0; top: 0;">
+                        <img src="/Content/images/logo.png" style="height: 60px;" onerror="this.style.display='none'" />
+                    </div>
+                    <div class="bs-company-kh">
+                        ${compKh}
+                    </div>
+                    <div class="bs-company-en">
+                        ${compEn}
+                    </div>
+                    <div class="bs-company-divider">
+                        ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+                    </div>
+                    <div class="tb-title">
+                        Trial balance standard
+                    </div>
+                    <div class="tb-date-range-bar">
+                        ${toDisplayStr}
+                    </div>
+                    <div class="tb-date-range-bar">
+                        Print Date: ${printDateStr}
+                    </div>
+                </div>
+                ${content}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        setTimeout(function () { win.print(); }, 500);
+    }
+
+    function getVisibleTrialBalanceData() {
+        var grid = $("#reportContainer").data("kendoGrid");
+        if (grid && grid.dataSource) {
+            var view = grid.dataSource.view();
+            if (view && view.length > 0) {
+                var result = [];
+                for (var i = 0; i < view.length; i++) {
+                    result.push(view[i]);
+                }
+                return result;
+            }
+        }
+        return ReportData || [];
+    }
+
+    function ExportExcel() {
+        var currentData = getVisibleTrialBalanceData();
+        if (!currentData || currentData.length == 0) {
+            alert("No data.");
+            return;
+        }
+
+        var rows = [];
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        $.each(currentData, function (i, row) {
+            var d = parseFloat(row.Debit) || 0;
+            var c = parseFloat(row.Credit) || 0;
+            rows.push({
+                "Account No": row.AccountNo,
+                "Account Type": row.AccountType,
+                "Account Category": row.AccountCategory,
+                "Account Name": row.AccountName,
+                "Status": row.Status,
+                "Debit": d,
+                "Credit": c
+            });
+            totalDebit += d;
+            totalCredit += c;
+        });
+
+        rows.push({
+            "Account No": "",
+            "Account Type": "",
+            "Account Category": "",
+            "Account Name": "Total",
+            "Status": "",
+            "Debit": totalDebit,
+            "Credit": totalCredit
+        });
+
+        var columns = Object.keys(rows[0] || {});
+        var dataSheet = XLSX.utils.json_to_sheet(rows);
+        var dataRows = XLSX.utils.sheet_to_json(dataSheet, { header: 1, raw: true });
+        var headerRows = [
+            [getTrialBalanceExportHeaderText($("#tbReportHeader #lblCompanyNameKh").text(), "")],
+            [getTrialBalanceExportHeaderText($("#tbReportHeader #lblCompanyNameEn").text(), "")],
+            [getTrialBalanceExportHeaderText($("#tbReportHeader #lblReportTitle").text(), "Trial Balance")],
+            [$.trim($("#tbReportHeader #lblDateRangeBar").text())],
+            ["Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm")]
+        ];
+        var worksheet = XLSX.utils.aoa_to_sheet(headerRows.concat(dataRows));
+        worksheet["!merges"] = headerRows.map(function (_, rowIndex) {
+            return { s: { r: rowIndex, c: 0 }, e: { r: rowIndex, c: Math.max(0, columns.length - 1) } };
+        });
+        var headerStyles = [
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Khmer OS Muol Light", sz: 16, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Times New Roman", sz: 14, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 12, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } }
+        ];
+        headerStyles.forEach(function (style, rowIndex) {
+            var cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex, c: 0 })];
+            if (cell) cell.s = style;
+        });
+        worksheet["!cols"] = columns.map(function (_, columnIndex) {
+            return { wch: columnIndex === 3 ? 36 : 18 };
+        });
+        worksheet["!rows"] = [{ hpt: 30 }, { hpt: 24 }, { hpt: 22 }, { hpt: 20 }, { hpt: 20 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, "Trial Balance");
+        XLSX.writeFile(wb, "TrialBalance.xlsx");
+    }
+
+    function getTrialBalanceExportHeaderText(value, fallback) {
+        value = $.trim(value || "");
+        return !value || /^(unknown|undefined|null)$/i.test(value) ? fallback : value;
+    }
+
+    $(document).ready(function () {
+        $("#ToDate").kendoDatePicker({
+            format: "dd/MM/yyyy",
+            value: new Date()
+        });
+
+        if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.loadLookups === 'function') {
+            window.AccountingAdvanceFilter.loadLookups('/TrialBalance/GetAdvanceFilterLookups');
+        }
+
+        trialBalanceSystemCompanyHeader = {
+            kh: $("#tbReportHeader #lblCompanyNameKh").text(),
+            en: $("#tbReportHeader #lblCompanyNameEn").text()
+        };
+        // Auto-run search on first load
+        SearchTrialBalance(true);
+    });
+
+    function SearchTrialBalance(isFirstLoad) {
+        var toDateObj = $("#ToDate").data("kendoDatePicker").value();
+        var toDateStr = toDateObj ? kendo.toString(toDateObj, "yyyy-MM-dd") : "";
+        var toDisplayStr = toDateObj ? kendo.toString(toDateObj, "dd/MM/yyyy") : "All";
+        var now = new Date();
+        var printDateStr = kendo.toString(now, "dd-MMM-yyyy HH:mm");
+        $("#lblPrintDate").text("Print Date " + printDateStr);
+        $("#tbReportHeader #lblDateRangeBar").text(toDisplayStr);
+
+        var advFilter = (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.getFilters)
+            ? window.AccountingAdvanceFilter.getFilters()
+            : {};
+
+        if (!isFirstLoad) {
+            toastr.options = {
+                closeButton: false,
+                debug: false,
+                newestOnTop: true,
+                progressBar: true,
+                positionClass: "toast-top-center",
+                preventDuplicates: true,
+                timeOut: 0,
+                extendedTimeOut: 0
+            };
+            toastr.info("Loading Trial Balance Data...");
+            setTimeout(function () {
+                var baseColor = localStorage.getItem("BaseSystemBGColor");
+                if (baseColor) {
+                    $(".toast-info").css({ "background-color": baseColor, "box-shadow": "0 0 12px " + baseColor });
+                }
+            }, 10);
+        }
+
+        var getParam = function (key) {
+            var s = new URLSearchParams(window.location.search);
+            if (s.get(key)) return s.get(key);
+            if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                if (h.get(key)) return h.get(key);
+            }
+            return '';
+        };
+
+        $.ajax({
+            url: '/TrialBalance/Read',
+            type: 'POST',
+            data: {
+                SystemID: getParam('SystemID'),
+                WarehouseID: getParam('WarehouseID'),
+                toDate: toDateStr,
+                subOfAccount: advFilter.subOfAccount || "",
+                fromBalance: advFilter.fromBalance !== undefined && !isNaN(advFilter.fromBalance) ? advFilter.fromBalance : null,
+                toBalance: advFilter.toBalance !== undefined && !isNaN(advFilter.toBalance) ? advFilter.toBalance : null,
+                createdBy: advFilter.createdBy || "",
+                sortBy: advFilter.sortBy || "",
+                orderBy: advFilter.orderBy || "asc"
+            },
+            success: function (res) {
+                if (!res.Success) {
+                    alert(res.Message);
+                    return;
+                }
+
+                if (res.Company) {
+                    trialBalanceSystemCompanyHeader = {
+                        kh: res.Company.CompanyNameKh || trialBalanceSystemCompanyHeader.kh,
+                        en: res.Company.CompanyNameEn || trialBalanceSystemCompanyHeader.en
+                    };
+                    setTrialBalanceCompanyHeader(
+                        trialBalanceSystemCompanyHeader.kh,
+                        trialBalanceSystemCompanyHeader.en
+                    );
+                }
+
+                ReportData = res.Data;
+                BuildReport(ReportData);
+            },
+            error: function () {
+                alert("Error fetching data.");
+            },
+            complete: function () {
+                toastr.clear();
+                toastr.remove();
+            }
+        });
+    }
+
+    function updateTbFilterBadge(activeCount, totalRows, filteredRows) {
+        var $badge = $('#gjFilterStatusBadge');
+        if (activeCount === 0) {
+            $badge.hide().html('');
+            return;
+        }
+        var html = '<span class="gj-badge active">' +
+            '<i class="fas fa-filter" style="font-size:10px;"></i> ' +
+            activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active &mdash; ' +
+            filteredRows + ' / ' + totalRows + ' rows' +
+            '</span>';
+        $badge.html(html).show();
+    }
+
+    function applyShownColumns() {
+        var grid = $("#reportContainer").data("kendoGrid");
+        if (!grid) return;
+
+        var checkedCols = [];
+        $('#gjShownColumnsDropdown input[type=checkbox]:checked').each(function () {
+            checkedCols.push($(this).val());
+        });
+
+        if (checkedCols.indexOf("No") !== -1) grid.showColumn(0); else grid.hideColumn(0);
+        if (checkedCols.indexOf("No") !== -1 || checkedCols.indexOf("AccountNo") !== -1) grid.showColumn(1); else grid.hideColumn(1);
+        if (checkedCols.indexOf("AccountType") !== -1) grid.showColumn(2); else grid.hideColumn(2);
+        if (checkedCols.indexOf("AccountCategory") !== -1) grid.showColumn(3); else grid.hideColumn(3);
+        if (checkedCols.indexOf("AccountName") !== -1) grid.showColumn(4); else grid.hideColumn(4);
+        if (checkedCols.indexOf("Status") !== -1) grid.showColumn(5); else grid.hideColumn(5);
+        if (checkedCols.indexOf("Debit") !== -1) grid.showColumn(6); else grid.hideColumn(6);
+        if (checkedCols.indexOf("Credit") !== -1) grid.showColumn(7); else grid.hideColumn(7);
+    }
+
+    window.applyTbFilters = function () {
+        var grid = $("#reportContainer").data("kendoGrid");
+        if (!grid || !grid.dataSource) return;
+
+        applyShownColumns();
+
+        var advFilter = (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.getFilters)
+            ? window.AccountingAdvanceFilter.getFilters()
+            : {};
+
+        var sortField = $.trim(advFilter.sortBy);
+        var sortDir   = advFilter.orderBy || 'asc';
+        if (sortField) {
+            grid.dataSource.sort({ field: sortField, dir: sortDir });
+        }
+
+        var parseMulti = function (val) {
+            if (Array.isArray(val)) {
+                return val.filter(function (x) { return x !== null && x !== '' && x !== undefined; });
+            }
+            if (val && typeof val === 'string' && $.trim(val) !== '') {
+                return val.split(',').map(function (s) { return $.trim(s); }).filter(function (x) { return !!x; });
+            }
+            return [];
+        };
+
+        var selectedAccounts = parseMulti(advFilter.subOfAccount);
+        var selectedTypes    = parseMulti(advFilter.accountType);
+        var fromBal          = advFilter.fromBalance;
+        var toBal            = advFilter.toBalance;
+
+        var filters = [];
+
+        if (selectedAccounts.length > 0) {
+            var aFilters = [];
+            for (var i = 0; i < selectedAccounts.length; i++) {
+                var acc = selectedAccounts[i];
+                aFilters.push({ field: "AccountNo", operator: "contains", value: acc });
+                aFilters.push({ field: "AccountName", operator: "contains", value: acc });
+            }
+            filters.push({ logic: "or", filters: aFilters });
+        }
+
+        if (selectedTypes.length > 0) {
+            var tFilters = [];
+            for (var i = 0; i < selectedTypes.length; i++) {
+                var tp = selectedTypes[i];
+                tFilters.push({ field: "AccountType", operator: "contains", value: tp });
+                tFilters.push({ field: "AccountCategory", operator: "contains", value: tp });
+            }
+            filters.push({ logic: "or", filters: tFilters });
+        }
+
+        if (fromBal !== undefined && !isNaN(fromBal)) {
+            filters.push({
+                logic: "or",
+                filters: [
+                    { field: "Debit", operator: "gte", value: fromBal },
+                    { field: "Credit", operator: "gte", value: fromBal }
+                ]
+            });
+        }
+
+        if (toBal !== undefined && !isNaN(toBal)) {
+            filters.push({
+                logic: "or",
+                filters: [
+                    { field: "Debit", operator: "lte", value: toBal },
+                    { field: "Credit", operator: "lte", value: toBal }
+                ]
+            });
+        }
+
+        var activeCount = 0;
+        if (selectedAccounts.length) activeCount++;
+        if (selectedTypes.length) activeCount++;
+        if (fromBal !== undefined && !isNaN(fromBal)) activeCount++;
+        if (toBal !== undefined && !isNaN(toBal)) activeCount++;
+
+        var totalBefore = (ReportData || []).length;
+        grid.dataSource.filter(filters.length ? { logic: "and", filters: filters } : []);
+        var totalAfter = grid.dataSource.total();
+
+        updateTbFilterBadge(activeCount, totalBefore, totalAfter);
+    };
+
+    function BuildReport(data) {
+        var grid = $("#reportContainer").data("kendoGrid");
+        if (grid) {
+            grid.destroy();
+            $("#reportContainer").empty();
+        }
+
+        if (data.length === 0) {
+            $("#reportContainer").html('<div class="alert alert-warning" style="margin-top:20px;">No records found.</div>');
+            return;
+        }
+
+        $("#reportContainer").kendoGrid({
+            dataSource: {
+                data: data,
+                aggregate: [
+                    { field: "Debit", aggregate: "sum" },
+                    { field: "Credit", aggregate: "sum" }
+                ]
+            },
+            sortable: true,
+            scrollable: true,
+            pageable: false,
+            columns: [
+                {
+                    title: "No.",
+                    template: "#= ++record #",
+                    width: 60,
+                    attributes: { class: "text-center" }
+                },
+                {
+                    field: "AccountNo",
+                    title: "Account No",
+                    template: "<a href='\\#!/TransactionAccount?TxtAccount=#=AccountNo#' target='_blank'>#=AccountNo#</a>",
+                    attributes: { class: "text-center" },
+                    width: 130
+                },
+                { field: "AccountType", title: "Account Type", width: 150 },
+                { field: "AccountCategory", title: "Account Category", width: 190 },
+                {
+                    field: "AccountName",
+                    title: "Account Name",
+                    template: "<a href='\\#!/TransactionAccount?TxtAccount=#=AccountNo#' target='_blank'>#=AccountName#</a>",
+                    footerTemplate: "<div class='text-right'>Total</div>",
+                    width: 260
+                },
+                { field: "Status", title: "Status", attributes: { class: "text-center" }, width: 100 },
+                {
+                    field: "Debit",
+                    title: "Debit",
+                    format: "{0:n2}",
+                    attributes: { class: "text-right" },
+                    template: "<a href='\\#!/TransactionAccount?TxtAccount=#=AccountNo#' target='_blank'>#= Debit == 0 ? '-' : kendo.toString(Debit, 'n2') #</a>",
+                    footerTemplate: "<div class='text-right'>#= kendo.toString(sum, 'n2') #</div>",
+                    width: 150
+                },
+                {
+                    field: "Credit",
+                    title: "Credit",
+                    format: "{0:n2}",
+                    attributes: { class: "text-right" },
+                    template: "<a href='\\#!/TransactionAccount?TxtAccount=#=AccountNo#' target='_blank'>#= Credit == 0 ? '-' : kendo.toString(Credit, 'n2') #</a>",
+                    footerTemplate: "<div class='text-right'>#= kendo.toString(sum, 'n2') #</div>",
+                    width: 150
+                }
+            ],
+            dataBinding: function () {
+                record = 0;
+            }
+        });
+
+        applyTbFilters();
+    }
+
+    function GeneratePrintHTML(data) {
+        if (data.length === 0) return "";
+
+        var toDateStr = $("#ToDate").val();
+        var html = `
+            <div class="table-responsive-wrapper">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Account No</th>
+                            <th>Account Type</th>
+                            <th>Account Name</th>
+                            <th>Status</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        var rowNo = 1;
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        $.each(data, function (i, row) {
+            // Skip rows with no balance
+            // if (row.Debit == 0 && row.Credit == 0) return; // Show all accounts
+
+            var link = `#!/TransactionAccount?TxtAccount=${row.AccountNo}`;
+            var debitStr = row.Debit == 0 ? '-' : kendo.toString(row.Debit, 'n2');
+            var creditStr = row.Credit == 0 ? '-' : kendo.toString(row.Credit, 'n2');
+
+            html += `
+                <tr>
+                    <td class="text-center">${rowNo++}</td>
+                    <td class="text-center">
+                        <a href="${link}" target="_blank">${row.AccountNo || ''}</a>
+                    </td>
+                    <td>${row.AccountType || ''}</td>
+                    <td>
+                        <a href="${link}" target="_blank">${row.AccountName || ''}</a>
+                    </td>
+                    <td class="text-center">${row.Status || ''}</td>
+                    <td class="text-right">
+                        <a href="${link}" target="_blank">${debitStr}</a>
+                    </td>
+                    <td class="text-right">
+                        <a href="${link}" target="_blank">${creditStr}</a>
+                    </td>
+                </tr>
+            `;
+
+            totalDebit += row.Debit;
+            totalCredit += row.Credit;
+        });
+
+        // Total row
+        html += `
+                <tr class="total-row">
+                    <td colspan="5" class="text-right">Total</td>
+                    <td class="text-right">${kendo.toString(totalDebit, 'n2')}</td>
+                    <td class="text-right">${kendo.toString(totalCredit, 'n2')}</td>
+                </tr>
+        `;
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        return html;
+    }
+</script>

@@ -1,0 +1,383 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<style>
+    form[name="AddItemSerial"] {
+        height: 600px;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .form-control:disabled, .form-control[readonly] {
+        background-color: #fbf9f9;
+        opacity: 1;
+    }
+</style>
+
+<script>
+    $(function () {
+        var frmAddItemSerial = $('form[name=AddItemSerial]');
+        var frmFirstChild = $(frmAddItemSerial).children().first();
+        var tblSerial = '';
+        var existItem = [];
+        var loadExistSerial = [];
+        var lotsDuplicate = {};
+
+        //Initialize table header of item serial
+        tblSerial += `
+            <input type="hidden" class="form-control" name="receiveNoteNumber" value=""/>
+            <table class="table table-bordered">
+                <thead style="background-color: #F89C39;color: #fff;">
+                    <tr class="text-center">
+                        <th width="5%">${'No.'}</th>
+                        <th width="45%">${'Item Name'}</th>
+                        <th width="15%"​>${'QTY'}</th>
+                        <th width="10%">${'UOM'}</th>
+                        <th width="25%">${'Action'}</th>
+                    </tr>
+                </thead>
+                <tbody id="Tbody">
+                    <tr><td colspan="5" class="text-center text-secondary">No Data.</td></tr>
+                </tbody>
+            </table>
+        `;
+        // Append table
+        $(frmFirstChild).append(tblSerial);
+
+        // Initialize autocomplete for ItemName input
+        $('#ItemName').autocomplete({
+            source: function(request, response) {
+                var stockInId = $('#TxtReceiveNoteNumber').val();
+                if (stockInId !== "") {
+                    $.ajax({
+                        url: ServerRoot + "Items/JqueryProduct",
+                        type: "GET",
+                        data: {
+                            stockInId: stockInId,
+                            term: request.term
+                        },
+                        success: function(data) {
+                            //console.log(JSON.parse(data.data));
+                            response($.map(JSON.parse(data.data),
+                                function(item) {
+                                    return {
+                                        label: item.ItemName,
+                                        value: item.ItemID
+                                    };
+                                }));
+                        }
+                    });
+                }
+            },
+            minLength: 0,
+            select: function(event, ui) {
+                $('input[name="ItemName_ItemID"]').val(ui.item.value).trigger('change');
+                $('input[name="ItemName"]').val(ui.item.label); //show item name input
+                return false;
+            }
+        }).click(function() {
+            $(this).data("uiAutocomplete").search($(this).val());
+        });
+
+        // On change item name  
+        $(document).off('change', 'input[name="ItemName_ItemID"]').on('change', 'input[name="ItemName_ItemID"]', function () {
+            var itemId = $(this).val();
+            var stockInId = $('#TxtReceiveNoteNumber').val();
+            //console.log(itemId, stockInId);
+            if (itemId !== "" && stockInId !== "") {
+                var url = "Items/LoadItem?ItemID=" + encodeURIComponent(itemId) + "&StockInID=" + encodeURIComponent(stockInId);
+
+                if (existItem.includes(itemId)) {
+                    return false;
+                }
+                    
+                PostData(url, "", function (result) {
+                    var data = JSON.parse(JSON.parse(result).dataItem);
+                    //console.log(result, data);
+                    var dataSerial = JSON.parse(JSON.parse(result).dataSerialNumber);
+                    //console.log(dataSerial);
+                    var tr = '';
+                    if (data.length > 0) {
+                        tr = `
+                            <tr class="trItem">
+                                <td class="no"></td>
+                                <td>
+                                    ${data[0].ItemName}
+                                    <input type="hidden" name="itemId" value="${itemId}"/>
+                                    <input type="hidden" name="itemName-${itemId}" value="${data[0].ItemName}"/>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="qty-${itemId}" value="${data[0].QTY}" onchange="updateQtyHandler(this, ${data[0].QTY})"/>
+                                </td>
+                                <td align="center">
+                                    ${data[0].UM}
+                                    <input type="hidden" name="uomId-${itemId}" value="${data[0].UomID}"/>
+                                    <input type="hidden" name="uomName-${itemId}" value="${data[0].UM}"/>
+                                </td>
+                                <td align="center">
+                                    <button class="btn btn-primary btn-sm add-serial-number add-serial-number-${itemId}">
+                                        Assign Serial Numbers
+                                    </button>
+                                    <button class="btn btn-danger btn-sm remove-item">
+                                        <i class="fa-thin fa-trash-can"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="serial-inputs serial-inputs-${itemId}" data-item-id="${itemId}" style="display:none;">
+                                <td colspan="5">
+                                    <table class="table table-bordered">
+                                        <thead style="background: #eee;">
+                                            <tr>
+                                                <th width="5%" class="text-center">No.</th>
+                                                <th class="text-center">Serial Number</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="serial-tbody"></tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        `;
+
+                        $('#Tbody').append(tr);
+                        existItem.push(itemId);
+                        $('input[name="ItemName"]').val(null).trigger('change');
+                        numRowHandler();
+
+                        // Trigger the add-serial-number click if dataSerial exists
+                        if (dataSerial.length > 0) {
+                            loadExistSerial = dataSerial;
+                            $('.add-serial-number').last().trigger('click');
+                        } else {
+                            loadExistSerial = [];
+                        }
+                    }
+
+                });
+
+            }
+        });
+
+
+        $(document).on('change', '#TxtReceiveNoteNumber', function() {
+            var selectedText = $(this).find('option:selected').text();
+            $('input[name="receiveNoteNumber"]').attr("value", selectedText);
+            $('input[name="ItemName"]').val(null).trigger('change');
+            $('#Tbody').empty();
+            existItem = [];
+            lotsDuplicate = {};
+        });
+
+        // Add serial number
+        $(document).off('click', '.add-serial-number').on('click', '.add-serial-number', function (e) {
+            e.preventDefault();
+            var trParent = $(this).closest('tr');
+            var itemId = trParent.find('input[name="itemId"]').val();
+            var qtyNum = parseInt($(trParent).find(`input[name="qty-${itemId}"]`).val());
+            var trSerial = trParent.next('.serial-inputs');
+
+            if (qtyNum > 0) {
+                var serialTbody = $(trSerial).find('.serial-tbody');
+                serialTbody.empty(); // Clear previous inputs if any
+                //console.log(loadExistSerial, loadExistSerial.length);
+                // Load existing serials if available
+                if (loadExistSerial && loadExistSerial.length > 0) {
+
+                    $.each(loadExistSerial, function (index, serial) {
+                        var tr = `
+                            <tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td><input type="text" name="lot-${itemId}" value="${serial.ItemID === parseInt(itemId) ? serial.SerialNumber : ''}" class="form-control lot" data-item-id="${itemId}" placeholder="Enter serial number" readonly="readonly"/></td>
+                            </tr>
+                        `;
+                        serialTbody.append(tr);
+                    });
+                }
+
+                // Add remaining empty inputs if the quantity is greater than the number of existing serials
+                for (var i = loadExistSerial.length + 1; i <= qtyNum; i++) {
+                    var tr = `
+                        <tr>
+                            <td class="text-center">${i}</td>
+                            <td><input type="text" name="lot-${itemId}" class="form-control lot" data-item-id="${itemId}" placeholder="Enter serial number"/></td>
+                        </tr>
+                    `;
+                    serialTbody.append(tr);
+                }
+
+                // Show the hidden row for serial inputs
+                trSerial.show(); 
+                lotsDuplicate[itemId] = [];
+            }
+        });
+
+        
+        //Remove item event handler
+        $(document).on('click', '.remove-item', function (e) {
+            e.preventDefault();
+            var button = e.target;
+            var row = button.closest('tr');
+            var itemId = $(row).find('input[name="itemId"]').val();
+
+            // Find the next `.serial-inputs` element before removing the row
+            var nextSerialInputs = $(row).next('.serial-inputs');
+            // Remove the row
+            $(row).remove();
+            // Remove the `.serial-inputs` element
+            nextSerialInputs.remove();
+            numRowHandler();
+            existItem = existItem.filter((id) => id !== itemId);
+            lotsDuplicate[itemId] = [];
+        });
+
+        //Validate serial number
+        var currentItemId = null;
+        $(document).off('change', '.lot').on('change', '.lot', function (e) {
+            var tr = $(this).closest('tr');
+            var itemId = $(tr).find('input').data('item-id');
+            var itemName = $(tr).closest('.serial-inputs').prev().find(`input[name="itemName-${itemId}"]`).val();
+            var val = $(this).val().replace(/\s/g, '');
+            $(this).val(val);
+            var lotInput = $(this);
+
+            if (val === "") {
+                DialogSweetAlert("error", 'Invalid serial number!', function() {
+                    $(lotInput).val(null);
+                    $(lotInput).focus();
+                });
+                return;
+            }
+
+            // Check if serial number exists in the database
+            var objData = {
+                itemId: itemId
+            };
+            PostData("Items/CheckExistSerialNumber", objData, function(res) {
+                var data = JSON.parse(JSON.parse(res).data);
+                var lotsExist = [];
+                $.each(data, function(i, s) {
+                    lotsExist.push(s.SerialNumber);
+                });
+
+                if (lotsExist.includes(val)) {
+                    DialogSweetAlert("error", `Serial number <span style="color:red;">${val}</span> is already exists <br> in item <span style="color:red;">${itemName}</span> !`, function() {
+                        $(lotInput).val(null);
+                        $(lotInput).focus();
+                    });
+                    return; // Exit early to prevent further checks
+                }
+            });
+
+            // Clear the duplicate set if the item ID changes
+            if (itemId !== currentItemId) {
+                lotsDuplicate[itemId] = []; // Initialize an empty array for the new itemId
+                currentItemId = itemId;
+            }
+
+            // Check for duplicates
+            if (lotsDuplicate[itemId].includes(val)) {
+                DialogSweetAlert("error",
+                    `Serial number <span style="color:red;">${val}</span> is duplicated <br> in item <span style="color:red;">${itemName}</span> !`, function () {
+                    $(lotInput).val(null);
+                    $(lotInput).focus();
+                });
+                return;
+            }
+
+            // Add the value to the duplicate set if it passes
+            lotsDuplicate[itemId].push(val);
+        });
+
+    });
+
+    // Function to handle update qty
+    function updateQtyHandler(el, qty) {
+        var lastQty = parseInt($(el).val());
+        var qoh = parseInt(qty);
+        if (lastQty > qoh || lastQty === 0) {
+            DialogSweetAlert("error", "Invalid QTY!.");
+            $(el).val(qty);
+        }
+    }
+
+    // Function to handle number of row
+    function numRowHandler() {
+        var rowCount = $("#Tbody > .trItem:visible");
+        rowCount.each(function(index) {
+            $(this).find('.no').html(index + 1);
+        });
+    }
+
+    //Function handle disable btn add serial
+    function handleDisableBtnAddSerial() {
+        console.log('test');
+        $('.serial-inputs').each(function (i, el) {
+            var id = $(el).data("item-id");
+            var btnAddSerial = $(el).prev().find(`.add-serial-number-${id}`);
+            if ($(el).is(":visible")) {
+                $(btnAddSerial).attr("disabled", true);
+            }
+        });
+    }
+
+    //Add serial number to db
+    function addSerialNumberToDb() {
+        var objLots = [];
+        var responseData = SaveChangeResponse;
+        //console.log(responseData);
+
+        var itemIds = responseData.filter((item) => {
+            return item.name === "itemId";
+        });
+        var receiveNoteNumber = responseData.filter((item) => {
+            return item.name === 'receiveNoteNumber';
+        });
+        var stockInId = responseData.filter((item) => {
+            return item.name === 'TxtReceiveNoteNumber';
+        });
+        $.each(itemIds, (index, tid) => {
+            var arrLots = [];
+            var lots = responseData.filter((item) => {
+                return item.name === `lot-${tid.value}`;
+            });
+            var itemNames = responseData.filter((item) => {
+                return item.name === `itemName-${tid.value}`;
+            });
+            var uomId = responseData.filter((item) => {
+                return item.name === `uomId-${tid.value}`;
+            });
+            var uomName = responseData.filter((item) => {
+                return item.name === `uomName-${tid.value}`;
+            });
+            //Lot
+            $.each(lots, (index, lot) => {
+                if(lot !== "")
+                    arrLots.push(lot.value);
+            });
+
+            var obj = {
+                itemId: tid.value,
+                itemName: itemNames[0].value,
+                uomId: uomId[0].value,
+                uomName: uomName[0].value,
+                serialNumber: arrLots
+            };
+
+            objLots.push(obj);
+        });
+
+        var itemSerialId = responseData["Data"].Data;
+        var objData = {
+            stockInId: stockInId[0].value,
+            receiveNoteNumber: receiveNoteNumber[0].value,
+            itemSerialId: itemSerialId,
+            data: JSON.stringify(objLots)
+        };
+        PostData("Items/SaveChangeSerialNumber", objData, function(res) {
+            LoadTableGrid(CurrentPage);
+        });
+    }
+
+
+</script>
+

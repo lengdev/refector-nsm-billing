@@ -1,0 +1,1192 @@
+@model NSMSOLUTION.Models.Expenses.PaymentVoucherViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Voucher - @Model.PVNo</title>
+    <link href="~/Content/fontawesome-free-6.5.1-web/css/all.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
+    <link href="~/Content/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <style>
+        .badge-current{
+            background-color:forestgreen;
+            color:white;
+            border-radius:5px;
+            padding-left:5px;
+            padding-right:5px;
+        }
+        /* =========================================================
+   ACCOUNTING ENTRIES
+   ========================================================= */
+        .accounting-section {
+            margin-top: 14px;
+        }
+
+        .accounting-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 13px;
+        }
+
+            /* Header */
+            .accounting-table thead th {
+                background: #f28c28;
+                color: #fff;
+                font-weight: 600;
+                padding: 8px 10px;
+                border: 1px solid #df7d19;
+                text-align: center;
+            }
+
+            /* Columns */
+            .accounting-table .transaction-col {
+                width: 18%;
+            }
+
+            .accounting-table .account-code-col {
+                width: 18%;
+            }
+
+            .accounting-table .amount-col {
+                width: 11%;
+            }
+
+            /* Body */
+            .accounting-table tbody td {
+                padding: 7px 10px;
+                border: 1px solid #e1e5e9;
+                background: #fff;
+                vertical-align: middle;
+            }
+
+            /* Slight alternating rows */
+            .accounting-table tbody tr:nth-child(even) td {
+                background: #fafafa;
+            }
+
+            /* Hover - useful on screen, harmless on print */
+            .accounting-table tbody tr:hover td {
+                background: #fff8ed;
+            }
+
+        /* Transaction */
+        .transaction-cell {
+            font-weight: 600;
+            color: #344054;
+        }
+
+        /* Account */
+        .account-name-cell {
+            color: #1f2937;
+        }
+
+        /* Account code */
+        .account-code-cell {
+            font-family: Consolas, "Courier New", monospace;
+            color: #475467;
+        }
+
+        .acc-code-col {
+            white-space: nowrap !important;
+            width: 10%;
+            min-width: 85px;
+        }
+
+        .uom-col {
+            width: 8%;
+        }
+
+        /* Amounts */
+        .amount-cell {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-family: Consolas, "Courier New", monospace;
+            white-space: nowrap;
+        }
+
+        .debit-cell,
+        .credit-cell {
+            font-weight: 500;
+        }
+
+        /* Payment rows */
+        .payment-row td {
+            background: #f8fbff;
+        }
+
+        /* Make Payment label slightly stronger */
+        .payment-row .transaction-cell {
+            color: #1769aa;
+        }
+
+        /* Purchase rows */
+        .purchase-row .transaction-cell {
+            color: #344054;
+        }
+
+
+        /* =========================================================
+   REMAINING A/P
+   ========================================================= */
+
+        .remaining-ap-box {
+            margin-top: 10px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            background: #fff7d6;
+            border: 1px solid #e6dfbd;
+            border-radius: 2px;
+            font-size: 15px;
+        }
+
+        .remaining-ap-label {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .remaining-ap-amount {
+            font-weight: 700;
+            font-size: 16px;
+            color: #111827;
+            font-variant-numeric: tabular-nums;
+        }
+        .status-badge {
+            display: inline-block;
+/*            min-width: 90px;*/
+            padding: 2px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .status-draft { background-color: #6c757d; }
+        .status-checked { background-color: #0dcaf0; }
+        .status-verified { background-color: #0d6efd; }
+        .status-approved { background-color: #198754; }
+        .status-confirmed { background-color: #20c997; }
+        .status-posted { background-color: #212529; }
+        .status-cancelled, .status-rejected { background-color: #dc3545; }
+        .status-default { background-color: #adb5bd; color: #212529; }
+
+        @@font-face {
+            font-family: 'KhmerOSContentRegular';
+            src: url('data:font/truetype;base64,@(Convert.ToBase64String(System.IO.File.ReadAllBytes(Server.MapPath("~/Content/fonts/Khmer OS Content Regular.ttf"))))') format('truetype');
+        }
+
+        .info-value, .info-label, .company-name, table, td, div, span {
+            font-family: 'KhmerOSContentRegular', Arial, sans-serif !important;
+        }
+
+        body {
+            font-family: 'KhmerOSContentRegular';
+            color: black;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+
+        .company-name {
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #F9B060;
+        }
+
+        .voucher-container {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            color: #333333;
+        }
+
+        .header {
+            width: 100%;
+            display: table;
+        }
+
+        .header-left, .header-center, .header-right {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .header-left { width: 35%; }
+        .header-center { width: 30%; text-align: center; }
+        .header-right { width: 35%; text-align: right; }
+
+        .voucher-title {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .voucher-subtitle {
+            font-size: 11px;
+            color: #666666;
+        }
+
+        .pv-number {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2C3E50;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #E5E7EB;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666666;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .info-value {
+            display: inline-block;
+            color: #333333;
+            font-size: 12px;
+        }
+
+        .highlight {
+            background: #FDE5D4;
+            color: #D97B26;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* TABLES */
+        .pv_tbl {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 6px 0;
+            font-size: 11px;
+        }
+
+        .pv_tbl th {
+            background: #EE8C2B;
+            color: white;
+            font-weight: 600;
+            padding: 5px 4px;
+            border: 1px solid #D97B26;
+            text-align: center;
+        }
+
+        .pv_tbl td {
+            padding: 5px 4px;
+            border: 1px solid #E5E7EB;
+            vertical-align: top;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* SUMMARY & ATTACHMENTS GRID */
+        .summary-wrapper {
+            display: table;
+            width: 100%;
+        }
+
+        .ImageFileName, .summary-table-wrapper {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .ImageFileName {
+            width: 45%;
+        }
+
+        .summary-table-wrapper {
+            width: 55%;
+        }
+
+        .img-item {
+            display: inline-block;
+            margin: 2px;
+            max-height: 100px;
+        }
+
+        .img-item img {
+            max-height: 100px;
+            max-width: 110px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .summary-table {
+            font-size: 12px;
+        }
+
+        .grand-total {
+            background: #FDE5D4;
+            font-weight: 700;
+            color: #D97B26;
+            border-top: 2px solid #EE8C2B !important;
+        }
+
+        /* APPROVAL SECTION */
+        .approval-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .approval-grid {
+            display: table;
+            width: 100%;
+            margin-top: 6px;
+            table-layout: fixed;
+        }
+
+        .approval-box {
+            display: table-cell;
+            width: 20%;
+            text-align: center;
+            vertical-align: top;
+            padding: 0 2px;
+        }
+
+        .approver-title {
+            font-size: 10px;
+            color: #666666;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .signature-line {
+            height: 38px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-line img {
+            max-height: 35px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .approver-name {
+            font-weight: 600;
+            color: #2C3E50;
+            font-size: 11px;
+        }
+
+        .approval-date {
+            font-size: 9px;
+            color: #666666;
+        }
+
+        .amount-in-words {
+            background-color: #F8F9FA;
+            padding: 6px;
+            border-radius: 4px;
+            border-left: 3px solid #EE8C2B;
+            margin: 6px 0;
+            font-style: italic;
+            font-size: 11px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .footer {
+            margin-top: 10px;
+            padding-top: 4px;
+            border-top: 1px solid #E5E7EB;
+            text-align: center;
+            font-size: 9px;
+            color: #666666;
+        }
+
+        /* PAYMENT HISTORY */
+        .payment-history {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .payment-history th {
+            background: #EE8C2B;
+            color: #fff;
+            padding: 4px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #D97B26;
+        }
+
+        .payment-history td {
+            padding: 4px;
+            border: 1px solid #E5E7EB;
+            background: #fff;
+        }
+
+        .payment-history .current-payment td {
+            background: #fff3cd !important;
+            font-weight: bold;
+        }
+
+        /* DYNAMIC PRINT SETTINGS */
+        @@media print {
+            html, body {
+                width: 210mm;
+                height: auto;
+                margin: 0;
+                padding: 0;
+            }
+
+            @@page {
+                size: A4;
+                margin: 8mm 8mm 12mm 8mm;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+            .remaining-ap-box {
+                display: flex !important;
+                visibility: visible !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                margin-top: 8px !important;
+                padding: 8px 12px !important;
+                border: 1px solid #999 !important;
+                background: #fff7d6 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .remaining-ap-label,
+            .remaining-ap-amount {
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            .remaining-ap-label {
+                color: #000 !important;
+                font-weight: 700 !important;
+            }
+
+            .remaining-ap-amount {
+                color: #000 !important;
+                font-weight: 700 !important;
+            }
+
+            /* Hide UOM column when print */
+            .uom-col {
+                display: none !important;
+            }
+
+            /* Keep Acc. Code on a single line and give it width when print */
+            .acc-code-col {
+                white-space: nowrap !important;
+                width: 12% !important;
+                min-width: 90px !important;
+            }
+        }
+    </style>
+</head>
+
+<body style="padding:0; margin: 0" class="body">
+
+    <div style="width:100%; display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:4px">
+        <div class="company-name" style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1; margin:0;">
+            @Model.CompanyName
+        </div>
+        <div style="display:flex; align-items:flex-end; margin-left:10px; text-align:right">
+            <span style="font-size:10px; line-height:1;">
+                Print Date: @(Model.PrintDate.ToString("dd-MMM-yyyy hh:mm:ss"))
+            </span>
+        </div>
+    </div>
+
+    <div class="voucher-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="company-info">
+                    <div>&nbsp;</div>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="voucher-title">
+                    @if (Model.PaymentMethod == "Petty Cash")
+                    {
+                        @:Cash Voucher
+                    }
+                    else
+                    {
+                        @:Payment Voucher
+                    }
+                </div>
+                <div class="voucher-subtitle">
+                    Official Document for Payment Authorization
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="pv-number"></div>
+            </div>
+        </div>
+
+        <!-- Voucher Details -->
+        <div class="info-section">
+            <div class="section-title">Voucher Details</div>
+            <table style="width:100%;">
+                <tr>
+                    <td valign="top">
+                        <table cellpadding="3" cellspacing="0">
+                            <tr>
+                                <td>
+                                    <div class="info-label">Vendor Name:</div>
+                                    <div class="info-value">@Model.VendorName</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="info-label">Company:</div>
+                                    <div class="info-value">@Model.VendorCompanyName</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ATTN:</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="info-label">Address:</div>
+                                    @* <div class="info-value">@Model.VendorCompanyAddress</div> *@
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="info-section" style="margin-bottom:5px">
+                                        @if (Model.ChequeNo != "")
+                                        {
+                                            <div class="bank-inline-grid">
+                                                <div class="bank-inline-item">
+                                                    <div class="info-label">Cheque To:</div>
+                                                    <div class="info-value">@Model.ChequeTo</div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (Model.BankName != "")
+                                        {
+                                            <div class="bank-inline-grid">
+                                                
+                                                <div class="bank-inline-item">
+                                                    <div class="info-label">Account Nº:</div>
+                                                    <div class="info-value">@Model.BankAccountNo</div>
+                                                </div>
+                                                <div class="bank-inline-item">
+                                                    <div class="info-label">Account Name:</div>
+                                                    <div class="info-value">@Model.BankAccountName</div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="right" valign="top">
+                        <table cellpadding="3" cellspacing="0">
+                            <tr>
+                                <td>
+                                    <div class="info-label">
+                                        <div class="pv-number">
+                                            PV Nº:
+                                            @if (Model.IsPosted)
+                                            {
+                                                @Model.PVNo
+                                            }
+                                            else
+                                            {
+                                                <span style="width: 111px; display:inline-block;">&nbsp;</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="info-label">Voucher Date:</div>
+                                    <div class="info-value highlight">
+                                        @(Model.VoucherDate.HasValue ? Model.VoucherDate.Value.ToString("dd-MMM-yyyy") : "")
+                                    </div>
+                                </td>
+                            </tr>
+                            @* @if (Model.PaymentMethod != "Petty Cash")
+                            {
+                                <tr>
+                                    <td style="text-wrap:nowrap">
+                                        <div class="info-label">Payment Method:</div>
+                                        <div class="info-value">@Model.PaymentMethod</div>
+                                    </td>
+                                </tr>
+                            } *@
+                            @if (!string.IsNullOrWhiteSpace(Model.ChequeBankerName))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Bank Name:</div>
+                                        <div class="info-value">@Model.ChequeBankerName</div>
+                                    </td>
+                                </tr>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(Model.BankName))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Bank Name:</div>
+                                        <div class="info-value">@Model.BankName</div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (Model.PaymentMethod == "Cheque")
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Cheque No:</div>
+                                        <div class="info-value">@Model.ChequeNo</div>
+                                    </td>
+                                </tr>
+                            }
+                             @if (Model.PaymentMethod != "Petty Cash")
+                             {
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Paid On:</div>
+                                        <div class="info-value highlight">
+                                            @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("dd-MMM-yyyy") : "...............................")
+                                        </div>
+                                    </td>
+                                </tr>
+                             }
+                            <tr>
+                                <td>
+                                    <div class="info-label">Payment Terms:</div>
+                                    <div class="info-value">@(Model.PaymentTermsID.HasValue ? Model.PaymentTermsID.Value.ToString("dd-MMM-yyyy") : ".........................")</div>
+                                </td>
+                            </tr>
+                           
+                            @* <tr>
+                                <td>
+                                    <div class="info-label">Status:</div>
+                                    <span class="status-badge @GetStatusBadge(Model.Status) text-uppercase">
+                                        @(Model.IsPosted ? "POSTED" : Model.Status)
+                                    </span>
+                                </td>
+                            </tr> *@
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Item Details -->
+        @{
+            bool hasDiscount = (Model.Discount > 0) || (Model.Items != null && Model.Items.Any(i => i.Discount > 0));
+            bool hasVAT = (Model.VAT > 0) || (Model.ItemVAT > 0) || (Model.Items != null && Model.Items.Any(i => i.ItemVAT > 0 || i.ItemTAX > 0));
+            int descColspan = 4 + (hasDiscount ? 1 : 0) + (hasVAT ? 1 : 0);
+            decimal totalDiscount = 0;
+        }
+        <div class="info-section">
+            <div class="section-title">Item Details</div>
+            <table class="pv_tbl" id="tblItem_detail">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th class="acc-code-col">Acc. Code</th>
+                        <th>Description</th>
+                        <th>Qty</th>
+                        @* <th class="uom-col">UOM</th> *@
+                        <th>Price</th>
+                        @if (hasDiscount)
+                        {
+                            <th>Discount</th>
+                        }
+                        @*@if (hasVAT)
+                        {
+                            <th>VAT</th>
+                        }*@
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int no = 1;
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <tr>
+                            <td></td>
+                            <td class="acc-code-col"></td>
+                            <td colspan="@descColspan">@Model.Description</td>
+                        </tr>
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td style="text-align:center">@no</td>
+                            <td class="acc-code-col" style="text-align:center">@item.AccountCode</td>
+                            <td>
+                                @Html.Raw(HttpUtility.HtmlDecode(item.Description).Replace("\r\n", "<br />").Replace("\n", "<br />"))
+                                <br />
+                                @Html.Raw(HttpUtility.HtmlDecode(item.ItemName_Description).Replace("\r\n", "<br />").Replace("\n", "<br />"))
+                            </td>
+                            <td style="text-align:right">@item.Qty</td>
+                            @* <td style="text-align:center" class="uom-col">@item.UOM</td> *@
+                            <td style="text-align:right" class="amount-cell">
+                                @FormatAccounting(Math.Round(item.UnitPrice, 2, MidpointRounding.AwayFromZero))
+                            </td>
+
+                            @if (hasDiscount)
+                            {
+                                <td style="text-align:right" class="amount-cell">
+                                    @FormatAccounting(Math.Round(item.Discount, 2, MidpointRounding.AwayFromZero))
+                                </td>
+                            }
+
+                            @*@if (hasVAT)
+                            {
+                                <td style="text-align:right" class="amount-cell">
+                                    <strong>@(item.ItemTAX.ToString("0.##"))%</strong> /
+                                    @FormatAccounting(
+                                        Math.Round(
+                                            item.ItemVAT,
+                                            2,
+                                            MidpointRounding.AwayFromZero
+                                        )
+                                    )
+                                </td>
+                            }*@
+
+                            <td style="text-align:right" class="amount-cell">
+                                @FormatAccounting(Math.Round(item.Amount - item.Discount, 2, MidpointRounding.AwayFromZero))
+                            </td>
+                        </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="info-section">
+            <div class="section-title">Payment Summary</div>
+            <div class="summary-wrapper">
+                <!-- LEFT: Images -->
+                <div class="ImageFileName">
+                    @if (!string.IsNullOrWhiteSpace(Model.FileName))
+                    {
+                        var files = Model.FileName.Split(new[] { '~' }, StringSplitOptions.RemoveEmptyEntries).Select(f => f.Trim());
+                        foreach (var file in files)
+                        {
+                            <div class="img-item">
+                                <img src="@Url.Content("~/Uploads/Expenses/" + file)" alt="Payment Image" />
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- RIGHT: Summary Table -->
+                <div class="summary-table-wrapper">
+                    <table class="pv_tbl summary-table">
+                        @if (hasDiscount || Model.Discount > 0 || hasVAT)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>
+                                        @*@if (hasVAT)
+                        {
+                            @:Subtotal After Item Discounts (Incl. VAT)
+                        }
+                        else
+                        {*@
+                                        Sub Total
+                                    </strong>
+                                </td>
+                                <td class="text-right amount-cell">$@((Model.Items != null && Model.Items.Any() ? Model.Items.Sum(i => i.Amount - i.Discount) : (Model.SubTotal - Model.Tax)).ToString("N2"))</td>
+                            </tr>
+
+                        }
+                        @if (hasDiscount && Model.Discount > 0)
+                        {
+                            totalDiscount = Model.Discount > 0 ? Model.Discount : (Model.Items != null ? Model.Items.Sum(i => i.Discount) : 0m);
+                            <tr>
+                                <td><strong>Discount</strong></td>
+                                <td class="text-right amount-cell">$@totalDiscount.ToString("N2")</td>
+                            </tr>
+                        }
+                        @if (hasVAT)
+                        {
+                            var subTotalVal = Model.Items != null && Model.Items.Any() ? Model.Items.Sum(i => i.Amount - i.Discount) : (Model.SubTotal - Model.Tax);
+                            var totalVat = Model.GrandTotal - subTotalVal;
+                            if (hasDiscount && Model.Discount > 0)
+                            {
+                                <tr>
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-right amount-cell">$@(Model.SubTotal - totalDiscount)</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td><strong>VAT</strong></td>
+                                <td class="text-right amount-cell">$@Model.VAT.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grand Total</strong></td>
+                                <td class="text-right amount-cell">$@Model.GrandTotal.ToString("N2")</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td><strong>Total Amount</strong></td>
+                                <td class="text-right amount-cell">$@Model.GrandTotal.ToString("N2")</td>
+                            </tr>
+                        }
+                        @if (Model.ExchangeRate > 0)
+                        {
+                            <tr class="exchange-rate-row">
+                                <td>
+                                    <div class="rate-label">Exchange Rate</div>
+                                    <div class="rate-value">1 USD = <strong>៛@Model.ExchangeRate.ToString("N0")</strong></div>
+                                </td>
+                                <td class="text-right amount-cell">
+                                    <div class="converted-label">Total in KHR</div>
+                                    <strong>៛@Model.GrantTotalAsRiel.ToString("N0")</strong>
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Type != "Bill")
+                        {
+                            <tr>
+                                <td><strong>Paid Amount</strong></td>
+                                <td class="text-right amount-cell text-success">$@Model.TotalPaid.ToString("N2")</td>
+                            </tr>
+                        }
+                        @if (Model.BalanceAmount > 0)
+                        {
+                            <tr>
+                                <td><strong>Balance</strong></td>
+                                <td class="text-right amount-cell text-danger">$@Model.BalanceAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                        @{ if (Model.Type == "Bills")
+                            {
+
+                                <tr class="grand-total main-total">
+                                    <td><strong>Payment Status</strong></td>
+                                    <td class="text-right">
+                                        @if (Model.TotalPaid >= Model.GrandTotal)
+                                        {
+                                            <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:15px; font-weight:700;">FULL PAID</span>
+                                        }
+                                        else if (Model.PaidAmount > 0)
+                                        {
+                                            <span style="background:#fff3e0; color:#ef6c00; padding:4px 10px; border-radius:15px; font-weight:700;">PARTIAL PAID</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="background:#ffebee; color:#c62828; padding:4px 10px; border-radius:15px; font-weight:700;">Outstanding</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.PaymentHistory != null && Model.PaymentHistory.Count > 1)
+        {
+            <div class="info-section">
+                <h4 class="section-title">Payment History</h4>
+                <table class="payment-history">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Payment No</th>
+                            <th>Date</th>
+                            <th style="text-align:right;">Paid</th>
+                            <th style="text-align:right;">Balance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.PaymentHistory)
+                        {
+                            <tr class="@(p.IsCurrentPayment ? "current-payment" : "")">
+                                <td align="right">@p.PaymentNo</td>
+                                <td>
+                                    @p.PaymentCode
+                                    @if (p.IsCurrentPayment)
+                                    {
+                                        <span class="badge-current">Current</span>
+                                    }
+                                </td>
+                                <td>@p.PaymentDate</td>
+                                <td style="text-align:right;">@p.PaidAmount.ToString("N2")</td>
+                                <td style="text-align:right;">@p.BalanceAmount.ToString("N2")</td>
+                                <td>@p.PaymentStatus</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <!-- Amount in Words -->
+        <div class="amount-in-words">
+            <strong>Amount in Words:</strong> @Model.AmountInWords
+        </div>
+
+        <!-- Accounting Entries -->
+        <div class="info-section accounting-section">
+            <div class="section-title">Accounting Entries</div>
+
+            <table class="pv_tbl accounting-table">
+                <thead>
+                    <tr>
+                        @*<th class="transaction-col">Transaction</th>*@
+                        <th>Account Name</th>
+                        <th class="account-code-col">Account Code</th>
+                        <th class="amount-col">Debit</th>
+                        <th class="amount-col">Credit</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var j in Model.JournalEntries)
+                    {
+                        <tr class="@(j.Transaction == "Payment" ? "payment-row" : "purchase-row")">
+
+                            @*<td class="transaction-cell">
+                                @Html.Raw(j.Transaction)
+                            </td>*@
+
+                            <td class="account-name-cell">
+                                @Html.Raw(j.AccountName)
+                            </td>
+
+                            <td class="account-code-cell">
+                                @j.AccountNo
+                            </td>
+
+                            <td class="text-right amount-cell debit-cell">
+                                @(j.Debit == 0
+                            ? ""
+                            : (j.Debit < 0
+                                ? $"({Math.Abs(j.Debit):N2})"
+                                : j.Debit.ToString("N2")))
+                            </td>
+
+                            <td class="text-right amount-cell credit-cell">
+                                @(j.Credit == 0
+                            ? ""
+                            : (j.Credit < 0
+                                ? $"({Math.Abs(j.Credit):N2})"
+                                : j.Credit.ToString("N2")))
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (Model.ExpenseTransactionType == "Vendor Deposit")
+            {
+                if (Model.BalanceAmount > 0)
+                {
+                    <div class="remaining-ap-box">
+                        <div class="remaining-ap-label">
+                            Remaining Balance
+                        </div>
+
+                        <div class="remaining-ap-amount">
+                            $@Model.BalanceAmount.ToString("N2")
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                if (Model.RemainingAP > 0 && Model.Type !="Bill")
+                {
+                    <div class="remaining-ap-box">
+                        <div class="remaining-ap-label">
+                            Remaining A/P
+                        </div>
+
+                        <div class="remaining-ap-amount">
+                            $@Model.RemainingAP.ToString("N2")
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <!-- Approval Section -->
+        <div class="approval-section">
+            <div class="section-title">Approval & Authorization</div>
+            <div class="approval-grid">
+                <div class="approval-box">
+                    <div class="approver-title">Prepared By</div>
+                    <div class="signature-line">@Html.Raw(Model.Signature)</div>
+                    <div class="approver-name">@Model.PreparedBy</div>
+                    <div class="approval-date">@Model.PrintDate.ToString("dd/MM/yyyy hh:mm:ss")</div>
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">Checked By</div>
+                    <div class="signature-line">@Html.Raw(Model.CheckedSignature)</div>
+                    <div class="approver-name">@Model.CheckedBy</div>
+                    <div class="approval-date">@Model.CheckedDate</div>
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">Verified By</div>
+                    @if (Model.VerifiedSignature != "")
+                    {
+                        <div class="signature-line">@Html.Raw(Model.VerifiedSignature)</div>
+                        <div class="approver-name">@Model.VerifiedBy</div>
+                        <div class="approval-date">@Model.VerifiedDate</div>
+                    }
+                    else
+                    {
+                        <div class="signature-line"></div>
+                        <div class="approver-name">@Model.VerifiedBy</div>
+                        <div class="approval-date">Date:______/______/________</div>
+                    }
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">Approved By</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name">Finance Manager</div>
+                    <div class="approval-date">Date:______/______/________</div>
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">Approved By</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name">COO</div>
+                    <div class="approval-date">Date:______/______/________</div>
+                </div>
+            </div>
+
+            <div class="approval-grid" style="margin-top: 5px;">
+                <div class="approval-box">
+                    <div class="approver-title">Posted By</div>
+                    @if (Model.IsPosted)
+                    {
+                        <div class="signature-line">@Html.Raw(Model.PostedSignature)</div>
+                        <div class="approver-name">@Model.PostedBy</div>
+                        <div class="approval-date">@Model.PostedDate</div>
+                    }
+                    else
+                    {
+                        <div class="signature-line"></div>
+                        <div class="approver-name">&nbsp;</div>
+                        <div class="approval-date">Date:______/______/________</div>
+                    }
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">&nbsp;</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name"></div>
+                    <div class="approval-date"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="approver-title">&nbsp;</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name"></div>
+                    <div class="approval-date"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="approver-title">&nbsp;</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name"></div>
+                    <div class="approval-date"></div>
+                </div>
+
+                <div class="approval-box">
+                    <div class="approver-title">Received By</div>
+                    <div class="signature-line"></div>
+                    <div class="approver-name">&nbsp;</div>
+                    <div class="approval-date">Date:______/______/________</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                Document ID: @Model.No | Generated on: @Model.PrintDate.ToString("dd-MMM-yyyy hh:mm:ss")
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
+@functions {
+    public string FormatAccounting(decimal value, int? decimalPlaces = null)
+    {
+        if (decimalPlaces.HasValue)
+        {
+            string format = "N" + decimalPlaces.Value;
+            return value < 0 ? $"({Math.Abs(value).ToString(format)})" : value.ToString(format);
+        }
+
+        int decCount = BitConverter.GetBytes(decimal.GetBits(value)[3])[2];
+        int precision = Math.Max(2, decCount);
+        string fmt = "N" + precision;
+
+        return value < 0
+            ? $"({Math.Abs(value).ToString(fmt)})"
+            : value.ToString(fmt);
+    }
+    private string GetStatusBadge(string? status)
+    {
+        return status?.Trim().ToLower() switch
+        {
+            "draft" => "status-draft",
+            "checked" => "status-checked",
+            "confirm verified" => "status-verified",
+            "approved" => "status-approved",
+            "confirmed" => "status-confirmed",
+            "posted" => "status-posted",
+            "cancelled" => "status-cancelled",
+            "rejected" => "status-rejected",
+            _ => "status-default"
+        };
+    }
+}

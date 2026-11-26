@@ -1,0 +1,677 @@
+﻿@{ Layout = null;}
+<div id="ticket_tap">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a class="nav-link" id="NewTicket_Tap" href="#NewTicket" onclick="NewTicket();"><i class="nav-icon fas fa-copy"></i> New Ticket</a></li>
+        <li class="nav-item"><a class="nav-link active" id="Dashboard_Tap" href="#Dashboard" onclick="ShowAllProjectDashboard();" data-toggle="tab"><i class="nav-icon fa-solid fa-gauge"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" id="AssignedMe_Tap" href="#AssignedMe" onclick="ShowTicket('','MyTicket');" data-toggle="tab"><i class="nav-icon fas fa-user-alt"></i> Assigned me <span id="showAssignedMe" class="badge badge-danger">0</span></a></li>
+        <li class="nav-item"><a class="nav-link" id="AssignedAll_Tap" href="#AssignedAll" onclick="ShowTicket('','AllTickets');" data-toggle="tab"><i class="nav-icon fas fa-file-alt"></i> All</a></li>
+        <li class="nav-item"><a class="nav-link" id="Customers_Tap" href="#Customers" onclick="ShowCustomer();" data-toggle="tab"><i class="nav-icon fas fa-user-group"></i> Customers</a></li>
+        <li class="nav-item"><a class="nav-link" id="Comment_Tap" href="#Comment" onclick="GetComment();" data-toggle="tab"><i class="nav-icon fas fa-message"></i> Comment</a></li>
+        <li class="nav-item"><a class="nav-link" id="RecentComments_Tap" href="#RecentComments" onclick="RecentComments();" data-toggle="tab"><i class="nav-icon fas fa-comments"></i> Recent Comments</a></li>
+    </ul>
+</div>
+<div class="card-body">
+    <div class="tab-content">
+        <div class="tab-pane active" id="Dashboard">
+            <div id="ShowDashboard"></div>
+        </div>
+        <div class="tab-pane" id="AssignedMe">
+            <div id="ShowAssignedMe" class="table-responsive"></div>
+        </div>
+        <div class="tab-pane" id="AssignedAll">
+            <div id="ShowAssignedAll" class="table-responsive"></div>
+        </div>
+        <div class="tab-pane" id="Customers">
+            <div id="ShowCustomers" class="table-responsive"></div>
+        </div>
+        <div class="tab-pane" id="Comment">
+            <div id="ShowComment" class="table-responsive"></div>
+        </div>
+        <div class="tab-pane" id="RecentComments">
+            <div id="ShowRecentComments" class="table-responsive"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var SupportOpenTicket_CommentID = "";
+    var UpdateRowName = "";
+    var IsCommented = false;
+    var OpentTicketID = "@ViewBag.OpentTicketID";
+    var CommentTextInex = "";
+    var EditCommentTextID = "";
+    $(function () {
+        CountAssignedMe();
+        ShowAllProjectDashboard();
+        $("#ticket_tap a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+    });
+    function CountAssignedMe() {
+        LoadData("Tickets/CountAssignedMe?OpentTicketID=" + OpentTicketID, function (response) {
+            response = JSON.parse(JSON.parse(response).Data)[0];
+            var Assignee = response.Assignee
+            $("#showAssignedMe").html(Assignee);
+        });
+    }
+    function ShowTicket(THIS, Status, UserID) {
+        THIS = (typeof THIS == "undefined" ? "" : THIS);
+        Status = (typeof Status == "undefined"? "" : Status);
+        UserID = (typeof UserID == "undefined" ? "0" : UserID);
+        if ($(THIS).select()[0]) {
+            var selectedRows = $($(THIS).select()[0].currentTarget);
+            var grid = $("#gridShowProjectListsStatus").data("kendoGrid");
+            var selectedItem = grid.dataItem(selectedRows);
+            var StatusID = selectedItem.StatusID;
+            var UName = selectedItem.AssigneeName;
+            UserID = selectedItem.AssigneeID;
+            var ProjectID = selectedItem.SupportProjectID;
+            var url = "Tickets/ShowTicket?Status=MyTicket&StatusID=" + StatusID + "&UserID=" + UserID + "&ProjectID=" + ProjectID;
+            ShowDialogBox2("Member Name: " + UName, "Auto", "500", url, 0, "dialogShowTicket", function (result) {
+                $("#SaveChange2").remove();
+            });
+        }
+        else {
+            LoadData("Tickets/ShowTicket?Status=" + Status + "&UserID=" + UserID, function (response) {
+                $("#ShowAssignedAll").html('');
+                $("#ShowAssignedMe").html('');
+                $("#ShowCustomers").html('');
+                if (Status == "MyTicket") {
+                    $("#ShowAssignedMe").html(response);
+                }
+                else {
+                    $("#ShowAssignedAll").html(response);
+                }
+            });
+        }
+    }
+    
+    function ShowAllProjectDashboard() {
+        $("#ShowAssignedAll").html('');
+        $("#ShowAssignedMe").html('');
+        $("#ShowCustomers").html('');
+        LoadData("Tickets/Dashboard", function (response) {
+            var Data = JSON.parse(JSON.parse(response).Data);
+            var Table = Data.Table;
+            var row = "<section>";
+            var Table1 = Data.Table1;
+            var Table3 = Data.Table3;
+            row += `<div class="row">
+            <div class="col">
+                <div class=" p-2 mb-3 card-header text-uppercase">
+                   <i class="fa fa-signs-post"></i> Projects
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">`;
+            row += "<div id=\"DivShowAllProjectDashboard\" class=\"row\">";
+            var changeClassID = 0, ClassProjectName = "primary";
+            $.each(Table1, function (key, val) {
+                changeClassID++;
+                if (changeClassID == 1)
+                    ClassProjectName = "bg-gradient-primary";
+                else if (changeClassID == 2)
+                    ClassProjectName = "bg-gradient-info";
+                else if (changeClassID == 3)
+                    ClassProjectName = "bg-gradient-warning";
+                else if (changeClassID == 4) {
+                    changeClassID = 0;
+                    ClassProjectName = "bg-gradient-danger";
+                }
+                else if (changeClassID == 5)
+                    ClassProjectName = "pink";
+                else if (changeClassID == 6)
+                    ClassProjectName = "fuchsia";
+                else if (changeClassID == 7)
+                    ClassProjectName = "success";
+                else if (changeClassID == 8)
+                    ClassProjectName = "Warning";
+                else if (changeClassID == 9) {
+                    ClassProjectName = "danger";
+                    changeClassID = 0;
+                }
+                //widget-chart-hover
+                row += `<div class="col-md-6">
+                    <div class="widget-chart shadow p-0 m-0">
+                        <div class="small-box btn `+ ClassProjectName + `">
+                            <div class="inner text-white text-left" style="height:200px">
+                            <div onclick="showProjectDetail('`+ val.ProjectName + `',` + val.SupportProjectID + `);">
+                                <h5>`+ val.ProjectName + `</h3>
+                                <h6>`+ val.Memo + `</h5>
+                            </div>
+                                <small><a href="javascript:void(0);" class="text-white" onclick="ShowProjectListsStatus('`+ val.ProjectName + `', ` + val.SupportProjectID + `)">Member:</a> ` + decodeEntities(val.Member) + `</small>`;
+                if (val.GroupName != '') {
+                    row += `<div class="row"><div class="col">
+                <small>Group: ` + val.GroupName + `</small>
+                </div></div>`;
+                }
+                row += `</div>`;
+                if (Table3.length > 0) {
+                    var DataStatus = Table3.filter(function (value) {
+                        return value.SupportProjectID == val.SupportProjectID;
+                    });
+                    if (DataStatus.length > 0) {
+                        row += '<div class="row p-2" style="height:70px">';
+                        $.each(DataStatus, function (key, value) {
+                            var className = (value.StatusID == 1 ? "badge bg-warning" : "badge bg-danger");
+                            row += `<div onclick="ShowProjectStatus('` + val.ProjectName + `','` + value.Status + `',` + value.StatusID + `,` + value.SupportProjectID + `);" class="col-auto"><span class="` + className + `">` + value.Status + ` ` + value.Ticket + `</span></div>`;
+                        });
+                        row += '</div>';
+                    } else {
+                        row += '<div class="row p-2" style="height:70px"><div class="col">&nbsp;</div></div>';
+                    }
+                }
+                row += `<div class="row"><div class="col">
+                <small>Created By: `+ val.CreateBy + ` ` + moment(new Date(val.CreateDate)).format('DD-MM-YYYY') + `</small>
+                </div></div>`;
+                row += `<div onclick="showProjectAndAddUser(` + val.SupportProjectID + `);" class="small-box-footer">More info <i class="fas fa-arrow-circle-right" aria-hidden="true"></i></div></div></div></div>`;
+            });
+            row += '</div></div></div></section>';
+
+            var Table2 = Data.Table2;
+            if (Table2.length > 0) {
+                row += `<section id="divShowUserGroupDashboard">
+            <div class="row">
+                <div class="col">
+                    <div class=" p-2 mb-3 card-header text-uppercase">
+                       <i class="fas fa-user-group"></i> Groups
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            <div class="col">`;
+                row += "<div id=\"DivShowAllProjectDashboard\" class=\"row\">";
+                $.each(Table2, function (key, val) {
+                    row += `<div class="col-md-6">
+                <a href="javascript:void(0);" onclick="showGroupAndAddUser(`+ val.GroupID + `);">
+                    <div class="widget-chart widget-chart-hover shadow p-0 m-0">
+                        <div class="small-box bg-teal">
+                            <div class="inner text-white text-left" style="height:180px">
+                                <h5>`+ val.GroupName + `</h5>
+                                <h6>`+ val.Memo + `</h6><br />
+                                <h6>Project Name: `+ val.ProjectName +`</h6>
+                                <small>Member: `+ val.Member + `</small>`;
+                    row += `</div>`;
+                    row += `<div class="row"><div class="col">
+                <small>Created By: `+ val.CreateBy + ` ` + moment(new Date(val.CreateDate)).format('DD-MM-YYYY') + `</small>
+                </div></div>`;
+                    row += `<div class="small-box-footer">More info <i class="fas fa-arrow-circle-right" aria-hidden="true"></i></div></div></div></a></div>`;
+                });
+                row += '</div></div></div></section>';
+            }
+
+            row += "<div class=\"row\">";
+            row += `<div class="col">`;
+            row += `<div class="card-header">
+                <h3 class="card-title text-uppercase">
+                  <i class="fas fa-text-width"></i> Project Status
+                </h3>
+              </div>`;
+            row += `<div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Project Name</th>
+                      <th>Assignee Name</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead><tbody>`;
+
+            $.each(Table, function (key, val) {
+                row += '<tr><td>' + (key + 1) + '</td>';
+                row += '<td>' + val.ProjectName + '</td>';
+                row += '<td>' + val.AssigneeName + '</td>';
+                row += '<td><span class="badge bg-success">' + val.Status + ' ' + val.OpenTicket + '</span></td>';
+                row += '</tr>';
+            });
+            row += `</tbody></table></div></div></div>`;
+            $("#ShowDashboard").html(row);
+        });
+    }
+    function ShowGroup() {
+        LoadData("Tickets/ShowGroup", function (response) {
+            var Data = JSON.parse(JSON.parse(response).Data);
+            if (Data.length > 0) {
+                var row = `<div id="show_User_Group"><div class="row">
+                <div class="col">
+                    <div class=" p-2 mb-3 card-header text-uppercase">
+                       <i class="fas fa-user-group"></i> Groups
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            <div class="col">`;
+                row += "<div id=\"DivShowAllProjectDashboard\" class=\"row\">";
+                $.each(Data, function (key, val) {
+                    row += `<div class="col-md-6">
+                <a href="javascript:void(0);" onclick="showGroupAndAddUser(`+ val.GroupID + `);">
+                    <div class="widget-chart widget-chart-hover shadow p-0 m-0">
+                        <div class="small-box bg-teal">
+                            <div class="inner text-white text-left" style="height:180px">
+                                <h5>`+ val.GroupName + `</h3>
+                                <h6>`+ val.Memo + `</h5>
+                                <small>Member: `+ val.Member + `</small>`;
+                    row += `</div>`;
+                    row += `<div class="row"><div class="col">
+                <small>Created By: `+ val.CreateBy + ` ` + moment(new Date(val.CreateDate)).format('DD-MM-YYYY') + `</small>
+                </div></div>`;
+                    row += `<div class="small-box-footer">More info <i class="fas fa-arrow-circle-right" aria-hidden="true"></i></div></div></div></a></div>`;
+                });
+                row += '</div></div></div></div>';
+                $("#divShowUserGroupDashboard").html(row);
+            }
+        });
+    }
+    function showProjectAndAddUser(ProjectID) {
+        ShowDialogBox("User Project", "Auto", "500", "Project/Project?ProjectID=" + ProjectID, 0, "dialogShowUserProject", "", "", "", function () {
+            $("#SaveChange").remove();
+            $("#dialogShowUserProject").on('hide.bs.modal', function () {
+                ShowAllProjectDashboard();
+            });
+        });
+    }
+    function showGroupAndAddUser(GroupID) {
+        ShowDialogBox("User Group", "Auto", "500", "Group/UserGroup?GroupID=" + GroupID, 0, "dialogShowUserGroup", "", "", "", function () {
+            $("#SaveChange").remove();
+            $("#dialogShowUserGroup").on('hide.bs.modal', function () {
+                ShowGroup();
+            });
+        });
+    }
+    function ShowProjectListsStatus(ProjectName, ProjectID, UserID) {
+        UserID = (typeof UserID == "undefined" ? 0 : UserID);
+        var url = "Tickets/ShowProjectListsStatus?ProjectID=" + ProjectID + "&UserID=" + UserID;
+        ShowDialogBox2("Project Name: " + ProjectName, "Auto", "500", url, 0, "dialogShowProjectListsStatus", function (result) {
+            $("#SaveChange2").remove();
+        });
+    }
+    function ShowCustomer() {
+        $("#ShowAssignedAll").html('');
+        $("#ShowAssignedMe").html('');
+        $("#ShowCustomers").html('');
+        LoadData("Tickets/ShowByCustomer", function (response) {
+            $("#ShowCustomers").html(response);
+        });
+    }
+    function ShowProjectStatus(ProjectName, Stauts, StatusID, SupportProjectID) {
+        ShowDialogBox2("Project Name: " + ProjectName + " Status: " + Stauts, "Auto", "500", "Tickets/ProjectStatus?StatusID=" + StatusID + "&ProjectID=" + SupportProjectID, 0, "dialogShowProjectDetail", function (result) {
+            $("#SaveChange2").remove();
+        });
+    }
+    function showProjectDetail(ProjectName, ProjectID) {
+        ShowDialogBox2("Project Name: " + ProjectName, "Auto", "500", "Tickets/showProjectDetail?ProjectID=" + ProjectID + "&ProjectName=" + ProjectName, 0, "dialogShowProjectDetail", function (response) {
+            $("#SaveChange2").remove();
+        });
+    }
+    function GetComment() {
+        LoadData("Tickets/GetComment", function (response) {
+            response = JSON.parse(JSON.parse(response).Data);
+            var row = `<div class="card">
+            <div class="card-header">
+            <h6>Discussions</h6>
+            </div>
+            <div class="card-body">
+            `;
+            var OpenTicketID0 = "", OpenTicketID1 = "", TicketNumber = "";
+            var StatusID = "", Status = "", PriorityID = "", Priority = "", OpenTicketID = "";
+            var SupportOpenTicketCommentID = "", FromUserLoginID = "", FromUserName = "";
+            var ProjectName = "", SupportProjectID = "";
+            var j = 0, l = 0;
+            $.each(response, function (key, val) {
+                OpenTicketID0 = val.OpenTicketID;
+                if (OpenTicketID0 != OpenTicketID1) {
+                    if (OpenTicketID1 != "") {
+                        l++;
+                        row += `<div name="rowComment` + l + `" class="">
+                            <img class="img-fluid img-circle img-sm" src="`+ UserProfilePicture + `">
+                            <div class="img-push">
+                            <div class="">
+                            <input type="hidden" name="SupportProjectID" value="`+ SupportProjectID + `" />
+                            <input type="hidden" name="ProjectName" value="`+ ProjectName +`" />
+                            <input type="hidden" name="TicketNumber" value="`+ TicketNumber + `" />
+                            <input type="hidden" name="StatusID" value="`+ StatusID + `" />
+                            <input type="hidden" name="Status" value="`+ Status + `" />
+                            <input type="hidden" name="PriorityID" value="`+ PriorityID + `" />
+                            <input type="hidden" name="Priority" value="`+ Priority + `" />
+                            <input type="hidden" name="OpenTicketID" value="` + OpenTicketID + `" />
+                            <input type="hidden" name="SupportOpenTicketCommentID" value="` + SupportOpenTicketCommentID + `" />
+                            <input type="hidden" name="FromUserLoginID" value="` + FromUserLoginID + `" />
+                            <input type="hidden" name="FromUserName" value="` + FromUserName + `" />
+                            <input type="hidden" name="ReplyFromUserLoginID" value="` + User_ID + `" />
+                            <input type="hidden" name="ReplyFromUserName" value="` + User_Full_Name + `" />
+                            <input type="hidden" name="UpdateStatus" value="false" />
+                            <input type="hidden" name="EditCommentTextID" value="" />
+                            <textarea name="message_comment" class="form-control"></textarea>
+                            <div class="row"><div class="col text-right">
+                            <button name="btnPostComment" type="button" class="btn btn-primary">Send</button>
+                            </div></div></div></div>
+                        </div>`;
+                        row += '</div></div></div></div>';
+                    }
+                    row += '<div class="post clearfix">';
+                    row += `<div class="row"><div class="col-auto">
+                    <img class="product-image-thumb" src="`+ val.UserPicture + `" /></div>
+                    <div class="col card-footer">
+                        <div class="text-muted">
+                            <div class="row"><div class="col"><a href="javascript:void(0);" onclick="onGridTicketClick('', `+ val.OpenTicketID + `,'` + val.TicketNumber + `', function(){GetComment();});">`+ val.TicketNumber + '</a> - ' + moment(new Date(val.CreateDate)).format('DD-MM-YYYY') + `
+                            <span class="badge badge-primary"> Satus: `+ val.Status + `</span>
+                            <span class="badge badge-warning text-white"> Priority: `+ val.Priority + `</span>
+                            </div></div>
+                            <a class="text-secondary" onclick="onGridTicketClick('', `+ val.OpenTicketID + `,'` + val.TicketNumber + `', function(){GetComment();});" href="javascript:void(0);">` + val.ProjectName + `</a>
+                            <div class="row p-2"><div class="col info-box">
+                            <div class="text-secondary text-truncate">`+ (val.Description) + `</div></div></div>`;
+                }
+                if (val.Comment != "") {
+                    j++;
+                    row += `<div name="rowComment` + j + `" class="row"><div class="col">`;
+                    row += `<div class="card-comment">
+                  <img class="img-circle img-sm" src="`+ val.FromUserPicture + `" alt="User Image">
+                  <div class="comment-text">
+                    <span class="username">
+                      `+ val.ReplyFromUserName + `
+                      <span class="text-muted float-right">`+ moment(new Date(val.Date)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                    </span><div class="row p-3"><div class="col info-box" name="divMessageComment">
+                    <span>`+ val.Comment + `</span>`;
+                    if (User_ID == val.ReplyFromUserLoginID) {
+                        row += `
+                        <div class="ReplyAction"><i onclick="Edit_Comment('rowComment`+ j + `', ` + l + `,` + val.SupportOpenTicketCommentID + `);" name="EditComment" class="fas fa-edit" title="Edit"></i>  <i onclick="Delete_Comment(this,'rowComment` + j + `', ` + val.SupportOpenTicketCommentID+`);" name="DeleteComment" class="fa fa-trash-o" title="Delete"></i></div>`;
+                    }
+                    row += `</div></div></div></div>`;
+                    row += "</div></div>";
+                }
+                ProjectName = val.PName;
+                SupportProjectID = val.SupportProjectID;
+                TicketNumber = val.TicketNumber;
+                StatusID = val.StatusID;
+                Status = val.Status;
+                PriorityID = val.PriorityID;
+                Priority = val.Priority;
+                OpenTicketID = val.OpenTicketID;
+                SupportOpenTicketCommentID = val.SupportOpenTicketCommentID;
+                FromUserLoginID = val.FromUserLoginID;
+                FromUserName = val.FromUserName;
+                OpenTicketID1 = val.OpenTicketID;
+            });
+            l++;
+            row += `<div name="rowComment` + l +`" class="">
+                            <img class="img-fluid img-circle img-sm" src="`+ UserProfilePicture + `">
+                            <div class="img-push">
+                            <div class="">
+                            <input type="hidden" name="SupportProjectID" value="`+ SupportProjectID +`" />
+                            <input type="hidden" name="ProjectName" value="`+ ProjectName +`" />
+                            <input type="hidden" name="TicketNumber" value="`+ TicketNumber +`" />
+                            <input type="hidden" name="StatusID" value="`+ StatusID + `" />
+                            <input type="hidden" name="Status" value="`+ Status + `" />
+                            <input type="hidden" name="PriorityID" value="`+ PriorityID + `" />
+                            <input type="hidden" name="Priority" value="`+ Priority + `" />
+                            <input type="hidden" name="OpenTicketID" value="` + OpenTicketID + `" />
+                            <input type="hidden" name="SupportOpenTicketCommentID" value="` + SupportOpenTicketCommentID + `" />
+                            <input type="hidden" name="FromUserLoginID" value="` + FromUserLoginID + `" />
+                            <input type="hidden" name="FromUserName" value="` + FromUserName + `" />
+                            <input type="hidden" name="ReplyFromUserLoginID" value="` + User_ID + `" />
+                            <input type="hidden" name="ReplyFromUserName" value="` + User_Full_Name +`" />
+                            <input type="hidden" name="UpdateStatus" value="false" />
+                            <input type="hidden" name="EditCommentTextID" value="" />
+                            <textarea name="message_comment" class="form-control"></textarea>
+                            <div class="row"><div class="col text-right">
+                            <button name="btnPostComment" type="button" class="btn btn-primary">Send</button>
+                            </div></div></div></div>
+                        </div>`;
+            row += '</div></div></div></div>';
+            row += `</div></div>`;
+            $("#ShowComment").html(row);
+            $("i[name=EditComment]").tooltip();
+            $("i[name=DeleteComment]").tooltip();
+            //$("input[name=message_comment]").on('keypress', function (e) {
+            //    if (e.which == 13) {
+            //        var index = $("input[name=message_comment]").index(this);
+            //        PostComment(index);
+            //    }
+            //});
+            $("button[name=btnPostComment]").on('click', function (e) {
+                var index = $("button[name=btnPostComment]").index(this);
+                PostComment(index);
+            });
+            $("textarea[name=message_comment]").summernote({
+                //height: 100,
+                code: '',
+                placeholder: 'Press enter to post comment',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['fullscreen']]
+                ]
+            });
+        });
+    }
+    function Edit_Comment(RowName, RowNo, SupportOpenTicketCommentID) {
+        var CommentText = $("div[name=" + RowName + "] div[name=divMessageComment] span").html();
+        $("textarea[name=message_comment]").eq(RowNo).summernote('code', CommentText);
+        $("textarea[name=message_comment]").eq(RowNo).summernote('focus');
+        SupportOpenTicket_CommentID = SupportOpenTicketCommentID;
+        UpdateRowName = $("div[name=" + RowName + "] div[name=divMessageComment] span");
+    }
+    function Delete_Comment(THIS, RowName, SupportOpenTicketCommentID) {
+        var Data = { TicketCommentID: SupportOpenTicketCommentID }
+        DoDelete("Tickets/DeleteComment", Data, function (response) {
+            $("div[name=" + RowName + "]").remove();
+        });
+    }
+    function PostComment(index) {
+        var SupportProjectID = $("input[name=SupportProjectID]").eq(index).val();
+        var ProjectName = $("input[name=ProjectName]").eq(index).val();
+        var TicketNumber = $("input[name=TicketNumber]").eq(index).val();
+        var StatusID = $("input[name=StatusID]").eq(index).val();
+        var Status = $("input[name=Status]").eq(index).val();
+        var PriorityID = $("input[name=PriorityID]").eq(index).val();
+        var Priority = $("input[name=Priority]").eq(index).val();
+        var OpenTicketID = $("input[name=OpenTicketID]").eq(index).val();
+        var SupportOpenTicketCommentID = $("input[name=SupportOpenTicketCommentID]").eq(index).val();
+        var FromUserLoginID = $("input[name=FromUserLoginID]").eq(index).val();
+        var FromUserName = $("input[name=FromUserName]").eq(index).val();
+        var ReplyFromUserLoginID = $("input[name=ReplyFromUserLoginID]").eq(index).val();
+        var ReplyFromUserName = $("input[name=ReplyFromUserName]").eq(index).val();
+        var UpdateStatus = $("input[name=UpdateStatus]").eq(index).val();
+        var EditCommentTextID = $("input[name=EditCommentTextID]").eq(index).val();
+        var message_comment = $("textarea[name=message_comment]").eq(index).summernote('code').replace(/&nbsp;|<br>/g, ' ');//$("input[name=message_comment]").eq(index).val();
+        if (message_comment == "") {
+            DialogSweetAlert('error', "Please enter comment.");
+        }
+        else {
+            var Data = {
+                Data: JSON.stringify({
+                    SupportProjectID: SupportProjectID,
+                    StatusID: StatusID,
+                    Status: Status,
+                    PriorityID: PriorityID,
+                    Priority: Priority,
+                    OpenTicketID: OpenTicketID,
+                    FromUserLoginID: FromUserLoginID,
+                    FromUserName: FromUserName,
+                    ReplyFromUserLoginID: ReplyFromUserLoginID,
+                    ReplyFromUserName: ReplyFromUserName,
+                    Comment: encodeURIComponent(nl2br(message_comment)),
+                    UpdateStatus: UpdateStatus,
+                    EditCommentTextID: SupportOpenTicket_CommentID
+                })
+            };
+            PostData("Tickets/SaveChangeOpenTicketComment", Data, function (response) {
+                var SupportOpenTicketCommentID = JSON.parse(response).Data;
+                var TimeNow = moment(new Date()).format("DD-MM-YYYY hh:mm:ss");
+                if (SupportOpenTicket_CommentID == "") {
+                    var row = `<div class="row" name="rowComment_` + SupportOpenTicketCommentID + `"><div class="col"><div class="card-comment">
+                  <img class="img-circle img-sm" src="`+ UserProfilePicture + `" alt="User Image" />
+                  <div class="comment-text">
+                    <span class="username">
+                      `+ User_Full_Name + `
+                      <span class="text-muted float-right">`+ TimeNow + `</span>
+                    </span><div class="row p-3"><div class="col info-box" name="divMessageComment">
+                    <span>`+ message_comment + `</span>`;
+                    row += `<div class="ReplyAction"><i onclick="Edit_Comment('rowComment_` + SupportOpenTicketCommentID + `', ` + index + `,` + SupportOpenTicketCommentID + `);" name="EditComment" class="fas fa-edit" title="Edit"></i>  <i onclick="Delete_Comment(this,'rowComment_` + SupportOpenTicketCommentID + `', ` + SupportOpenTicketCommentID + `);" name="DeleteComment" class="fa fa-trash-o" title="Delete"></i></div>`;
+                    row += '</div></div></div></div></div></div>';
+                    $("textarea[name=message_comment]").eq(index).parent().parent().parent().before(row);
+                }
+                else {
+                    UpdateRowName.html(message_comment);
+                }
+                $("textarea[name=message_comment]").eq(index).summernote('code', '');
+                $("textarea[name=message_comment]").eq(index).summernote('focus');
+                SupportOpenTicket_CommentID = "";
+                UpdateRowName = "";
+                $.connection.hub.start().done(function () {
+                    chatHub.server.sendMessage(User_Full_Name, UserProfilePicture, "", ProjectName, message_comment, OpenTicketID, TicketNumber, SupportProjectID, System_ID, Warehouse_ID);
+                });
+            });
+        }
+    }
+    function RecentComments() {
+        //LoadData("Tickets/RecentComments", function (response) {
+        //    $("#ShowRecentComments").html(response);
+        //});
+        LoadData("Tickets/RecentComments", function (response) {
+            response = JSON.parse(JSON.parse(response).Data);
+            var row = `<div class="card">
+            <div class="card-header">
+            <h6>Discussions</h6>
+            </div>
+            <div class="card-body">
+            `;
+            var OpenTicketID0 = "", OpenTicketID1 = "", TicketNumber = "";
+            var StatusID = "", Status = "", PriorityID = "", Priority = "", OpenTicketID = "";
+            var SupportOpenTicketCommentID = "", FromUserLoginID = "", FromUserName = "";
+            var ProjectName = "", SupportProjectID = "";
+            var j = 0, l = 0;
+            $.each(response, function (key, val) {
+                OpenTicketID0 = val.OpenTicketID;
+                if (OpenTicketID0 != OpenTicketID1) {
+                    if (OpenTicketID1 != "") {
+                        l++;
+                        //row += `<div name="rowComment` + l + `" class="">
+                        //    <img class="img-fluid img-circle img-sm" src="`+ UserProfilePicture + `">
+                        //    <div class="img-push">
+                        //    <div class="">
+                        //    <input type="hidden" name="SupportProjectID" value="`+ SupportProjectID + `" />
+                        //    <input type="hidden" name="ProjectName" value="`+ ProjectName + `" />
+                        //    <input type="hidden" name="TicketNumber" value="`+ TicketNumber + `" />
+                        //    <input type="hidden" name="StatusID" value="`+ StatusID + `" />
+                        //    <input type="hidden" name="Status" value="`+ Status + `" />
+                        //    <input type="hidden" name="PriorityID" value="`+ PriorityID + `" />
+                        //    <input type="hidden" name="Priority" value="`+ Priority + `" />
+                        //    <input type="hidden" name="OpenTicketID" value="` + OpenTicketID + `" />
+                        //    <input type="hidden" name="SupportOpenTicketCommentID" value="` + SupportOpenTicketCommentID + `" />
+                        //    <input type="hidden" name="FromUserLoginID" value="` + FromUserLoginID + `" />
+                        //    <input type="hidden" name="FromUserName" value="` + FromUserName + `" />
+                        //    <input type="hidden" name="ReplyFromUserLoginID" value="` + User_ID + `" />
+                        //    <input type="hidden" name="ReplyFromUserName" value="` + User_Full_Name + `" />
+                        //    <input type="hidden" name="UpdateStatus" value="false" />
+                        //    <input type="hidden" name="EditCommentTextID" value="" />
+                        //    <textarea name="message_comment" class="form-control"></textarea>
+                        //    <div class="row"><div class="col text-right">
+                        //    <button name="btnPostComment" type="button" class="btn btn-primary">Send</button>
+                        //    </div></div></div></div>
+                        //</div>`;
+                        row += '</div></div></div></div>';
+                    }
+                    row += '<div class="post clearfix">';
+                    row += `<div class="row"><div class="col-auto">
+                    <img class="product-image-thumb" src="`+ val.UserPicture + `" /></div>
+                    <div class="col card-footer">
+                        <div class="text-muted">
+                            <div class="row"><div class="col"><a href="javascript:void(0);" onclick="onGridTicketClick('', `+ val.OpenTicketID + `,'` + val.TicketNumber + `', function(){GetComment();});">` + val.TicketNumber + '</a> - ' + moment(new Date(val.CreateDate)).format('DD-MM-YYYY') + `
+                            <span class="badge badge-primary"> Satus: `+ val.Status + `</span>
+                            <span class="badge badge-warning text-white"> Priority: `+ val.Priority + `</span>
+                            </div></div>
+                            <a class="text-secondary" onclick="onGridTicketClick('', `+ val.OpenTicketID + `,'` + val.TicketNumber + `', function(){GetComment();});" href="javascript:void(0);">` + val.ProjectName + `</a>
+                            <div class="row p-2"><div class="col info-box">
+                            <div class="text-secondary text-truncate">`+ (val.Description) + `</div></div></div>`;
+                }
+                if (val.Comment != "") {
+                    j++;
+                    row += `<div name="rowComment` + j + `" class="row"><div class="col">`;
+                    row += `<div class="card-comment">
+                  <img class="img-circle img-sm" src="`+ val.FromUserPicture + `" alt="User Image">
+                  <div class="comment-text">
+                    <span class="username">
+                      `+ val.ReplyFromUserName + `
+                      <span class="text-muted float-right">`+ moment(new Date(val.Date)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                    </span><div class="row p-3"><div class="col info-box" name="divMessageComment">
+                    <span>`+ val.Comment + `</span>`;
+                    if (User_ID == val.ReplyFromUserLoginID) {
+                        row += `
+                        <div class="ReplyAction"><i onclick="Edit_Comment('rowComment`+ j + `', ` + l + `,` + val.SupportOpenTicketCommentID + `);" name="EditComment" class="fas fa-edit" title="Edit"></i>  <i onclick="Delete_Comment(this,'rowComment` + j + `', ` + val.SupportOpenTicketCommentID + `);" name="DeleteComment" class="fa fa-trash-o" title="Delete"></i></div>`;
+                    }
+                    row += `</div></div></div></div>`;
+                    row += "</div></div>";
+                }
+                ProjectName = val.PName;
+                SupportProjectID = val.SupportProjectID;
+                TicketNumber = val.TicketNumber;
+                StatusID = val.StatusID;
+                Status = val.Status;
+                PriorityID = val.PriorityID;
+                Priority = val.Priority;
+                OpenTicketID = val.OpenTicketID;
+                SupportOpenTicketCommentID = val.SupportOpenTicketCommentID;
+                FromUserLoginID = val.FromUserLoginID;
+                FromUserName = val.FromUserName;
+                OpenTicketID1 = val.OpenTicketID;
+            });
+            l++;
+            //row += `<div name="rowComment` + l + `" class="">
+            //                <img class="img-fluid img-circle img-sm" src="`+ UserProfilePicture + `">
+            //                <div class="img-push">
+            //                <div class="">
+            //                <input type="hidden" name="SupportProjectID" value="`+ SupportProjectID + `" />
+            //                <input type="hidden" name="ProjectName" value="`+ ProjectName + `" />
+            //                <input type="hidden" name="TicketNumber" value="`+ TicketNumber + `" />
+            //                <input type="hidden" name="StatusID" value="`+ StatusID + `" />
+            //                <input type="hidden" name="Status" value="`+ Status + `" />
+            //                <input type="hidden" name="PriorityID" value="`+ PriorityID + `" />
+            //                <input type="hidden" name="Priority" value="`+ Priority + `" />
+            //                <input type="hidden" name="OpenTicketID" value="` + OpenTicketID + `" />
+            //                <input type="hidden" name="SupportOpenTicketCommentID" value="` + SupportOpenTicketCommentID + `" />
+            //                <input type="hidden" name="FromUserLoginID" value="` + FromUserLoginID + `" />
+            //                <input type="hidden" name="FromUserName" value="` + FromUserName + `" />
+            //                <input type="hidden" name="ReplyFromUserLoginID" value="` + User_ID + `" />
+            //                <input type="hidden" name="ReplyFromUserName" value="` + User_Full_Name + `" />
+            //                <input type="hidden" name="UpdateStatus" value="false" />
+            //                <input type="hidden" name="EditCommentTextID" value="" />
+            //                <textarea name="message_comment" class="form-control"></textarea>
+            //                <div class="row"><div class="col text-right">
+            //                <button name="btnPostComment" type="button" class="btn btn-primary">Send</button>
+            //                </div></div></div></div>
+            //            </div>`;
+            row += '</div></div></div></div>';
+            row += `</div></div>`;
+            $("#ShowRecentComments").html(row);
+            $("i[name=EditComment]").tooltip();
+            $("i[name=DeleteComment]").tooltip();
+            //$("input[name=message_comment]").on('keypress', function (e) {
+            //    if (e.which == 13) {
+            //        var index = $("input[name=message_comment]").index(this);
+            //        PostComment(index);
+            //    }
+            //});
+            $("button[name=btnPostComment]").on('click', function (e) {
+                var index = $("button[name=btnPostComment]").index(this);
+                PostComment(index);
+            });
+            $("textarea[name=message_comment]").summernote({
+                //height: 100,
+                code: '',
+                placeholder: 'Press enter to post comment',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['fullscreen']]
+                ]
+            });
+        });
+    }
+</script>
+

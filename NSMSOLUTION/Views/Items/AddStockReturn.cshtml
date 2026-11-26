@@ -1,0 +1,50 @@
+﻿
+@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLFormV1)
+
+<script>
+    function SaveChangeCallbackFunction(response) {
+        var res = JSON.parse(response.Data)[0];
+        var reqItemId = res.RequestItemID;
+        PostData("Items/SaveChangeRequestApprovalItem", { "ID": reqItemId });
+        PostData("Items/SendNotificationStockReturn", { "ID": reqItemId });
+    }
+
+    function loadItemReturn(seqNumber) {
+        LoadData(`Items/LoadRequestReturn?RRTNumber=${encodeURIComponent(seqNumber)}`, res => {
+            setTimeout(function () {
+                $('#Table_Request_Item tbody').empty();
+                SetValueTableRow(JSON.parse(res.data), 'ItemName', 'Table_Request_Item', 'TRNo', rowData_Table_Request_Item, 'TDNo', this, `CallSetAutoComplete_ItemName`, '', '', '', '', '', '', RowFields2_Table_Request_Item)
+            }, 10);
+        }, "", "json");
+    }
+
+    $(function () {
+        $(document).on('typeahead:select', '#RequestReturnNo', function () {
+            const seqNo = $(this).val();
+            if (seqNo) {
+                loadItemReturn(seqNo);
+            }
+        });
+        // Initialize autocomplete for expire date input
+        $(document).on('focus', 'input[name="ExpireDate"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            LoadCustomExpireDateAutoComplete(this, wid);
+        });
+
+        $(document).on('change', 'input[name="ItemID"]', function () {
+            const wid = $("#Warehouse_WID").val();
+            applyRequireToExpireDate(wid)
+        });
+
+        $(document).on('change', '#Warehouse_WID', function () {
+            const wid = $(this).val();
+            $('input[name="ItemID"]').each(function (i) {
+                LoadCustomExpireDateAutoComplete(this, wid);
+                applyRequireToExpireDate(wid)
+            });
+        });
+    });
+
+    
+</script>

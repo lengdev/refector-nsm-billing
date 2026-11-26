@@ -1,0 +1,10 @@
+﻿'use strict';
+app.controller('AddNationalityController', ['$rootScope', '$scope', 'Form', function ($rootScope, $scope, Form) {
+    $rootScope.title = "Add Nationality";
+    $scope.LoadData = function () {
+        Form.LoadHtmlData("AddNationality", function (result) {
+            $scope.HtmlData = result;
+        });
+    };
+    $scope.LoadData();
+}]);

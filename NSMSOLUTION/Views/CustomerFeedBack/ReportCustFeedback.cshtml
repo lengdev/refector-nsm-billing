@@ -1,0 +1,159 @@
+﻿@{ Layout = null; }
+<div class="row">
+    <div class="col-6">
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">1. Internet Speed</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('Smoothly', '', '');" href="javascript:void(0);" class="nav-link">
+                            Smoothly <span class="float-right badge bg-primary" id="spanSmoothly">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('Slow', '', '');" href="javascript:void(0);" class="nav-link">
+                            Slow <span class="float-right badge bg-warning text-white" id="spanSlow">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('Not Stable', '', '');" href="javascript:void(0);" class="nav-link">
+                            Not Stable <span class="float-right badge bg-danger" id="spanNotStable">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">2. Pricing</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', 'Reasonable', '');" href="javascript:void(0);" class="nav-link">
+                            Reasonable <span class="float-right badge bg-primary" id="spanReasonable">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', 'Cheap', '');" href="javascript:void(0);" class="nav-link">
+                            Cheap <span class="float-right badge bg-warning text-white" id="spanCheap">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', 'Expensive', '');" href="javascript:void(0);" class="nav-link">
+                            Expensive <span class="float-right badge bg-danger" id="spanExpensive">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <div class="card card-warning">
+            <div class="card-header text-white">
+                <h3 class="card-title">3. Customer Services</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', '', 'Very Good');" href="javascript:void(0);" class="nav-link">
+                            Very Good <span class="float-right badge bg-primary" id="spanVeryGood">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', '', 'Good');" href="javascript:void(0);" class="nav-link">
+                            Good <span class="float-right badge bg-warning text-white" id="spanGood">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', '', 'Bad');" href="javascript:void(0);" class="nav-link">
+                            Bad <span class="float-right badge bg-danger" id="spanBad">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header bg-indigo">
+                <h3 class="card-title">4. Rating us</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="javascript:void(0);" class="nav-link">
+                            Rating <span class="float-right badge bg-primary" id="spanRating">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', '', '', 1, '')" href="javascript:void(0);" class="nav-link">
+                            No Answer <span class="float-right badge bg-primary" id="spanNoAnswer">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a onclick="ShowCustFeedback('', '', '', '', 1)" href="javascript:void(0);" class="nav-link">
+                            Busy <span class="float-right badge bg-primary" id="spanBusy">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var InternetSpeed = JSON.parse(`@Html.Raw(ViewBag.InternetSpeed)`);
+    var Pricing = JSON.parse(`@Html.Raw(ViewBag.Pricing)`);
+    var CustomerServices = JSON.parse(`@Html.Raw(ViewBag.CustomerServices)`);
+    var Ratingus = JSON.parse(`@Html.Raw(ViewBag.Ratingus)`);
+    var NoAnswerBusy = JSON.parse(`@Html.Raw(ViewBag.NoAnswerBusy)`);
+    $(function () {
+        if (InternetSpeed != "") {
+            InternetSpeed = InternetSpeed[0];
+            Pricing = Pricing[0];
+            CustomerServices = CustomerServices[0];
+            Ratingus = Ratingus[0];
+            NoAnswerBusy = NoAnswerBusy[0];
+            $("#spanSmoothly").html(InternetSpeed.Smoothly);
+            $("#spanSlow").html(InternetSpeed.Slow);
+            $("#spanNotStable").html(InternetSpeed.NotStable);
+
+            $("#spanReasonable").html(Pricing.Reasonable);
+            $("#spanCheap").html(Pricing.Cheap);
+            $("#spanExpensive").html(Pricing.Expensive);
+
+            $("#spanVeryGood").html(CustomerServices.VeryGood);
+            $("#spanGood").html(CustomerServices.Good);
+            $("#spanBad").html(CustomerServices.Bad);
+
+            $("#spanRating").html(Ratingus.Ratingus);
+            $("#spanNoAnswer").html(NoAnswerBusy.NoAnswer);
+            $("#spanBusy").html(NoAnswerBusy.Busy);
+        }
+    });
+
+    function ShowCustFeedback(InternetSpeed, Pricing, CustomerServices, IsNoAnswer, IsBusy) {
+        IsNoAnswer = typeof IsNoAnswer == 'undefined' ? "" : IsNoAnswer;
+        IsBusy = typeof IsBusy == 'undefined' ? "" : IsBusy;
+        var startDate = $("#DateSearch").data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = $("#DateSearch").data('daterangepicker').endDate.format('YYMMDD');
+        if ($("#DateSearch").val() == "") {
+            startDate = ""; endDate = "";
+        }
+        ModalDialogBox("Customer Feedback", "CustomerFeedBack/ShowCustFeedbackHistory?startDate=" + startDate + "&endDate=" + endDate +
+            "&InternetSpeed=" + InternetSpeed + "&Pricing=" + Pricing + "&CustomerServices=" + CustomerServices +
+            "&IsNoAnswer=" + IsNoAnswer + "&IsBusy=" + IsBusy
+            , "", "", "", "", "", true);
+    }
+
+</script>

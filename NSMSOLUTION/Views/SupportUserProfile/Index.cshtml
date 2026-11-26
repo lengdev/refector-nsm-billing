@@ -1,0 +1,1650 @@
+﻿@{
+Layout = null;
+}
+<style>
+    /* ─── Reset & Root ─── */
+    .up-root *,
+    .up-root *::before,
+    .up-root *::after {
+        box-sizing: border-box;
+    }
+
+    .up-root {
+        font-family: 'DM Sans', 'Segoe UI', sans-serif;
+        background: #f4f6f9;
+        min-height: 100vh;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 230px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    /* ─── Sidebar ─── */
+    .up-sidebar {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 1.75rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .04);
+        position: sticky;
+        top: 4.3rem;
+    }
+
+    .up-avatar-wrap {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        margin-bottom: 1rem;
+    }
+
+    .up-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #B5D4F4 0%, #9FE1CB 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 500;
+        color: #0C447C;
+        letter-spacing: -0.5px;
+        border: 3px solid #fff;
+        outline: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        overflow: hidden;
+    }
+
+    .up-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+
+    .up-avatar-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+    }
+
+    .up-avatar-badge:hover {
+        background: #f1f3f5;
+    }
+
+    .up-avatar-badge i {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .up-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: #212529;
+        text-align: center;
+        margin: 0 0 3px;
+        line-height: 1.3;
+    }
+
+    .up-role {
+        font-size: 12px;
+        color: #868e96;
+        text-align: center;
+        margin: 0 0 1.25rem;
+    }
+
+    .up-divider {
+        width: 100%;
+        height: 1px;
+        background: #f1f3f5;
+        margin-bottom: 1.25rem;
+    }
+
+    .up-stat-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .up-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .up-stat-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: #adb5bd;
+        font-weight: 500;
+    }
+
+    .up-stat-value {
+        font-size: 12.5px;
+        color: #495057;
+        font-family: 'DM Mono', 'Courier New', monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .up-stat-value.danger {
+        color: #dc3545;
+    }
+
+    /* ─── Main Panel ─── */
+    .up-main {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .04);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* ─── Tab Bar ─── */
+    .up-tab-bar {
+        display: flex;
+        border-bottom: 1px solid #f1f3f5;
+        padding: 0 1.25rem;
+        gap: 0;
+        background: #fafafa;
+    }
+
+    .up-tab {
+        font-family: 'DM Sans', 'Segoe UI', sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        color: #868e96;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 0.9rem 0.75rem;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: -1px;
+        outline: none;
+    }
+
+    .up-tab i {
+        font-size: 15px;
+    }
+
+    .up-tab:hover {
+        color: #343a40;
+    }
+
+    .up-tab.active {
+        color: #212529;
+        font-weight: 500;
+        /* border-bottom-color: #212529; */
+    }
+
+    /* ─── Panes ─── */
+    .up-pane {
+        display: none;
+        padding: 1.75rem 1.5rem;
+    }
+
+    .up-pane.active {
+        display: block;
+    }
+
+    /* ─── Form Grid ─── */
+    .up-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .up-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .up-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .up-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #868e96;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .up-input-wrap {
+        position: relative;
+    }
+
+    .up-input-wrap>i {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 15px;
+        color: #ced4da;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .up-input {
+        width: 100%;
+        font-family: 'DM Sans', 'Segoe UI', sans-serif;
+        font-size: 13.5px;
+        padding: 9px 12px 9px 34px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        color: #212529;
+        transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .up-input::placeholder {
+        color: #ced4da;
+    }
+
+    .up-input:hover {
+        border-color: #ced4da;
+    }
+
+    .up-input:focus {
+        border-color: #74b9e8;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(116, 185, 232, .15);
+    }
+
+    /* ─── Form Actions ─── */
+    .up-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f3f5;
+    }
+
+    .up-btn {
+        font-family: 'DM Sans', 'Segoe UI', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid #dee2e6;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .up-btn i {
+        font-size: 14px;
+    }
+
+    .up-btn-ghost {
+        background: #ffffff;
+        color: #6c757d;
+    }
+
+    .up-btn-ghost:hover {
+        background: #f8f9fa;
+        color: #343a40;
+        border-color: #ced4da;
+    }
+
+    .up-btn-primary {
+        background: #212529;
+        color: #ffffff;
+        border-color: #212529;
+    }
+
+    .up-btn-primary:hover {
+        background: #343a40;
+        border-color: #343a40;
+    }
+
+    /* ─── Signature Grid ─── */
+    .up-sign-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+
+    .up-sign-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .up-sign-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .up-sign-card {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+    }
+
+    .up-sign-card:hover {
+        border-color: #ced4da;
+    }
+
+    .up-sign-card img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .up-sign-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: #ced4da;
+    }
+
+    .up-sign-placeholder i {
+        font-size: 20px;
+    }
+
+    .up-sign-placeholder span {
+        font-size: 11px;
+    }
+
+    .up-sign-dl {
+        position: absolute;
+        bottom: 7px;
+        right: 7px;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.15s;
+        color: #495057;
+        font-size: 13px;
+        text-decoration: none;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    }
+
+    .up-sign-card:hover .up-sign-dl {
+        opacity: 1;
+    }
+
+    .up-sign-add {
+        border-style: dashed;
+        border-color: #dee2e6;
+    }
+
+    .up-sign-add:hover {
+        border-color: #adb5bd;
+        background: #f1f3f5;
+    }
+
+    .up-sign-add .up-sign-placeholder {
+        color: #adb5bd;
+    }
+
+    /* ─── Upload Modal ─── */
+    .up-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .45);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .up-modal-backdrop.open {
+        display: flex;
+    }
+
+    .up-modal {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, .18);
+        width: 440px;
+        max-width: calc(100vw - 2rem);
+        overflow: hidden;
+        animation: upModalIn .18s ease;
+    }
+
+    @@keyframes upModalIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .up-modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .up-modal-head h6 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .up-modal-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: none;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #868e96;
+        transition: background .15s;
+        padding: 0;
+    }
+
+    .up-modal-close:hover {
+        background: #f1f3f5;
+        color: #343a40;
+    }
+
+    .up-modal-body {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .up-drop-zone {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 2rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+        background: #fafafa;
+    }
+
+    .up-drop-zone:hover,
+    .up-drop-zone.dragover {
+        border-color: #74b9e8;
+        background: #f0f8ff;
+    }
+
+    .up-drop-zone i {
+        font-size: 32px;
+        color: #ced4da;
+        margin-bottom: .5rem;
+        display: block;
+        transition: color .2s;
+    }
+
+    .up-drop-zone:hover i,
+    .up-drop-zone.dragover i {
+        color: #74b9e8;
+    }
+
+    .up-drop-zone p {
+        margin: 0 0 4px;
+        font-size: 13.5px;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .up-drop-zone small {
+        font-size: 11px;
+        color: #adb5bd;
+    }
+
+    /* Multi-file preview list */
+    .up-file-list {
+        display: none;
+        margin-top: 1rem;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .up-file-list.has-files {
+        display: flex;
+    }
+
+    .up-file-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 8px 10px;
+    }
+
+    .up-file-thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .up-file-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .up-file-thumb i {
+        font-size: 20px;
+        color: #868e96;
+    }
+
+    .up-file-meta {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .up-file-name {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #343a40;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .up-file-size {
+        font-size: 11px;
+        color: #adb5bd;
+        margin-top: 1px;
+    }
+
+    .up-file-status {
+        font-size: 11px;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .up-file-status.pending {
+        color: #adb5bd;
+    }
+
+    .up-file-status.uploading {
+        color: #378ADD;
+    }
+
+    .up-file-status.done {
+        color: #3B6D11;
+    }
+
+    .up-file-status.error {
+        color: #A32D2D;
+    }
+
+    .up-file-bar-wrap {
+        height: 2px;
+        background: #e9ecef;
+        border-radius: 99px;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    .up-file-bar {
+        height: 100%;
+        background: #343a40;
+        border-radius: 99px;
+        width: 0%;
+        transition: width .3s;
+    }
+
+    .up-file-remove {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: none;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #868e96;
+        font-size: 12px;
+        padding: 0;
+        flex-shrink: 0;
+        transition: background .15s, color .15s;
+    }
+
+    .up-file-remove:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #dc2626;
+    }
+
+    .up-file-remove:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* file count badge in modal header */
+    .up-file-count {
+        font-size: 11px;
+        font-weight: 500;
+        background: #f1f3f5;
+        color: #495057;
+        border-radius: 99px;
+        padding: 2px 8px;
+        margin-left: 6px;
+        display: none;
+    }
+
+    .up-upload-progress {
+        display: none;
+        margin-top: .75rem;
+    }
+
+    .up-progress-bar-wrap {
+        height: 4px;
+        background: #e9ecef;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .up-progress-bar {
+        height: 100%;
+        background: #343a40;
+        border-radius: 99px;
+        width: 0%;
+        transition: width .3s;
+    }
+
+    .up-progress-label {
+        font-size: 11px;
+        color: #868e96;
+        margin-top: 4px;
+        text-align: right;
+    }
+
+    .up-modal-foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 1rem 1.25rem;
+        border-top: 1px solid #f1f3f5;
+        background: #fafafa;
+    }
+
+    /* ─── Responsive ─── */
+    @@media (max-width: 768px) {
+        .up-root {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .up-sidebar {
+            position: static;
+        }
+
+        .up-form {
+            grid-template-columns: 1fr;
+        }
+
+        .up-field.full {
+            grid-column: 1;
+        }
+
+        .up-sign-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .up-sign-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .up-actions {
+            flex-direction: column-reverse;
+        }
+
+        .up-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* ============================================================
+   DARK MODE — User Profile Settings page
+   ============================================================ */
+    body.dark-mode .up-root {
+        background: var(--dark-bg-primary);
+    }
+
+    /* ── Sidebar ── */
+    body.dark-mode .up-sidebar,
+    body.dark-mode .up-main {
+        background: var(--dark-bg-secondary);
+        border-color: var(--dark-border-light);
+        box-shadow: none;
+    }
+
+    body.dark-mode .up-avatar {
+        border-color: var(--dark-bg-secondary);
+        outline-color: var(--dark-border-medium);
+    }
+
+    body.dark-mode .up-avatar-badge {
+        background: var(--dark-bg-tertiary);
+        border-color: var(--dark-border-medium);
+    }
+
+    body.dark-mode .up-avatar-badge:hover {
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .up-avatar-badge i {
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-name {
+        color: var(--dark-text-primary);
+    }
+
+    body.dark-mode .up-role {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-divider {
+        background: var(--dark-border-light);
+    }
+
+    body.dark-mode .up-stat-label {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-stat-value {
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-stat-value.danger {
+        color: var(--red-dark);
+    }
+
+    /* ── Tab bar ── */
+    body.dark-mode .up-tab-bar {
+        background: var(--dark-bg-tertiary);
+        border-bottom-color: var(--dark-border-light);
+    }
+
+    body.dark-mode .up-tab {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-tab:hover {
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-tab.active {
+        color: var(--dark-text-primary);
+    }
+
+    /* ── Form fields ── */
+    body.dark-mode .up-label {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-input-wrap>i {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-input {
+        background: var(--dark-bg-tertiary);
+        border-color: var(--dark-border-medium);
+        color: var(--dark-text-primary);
+    }
+
+    body.dark-mode .up-input::placeholder {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-input:hover {
+        border-color: var(--dark-border-strong);
+    }
+
+    body.dark-mode .up-input:focus {
+        border-color: var(--blue-dark);
+        background: var(--dark-bg-secondary);
+        box-shadow: 0 0 0 3px var(--blue-light-dark);
+    }
+
+    body.dark-mode .up-actions {
+        border-top-color: var(--dark-border-light);
+    }
+
+    /* ── Buttons ── */
+    body.dark-mode .up-btn-ghost {
+        background: var(--dark-bg-tertiary);
+        color: var(--dark-text-secondary);
+        border-color: var(--dark-border-medium);
+    }
+
+    body.dark-mode .up-btn-ghost:hover {
+        background: var(--dark-bg-quaternary);
+        color: var(--dark-text-primary);
+        border-color: var(--dark-border-strong);
+    }
+
+    body.dark-mode .up-btn-primary {
+        background: var(--blue-dark);
+        color: #fff;
+        border-color: var(--blue-dark);
+    }
+
+    body.dark-mode .up-btn-primary:hover {
+        background: var(--indigo-dark);
+        border-color: var(--indigo-dark);
+    }
+
+    /* ── Signature grid ── */
+    body.dark-mode .up-sign-title {
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-sign-card {
+        background: var(--dark-bg-tertiary);
+        border-color: var(--dark-border-light);
+    }
+
+    body.dark-mode .up-sign-card:hover {
+        border-color: var(--dark-border-strong);
+    }
+
+    body.dark-mode .up-sign-placeholder {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-sign-dl {
+        background: var(--dark-bg-quaternary);
+        border-color: var(--dark-border-medium);
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-sign-add {
+        border-color: var(--dark-border-medium);
+    }
+
+    body.dark-mode .up-sign-add:hover {
+        border-color: var(--dark-border-strong);
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .up-sign-add .up-sign-placeholder {
+        color: var(--dark-text-muted);
+    }
+
+    /* ── Upload modal ── */
+    body.dark-mode .up-modal {
+        background: var(--dark-bg-secondary);
+    }
+
+    body.dark-mode .up-modal-head {
+        border-bottom-color: var(--dark-border-light);
+    }
+
+    body.dark-mode .up-modal-head h6 {
+        color: var(--dark-text-primary);
+    }
+
+    body.dark-mode .up-modal-close {
+        border-color: var(--dark-border-medium);
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-modal-close:hover {
+        background: var(--dark-bg-quaternary);
+        color: var(--dark-text-primary);
+    }
+
+    body.dark-mode .up-drop-zone {
+        background: var(--dark-bg-tertiary);
+        border-color: var(--dark-border-medium);
+    }
+
+    body.dark-mode .up-drop-zone:hover,
+    body.dark-mode .up-drop-zone.dragover {
+        background: var(--blue-light-dark);
+        border-color: var(--blue-dark);
+    }
+
+    body.dark-mode .up-drop-zone i {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-drop-zone:hover i,
+    body.dark-mode .up-drop-zone.dragover i {
+        color: var(--blue-dark);
+    }
+
+    body.dark-mode .up-drop-zone p {
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-drop-zone small {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-file-item {
+        background: var(--dark-bg-tertiary);
+        border-color: var(--dark-border-light);
+    }
+
+    body.dark-mode .up-file-thumb {
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .up-file-thumb i {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-file-name {
+        color: var(--dark-text-primary);
+    }
+
+    body.dark-mode .up-file-size {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-file-status.pending {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-file-bar-wrap {
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .up-file-remove {
+        border-color: var(--dark-border-medium);
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-file-remove:hover {
+        background: var(--red-light-dark);
+        border-color: var(--red-dark);
+        color: var(--red-dark);
+    }
+
+    body.dark-mode .up-file-count {
+        background: var(--dark-bg-quaternary);
+        color: var(--dark-text-secondary);
+    }
+
+    body.dark-mode .up-progress-bar-wrap {
+        background: var(--dark-bg-quaternary);
+    }
+
+    body.dark-mode .up-progress-label {
+        color: var(--dark-text-muted);
+    }
+
+    body.dark-mode .up-modal-foot {
+        background: var(--dark-bg-tertiary);
+        border-top-color: var(--dark-border-light);
+    }
+</style>
+
+<section class="content py-4">
+    <div class="up-root">
+
+        <!-- ── Sidebar ── -->
+        <aside class="up-sidebar">
+            <div class="up-avatar-wrap">
+                <div class="up-avatar" id="avatarCircle">
+                    <img id="profilePic" src="~/Content/images/avatar/user.png" alt="Profile photo">
+                    <span id="avatarInitials"></span>
+                </div>
+                <div class="up-avatar-badge" id="newProfilePhoto" title="Change photo">
+                    <i class="ti ti-camera"></i>
+                </div>
+            </div>
+
+            <p class="up-name" id="FullName"></p>
+            <p class="up-role" id="Job"></p>
+
+            <div class="up-divider"></div>
+
+            <ul class="up-stat-list list-unstyled m-0 w-100">
+                <li class="up-stat">
+                    <span class="up-stat-label">Phone</span>
+                    <span class="up-stat-value" id="Phone"></span>
+                </li>
+                <li class="up-stat">
+                    <span class="up-stat-label">Email</span>
+                    <span class="up-stat-value" id="Email"></span>
+                </li>
+                <li class="up-stat">
+                    <span class="up-stat-label">Role</span>
+                    <span class="up-stat-value" id="RoleName"></span>
+                </li>
+                <li class="up-stat">
+                    <span class="up-stat-label">Last login</span>
+                    <span class="up-stat-value danger" id="Login"></span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- ── Main Panel ── -->
+        <div class="up-main">
+            <div class="up-tab-bar" role="tablist">
+                <button class="up-tab active" data-pane="pane-info" role="tab" aria-selected="true">
+                    <i class="ti ti-user" aria-hidden="true"></i>Information
+                </button>
+                <button class="up-tab" data-pane="pane-sign" role="tab" aria-selected="false">
+                    <i class="ti ti-writing" aria-hidden="true"></i>Signatures
+                </button>
+            </div>
+
+            <!-- Information Pane -->
+            <div class="up-pane active" id="pane-info" role="tabpanel">
+                <form id="userSettingsForm" novalidate>
+                    <div class="up-form">
+
+                        <div class="up-field">
+                            <label class="up-label" for="FullNameInput">Full Name</label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-user" aria-hidden="true"></i>
+                                <input class="up-input" type="text" id="FullNameInput" name="FullName"
+                                    placeholder="Enter full name" required>
+                            </div>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="EmailInput">Email</label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-mail" aria-hidden="true"></i>
+                                <input class="up-input" type="email" id="EmailInput" name="Email"
+                                    placeholder="Enter email address">
+                            </div>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="PhoneInput">Phone</label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-phone" aria-hidden="true"></i>
+                                <input class="up-input" type="text" id="PhoneInput" name="Telephone"
+                                    placeholder="Enter phone number" required pattern="[0-9+ ]{6,15}">
+                            </div>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="JobInput">Position</label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-briefcase" aria-hidden="true"></i>
+                                <input class="up-input" type="text" id="JobInput" name="Job"
+                                    placeholder="Enter position">
+                            </div>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="UsernameInput">Telegram Username</label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-brand-telegram" aria-hidden="true"></i>
+                                <input class="up-input" type="text" id="UsernameInput" name="TelegramUserName"
+                                    placeholder="" required>
+                            </div>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="ImageInput">Image Url <span
+                                    class="up-label-hint text-muted text-red text-capitalize">(external
+                                    link)</sp> </label>
+                            <div class="up-input-wrap">
+                                <i class="ti ti-link" aria-hidden="true"></i>
+                                <input class="up-input" type="text" id="ImageInput" name="ImageLink" placeholder="">
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="UserLoginID" name="UserLoginID">
+
+                        <div class="up-actions">
+                            <button type="button" class="up-btn up-btn-ghost" onclick="CancelSettings()">
+                                <i class="ti ti-x" aria-hidden="true"></i>Cancel
+                            </button>
+                            <button type="button" class="up-btn up-btn-primary" onclick="SaveSettings()">
+                                <i class="ti ti-device-floppy" aria-hidden="true"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Signatures Pane -->
+            <div class="up-pane" id="pane-sign" role="tabpanel">
+                <div class="up-sign-header">
+                    <span class="up-sign-title">Uploaded signatures</span>
+                </div>
+                <div class="up-sign-grid" id="sign-tab"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hidden file input — multiple -->
+<input type="file" id="signatureFileInput" accept="image/*,.pdf" multiple style="display:none">
+
+<!-- Upload Signature Modal -->
+<div class="up-modal-backdrop" id="signUploadModal" role="dialog" aria-modal="true" aria-labelledby="signModalTitle">
+    <div class="up-modal">
+        <div class="up-modal-head">
+            <h6 id="signModalTitle">
+                <i class="ti ti-writing" aria-hidden="true"
+                    style="margin-right:6px;font-size:15px;vertical-align:-2px"></i>Upload Signatures
+                <span class="up-file-count" id="signFileCount"></span>
+            </h6>
+            <button class="up-modal-close" onclick="closeSignModal()" aria-label="Close">
+                <i class="ti ti-x" aria-hidden="true" style="font-size:14px"></i>
+            </button>
+        </div>
+        <div class="up-modal-body">
+            <div class="up-drop-zone" id="signDropZone">
+                <i class="ti ti-cloud-upload" aria-hidden="true"></i>
+                <p>Click to browse or drag &amp; drop</p>
+                <small>PNG, JPG, GIF, WEBP, PDF &mdash; max 5 MB each &mdash; multiple allowed</small>
+            </div>
+            <!-- Per-file list -->
+            <div class="up-file-list" id="signFileList"></div>
+        </div>
+        <div class="up-modal-foot">
+            <button class="up-btn up-btn-ghost" onclick="closeSignModal()">
+                <i class="ti ti-x" aria-hidden="true"></i>Cancel
+            </button>
+            <button class="up-btn up-btn-primary" id="signUploadBtn" onclick="UploadSignature()" disabled>
+                <i class="ti ti-upload" aria-hidden="true"></i>Upload
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ── Tab switching ── */
+    document.querySelectorAll('.up-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.up-tab').forEach(function (t) {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.up-pane').forEach(function (p) {
+                p.classList.remove('active');
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+            document.getElementById(tab.dataset.pane).classList.add('active');
+        });
+    });
+
+    /* ── Avatar initials helper ── */
+    function setAvatarInitials(fullName) {
+        var parts = (fullName || '').trim().split(/\s+/);
+        var initials = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+            : (parts[0] || '?')[0].toUpperCase();
+        $('#avatarInitials').text(initials);
+    }
+
+    /* ── Load profile data ── */
+    function LoadUserProfilePic() {
+        LoadData("SupportUserProfile/LoadUserProfilePic", function (response) {
+            response = JSON.parse(response);
+
+            var $pic = $("#profilePic");
+            if (response.HasUserProfilePicture) {
+                $pic.attr("src", response.UserPicture).show();
+                $('#avatarInitials').hide();
+            } else {
+                $pic.hide();
+                var data = JSON.parse(response.DataSet).Table[0];
+                setAvatarInitials(data.FullName);
+                $('#avatarInitials').show();
+            }
+
+            var data = JSON.parse(response.DataSet).Table[0];
+
+            // Sidebar
+            $("#FullName").text(data.FullName);
+            $("#Job").text(data.Job);
+            $("#Phone").text(data.Telephone);
+            $("#Email").text(data.Email);
+            $("#RoleName").text(data.RoleName);
+            $("#Login").text(moment(data.LoginTime).format("DD-MM-YYYY HH:mm:ss"));
+
+            // Form fields
+            $("#FullNameInput").val(data.FullName);
+            $("#UserLoginID").val(data.UserLoginID);
+            $("#EmailInput").val(data.Email);
+            $("#PhoneInput").val(data.Telephone);
+            $("#JobInput").val(data.Job);
+            $("#UsernameInput").val(data.TelegramUserName);
+            $("#ImageInput").val(data.ImageLink);
+
+            // Signatures
+            RenderSignatures(data.Signature);
+        });
+    }
+
+    /* ── Render signature grid ── */
+    function RenderSignatures(signatureStr) {
+        var $signTab = $('#sign-tab');
+        $signTab.empty();
+
+        if (signatureStr) {
+            var signs = signatureStr.split('~').filter(Boolean);
+            $.each(signs, function (index, value) {
+                var fileUrl = '../Uploads/Users/' + value;
+                $signTab.append(
+                    '<div class="up-sign-card">' +
+                    '<img src="' + fileUrl + '" alt="Signature ' + (index + 1) + '">' +
+                    '<a href="' + fileUrl + '" download class="up-sign-dl" title="Download">' +
+                    '<i class="ti ti-download" aria-hidden="true"></i>' +
+                    '</a>' +
+                    '</div>'
+                );
+            });
+        }
+
+        // Add-new slot — clicking opens the upload modal
+        $signTab.append(
+            '<div class="up-sign-card up-sign-add" id="signAddCard" role="button" tabindex="0" ' +
+            'title="Upload new signature" onclick="openSignModal()">' +
+            '<div class="up-sign-placeholder">' +
+            '<i class="ti ti-plus" aria-hidden="true"></i>' +
+            '<span>Add signature</span>' +
+            '</div>' +
+            '</div>'
+        );
+    }
+
+    /* ══════════════════════════════════════
+       Upload Signature Modal — multi-file
+    ══════════════════════════════════════ */
+    var _signFiles = [];   // array of { file, id, status }
+    var _signIdSeq = 0;
+
+    function openSignModal() {
+        _signFiles = [];
+        _signIdSeq = 0;
+        document.getElementById('signatureFileInput').value = '';
+        renderFileList();
+        document.getElementById('signUploadModal').classList.add('open');
+    }
+
+    function closeSignModal() {
+        document.getElementById('signUploadModal').classList.remove('open');
+    }
+
+    /* Format bytes to human-readable */
+    function fmtBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    /* Add files from FileList to queue */
+    function addSignFiles(fileList) {
+        var allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf'];
+        var maxBytes = 5 * 1024 * 1024;
+        var rejected = [];
+
+        Array.prototype.forEach.call(fileList, function (file) {
+            if (allowed.indexOf(file.type) === -1) {
+                rejected.push(file.name + ' (unsupported type)');
+                return;
+            }
+            if (file.size > maxBytes) {
+                rejected.push(file.name + ' (exceeds 5 MB)');
+                return;
+            }
+            _signFiles.push({ file: file, id: ++_signIdSeq, status: 'pending' });
+        });
+
+        if (rejected.length) {
+            DialogSweetAlert('error', 'Skipped: ' + rejected.join(', '));
+        }
+
+        renderFileList();
+    }
+
+    /* Remove one file from queue */
+    function removeSignFile(id) {
+        _signFiles = _signFiles.filter(function (f) { return f.id !== id; });
+        renderFileList();
+    }
+
+    /* Rebuild the file list UI */
+    function renderFileList() {
+        var $list = $('#signFileList');
+        var $count = $('#signFileCount');
+        var $btn = $('#signUploadBtn');
+        var $dz = $('#signDropZone');
+
+        $list.empty();
+
+        var pending = _signFiles.filter(function (f) { return f.status === 'pending'; });
+
+        if (_signFiles.length === 0) {
+            $list.removeClass('has-files');
+            $dz.show();
+            $count.hide();
+            $btn.prop('disabled', true);
+            return;
+        }
+
+        $list.addClass('has-files');
+        $dz.hide();
+        $count.text(_signFiles.length + ' file' + (_signFiles.length > 1 ? 's' : '')).show();
+        $btn.prop('disabled', pending.length === 0);
+
+        _signFiles.forEach(function (entry) {
+            var isImage = entry.file.type.startsWith('image/');
+            var thumbHtml = isImage
+                ? '<div class="up-file-thumb"><img src="" data-id="' + entry.id + '" alt=""></div>'
+                : '<div class="up-file-thumb"><i class="ti ti-file-type-pdf" aria-hidden="true"></i></div>';
+
+            var statusClass = entry.status;
+            var statusText = { pending: 'Ready', uploading: 'Uploading\u2026', done: 'Done', error: 'Failed' }[entry.status] || '';
+            var statusIcon = { pending: 'ti-clock', uploading: 'ti-loader', done: 'ti-circle-check', error: 'ti-alert-circle' }[entry.status] || '';
+
+            var removable = (entry.status === 'pending' || entry.status === 'error');
+
+            $list.append(
+                '<div class="up-file-item" id="fi-' + entry.id + '">' +
+                thumbHtml +
+                '<div class="up-file-meta">' +
+                '<div class="up-file-name">' + $('<span>').text(entry.file.name).html() + '</div>' +
+                '<div class="up-file-size">' + fmtBytes(entry.file.size) + '</div>' +
+                '<div class="up-file-status ' + statusClass + '">' +
+                '<i class="ti ' + statusIcon + '" aria-hidden="true" style="font-size:12px"></i>' +
+                '<span>' + statusText + '</span>' +
+                '</div>' +
+                '<div class="up-file-bar-wrap" style="' + (entry.status === 'uploading' ? '' : 'display:none') + '">' +
+                '<div class="up-file-bar" id="fb-' + entry.id + '"></div>' +
+                '</div>' +
+                '</div>' +
+                '<button class="up-file-remove" ' + (removable ? '' : 'disabled') +
+                ' onclick="removeSignFile(' + entry.id + ')" aria-label="Remove">' +
+                '<i class="ti ti-x" aria-hidden="true"></i>' +
+                '</button>' +
+                '</div>'
+            );
+
+            // Load image thumbnail async
+            if (isImage) {
+                var reader = new FileReader();
+                reader.onload = (function (id) {
+                    return function (e) {
+                        $('img[data-id="' + id + '"]').attr('src', e.target.result);
+                    };
+                })(entry.id);
+                reader.readAsDataURL(entry.file);
+            }
+        });
+
+        // Show drop zone again at bottom as "add more" hint when files already selected
+        $dz.show().find('p').text('Add more files');
+        $dz.find('small').text('Click or drag to add more');
+    }
+
+    /* Upload all pending files sequentially */
+    function UploadSignature() {
+        var pending = _signFiles.filter(function (f) { return f.status === 'pending'; });
+        if (pending.length === 0) return;
+
+        $('#signUploadBtn').prop('disabled', true);
+
+        var chain = Promise.resolve();
+        pending.forEach(function (entry) {
+            chain = chain.then(function () { return uploadOne(entry); });
+        });
+
+        chain.then(function () {
+            var failed = _signFiles.filter(function (f) { return f.status === 'error'; });
+            if (failed.length === 0) {
+                Swal.fire({ icon: 'success', title: 'All signatures uploaded!' })
+                    .then(function () {
+                        closeSignModal();
+                        LoadUserProfilePic();
+                    });
+            } else {
+                var done = _signFiles.filter(function (f) { return f.status === 'done'; }).length;
+                Swal.fire({
+                    icon: 'warning',
+                    title: done + ' uploaded, ' + failed.length + ' failed',
+                    text: 'Failed files are still listed — you can retry them.'
+                }).then(function () { LoadUserProfilePic(); });
+                // Keep failed items; re-enable upload button for retry
+                _signFiles = _signFiles.filter(function (f) { return f.status !== 'done'; });
+                _signFiles.forEach(function (f) { if (f.status !== 'error') f.status = 'pending'; });
+                renderFileList();
+            }
+        });
+    }
+
+    function uploadOne(entry) {
+        return new Promise(function (resolve) {
+            entry.status = 'uploading';
+            updateFileItemStatus(entry);
+
+            var formData = new FormData();
+            formData.append('SignatureFile', entry.file);
+            formData.append('UserLoginID', $('#UserLoginID').val());
+
+            $.ajax({
+                url: 'SupportUserProfile/UploadSignature',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: { "Authorization": "Bearer " + access_Token },
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            var pct = Math.round((e.loaded / e.total) * 100);
+                            $('#fb-' + entry.id).css('width', pct + '%');
+                        }
+                    });
+                    return xhr;
+                },
+                success: function (response) {
+                    var res = (typeof response === 'string') ? JSON.parse(response) : response;
+                    entry.status = res.success ? 'done' : 'error';
+                    updateFileItemStatus(entry);
+                    resolve();
+                },
+                error: function () {
+                    entry.status = 'error';
+                    updateFileItemStatus(entry);
+                    resolve();
+                }
+            });
+        });
+    }
+
+    /* Patch a single file row's status without re-rendering the whole list */
+    function updateFileItemStatus(entry) {
+        var $item = $('#fi-' + entry.id);
+        var statusText = { pending: 'Ready', uploading: 'Uploading\u2026', done: 'Done', error: 'Failed' }[entry.status];
+        var statusIcon = { pending: 'ti-clock', uploading: 'ti-loader', done: 'ti-circle-check', error: 'ti-alert-circle' }[entry.status];
+
+        $item.find('.up-file-status')
+            .attr('class', 'up-file-status ' + entry.status)
+            .html('<i class="ti ' + statusIcon + '" aria-hidden="true" style="font-size:12px"></i><span>' + statusText + '</span>');
+
+        if (entry.status === 'uploading') {
+            $item.find('.up-file-bar-wrap').show();
+            $item.find('.up-file-remove').prop('disabled', true);
+        } else {
+            $item.find('.up-file-bar-wrap').hide();
+            $item.find('.up-file-remove').prop('disabled', entry.status === 'done');
+        }
+    }
+
+    /* ── Save settings ── */
+    function SaveSettings() {
+        var form = document.getElementById("userSettingsForm");
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        var formDataObj = Object.fromEntries(
+            $("#userSettingsForm").serializeArray().map(function (x) {
+                return [x.name, x.value];
+            })
+        );
+
+        PostData("SupportUserProfile/SaveUserInfo", formDataObj, function (response) {
+            var res = JSON.parse(response);
+
+            if (res.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Profile updated successfully!"
+                }).then(function () {
+                    localStorage.removeItem("ImageLink");
+                    localStorage.setItem("ImageLink", formDataObj.ImageLink || res.UserPicture || "");
+
+                    location.reload();
+                });
+            } else {
+                DialogSweetAlert("error", res.message || "Update failed");
+            }
+        });
+    }
+
+    /* ── Cancel / reset ── */
+    function CancelSettings() {
+        LoadUserProfilePic();
+    }
+
+    /* ── Init ── */
+    $(function () {
+        LoadUserProfilePic();
+
+        /* Profile photo */
+        $("#newProfilePhoto").click(function () {
+            ShowDialogBox2(
+                "Update Profile Picture",
+                700,
+                500,
+                "UploadFileForm?AllowOnlyImage=true&ShowAvatar=true",
+                { URL: "SupportUserProfile/SaveChangePhotoProfile" },
+                "DialogAddAttCustFile",
+                function () {
+                    $("#DialogAddAttCustFile").on("hide.bs.modal", function () {
+                        setTimeout(LoadUserProfilePic, 1200);
+                    });
+                }
+            );
+        });
+
+        /* Drop zone — click to browse */
+        $('#signDropZone').on('click', function () {
+            $('#signatureFileInput').trigger('click');
+        });
+
+        /* File input change — multiple files */
+        $('#signatureFileInput').on('change', function () {
+            if (this.files.length) addSignFiles(this.files);
+            this.value = '';  // reset so same file can be re-selected if removed
+        });
+
+        /* Drag-and-drop */
+        var $dz = $('#signDropZone');
+
+        $dz.on('dragover dragenter', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $dz.addClass('dragover');
+        });
+
+        $dz.on('dragleave drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $dz.removeClass('dragover');
+        });
+
+        $dz.on('drop', function (e) {
+            var files = e.originalEvent.dataTransfer.files;
+            if (files.length) addSignFiles(files);
+        });
+
+        /* Close modal on backdrop click */
+        $('#signUploadModal').on('click', function (e) {
+            if (e.target === this) closeSignModal();
+        });
+
+        /* Close modal on Escape key */
+        $(document).on('keydown', function (e) {
+            if (e.key === 'Escape') closeSignModal();
+        });
+    });
+</script>

@@ -1,0 +1,1134 @@
+@{ Layout = null; }
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div id="general-journal-view-wrapper">
+    @Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+    @Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "GJ" } })
+
+    <div class="pl-report-header" id="gjReportHeader" style="margin-top: 15px; margin-bottom: 20px;">
+        <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+        <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "")</div>
+        <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "")</div>
+        <div class="bs-company-divider">
+            ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+        </div>
+        <h3 id="lblReportTitle">Report General Journal</h3>
+        <div class="tb-date-range-bar" id="lblDateRangeBar"></div>
+    </div>
+</div>
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    /* ── Search form: left-align ── */
+    #general-journal-view-wrapper form,
+    #general-journal-view-wrapper .form-search {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        padding: 8px 4px !important;
+        width: 100% !important;
+    }
+
+    #general-journal-view-wrapper form table,
+    #general-journal-view-wrapper .form-search table {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+        width: auto !important;
+        border-collapse: separate !important;
+        border-spacing: 0 8px !important;
+    }
+
+    #general-journal-view-wrapper form table td,
+    #general-journal-view-wrapper .form-search table td {
+        text-align: left !important;
+        width: auto !important;
+    }
+
+    #general-journal-view-wrapper form table td:first-child,
+    #general-journal-view-wrapper .form-search table td:first-child,
+    #general-journal-view-wrapper form table td label,
+    #general-journal-view-wrapper .form-search table td label {
+        text-align: left !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        padding-left: 0 !important;
+        margin-right: 8px !important;
+    }
+
+    #general-journal-view-wrapper form table td:last-child input,
+    #general-journal-view-wrapper .form-search table td:last-child input,
+    #general-journal-view-wrapper input[name="TxtFromDate"] {
+        max-width: 240px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        height: 36px !important;
+        padding-left: 8px;
+    }
+
+    /* Subtotal row highlight */
+    #general-journal-view-wrapper tr.gj-subtotal-row {
+        background-color: #f1f5f9 !important;
+        font-weight: bold;
+        border-top: 1px solid #cbd5e1 !important;
+        border-bottom: 2px solid #94a3b8 !important;
+    }
+
+    #general-journal-view-wrapper tr.gj-subtotal-row td {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        font-weight: bold !important;
+    }
+
+    .wrap-cell {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        line-height: 1.4 !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+</style>
+
+<script type="text/javascript">
+(function () {
+    var gjSystemCompanyHeader = null;
+    var gjCompanyHeaderRequest = 0;
+
+    function setGjCompanyHeader(companyKh, companyEn) {
+        $('#gjReportHeader #lblCompanyNameKh').text(companyKh || '');
+        $('#gjReportHeader #lblCompanyNameEn').text(companyEn || '');
+    }
+
+    function showGjReportHeader() {
+        $('#gjReportHeader').css('visibility', 'visible');
+    }
+
+    function getGjRequestParam(key) {
+        var search = new URLSearchParams(window.location.search);
+        if (search.get(key)) return search.get(key);
+        if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+            var hashSearch = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+            if (hashSearch.get(key)) return hashSearch.get(key);
+        }
+        return localStorage.getItem(key) || '';
+    }
+
+    function getGjCompanyHeader(className) {
+        return $.ajax({
+            url: '/ExpenseDetailReport/GetCompanyHeader',
+            type: 'POST',
+            dataType: 'json',
+            data: { className: className, classId: '', SystemID: getGjRequestParam('SystemID') }
+        }).then(function (res) {
+            if (!res || !res.success) {
+                return $.Deferred().reject(new Error((res && res.message) || 'Could not load the selected class company header.')).promise();
+            }
+            return {
+                kh: res.companyNameKh || gjSystemCompanyHeader.kh,
+                en: res.companyNameEn || className,
+                classId: res.classId || ''
+            };
+        });
+    }
+
+    function updateGjCompanyHeader() {
+        if (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.isBinding) return;
+
+        var $classes = $('#general-journal-view-wrapper #gjFilterClass');
+        var selectedClasses = $classes.val() || [];
+        if (!Array.isArray(selectedClasses)) selectedClasses = [selectedClasses];
+        selectedClasses = selectedClasses.filter(function (value) { return !!value; });
+
+        var requestId = ++gjCompanyHeaderRequest;
+        if (selectedClasses.length !== 1) {
+            setGjCompanyHeader(gjSystemCompanyHeader.kh, gjSystemCompanyHeader.en);
+            showGjReportHeader();
+            return;
+        }
+
+        var selectedName = $classes.find('option:selected').first().text();
+        getGjCompanyHeader(selectedName)
+            .done(function (header) {
+                if (requestId !== gjCompanyHeaderRequest) return;
+                setGjCompanyHeader(header.kh, header.en);
+                showGjReportHeader();
+            })
+            .fail(function (error) {
+                if (requestId !== gjCompanyHeaderRequest) return;
+                setGjCompanyHeader(gjSystemCompanyHeader.kh, gjSystemCompanyHeader.en);
+                showGjReportHeader();
+                alert(error && error.message ? error.message : 'Error loading the selected class company header.');
+            });
+    }
+
+    function getKendoGrid() {
+        var $wrapper = $('#general-journal-view-wrapper');
+        var $grid = $wrapper.find("#TableGride");
+        if ($grid.length === 0) {
+            $grid = $("#TableGride");
+        }
+        return $grid.data("kendoGrid");
+    }
+
+    function updateGjDateRangeHeader() {
+        var rawVal = $('#general-journal-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').val() || '';
+        rawVal = rawVal.trim();
+        if (!rawVal) return;
+        if (rawVal.indexOf(' - ') !== -1) {
+            var parts = rawVal.split(' - ');
+            $('#gjReportHeader #lblDateRangeBar').text(parts[0].trim() + ' - ' + parts[1].trim());
+        } else {
+            $('#gjReportHeader #lblDateRangeBar').text(rawVal);
+        }
+    }
+
+    function placeAdvancePanel() {
+        var $wrapper = $('#general-journal-view-wrapper');
+        var $panel = $wrapper.find('#gjAdvanceContainer, #gjAdvancePanel, .gj-advance-panel, .gj-advance-filter-wrapper').first();
+        var $form = $wrapper.find('form, .form-search, table.table-search, .search-form-wrapper').first();
+        var $header = $wrapper.find('#gjReportHeader').first();
+
+        if ($form.length && $panel.length) {
+            $form.after($panel);
+        }
+
+        var $grid = $wrapper.find('.table-responsive, [data-role="grid"], #TableGride').first();
+        var $tableContainer = $grid.closest('.table-responsive, [class*="tableresponsive_"]');
+        if ($tableContainer.length === 0) {
+            $tableContainer = $grid.closest('.k-grid');
+        }
+
+        if ($header.length && $tableContainer.length) {
+            $tableContainer.before($header);
+        } else if ($header.length && $panel.length) {
+            $panel.after($header);
+        }
+
+        updateGjDateRangeHeader();
+    }
+
+    function injectSearchButton() {
+        var $wrapper = $('#general-journal-view-wrapper');
+        $wrapper.find('#btnGjSearch').remove();
+
+        var $dateInput = $wrapper.find('#TxtFromDate, input[name="TxtFromDate"]').first();
+        if ($dateInput.length === 0) return;
+
+        var $btn = $('<button id="btnGjSearch" type="button" style="height:36px;padding:0 18px;background-color:#4f46e5;color:#fff;border:none;border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin-left:8px;"><i class="fas fa-search"></i> Search</button>');
+        $btn.on('click', function () {
+            showLoading();
+            if (typeof LoadTableGrid === 'function') {
+                LoadTableGrid(1);
+            } else {
+                $wrapper.find('#BunSearch, button[type="submit"]').first().trigger('click');
+                setTimeout(applyGjFilters, 400);
+            }
+        });
+
+        var $td = $dateInput.closest('td');
+        if ($td.length > 0) {
+            $td.after($('<td style="padding:0;"></td>').append($btn));
+        } else {
+            $dateInput.after($btn);
+        }
+
+        $wrapper.find('#BunSearch, button[type="submit"].btn-search').hide();
+    }
+
+    function isSubtotalItem(item) {
+        if (!item) return false;
+        if (item.IsSubtotal == 1 || item.IsSubtotal === true || item.IsSubtotal === "1") return true;
+        var acc = (item.AccountName || '').toString().trim().toLowerCase();
+        if (acc === 'subtotal' || acc === 'total') return true;
+        return false;
+    }
+
+    function isAccountMatch(itemAccName, selectedAcc) {
+        if (!selectedAcc) return true;
+        if (!itemAccName) return false;
+        
+        var rawItem = itemAccName.toString().trim().toLowerCase();
+        var rawQuery = selectedAcc.toString().trim().toLowerCase();
+        if (rawItem === rawQuery) return true;
+
+        var cleanItem = rawItem.replace(/^[0-9\s\-]+/, '').trim();
+        var cleanQuery = rawQuery.replace(/^[0-9\s\-]+/, '').trim();
+        if (cleanItem === cleanQuery && cleanItem.length > 0) return true;
+
+        var numItem = rawItem.match(/^(\d+)/);
+        var numQuery = rawQuery.match(/^(\d+)/);
+        if (numItem && numQuery) {
+            return numItem[1] === numQuery[1];
+        }
+        
+        return false;
+    }
+
+    function styleSubtotalRows() {
+        var grid = getKendoGrid();
+        if (!grid) return;
+
+        var colMap = {};
+        $.each(grid.columns, function (idx, col) {
+            if (col.field) colMap[col.field] = idx;
+        });
+
+        var formatMoney = function (num) {
+            if (num === null || num === undefined || num === "" || num === 0 || isNaN(num) || num === '0' || num === '0.00' || parseFloat(num) === 0) {
+                return "-";
+            }
+            return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        grid.tbody.find("tr[data-uid]").each(function () {
+            var $row = $(this);
+            var item = grid.dataItem($row);
+            if (!item) return;
+
+            if (isSubtotalItem(item)) {
+                $row.addClass("gj-subtotal-row");
+                if (colMap['No'] !== undefined) $row.children('td').eq(colMap['No']).text('');
+                if (colMap['InvoiceNoLink'] !== undefined) $row.children('td').eq(colMap['InvoiceNoLink']).text('');
+                if (colMap['InvoiceDate'] !== undefined) $row.children('td').eq(colMap['InvoiceDate']).text('');
+                if (colMap['ReferenceNo'] !== undefined) $row.children('td').eq(colMap['ReferenceNo']).text('');
+                if (colMap['AccountName'] !== undefined) $row.children('td').eq(colMap['AccountName']).text('');
+                if (colMap['CustomerName'] !== undefined) $row.children('td').eq(colMap['CustomerName']).text('');
+                if (colMap['Description'] !== undefined) $row.children('td').eq(colMap['Description']).text('');
+
+                var debitToShow = (item._filteredDebit !== undefined) ? item._filteredDebit : item.Debit;
+                var creditToShow = (item._filteredCredit !== undefined) ? item._filteredCredit : item.Credit;
+
+                if (colMap['Debit'] !== undefined) {
+                    $row.children('td').eq(colMap['Debit']).text(formatMoney(debitToShow));
+                }
+                if (colMap['Credit'] !== undefined) {
+                    $row.children('td').eq(colMap['Credit']).text(formatMoney(creditToShow));
+                }
+            } else {
+                // Apply '-' format to all regular detail rows as well
+                if (colMap['Debit'] !== undefined) {
+                    $row.children('td').eq(colMap['Debit']).text(formatMoney(item.Debit));
+                }
+                if (colMap['Credit'] !== undefined) {
+                    $row.children('td').eq(colMap['Credit']).text(formatMoney(item.Credit));
+                }
+            }
+        });
+    }
+
+    function extractGridItems(data) {
+        var result = [];
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (item.hasSubgroups) {
+                result = result.concat(extractGridItems(item.items));
+            } else if (item.items) {
+                result = result.concat(extractGridItems(item.items));
+            } else {
+                result.push(item);
+            }
+        }
+        return result;
+    }
+
+    function updateFooterTotals() {
+        var grid = getKendoGrid();
+        if (!grid || !grid.dataSource) return;
+
+        var view = grid.dataSource.view();
+        var items = extractGridItems(view);
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            if (!isSubtotalItem(item)) {
+                totalDebit += (parseFloat(item.Debit) || 0);
+                totalCredit += (parseFloat(item.Credit) || 0);
+            }
+        }
+
+        function formatMoney(num) {
+            if (num === null || num === undefined || num === "" || num === 0 || isNaN(num) || num === '0' || num === '0.00' || parseFloat(num) === 0) {
+                return "-";
+            }
+            return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        var colMap = {};
+        $.each(grid.columns, function (idx, col) {
+            if (col.field) colMap[col.field] = idx;
+        });
+
+        var $footer = $(grid.element).find(".k-grid-footer, .k-grid-footer-wrap");
+        if ($footer.length === 0) {
+            $footer = $("#general-journal-view-wrapper").find(".k-grid-footer, .k-grid-footer-wrap");
+        }
+
+        if (colMap['Debit'] !== undefined) {
+            $footer.find("tr").first().children("td").eq(colMap['Debit']).text(formatMoney(totalDebit));
+        }
+        if (colMap['Credit'] !== undefined) {
+            $footer.find("tr").first().children("td").eq(colMap['Credit']).text(formatMoney(totalCredit));
+        }
+    }
+
+    function onGridDataBound() {
+        styleSubtotalRows();
+        updateFooterTotals();
+        setTimeout(function () {
+            styleSubtotalRows();
+            updateFooterTotals();
+        }, 40);
+        setTimeout(function () {
+            styleSubtotalRows();
+            updateFooterTotals();
+        }, 150);
+
+        var grid = getKendoGrid();
+        if (!grid || !grid.dataSource) return;
+        var totalBefore = grid.dataSource.data().length;
+        var totalAfter = grid.dataSource.total();
+        var activeCount = (grid.dataSource.filter() && grid.dataSource.filter().filters) ? grid.dataSource.filter().filters.length : 0;
+        updateGjFilterBadge(activeCount, totalBefore, totalAfter);
+    }
+
+    function onGridExcelExport(e) {
+        if (!e || !e.workbook || !e.workbook.sheets || !e.workbook.sheets.length) return;
+
+        var sheet = e.workbook.sheets[0];
+        var rows = sheet.rows || [];
+        var grid = e.sender || getKendoGrid();
+        if (!grid) return;
+
+        var visibleCols = [];
+        if (grid.columns) {
+            visibleCols = grid.columns.filter(function (col) { return !col.hidden; });
+        }
+
+        var debitIdx = -1;
+        var creditIdx = -1;
+        var noIdx = -1;
+        var typeIdx = -1;
+        var dateIdx = -1;
+        var refIdx = -1;
+        var accIdx = -1;
+        var nameIdx = -1;
+        var descIdx = -1;
+
+        if (visibleCols.length > 0) {
+            for (var c = 0; c < visibleCols.length; c++) {
+                var f = visibleCols[c].field;
+                if (f === "Debit") debitIdx = c;
+                else if (f === "Credit") creditIdx = c;
+                else if (f === "No") noIdx = c;
+                else if (f === "InvoiceNoLink") typeIdx = c;
+                else if (f === "InvoiceDate") dateIdx = c;
+                else if (f === "ReferenceNo") refIdx = c;
+                else if (f === "AccountName") accIdx = c;
+                else if (f === "CustomerName") nameIdx = c;
+                else if (f === "Description") descIdx = c;
+            }
+        }
+
+        var headerRow = null;
+        for (var r = 0; r < rows.length; r++) {
+            if (rows[r].type === "header") {
+                headerRow = rows[r];
+                break;
+            }
+        }
+        if (headerRow && (debitIdx === -1 || creditIdx === -1)) {
+            for (var ci = 0; ci < headerRow.cells.length; ci++) {
+                var title = (headerRow.cells[ci].value || "").toString().trim().toLowerCase();
+                if (title === "debit") debitIdx = ci;
+                else if (title === "credit") creditIdx = ci;
+                else if (title === "nº" || title === "no") noIdx = ci;
+                else if (title === "type") typeIdx = ci;
+                else if (title === "date") dateIdx = ci;
+                else if (title.indexOf("reference") !== -1) refIdx = ci;
+                else if (title.indexOf("account") !== -1) accIdx = ci;
+                else if (title === "name") nameIdx = ci;
+                else if (title.indexOf("description") !== -1) descIdx = ci;
+            }
+        }
+
+        var rawData = e.data;
+        if (!rawData || !rawData.length) {
+            rawData = grid.dataSource ? grid.dataSource.view() : [];
+        }
+        var gridItems = extractGridItems(rawData);
+
+        var dataRowIndex = 0;
+        var realTotalDebit = 0;
+        var realTotalCredit = 0;
+        var numberFormat = '#,##0.00;-#,##0.00;"-"';
+
+        for (var r = 0; r < rows.length; r++) {
+            var row = rows[r];
+
+            if (row.type === "data") {
+                var item = (gridItems && dataRowIndex < gridItems.length) ? gridItems[dataRowIndex] : null;
+                dataRowIndex++;
+
+                var isSub = isSubtotalItem(item);
+                if (!isSub && !item && accIdx !== -1 && row.cells[accIdx]) {
+                    var cellText = (row.cells[accIdx].value || "").toString().trim().toLowerCase();
+                    if (cellText === "subtotal" || cellText === "total") isSub = true;
+                }
+
+                if (isSub) {
+                    var subDebit = 0;
+                    var subCredit = 0;
+                    if (item) {
+                        subDebit = (item._filteredDebit !== undefined) ? item._filteredDebit : (parseFloat(item.Debit) || 0);
+                        subCredit = (item._filteredCredit !== undefined) ? item._filteredCredit : (parseFloat(item.Credit) || 0);
+                    } else {
+                        if (debitIdx !== -1 && row.cells[debitIdx]) subDebit = parseFloat(row.cells[debitIdx].value) || 0;
+                        if (creditIdx !== -1 && row.cells[creditIdx]) subCredit = parseFloat(row.cells[creditIdx].value) || 0;
+                    }
+
+                    if (noIdx !== -1 && row.cells[noIdx]) row.cells[noIdx].value = "";
+                    if (typeIdx !== -1 && row.cells[typeIdx]) row.cells[typeIdx].value = "";
+                    if (dateIdx !== -1 && row.cells[dateIdx]) row.cells[dateIdx].value = "";
+                    if (refIdx !== -1 && row.cells[refIdx]) row.cells[refIdx].value = "";
+                    if (accIdx !== -1 && row.cells[accIdx]) row.cells[accIdx].value = "";
+                    if (nameIdx !== -1 && row.cells[nameIdx]) row.cells[nameIdx].value = "";
+                    if (descIdx !== -1 && row.cells[descIdx]) row.cells[descIdx].value = "";
+
+                    if (debitIdx !== -1 && row.cells[debitIdx]) {
+                        row.cells[debitIdx].value = Number(subDebit.toFixed(2));
+                        row.cells[debitIdx].format = numberFormat;
+                        row.cells[debitIdx].textAlign = "right";
+                    }
+                    if (creditIdx !== -1 && row.cells[creditIdx]) {
+                        row.cells[creditIdx].value = Number(subCredit.toFixed(2));
+                        row.cells[creditIdx].format = numberFormat;
+                        row.cells[creditIdx].textAlign = "right";
+                    }
+
+                    for (var ci = 0; ci < row.cells.length; ci++) {
+                        row.cells[ci].background = "#F1F5F9";
+                        row.cells[ci].bold = true;
+                    }
+                } else {
+                    var dVal = item ? (parseFloat(item.Debit) || 0) : (debitIdx !== -1 && row.cells[debitIdx] ? parseFloat(row.cells[debitIdx].value) || 0 : 0);
+                    var cVal = item ? (parseFloat(item.Credit) || 0) : (creditIdx !== -1 && row.cells[creditIdx] ? parseFloat(row.cells[creditIdx].value) || 0 : 0);
+
+                    realTotalDebit += dVal;
+                    realTotalCredit += cVal;
+
+                    if (debitIdx !== -1 && row.cells[debitIdx]) {
+                        row.cells[debitIdx].value = Number(dVal.toFixed(2));
+                        row.cells[debitIdx].format = numberFormat;
+                        row.cells[debitIdx].textAlign = "right";
+                    }
+                    if (creditIdx !== -1 && row.cells[creditIdx]) {
+                        row.cells[creditIdx].value = Number(cVal.toFixed(2));
+                        row.cells[creditIdx].format = numberFormat;
+                        row.cells[creditIdx].textAlign = "right";
+                    }
+
+                    for (var ci = 0; ci < row.cells.length; ci++) {
+                        var cellVal = row.cells[ci].value;
+                        if (typeof cellVal === "string" && cellVal.indexOf("<") !== -1 && cellVal.indexOf(">") !== -1) {
+                            row.cells[ci].value = cellVal.replace(/<[^>]*>/g, "").trim();
+                        }
+                    }
+                }
+            } else if (row.type === "footer" || row.type === "group-footer") {
+                if (debitIdx !== -1 && row.cells[debitIdx]) {
+                    row.cells[debitIdx].value = Number(realTotalDebit.toFixed(2));
+                    row.cells[debitIdx].format = numberFormat;
+                    row.cells[debitIdx].bold = true;
+                    row.cells[debitIdx].textAlign = "right";
+                }
+                if (creditIdx !== -1 && row.cells[creditIdx]) {
+                    row.cells[creditIdx].value = Number(realTotalCredit.toFixed(2));
+                    row.cells[creditIdx].format = numberFormat;
+                    row.cells[creditIdx].bold = true;
+                    row.cells[creditIdx].textAlign = "right";
+                }
+            }
+        }
+
+        var companyKh = $.trim($("#gjReportHeader .bs-company-kh").text());
+        var companyEn = $.trim($("#gjReportHeader .bs-company-en").text());
+        var reportTitle = $.trim($("#gjReportHeader #lblReportTitle").text()) || "General Journal";
+        var dateRange = $.trim($("#gjReportHeader #lblDateRangeBar").text()) || "All";
+        var exportHeaderRows = [
+            { value: companyKh, fontSize: 16, fontFamily: "Khmer OS Muol Light", bold: true },
+            { value: companyEn, fontSize: 14, bold: true },
+            { value: reportTitle, fontSize: 12, bold: true },
+            { value: dateRange, fontSize: 10 },
+            { value: "Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm"), fontSize: 10 }
+        ].filter(function (header) { return !!header.value; }).map(function (header) {
+            return {
+                type: "header",
+                height: header.fontSize + 14,
+                cells: [{
+                    value: header.value,
+                    colSpan: Math.max(1, visibleCols.length),
+                    textAlign: "center",
+                    fontSize: header.fontSize,
+                    fontFamily: header.fontFamily,
+                    bold: header.bold || false
+                }]
+            };
+        });
+        if (exportHeaderRows.length) {
+            rows.splice.apply(rows, [0, 0].concat(exportHeaderRows));
+        }
+    }
+
+    function onGridPdfExport(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        var grid = (e && e.sender) ? e.sender : getKendoGrid();
+        if (!grid) return;
+        var reportDateRange = $.trim($("#gjReportHeader #lblDateRangeBar").text()) || "All";
+
+        var systemId = localStorage.getItem("SystemID") || 13;
+        var selectedClasses = $('#general-journal-view-wrapper #gjFilterClass').val() || [];
+        if (!Array.isArray(selectedClasses)) selectedClasses = [selectedClasses];
+        selectedClasses = selectedClasses.filter(function (value) { return !!value; });
+        var reportClassName = selectedClasses.length === 1
+            ? $('#general-journal-view-wrapper #gjFilterClass option:selected').first().text()
+            : '';
+        var reportCompanyKh = '';
+        var reportCompanyEn = '';
+        var reportClassId = '';
+        var dataSource = grid.dataSource;
+
+        var gridCols = grid.columns
+            .filter(function (c) {
+                return (
+                    !c.hidden &&
+                    c.field &&
+                    (c.title || "").toLowerCase().trim() !== "action"
+                );
+            })
+            .map(function (c) {
+                return {
+                    field: c.field,
+                    title: c.title || c.field,
+                    type: c.type || null,
+                    format: c.format || null,
+                };
+            });
+
+        localStorage.setItem("kendo_grid_columns", JSON.stringify(gridCols));
+        localStorage.setItem("report_title", "Report General Journal");
+
+        if (typeof _kShowLoader === "function") {
+            _kShowLoader("Opening report…", "Fetching all records");
+        }
+
+        var fetchRows = function () {
+            var d = $.Deferred();
+            if (!dataSource.options.serverPaging) {
+                var rawData = dataSource.data();
+                var isGrouped = dataSource.group() && dataSource.group().length > 0;
+                var flatSource = isGrouped ? (typeof _flattenKendoGroups === "function" ? _flattenKendoGroups(rawData) : extractGridItems(rawData)) : rawData;
+                var Query = kendo.data.Query;
+                var query = new Query(flatSource);
+                var filter = dataSource.filter();
+                var sort = dataSource.sort();
+                if (filter) query = query.filter(filter);
+                if (sort) query = query.sort(sort);
+                d.resolve(query.toArray());
+            } else {
+                dataSource.transport.read({
+                    data: {
+                        page: 1,
+                        pageSize: dataSource.total() || 999999,
+                        skip: 0,
+                        take: dataSource.total() || 999999,
+                        sort: dataSource.sort(),
+                        filter: dataSource.filter(),
+                    },
+                    success: function (res) { d.resolve(res.data || res); },
+                    error: function (err) { d.reject(err); }
+                });
+            }
+            return d.promise();
+        };
+
+        var exportHeader = reportClassName
+            ? getGjCompanyHeader(reportClassName)
+            : $.Deferred().resolve(gjSystemCompanyHeader).promise();
+
+        exportHeader
+            .then(function (header) {
+                reportCompanyKh = header.kh;
+                reportCompanyEn = header.en;
+                reportClassId = header.classId || '';
+                setGjCompanyHeader(reportCompanyKh, reportCompanyEn);
+                showGjReportHeader();
+                return fetchRows();
+            })
+            .then(function (allData) {
+                var flatData = (typeof _flattenKendoGroups === "function") ? _flattenKendoGroups(allData) : extractGridItems(allData);
+
+                flatData.forEach(function (row) {
+                    if (isSubtotalItem(row)) {
+                        row.IsSubtotal = 1;
+                        var sDebit = (row._filteredDebit !== undefined) ? row._filteredDebit : (parseFloat(row.Debit) || 0);
+                        var sCredit = (row._filteredCredit !== undefined) ? row._filteredCredit : (parseFloat(row.Credit) || 0);
+
+                        row.No = "";
+                        row.InvoiceNoLink = "";
+                        row.InvoiceDate = "";
+                        row.ReferenceNo = "";
+                        row.AccountName = "";
+                        row.CustomerName = "";
+                        row.Description = "";
+
+                        // Prefix with "_" so raw parseFloat(row[col]) in KendoPDFExport evaluates to NaN
+                        // and is skipped from the grand total (preventing doubling to 312.60).
+                        // Meanwhile formatNumber in KendoPDFExport strips "_" using [^0-9\-\.]
+                        // and displays clean amount (e.g. 10.00) in the table and print preview!
+                        row.Debit = "_" + sDebit.toFixed(2);
+                        row.Credit = "_" + sCredit.toFixed(2);
+                    }
+                });
+
+                var gridDataJson = JSON.stringify(flatData);
+                localStorage.setItem("kendo_grid_export", gridDataJson);
+
+                if (typeof _kUpdateLoader === "function") {
+                    _kUpdateLoader("Generating report…", "Please do not close this page");
+                }
+
+                var token = (typeof access_Token !== "undefined") ? access_Token : (localStorage.getItem("access_token") || "");
+                return $.ajax({
+                    url: "/KendoPDFExport",
+                    type: "POST",
+                    headers: token ? { Authorization: "Bearer " + token } : {},
+                    data: { data: gridDataJson, systemId: getGjRequestParam('SystemID') || systemId },
+                });
+            })
+            .then(function (response) {
+                if (typeof _kUpdateLoader === "function") {
+                    _kUpdateLoader("Done!", "Opening in new tab…");
+                }
+
+                var pdfDocument = new DOMParser().parseFromString(response, "text/html");
+                var reportDateElement = pdfDocument.querySelector(".report-date");
+                if (reportDateElement) {
+                    reportDateElement.textContent = reportDateRange + " | Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm");
+                }
+                var classSelect = pdfDocument.getElementById("classSelect");
+                if (classSelect && reportClassName) {
+                    var targetOption = null;
+                    for (var optionIndex = 0; optionIndex < classSelect.options.length; optionIndex++) {
+                        if (reportClassId && String(classSelect.options[optionIndex].value) === String(reportClassId)) {
+                            targetOption = classSelect.options[optionIndex];
+                            break;
+                        }
+                    }
+                    if (!targetOption) {
+                        targetOption = pdfDocument.createElement("option");
+                        targetOption.value = reportClassId;
+                        targetOption.textContent = reportClassName;
+                        classSelect.insertBefore(targetOption, classSelect.options[0] || null);
+                    }
+
+                    var companyNameKh = reportCompanyKh.replace(/^ក្រុមហ៊ុន\s*/, "");
+                    targetOption.setAttribute("data-name-kh", companyNameKh);
+                    targetOption.setAttribute("data-name-en", reportCompanyEn);
+                    for (var selectedIndex = 0; selectedIndex < classSelect.options.length; selectedIndex++) {
+                        classSelect.options[selectedIndex].selected = classSelect.options[selectedIndex] === targetOption;
+                    }
+                    targetOption.setAttribute("selected", "selected");
+                }
+
+                var newTab = window.open("", "_blank");
+                if (newTab) {
+                    newTab.document.open();
+                    newTab.document.write("<!DOCTYPE html>" + pdfDocument.documentElement.outerHTML);
+                    newTab.document.close();
+                } else {
+                    console.error("Popup blocked by browser");
+                }
+                if (typeof _kHideLoader === "function") {
+                    setTimeout(_kHideLoader, 800);
+                }
+            })
+            .catch(function (err) {
+                if (typeof _kHideLoader === "function") {
+                    _kHideLoader();
+                }
+                console.error("PDF export error:", err);
+                alert("Failed to generate report. Please try again.");
+            });
+    }
+
+    function bindGridEvents() {
+        var grid = getKendoGrid();
+        if (!grid) return;
+
+        grid.unbind('dataBound', onGridDataBound);
+        grid.bind('dataBound', onGridDataBound);
+
+        grid.unbind('excelExport', onGridExcelExport);
+        grid.bind('excelExport', onGridExcelExport);
+
+        grid.unbind('pdfExport');
+        grid.bind('pdfExport', onGridPdfExport);
+    }
+    var bindDataBound = bindGridEvents;
+
+    function updateGjFilterBadge(activeCount, totalRows, filteredRows) {
+        var $badge = $('#gjFilterStatusBadge');
+        if (activeCount === 0) {
+            $badge.hide().html('');
+            return;
+        }
+        var html = '<span class="gj-badge active">' +
+            '<i class="fas fa-filter" style="font-size:10px;"></i> ' +
+            activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active &mdash; ' +
+            filteredRows + ' / ' + totalRows + ' rows' +
+            '</span>';
+        $badge.html(html).show();
+    }
+
+    window.applyGjFilters = function () {
+        var grid = getKendoGrid();
+        if (!grid || !grid.dataSource) return;
+
+        /* 1. Column visibility */
+        $('#gjShownColumnsDropdown input[type=checkbox]').each(function () {
+            var fieldName = $(this).val();
+            if ($(this).is(':checked')) { grid.showColumn(fieldName); }
+            else                        { grid.hideColumn(fieldName); }
+        });
+
+        /* 2. Sorting */
+        var sortField = $.trim($('#gjFilterSortBy').val());
+        var sortDir   = $('#gjFilterOrderBy').val() || 'desc';
+        if (sortField) {
+            grid.dataSource.sort({ field: sortField, dir: sortDir });
+        }
+
+        /* 3. Filtering */
+        var parseMulti = function (val) {
+            if (Array.isArray(val)) {
+                return val.filter(function (x) { return !!$.trim(x); });
+            }
+            if (val && typeof val === 'string' && $.trim(val) !== '') {
+                return [$.trim(val)];
+            }
+            return [];
+        };
+
+        var selectedAccounts  = parseMulti($('#gjFilterAccount').val());
+        var selectedClasses   = parseMulti($('#general-journal-view-wrapper #gjFilterClass').val());
+        var selectedTxTypes   = parseMulti($('#gjFilterTxType').val());
+        var selectedLocations = parseMulti($('#gjFilterLocation').val());
+        var selectedUsers     = parseMulti($('#gjFilterCreatedBy').val());
+        var name     = $.trim($('#gjFilterName').val());
+        var refNo    = $.trim($('#gjFilterRefNo').val());
+        var fromAmt  = parseFloat($('#gjFilterFromAmount, #edFilterFromAmount').val());
+        var toAmt    = parseFloat($('#gjFilterToAmount, #edFilterToAmount').val());
+
+        var hasFilter = !!(selectedAccounts.length || selectedClasses.length || selectedTxTypes.length || selectedLocations.length || selectedUsers.length || name || refNo || !isNaN(fromAmt) || !isNaN(toAmt));
+        var activeCount = 0;
+        if (selectedAccounts.length) activeCount++;
+        if (selectedClasses.length) activeCount++;
+        if (selectedTxTypes.length) activeCount++;
+        if (selectedLocations.length) activeCount++;
+        if (selectedUsers.length) activeCount++;
+        if (name) activeCount++;
+        if (refNo) activeCount++;
+        if (!isNaN(fromAmt) || !isNaN(toAmt)) activeCount++;
+
+        var allData = grid.dataSource.data();
+        var totalBefore = allData.length;
+
+        if (hasFilter) {
+            var matchingRowIds = {};
+            var txSummary = {};
+
+            // Step 1: Evaluate detail rows and accumulate per-transaction subtotals
+            for (var i = 0; i < allData.length; i++) {
+                var item = allData[i];
+                if (!item) continue;
+                allData[i]._rowId = (i + 1);
+
+                if (isSubtotalItem(item)) continue;
+
+                var itemTxId = item.TransactionID || ('tx_' + (item.ReferenceNo || '') + '_' + (item.InvoiceDate || ''));
+
+                var match = true;
+                if (selectedAccounts.length > 0) {
+                    var accMatch = false;
+                    for (var a = 0; a < selectedAccounts.length; a++) {
+                        if (isAccountMatch(item.AccountName, selectedAccounts[a])) {
+                            accMatch = true;
+                            break;
+                        }
+                    }
+                    if (!accMatch) match = false;
+                }
+                if (selectedClasses.length > 0) {
+                    var itemCls = (item.ClassName || '').toString().toLowerCase().trim();
+                    var clsMatch = false;
+                    for (var c = 0; c < selectedClasses.length; c++) {
+                        if (itemCls === selectedClasses[c].toLowerCase().trim()) {
+                            clsMatch = true;
+                            break;
+                        }
+                    }
+                    if (!clsMatch) match = false;
+                }
+                if (selectedTxTypes.length > 0) {
+                    var itmType = (item.InvoiceNoLink || '').toString().toLowerCase().trim();
+                    var typeMatch = false;
+                    for (var t = 0; t < selectedTxTypes.length; t++) {
+                        var filterType = selectedTxTypes[t].toLowerCase().trim();
+                        if (filterType === 'journal' || filterType === 'journal entry') {
+                            if (itmType === 'journal' || itmType === 'journal entry') { typeMatch = true; break; }
+                        } else if (filterType === 'opening balance' || filterType === 'ob') {
+                            if (itmType === 'opening balance' || itmType === 'ob') { typeMatch = true; break; }
+                        } else if (itmType.indexOf(filterType) !== -1) {
+                            typeMatch = true;
+                            break;
+                        }
+                    }
+                    if (!typeMatch) match = false;
+                }
+                if (name) {
+                    var custName = (item.CustomerName || '').toString().toLowerCase().trim();
+                    if (custName.indexOf(name.toLowerCase().trim()) === -1) {
+                        match = false;
+                    }
+                }
+                if (refNo) {
+                    var ref = (item.ReferenceNo || '').toString().toLowerCase().trim();
+                    var inv = (item.InvoiceNo || '').toString().toLowerCase().trim();
+                    var q = refNo.toLowerCase().trim();
+                    if (ref.indexOf(q) === -1 && inv.indexOf(q) === -1) {
+                        match = false;
+                    }
+                }
+                var debitVal = parseFloat(item.Debit) || 0;
+                var creditVal = parseFloat(item.Credit) || 0;
+                if (!isNaN(fromAmt)) {
+                    if (debitVal < fromAmt && creditVal < fromAmt) match = false;
+                }
+                if (!isNaN(toAmt)) {
+                    if (debitVal > toAmt && creditVal > toAmt) match = false;
+                }
+
+                if (match) {
+                    matchingRowIds[i + 1] = true;
+                    if (!txSummary[itemTxId]) {
+                        txSummary[itemTxId] = { debit: 0, credit: 0, hasMatch: true };
+                    }
+                    txSummary[itemTxId].debit += debitVal;
+                    txSummary[itemTxId].credit += creditVal;
+                }
+            }
+
+            // Step 2: Include subtotal rows for matching transactions with filtered totals
+            for (var i = 0; i < allData.length; i++) {
+                var item = allData[i];
+                if (!item) continue;
+
+                if (isSubtotalItem(item)) {
+                    var itemTxId = item.TransactionID || ('tx_' + (item.ReferenceNo || '') + '_' + (item.InvoiceDate || ''));
+                    if (txSummary[itemTxId] && txSummary[itemTxId].hasMatch) {
+                        matchingRowIds[i + 1] = true;
+                        item._filteredDebit = txSummary[itemTxId].debit;
+                        item._filteredCredit = txSummary[itemTxId].credit;
+                    }
+                }
+            }
+
+            grid.dataSource.filter({
+                field: "_rowId",
+                operator: function (rowId) {
+                    return !!matchingRowIds[rowId];
+                }
+            });
+        } else {
+            for (var i = 0; i < allData.length; i++) {
+                if (allData[i]) {
+                    delete allData[i]._filteredDebit;
+                    delete allData[i]._filteredCredit;
+                }
+            }
+            grid.dataSource.filter([]);
+        }
+
+        var totalAfter = grid.dataSource.total();
+        setTimeout(function () {
+            styleSubtotalRows();
+            updateFooterTotals();
+        }, 40);
+        setTimeout(function () {
+            styleSubtotalRows();
+            updateFooterTotals();
+        }, 150);
+        updateGjFilterBadge(activeCount, totalBefore, totalAfter);
+    };
+
+    function showLoading() {
+        if (typeof toastr !== 'undefined') {
+            toastr.options = {
+                closeButton: false,
+                debug: false,
+                newestOnTop: true,
+                progressBar: true,
+                positionClass: "toast-top-center",
+                preventDuplicates: true,
+                timeOut: 0,
+                extendedTimeOut: 0
+            };
+            toastr.info("Loading General Journal Data...");
+            setTimeout(function () {
+                var baseColor = localStorage.getItem("BaseSystemBGColor");
+                if (baseColor) {
+                    $(".toast-info").css({ "background-color": baseColor, "box-shadow": "0 0 12px " + baseColor });
+                }
+            }, 10);
+        }
+    }
+
+    function hideLoading() {
+        if (typeof toastr !== 'undefined') {
+            toastr.clear();
+        }
+    }
+
+    $(document).ajaxSuccess(function (event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('LoadTableGrid') !== -1) {
+            placeAdvancePanel();
+            setTimeout(function () {
+                updateGjDateRangeHeader();
+                injectSearchButton();
+                bindDataBound();
+                applyGjFilters();
+                styleSubtotalRows();
+                updateFooterTotals();
+                hideLoading();
+            }, 80);
+        }
+    });
+
+    $(document).ajaxError(function (event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('LoadTableGrid') !== -1) {
+            hideLoading();
+        }
+    });
+
+    $(document).ready(function () {
+        gjSystemCompanyHeader = {
+            kh: $.trim($('#gjReportHeader #lblCompanyNameKh').text()),
+            en: $.trim($('#gjReportHeader #lblCompanyNameEn').text())
+        };
+        $('#general-journal-view-wrapper').on('change', '#gjFilterClass', updateGjCompanyHeader);
+
+        placeAdvancePanel();
+        updateGjDateRangeHeader();
+        setTimeout(function () {
+            injectSearchButton();
+            bindDataBound();
+            styleSubtotalRows();
+            updateFooterTotals();
+            hideLoading();
+            if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.populateLookups === 'function') {
+                window.AccountingAdvanceFilter.populateLookups();
+            }
+        }, 150);
+
+        $(document).on('click', '#general-journal-view-wrapper .k-grid-excel, .k-grid-excel', function () {
+            bindGridEvents();
+        });
+
+        $(document).on('click', '#general-journal-view-wrapper .k-grid-pdf, .k-grid-pdf', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            onGridPdfExport(e);
+        });
+
+        $('#general-journal-view-wrapper').on('apply.daterangepicker change', 'input[name="TxtFromDate"], #TxtFromDate', function () {
+            updateGjDateRangeHeader();
+            showLoading();
+            if (typeof LoadTableGrid === 'function') {
+                LoadTableGrid(1);
+            }
+        });
+    });
+})();
+</script>

@@ -1,0 +1,57 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function onGridStockReturn(THIS, IsStockReturn) {
+        var index = $(THIS).closest("tr").index();
+        var tdindex = $("tr[name=TrRowNo]:eq(" + index + ") td").index(THIS);
+        if (tdindex < 6) {
+            var RequestItemID = $("tr[name=TrRowNo]:eq(" + index + ") td:eq(1)").html();
+            var RequestNo = $("tr[name=TrRowNo]:eq(" + index + ") td:eq(3)").html();
+            ShowDialogBox2("Stock Return No:. " + RequestNo, "auto", "500", "Items/StockReturnForm?ID=" + RequestItemID + "&IsRequestStockReturn=false", 0, "dialogitemrequest", function () {
+                $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+                $("#SaveChange2").click(function () {
+                    $("#divItemRequestForm").printThis();
+                });
+            });
+        }
+    }
+
+    function ConfirmItemRequestReturn(Element, RequestItemID, RequestNo, ReceivedBy, ReceivedUserID, ReceivedTelegaramUserName) {
+        var isClicked = 1;
+        var el = $(Element);
+        el.attr('data-is-click', isClicked);
+        ShowDialogBox("Confirm Prepared Stock Return No:. " + RequestNo, "auto", "300", "Items/AddStockReturn?IsConfirmPrepared=true", RequestItemID, "dialogitemrequest", "", "", "", function () {
+            //$("#RequestNo").val(RequestNo);
+            //$("#ReferenceRequestItemID").val(RequestItemID);
+            //$("#ReceivedBy").val(ReceivedBy);
+            //$("#ReceivedBy_ReceivedUserID").val(ReceivedUserID);
+            //$("#ReceivedBy_ReceivedTelegaramUserName").val(ReceivedTelegaramUserName);
+            $("#dialogitemrequest").on('hide.bs.modal', function () {
+                $("#BunSearch").click();
+            });
+        });
+    }
+
+    function ApproveDisapproveRequestReturn(RequestItemID, Status, RequestMode) {
+        RequestMode = typeof RequestMode == "undefined" ? "Request Stock Return" : RequestMode;
+        var msg = "Approval this Stock Return. You won't be able to revert this!";
+        var m = "Approving...";
+        if (Status == "Disapproved") {
+            m = "Disapproving...";
+            msg = "Disapprove this Stock Return. You won't be able to revert this!";
+        }
+        DoSaveChangeSweetCofirm("Items/ApproveDisapproveRequestReturn?ID=" + RequestItemID + "&Status=" + Status + "&RequestMode=" + RequestMode, "", function (response) {
+            $("#BunSearch").click();
+        }, m, msg);
+    }
+
+    function showRequestReturnForm(requestId, isRequestApproval, requestNo) {
+        var URL = "Items/StockReturnForm?ID=" + requestId + "&IsRequestStockReturn=" + isRequestApproval;
+        ShowDialogBox(`Preview Stock Return Form No.: ${requestNo}`, "Auto", "500", URL, "", "", "", "", "", function () {
+            $("#SaveChange").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange").click(function () {
+                $("#divRequestReturnForm").printThis();
+            });
+        });
+    }
+</script>

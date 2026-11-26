@@ -1,0 +1,1685 @@
+﻿
+@model NSMSOLUTION.Features.Vendors.Models.VendorModel
+
+@{
+    ViewBag.Title = "Add New Vendor";
+    Layout = null;
+    var paymentTerms = new[]
+    {
+        "Due on Receipt", "Net 7", "Net 15",
+        "Net 30", "Net 45", "Net 60", "Custom"
+    };
+
+    var currencies = new[]
+    {
+        new { Value = "USD", Text = "Dollar USD" },
+        new { Value = "KHR", Text = "Khmer Riel" },
+        new { Value = "THB", Text = "Thai Baht" }
+    };
+}
+@*<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker@4.0.2/daterangepicker.css">*@
+@*<label for="dates">Report dates</label>
+<input id="dates">*@
+
+
+@*<script>
+    new DateRangePicker('#dates');
+</script>*@
+@*<script src="https://cdn.jsdelivr.net/npm/daterangepicker@4.0.2/daterangepicker.js"></script>*@
+@*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />*@
+
+
+
+<div class="vendor-entry">
+    <div class="ve-shell">
+
+        @*@if (ViewBag.SuccessMessage != null)
+        {
+            <div class="ve-alert ve-success">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>@ViewBag.SuccessMessage</strong>
+
+                    @if (ViewBag.CreatedVendorCode != null)
+                    {
+                        <span>
+                            Vendor Code:
+                            <strong>@ViewBag.CreatedVendorCode</strong>
+                        </span>
+                    }
+                </div>
+            </div>
+        }*@
+        @{
+            bool isEdit = ViewBag.IsEdit != null && ViewBag.IsEdit;
+            int primaryFieldValue = ViewBag.PrimaryFieldValue ?? 0;
+        }
+        @using (Html.BeginForm(
+    "Create_Vendor",
+    "Vendors",
+    FormMethod.Post,
+    new
+    {
+        id = "vendorCreateForm",
+        autocomplete = "off",
+        novalidate = "novalidate"
+    }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("PrimaryFieldValue", primaryFieldValue)
+            <div id="vendorFormMessage" aria-live="polite"></div>
+
+            @*@Html.ValidationSummary(
+            false,
+            "",
+            new { @class = "ve-alert ve-danger" })*@
+
+            <!-- =========================================
+        1. GENERAL INFORMATION
+        ========================================= -->
+
+            <section class="ve-panel">
+
+                <div class="ve-panel-header">
+                    <div class="ve-panel-heading">
+                        <div class="ve-section-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+
+                        <div>
+                            <h2>General Information</h2>
+                            <p>Vendor identity and primary contact details</p>
+                        </div>
+                    </div>
+
+                    <span class="ve-section-tag">
+                        <i class="fas fa-asterisk"></i>
+                        Required fields *
+                    </span>
+                </div>
+
+                <div class="ve-panel-body">
+                    <div class="ve-grid">
+                        <!-- VENDOR CODE -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="VendorCode">
+                                Vendor Code
+                            </label>
+
+                            <div class="ve-code-wrap">
+                                <div class="ve-input-wrap">
+                                    <i class="fas fa-barcode"></i>
+                                    <input id="VendorCode"
+                                           class="ve-input"
+                                           type="text"
+                                           value="@(isEdit ? ViewBag.CreatedVendorCode ?? "" : "Auto-generated")"
+                                           readonly />
+                                </div>
+                                <i class="fas fa-lock ve-code-lock"></i>
+                            </div>
+
+                            <small class="ve-help">
+                                Generated automatically when saving.
+                            </small>
+                        </div>
+                        <!-- VENDOR TYPE -->
+                        <div class="ve-field">
+                            <label class="ve-label" for="VendorTypeID">
+                                Vendor Type <span class="req">*</span>
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-users"></i>
+
+                                @Html.DropDownListFor(
+                                                        m => m.VendorTypeID,
+                                                        Model.VendorTypes ?? new List<SelectListItem>(),
+                                                        "-- Select Vendor Type --",
+                                                        new
+                                                        {
+                                                            @class = "ve-select",
+                                                            id = "VendorTypeID",
+                                                            required = "required",
+                                                            onchange = "syncVendorType()"
+                                                        }
+                                                    )
+
+                                @Html.HiddenFor(m => m.VendorType, new
+                                {
+                                    id = "VendorType"
+                                })
+                            </div>
+
+                            @Html.ValidationMessageFor(
+                                                   m => m.VendorTypeID,
+                                                   "",
+                                                   new { @class = "ve-error" }
+                                               )
+                        </div>
+
+                        <!-- VENDOR NAME ENGLISH -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="VendorName">
+                                Vendor Name (English) <span class="req">*</span>
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-building"></i>
+                                @Html.TextBoxFor(m => m.VendorName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter vendor name in English",
+                                    maxlength = "200",
+                                    required = "required"
+                                })
+                            </div>
+
+                            @Html.ValidationMessageFor(
+                                                                                                 m => m.VendorName, "", new { @class = "ve-error" })
+                        </div>
+
+                        <!-- GENDER -->
+                        <div class="ve-field">
+                            <label class="ve-label" for="Gender">Gender <span class="req">*</span></label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-user"></i>
+                                @Html.DropDownListFor(m => m.Gender,
+                                                                                      new SelectList(new[]
+                                                                                      {
+                new { Value = "", Text = "Select gender" },
+                new { Value = "Male", Text = "Male" },
+                new { Value = "Female", Text = "Female" },
+                new { Value = "Other", Text = "Other" }
+}, "Value", "Text", Model.Gender),
+                                                                                      new { @class = "ve-select", required = "required" })
+                            </div>
+                        </div>
+
+                        <!-- REGISTRATION DATE: DISPLAY dd-MM-yyyy, SUBMIT ISO DATE -->
+                        <div class="ve-field">
+                            <label class="ve-label" for="RegisterDateDisplay">Registration Date</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-calendar-alt"></i>
+                                <input type="text"
+                                       id="RegisterDateDisplay"
+                                       class="ve-input"
+                                       placeholder="dd-MM-yyyy"
+                                       autocomplete="off"
+                                       inputmode="numeric"
+                                       maxlength="10"
+                                       value="@(Model.RegisterDate.HasValue
+                                           ? Model.RegisterDate.Value.ToString("dd-MM-yyyy")
+                                           : DateTime.Today.ToString("dd-MM-yyyy"))" />
+                                @Html.HiddenFor(m => m.RegisterDate, new { id = "RegisterDate" })
+                            </div>
+                            <small class="ve-help">Date format: dd-MM-yyyy</small>
+                            <span id="RegisterDateError" class="ve-error" aria-live="polite"></span>
+                        </div>
+
+                        <!-- PHONE -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Phone">
+                                Phone <span class="req">*</span>
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-phone-alt"></i>
+                                @Html.TextBoxFor(m => m.Phone, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter phone number",
+                                    maxlength = "50",
+                                    type = "tel",
+                                    required = "required"
+                                })
+                            </div>
+
+                            @Html.ValidationMessageFor(
+                                                                                                 m => m.Phone, "", new { @class = "ve-error" })
+                        </div>
+
+                        <!-- PAYMENT TERMS -->
+                        <div class="ve-field">
+                            <label class="ve-label" for="PaymentTerms">
+                                Payment Terms
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-calendar-alt"></i>
+
+                                @Html.DropDownListFor(
+                                                                                                     m => m.PaymentTerms,
+                                                                                                     new SelectList(paymentTerms, Model.PaymentTerms),
+                                                                                                     new { @class = "ve-select" })
+                            </div>
+                        </div>
+
+                        <!-- CURRENCY -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Currency">
+                                Currency
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-dollar-sign"></i>
+
+                                @Html.DropDownListFor(
+                                                                                                     m => m.Currency,
+                                                                                                     new SelectList(
+                                                                                                         currencies,
+                                                                                                         "Value",
+                                                                                                         "Text",
+                                                                                                         Model.Currency ?? "USD"),
+                                                                                                     new { @class = "ve-select" })
+                            </div>
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Email">
+                                Email
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-envelope"></i>
+                                @Html.TextBoxFor(m => m.Email, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "example@company.com",
+                                    maxlength = "150",
+                                    type = "email"
+                                })
+                            </div>
+
+                            @Html.ValidationMessageFor(
+                                                                                                 m => m.Email, "", new { @class = "ve-error" })
+                        </div>
+                        <!-- WEBSITE -->
+                        <div class="ve-field">
+                            <label class="ve-label" for="Website">Website</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-globe"></i>
+                                @Html.TextBoxFor(m => m.Website, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "https://www.company.com",
+                                    maxlength = "250",
+                                    type = "url"
+                                })
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Website, "", new { @class = "ve-error" })
+                        </div>
+                        <!-- ADDRESS -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Address">
+                                Address
+                            </label>
+
+                            <div class="ve-input-wrap ve-textarea-wrap">
+                                <i class="fas fa-map-marker-alt"></i>
+                                @Html.TextAreaFor(m => m.Address, new
+                                {
+                                    @class = "ve-textarea",
+                                    placeholder = "Enter vendor address",
+                                    maxlength = "500",
+                                    rows = "2"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- MEMO -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Remark">
+                                Memo
+                            </label>
+
+                            <div class="ve-input-wrap ve-textarea-wrap">
+                                <i class="fas fa-sticky-note"></i>
+                                @Html.TextAreaFor(m => m.Remark, new
+                                {
+                                    @class = "ve-textarea",
+                                    placeholder = "Enter additional information or notes",
+                                    maxlength = "1000",
+                                    rows = "2"
+                                })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================
+        2. ADDRESS & TAX
+        ========================================= -->
+
+            <section class="ve-panel">
+
+                <div class="ve-panel-header">
+                    <div class="ve-panel-heading">
+                        <div class="ve-section-icon"
+                             style="color:#16a765;background:rgba(22,167,101,.09)">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+
+                        <div>
+                            <h2>Address &amp; Tax</h2>
+                            <p>English address, local address and tax details</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ve-panel-body">
+
+                    <!-- ENGLISH ADDRESS -->
+
+                    <div class="ve-subsection-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Address Information (English)
+                    </div>
+
+                    <div class="ve-grid">
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="HouseNo">House No.</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-home"></i>
+                                @Html.TextBoxFor(m => m.HouseNo, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter house number",
+                                    maxlength = "100"
+                                })
+                            </div>
+                        </div>
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Street">Street</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-road"></i>
+                                @Html.TextBoxFor(m => m.Street, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter street",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Commune">Commune</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map-pin"></i>
+                                @Html.TextBoxFor(m => m.Commune, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter commune",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="District">District</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map"></i>
+                                @Html.TextBoxFor(m => m.District, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter district",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="City">City</label>
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-city"></i>
+                                @Html.TextBoxFor(m => m.City, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter city",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- TAX INFORMATION -->
+
+                    <div class="ve-subsection-title ve-subsection-spaced">
+                        <i class="fas fa-percent"></i>
+                        Tax Information
+                    </div>
+
+                    <div class="ve-grid">
+
+                        <!-- VAT TIN -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="VATTIN">
+                                VAT TIN
+                            </label>
+
+                            <div class="ve-vat-row">
+
+                                <div class="ve-input-wrap ve-vat-prefix">
+                                    @Html.TextBoxFor(m => m.VATTINPrefix, new
+                                    {
+                                        @class = "ve-input",
+                                        placeholder = "Prefix",
+                                        maxlength = "10"
+                                    })
+                                </div>
+
+                                <span class="ve-vat-separator">-</span>
+
+                                <div class="ve-input-wrap ve-vat-number">
+                                    @Html.TextBoxFor(m => m.VATTIN, new
+                                    {
+                                        @class = "ve-input",
+                                        placeholder = "VAT TIN number",
+                                        maxlength = "100"
+                                    })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- LOCAL VENDOR NAME -->
+
+                        <div class="ve-field wide-2">
+                            <label class="ve-label" for="LocalVendorName">
+                                Local Vendor Name
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-building"></i>
+                                @Html.TextBoxFor(m => m.LocalVendorName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter vendor name in local language",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- LOCAL HOUSE -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="LocalHouseNo">
+                                Local House No.
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-home"></i>
+                                @Html.TextBoxFor(m => m.LocalHouseNo, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter local house number",
+                                    maxlength = "100"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- LOCAL STREET -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="LocalStreet">
+                                Local Street
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-road"></i>
+                                @Html.TextBoxFor(m => m.LocalStreet, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter local street",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- LOCAL COMMUNE -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="LocalCommune">
+                                Local Commune
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map-pin"></i>
+                                @Html.TextBoxFor(m => m.LocalCommune, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter local commune",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- LOCAL DISTRICT -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="LocalDistrict">
+                                Local District
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map"></i>
+                                @Html.TextBoxFor(m => m.LocalDistrict, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter local district",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- LOCAL CITY -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="LocalCity">
+                                Local City
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-city"></i>
+                                @Html.TextBoxFor(m => m.LocalCity, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter local city",
+                                    maxlength = "150"
+                                })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================
+        3. ADDITIONAL VENDOR INFORMATION
+        ========================================= -->
+
+            <section class="ve-panel">
+
+                <div class="ve-panel-header">
+                    <div class="ve-panel-heading">
+                        <div class="ve-section-icon">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+
+                        <div>
+                            <h2>Additional Vendor Information</h2>
+                            <p>Contact person and company details</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ve-panel-body">
+                    <div class="ve-grid">
+
+                        <!-- CONTACT PERSON -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="ContactPersonName">
+                                Contact Person
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-user"></i>
+                                @Html.TextBoxFor(m => m.ContactPersonName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter contact person",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- POSITION -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="Position">
+                                Position
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-briefcase"></i>
+                                @Html.TextBoxFor(m => m.Position, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter position",
+                                    maxlength = "100"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- CONTACT PHONE -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="ContactPhoneNumber">
+                                Contact Phone Number
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-mobile-alt"></i>
+                                @Html.TextBoxFor(m => m.ContactPhoneNumber, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter contact phone",
+                                    maxlength = "50",
+                                    type = "tel"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- COMPANY NAME -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="CompanyName">
+                                Company Name
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-city"></i>
+                                @Html.TextBoxFor(m => m.CompanyName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter company name",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- VAT TIN IS IN ADDRESS & TAX -->
+                        <!-- COMPANY ADDRESS -->
+
+                        <div class="ve-field wide-2">
+                            <label class="ve-label" for="CompanyAddress">
+                                Company Address
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map-marked-alt"></i>
+                                @Html.TextBoxFor(m => m.CompanyAddress, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter company address",
+                                    maxlength = "500"
+                                })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================
+        4. BANK INFORMATION
+        ========================================= -->
+
+            <section class="ve-panel">
+
+                <div class="ve-panel-header">
+
+                    <div class="ve-panel-heading">
+                        <div class="ve-section-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+
+                        <div>
+                            <h2>Bank Information</h2>
+                            <p>Bank account and payment transfer details</p>
+                        </div>
+                    </div>
+
+                    <button type="button"
+                            id="bankToggle"
+                            class="ve-bank-toggle"
+                            aria-controls="bankBody"
+                            aria-expanded="false">
+                        <i class="fas fa-chevron-down"></i>
+                        <span id="bankToggleText">Show Details</span>
+                    </button>
+                </div>
+
+                <div id="bankBody"
+                     class="ve-panel-body ve-bank-body is-collapsed"
+                     aria-hidden="true">
+
+                    <div class="ve-bank-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <span>
+                            Bank information is optional. Enter these details
+                            when the vendor requires bank transfer payments.
+                        </span>
+                    </div>
+
+                    <div class="ve-grid">
+
+                        <!-- BANK NAME -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="BankerName">
+                                Bank Name
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-university"></i>
+                                @Html.TextBoxFor(m => m.BankerName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter bank name",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- SWIFT -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="SwiftCode">
+                                SWIFT / BIC Code
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-code"></i>
+                                @Html.TextBoxFor(m => m.SwiftCode, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter SWIFT code",
+                                    maxlength = "100"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- BANK ADDRESS -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="BankerAddress">
+                                Bank Address
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-map-marker-alt"></i>
+                                @Html.TextBoxFor(m => m.BankerAddress, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter bank address",
+                                    maxlength = "500"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- ACCOUNT NUMBER -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="AccountNo">
+                                Account Number
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-credit-card"></i>
+                                @Html.TextBoxFor(m => m.AccountNo, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter account number",
+                                    maxlength = "100"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- ACCOUNT NAME -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="AccountName">
+                                Account Name
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-user-circle"></i>
+                                @Html.TextBoxFor(m => m.AccountName, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter account holder name",
+                                    maxlength = "200"
+                                })
+                            </div>
+                        </div>
+
+                        <!-- BANK REMARK -->
+
+                        <div class="ve-field">
+                            <label class="ve-label" for="BankerRemark">
+                                Bank Remark
+                            </label>
+
+                            <div class="ve-input-wrap">
+                                <i class="fas fa-sticky-note"></i>
+                                @Html.TextBoxFor(m => m.BankerRemark, new
+                                {
+                                    @class = "ve-input",
+                                    placeholder = "Enter bank remark",
+                                    maxlength = "500"
+                                })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        }
+
+    </div>
+</div>
+
+
+<script>
+
+    (function (window, document, $) {
+        "use strict";
+
+        // ============================================================
+        // VENDOR FORM
+        // Safe for repeated AJAX partial-view loading.
+        // Does not reload or refresh the browser page.
+        // ============================================================
+
+        if (!$) {
+            console.error("Vendor form requires jQuery.");
+            return;
+        }
+        $("#modal-defaultmodalbody").addClass("p-0");
+        var FORM_SELECTOR = "#vendorCreateForm";
+        var DATE_SELECTOR = "#RegisterDateDisplay";
+
+        // ------------------------------------------------------------
+        // GENERAL HELPERS
+        // ------------------------------------------------------------
+
+        function getForm() {
+            return $(FORM_SELECTOR).first();
+        }
+
+        function getModal($form) {
+            return $form.closest(".modal");
+        }
+
+        function escapeHtml(value) {
+            return $("<div>").text(value == null ? "" : String(value)).html();
+        }
+
+        function showVendorMessage($form, type, message) {
+            if (!$form || !$form.length) return;
+
+            var isSuccess = type === "success";
+
+            var html =
+                '<div class="ve-alert ' +
+                (isSuccess ? "ve-success" : "ve-danger") +
+                '" role="alert">' +
+                '<i class="fas ' +
+                (isSuccess ? "fa-check-circle" : "fa-exclamation-circle") +
+                '"></i>' +
+                '<div>' + escapeHtml(message) + '</div>' +
+                '</div>';
+
+            $form.find("#vendorFormMessage").html(html);
+
+            var $modalBody = $form.closest(".modal-body");
+
+            if ($modalBody.length) {
+                $modalBody.animate({ scrollTop: 0 }, 150);
+            }
+        }
+
+        function clearVendorMessage($form) {
+            $form.find("#vendorFormMessage").empty();
+            $form.find(".ve-server-errors").remove();
+        }
+
+        function getServerMessage(response, fallback) {
+            if (response && response.message) {
+                return response.message;
+            }
+
+            if (response && response.Message) {
+                return response.Message;
+            }
+
+            return fallback;
+        }
+
+        // ------------------------------------------------------------
+        // VENDOR TYPE
+        // Keep the hidden VendorType synchronized with VendorTypeID.
+        // Required by your existing onchange="syncVendorType()".
+        // ------------------------------------------------------------
+
+        function syncVendorType() {
+            var $dropdown = $("#VendorTypeID");
+            var $hidden = $("#VendorType");
+
+            if (!$dropdown.length || !$hidden.length) {
+                return;
+            }
+
+            var selectedText = $dropdown.find("option:selected").text();
+
+            $hidden.val(
+                $dropdown.val() ? $.trim(selectedText) : ""
+            );
+        }
+
+        window.syncVendorType = syncVendorType;
+
+        // ------------------------------------------------------------
+        // REGISTRATION DATE
+        // Display format: dd-MM-yyyy
+        // Submitted format: yyyy-MM-dd
+        // ------------------------------------------------------------
+
+        function parseVendorDate(value) {
+            var match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(
+                $.trim(value || "")
+            );
+
+            if (!match) return null;
+
+            var day = parseInt(match[1], 10);
+            var month = parseInt(match[2], 10);
+            var year = parseInt(match[3], 10);
+
+            var date = new Date(year, month - 1, day);
+
+            if (
+                date.getFullYear() !== year ||
+                date.getMonth() !== month - 1 ||
+                date.getDate() !== day
+            ) {
+                return null;
+            }
+
+            return {
+                day: day,
+                month: month,
+                year: year
+            };
+        }
+
+        function syncVendorRegistrationDate() {
+            var display = document.getElementById("RegisterDateDisplay");
+            var hidden = document.getElementById("RegisterDate");
+            var error = document.getElementById("RegisterDateError");
+
+            if (!display || !hidden) return true;
+
+            var value = $.trim(display.value);
+
+            if (!value) {
+                hidden.value = "";
+
+                if (error) error.textContent = "";
+
+                display.classList.remove("input-validation-error");
+
+                return true;
+            }
+
+            var parsed = parseVendorDate(value);
+
+            if (!parsed) {
+                hidden.value = "";
+
+                if (error) {
+                    error.textContent =
+                        "Enter a valid date in dd-MM-yyyy format.";
+                }
+
+                display.classList.add("input-validation-error");
+
+                return false;
+            }
+
+            hidden.value =
+                parsed.year + "-" +
+                String(parsed.month).padStart(2, "0") + "-" +
+                String(parsed.day).padStart(2, "0");
+
+            if (error) error.textContent = "";
+
+            display.classList.remove("input-validation-error");
+
+            return true;
+        }
+
+        function initializeVendorDatePicker() {
+            var $date = $(DATE_SELECTOR);
+
+            if (!$date.length) return;
+
+            // Do not initialize before the libraries are available.
+            if (
+                typeof window.moment === "undefined" ||
+                !$.fn.daterangepicker
+            ) {
+                console.warn(
+                    "Vendor datepicker dependencies are not loaded. " +
+                    "The date field will remain available for manual entry."
+                );
+
+                return;
+            }
+
+            // Prevent duplicate initialization.
+            if ($date.data("daterangepicker")) {
+                return;
+            }
+
+            var initialDate = moment(
+                $date.val(),
+                "DD-MM-YYYY",
+                true
+            );
+
+            if (!initialDate.isValid()) {
+                initialDate = moment();
+            }
+
+            $date.daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                autoApply: true,
+                autoUpdateInput: true,
+                startDate: initialDate,
+
+                locale: {
+                    format: "DD-MM-YYYY",
+                    firstDay: 1
+                }
+            });
+
+            // Avoid duplicate datepicker callbacks.
+            $date
+                .off(".vendorDatePicker")
+                .on(
+                    "apply.daterangepicker.vendorDatePicker",
+                    function (event, picker) {
+                        $(this).val(
+                            picker.startDate.format("DD-MM-YYYY")
+                        );
+
+                        syncVendorRegistrationDate();
+                    }
+                )
+                .on(
+                    "cancel.daterangepicker.vendorDatePicker",
+                    function () {
+                        $(this).val("");
+                        syncVendorRegistrationDate();
+                    }
+                );
+
+            syncVendorRegistrationDate();
+        }
+
+        // ------------------------------------------------------------
+        // VALIDATION
+        // ------------------------------------------------------------
+
+        function initializeVendorValidation($form) {
+            if (!$form.length) return;
+
+            if (
+                $.validator &&
+                $.validator.unobtrusive
+            ) {
+                // Ensure the current dynamically loaded form is parsed.
+                $form
+                    .removeData("validator")
+                    .removeData("unobtrusiveValidation");
+
+                $.validator.unobtrusive.parse($form);
+            }
+        }
+
+        function focusFirstInvalid($form) {
+            var $invalid = $form
+                .find(
+                    ".input-validation-error, " +
+                    "input:invalid, select:invalid, textarea:invalid"
+                )
+                .filter(":visible")
+                .first();
+
+            if ($invalid.length) {
+                $invalid.trigger("focus");
+            }
+        }
+
+        function validateVendorForm($form) {
+            syncVendorType();
+
+            if (!syncVendorRegistrationDate()) {
+                $("#RegisterDateDisplay").trigger("focus");
+                return false;
+            }
+
+            if (
+                typeof $form.valid === "function" &&
+                !$form.valid()
+            ) {
+                focusFirstInvalid($form);
+                return false;
+            }
+
+            return true;
+        }
+
+        // ------------------------------------------------------------
+        // SERVER VALIDATION ERRORS
+        // Supports array and object error responses.
+        // ------------------------------------------------------------
+
+        function renderVendorErrors($form, errors) {
+            if (!errors) return;
+
+            var items = [];
+
+            if ($.isArray(errors)) {
+                items = errors;
+            } else {
+                $.each(errors, function (field, messages) {
+                    if ($.isArray(messages)) {
+                        $.each(messages, function (_, message) {
+                            items.push({
+                                field: field,
+                                message: message
+                            });
+                        });
+                    } else {
+                        items.push({
+                            field: field,
+                            message: messages
+                        });
+                    }
+                });
+            }
+
+            if (!items.length) return;
+
+            var $box = $(
+                '<div class="ve-alert ve-danger ve-server-errors" role="alert">' +
+                '<i class="fas fa-exclamation-triangle"></i>' +
+                '<div><strong>Please correct:</strong><ul></ul></div>' +
+                '</div>'
+            );
+
+            $.each(items, function (_, item) {
+                var message =
+                    typeof item === "string"
+                        ? item
+                        : item.message;
+
+                $("<li>")
+                    .text(message || "Invalid value.")
+                    .appendTo($box.find("ul"));
+            });
+
+            $form.find("#vendorFormMessage").append($box);
+        }
+
+        // ------------------------------------------------------------
+        // MODAL CLOSING
+        // ------------------------------------------------------------
+
+        function hideVendorModal($modal) {
+            // Close modal
+            $("#CloseModal").click();
+        }
+
+        // ------------------------------------------------------------
+        // SAVE BUTTON STATE
+        // ------------------------------------------------------------
+
+        function setSaveButtonLoading($button, loading, isEdit) {
+            if (!$button || !$button.length) return;
+
+            if (loading) {
+                if ($button.data("original-html") == null) {
+                    $button.data("original-html", $button.html());
+                }
+
+                $button
+                    .prop("disabled", true)
+                    .html(
+                        '<i class="fas fa-spinner fa-spin"></i> ' +
+                        (isEdit ? "Updating..." : "Saving...")
+                    );
+
+                return;
+            }
+
+            var originalHtml = $button.data("original-html");
+
+            $button.prop("disabled", false);
+
+            if (originalHtml != null) {
+                $button.html(originalHtml);
+            }
+        }
+
+        // ------------------------------------------------------------
+        // SAVE VENDOR
+        // This function remains globally accessible to your existing
+        // #SaveChange button and AddEditVendor() implementation.
+        // ------------------------------------------------------------
+
+        function SaveChangeVendorData() {
+            var $form = getForm();
+
+            if (!$form.length) {
+                console.error("Vendor form was not found.");
+                return false;
+            }
+
+            // Prevent duplicate requests.
+            if ($form.data("submitting")) {
+                return false;
+            }
+
+            var form = $form[0];
+
+            var primaryFieldValue = parseInt(
+                $form.find('[name="PrimaryFieldValue"]').val() || "0",
+                10
+            );
+
+            if (isNaN(primaryFieldValue)) {
+                primaryFieldValue = 0;
+            }
+
+            var isEdit = primaryFieldValue > 0;
+
+            var $button = $("#SaveChange");
+
+            clearVendorMessage($form);
+
+            // Validate before submitting.
+            if (!validateVendorForm($form)) {
+                return false;
+            }
+
+            // Verify anti-forgery token.
+            var token = $form.find(
+                'input[name="__RequestVerificationToken"]'
+            ).val();
+
+            if (!token) {
+                showVendorMessage(
+                    $form,
+                    "error",
+                    "Security token is missing. Please close and reopen the form."
+                );
+
+                return false;
+            }
+
+            // Use FormData to support the complete MVC form.
+            var formData = new FormData(form);
+
+            // Do not remove the anti-forgery form field.
+            // MVC ValidateAntiForgeryToken normally validates this field.
+
+            var requestUrl = $form.attr("action");
+
+            if (!requestUrl) {
+                showVendorMessage(
+                    $form,
+                    "error",
+                    "The vendor save URL is missing."
+                );
+
+                return false;
+            }
+
+            // Lock form while request is running.
+            $form.data("submitting", true);
+
+            setSaveButtonLoading($button, true, isEdit);
+
+            $.ajax({
+                url: requestUrl,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                headers: {
+                    "RequestVerificationToken": token
+                }
+            })
+                .done(function (response) {
+
+                    // IMPORTANT:
+                    // A successful HTTP request does not necessarily mean
+                    // that the vendor was saved successfully.
+                    if (!response || response.success !== true) {
+
+                        var message = getServerMessage(
+                            response,
+                            "The vendor could not be saved. Please check your information."
+                        );
+
+                        showVendorMessage($form, "error", message);
+
+                        if (response && response.errors) {
+                            renderVendorErrors($form, response.errors);
+                        }
+
+                        return;
+                    }
+
+                    // Confirm a valid vendor ID was returned.
+                    if (!response.vendorId) {
+                        showVendorMessage(
+                            $form,
+                            "error",
+                            "The server reported success but did not return a vendor ID. Please verify the saved record."
+                        );
+
+                        return;
+                    }
+
+                    var vendorData = {
+                        VendorID: response.vendorId,
+                        VendorCode: response.vendorCode || "",
+                        VendorName: response.vendorName || ""
+                    };
+
+                    // Update existing global vendor information.
+                    window.VendorID = vendorData.VendorID;
+                    window.VendorCode = vendorData.VendorCode;
+                    window.VendorName = vendorData.VendorName;
+
+                    // Notify other components.
+                    $(document).trigger("vendor:saved", [vendorData]);
+
+                    // Close modal after successful save.
+                    hideVendorModal(getModal($form));
+
+                    // Refresh only the vendor data/list.
+                    // This must not reload the browser page.
+                    if (typeof window.ReloadVendorList === "function") {
+
+                        try {
+                            window.ReloadVendorList(
+                                response.vendorId,
+                                function () {
+                                    $(document).trigger(
+                                        "vendor:list-refreshed",
+                                        [vendorData]
+                                    );
+                                }
+                            );
+                        } catch (error) {
+                            console.error(
+                                "ReloadVendorList failed:",
+                                error
+                            );
+                        }
+
+                    } else {
+                        console.warn(
+                            "ReloadVendorList() is not available. " +
+                            "The vendor was saved, but the list was not refreshed."
+                        );
+                    }
+
+                    // Show success message.
+                    if (window.Swal && typeof window.Swal.fire === "function") {
+
+                        window.Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: isEdit
+                                ? "Vendor updated successfully."
+                                : "Vendor created successfully.",
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+
+                    } else {
+                        console.log("Vendor saved successfully.");
+                    }
+
+                })
+                .fail(function (xhr, textStatus, errorThrown) {
+
+                    var response = xhr.responseJSON;
+
+                    var message =
+                        "An unexpected error occurred while saving the vendor.";
+
+                    if (response) {
+                        message = getServerMessage(response, message);
+                    } else {
+
+                        switch (xhr.status) {
+
+                            case 400:
+                                message =
+                                    "Invalid request. Please check the information you entered.";
+                                break;
+
+                            case 401:
+                                message =
+                                    "Your session has expired. Please sign in again.";
+                                break;
+
+                            case 403:
+                                message =
+                                    "You do not have permission to perform this action.";
+                                break;
+
+                            case 404:
+                                message =
+                                    "The vendor save endpoint could not be found.";
+                                break;
+
+                            case 500:
+                                message =
+                                    "A server error occurred. Please contact your administrator.";
+                                break;
+
+                            default:
+                                if (textStatus === "parsererror") {
+                                    message =
+                                        "The server returned an invalid response. Check whether the request was redirected to a login page or returned HTML instead of JSON.";
+                                } else if (textStatus === "timeout") {
+                                    message =
+                                        "The request timed out. Please try again.";
+                                }
+                                break;
+                        }
+                    }
+
+                    showVendorMessage($form, "error", message);
+
+                    if (response && response.errors) {
+                        renderVendorErrors($form, response.errors);
+                    }
+
+                    console.error(
+                        "Vendor save failed:",
+                        xhr.status,
+                        textStatus,
+                        errorThrown
+                    );
+
+                })
+                .always(function () {
+
+                    // Always unlock the form and restore the button.
+                    $form.data("submitting", false);
+
+                    setSaveButtonLoading($button, false, isEdit);
+
+                });
+
+            return false;
+        }
+
+        window.SaveChangeVendorData = SaveChangeVendorData;
+
+        // ------------------------------------------------------------
+        // BANK INFORMATION COLLAPSE
+        // ------------------------------------------------------------
+
+        function initializeBankInformation() {
+            var $toggle = $("#bankToggle");
+            var $body = $("#bankBody");
+
+            if (!$toggle.length || !$body.length) return;
+
+            // Default state: collapsed.
+            var expanded =
+                $toggle.attr("aria-expanded") === "true";
+
+            $body.toggleClass("is-collapsed", !expanded);
+
+            $body.attr(
+                "aria-hidden",
+                expanded ? "false" : "true"
+            );
+
+            $("#bankToggleText").text(
+                expanded ? "Hide Details" : "Show Details"
+            );
+        }
+
+        // ------------------------------------------------------------
+        // FORM INITIALIZATION
+        // Runs every time the AJAX partial is inserted.
+        // ------------------------------------------------------------
+
+        function initializeVendorForm() {
+            var $form = getForm();
+
+            if (!$form.length) return;
+
+            initializeVendorValidation($form);
+            initializeVendorDatePicker();
+            initializeBankInformation();
+
+            // Ensure hidden VendorType matches selected dropdown.
+            syncVendorType();
+
+            // Synchronize the registration date.
+            syncVendorRegistrationDate();
+
+            // Reset the submitting state for a newly loaded form.
+            $form.data("submitting", false);
+
+            // Remove stale form messages from a previous opening.
+            clearVendorMessage($form);
+
+            // Keep the modal's original spacing.
+            var $modal = getModal($form);
+
+            if ($modal.length) {
+                $modal.find(".modal-body p").removeAttr("style");
+            }
+        }
+
+        // ------------------------------------------------------------
+        // DELEGATED EVENTS
+        // Namespaced handlers prevent duplicate events when reopened.
+        // ------------------------------------------------------------
+
+        $(document)
+
+            .off("change.vendorForm", "#VendorTypeID")
+            .on("change.vendorForm", "#VendorTypeID", function () {
+                syncVendorType();
+            });
+
+        $(document)
+
+            .off("input.vendorFormDate", DATE_SELECTOR)
+            .on("input.vendorFormDate", DATE_SELECTOR, function () {
+
+                var error = document.getElementById(
+                    "RegisterDateError"
+                );
+
+                if (error) {
+                    error.textContent = "";
+                }
+
+                this.classList.remove("input-validation-error");
+            });
+
+        $(document)
+
+            .off("blur.vendorFormDate", DATE_SELECTOR)
+            .on("blur.vendorFormDate", DATE_SELECTOR, function () {
+                syncVendorRegistrationDate();
+            });
+
+        $(document)
+
+            .off("click.vendorBank", "#bankToggle")
+            .on("click.vendorBank", "#bankToggle", function () {
+
+                var $toggle = $(this);
+                var $body = $("#bankBody");
+
+                if (!$body.length) return;
+
+                var expanded =
+                    $toggle.attr("aria-expanded") === "true";
+
+                var nextExpanded = !expanded;
+
+                $toggle.attr(
+                    "aria-expanded",
+                    nextExpanded ? "true" : "false"
+                );
+
+                $body
+                    .toggleClass("is-collapsed", !nextExpanded)
+                    .attr(
+                        "aria-hidden",
+                        nextExpanded ? "false" : "true"
+                    );
+
+                $("#bankToggleText").text(
+                    nextExpanded ? "Hide Details" : "Show Details"
+                );
+            });
+
+        // ------------------------------------------------------------
+        // INITIALIZE THIS PARTIAL
+        // Important: do not rely only on $(document).ready().
+        // This view is loaded dynamically through AJAX.
+        // ------------------------------------------------------------
+
+        initializeVendorForm();
+
+    })(window, document, window.jQuery);
+
+</script>
+@*<script src="https://cdn.jsdelivr.net/npm/daterangepicker@4.0.2/daterangepicker.js"></script>*@

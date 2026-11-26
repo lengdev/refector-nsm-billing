@@ -1,0 +1,12 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowPreviewCustInv(THIS) {        
+        if ($(THIS).index() != 3) {
+            var index = $(THIS).parent().index();
+            if ($("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(3) a")[0])
+                $("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(3) a")[0].click();
+            return true;
+        }
+    }
+</script>

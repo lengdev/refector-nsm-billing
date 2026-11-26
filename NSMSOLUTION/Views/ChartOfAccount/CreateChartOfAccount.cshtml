@@ -1,0 +1,91 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+
+    function OnAccountTypeChange(THIS, E) {
+        const data = E.params.data;
+        console.log(E.params);
+        const accountTypeID = data; // parent ID
+        const accountCategoryID = data.id;        // child ID
+        const accountCategory = data.text;        // child text
+
+        console.log({
+            accountTypeID,
+            accountCategoryID,
+            accountCategory
+        });
+        //let data = E.params;
+        //let accountTypeID = data.accountTypeId;
+        //console.log($(THIS).val(), data, accountTypeID);
+    }
+    //function OnAccountTypeChange(THIS) {
+    //    var AccountTypesID = $(THIS).val();
+    //    if (AccountTypesID != null) {
+    //        LoadData("/ChartOfAccount/OpeningBalance?AccountTypesID=" + AccountTypesID, function (response) {
+    //            var OpeningBalance = response;
+    //            var row = "";
+    //            if (OpeningBalance != 'Balance Sheet') {
+    //                $("#TxtOpeningBalance").val("0");
+    //                $("#TxtOpeningBalance").closest("tr").hide();
+    //                $("#TxtOpeningBalanceDate").val("");
+    //                $("#TxtOpeningBalanceDate").closest("tr").hide();
+    //            }
+    //            else {
+    //                $("#TxtOpeningBalance").val("0");
+    //                $("#TxtOpeningBalance").closest("tr").show();
+    //                $("#TxtOpeningBalanceDate").val("");
+    //                $("#TxtOpeningBalanceDate").closest("tr").show();
+    //            }
+    //            //$("tr[name=trOpeningBalance]").remove();
+    //            //if (OpeningBalance == 'Balance Sheet') {
+    //            //    row = '<tr name="trOpeningBalance">';
+    //            //    row += '<td align="right" valign="top">';
+    //            //    row += '<label class="col-form-label text-nowrap" for="OpeningBalance">Opening balance:</label></td>';
+    //            //    row += '<td><input type="text" class="form-control" value="0" name="OpeningBalance" id="OpeningBalance" /></td>';
+    //            //    row += '</tr>'
+    //            //    row += '<tr name="trOpeningBalance">';
+    //            //    row += '<td align="right" valign="top">';
+    //            //    row += '<label class="col-form-label text-nowrap" for="OpeningBalanceDate">Opening balance Date:</label></td>';
+    //            //    row += '<td><input type="text" class="form-control" name="OpeningBalanceDate" id="OpeningBalanceDate" /></td>';
+    //            //    row += '</tr>'
+    //            //    $("#TxtSubOfAccountType").closest("tr").after(row);
+    //            //    $("#OpeningBalance").autoNumeric({ vMin: "-9999999999.00", vMax: "999999999999999999999999999999999999999999999999999999.00" });
+    //            //    $('#OpeningBalanceDate').daterangepicker({
+    //            //        singleDatePicker: true,
+    //            //        showDropdowns: true,
+    //            //        autoApply: true,
+    //            //        minYear: 1901,
+    //            //        maxYear: parseInt(moment().format('YYYY'), 10)
+    //            //    }, function (start, end, label) {
+    //            //        //var years = moment().diff(start, 'years');
+    //            //        //alert("You are " + years + " years old!");
+    //            //    });
+    //            //}
+    //        });
+    //    }
+    //}
+
+    function savechangecallback() {
+        // Convert array to key-value object for easier access
+        const formData = SaveChangeResponse.reduce((acc, item) => {
+            acc[item.name] = item.value;
+            return acc;
+        }, {});
+
+        var objData = {
+            AccountID: SaveChangeResponse.Data.Data,
+            AccountTypesID: formData.TxtAccountType,
+            Amount: accounting.unformat(formData.TxtOpeningBalance),
+        };
+        PostData("ChartOfAccount/PostOpeningBalance", objData, function (res) {
+            //LoadTableGrid(CurrentPage);
+        });
+    }
+</script>
+
+
+
+

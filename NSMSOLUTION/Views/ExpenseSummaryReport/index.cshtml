@@ -1,0 +1,859 @@
+@{ Layout = null; }
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div id="expense-summary-report-view-wrapper">
+    @Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+    @Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "ES" } })
+
+    <div class="pl-report-header" id="esReportHeader" style="margin-top: 15px; margin-bottom: 20px;">
+        <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+        <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "")</div>
+        <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "")</div>
+        <div class="bs-company-divider">
+            ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+        </div>
+        <h3 id="lblReportTitle">Expense Summary</h3>
+        <div class="tb-date-range-bar" id="lblDateRangeBar"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    window.expenseSummaryInitialDateFilterPending = true;
+    $('#expense-summary-report-view-wrapper .ShowGridTable').first().css('visibility', 'hidden');
+
+    function getKendoGrid() {
+        var $g = $('#expense-summary-report-view-wrapper').find('[data-role="grid"]').first();
+        return $g.length ? $g.data('kendoGrid') : null;
+    }
+
+    function isExpenseSummaryDateFilterRequest(settings) {
+        var requestData = settings && settings.data;
+        var fieldWithValue = requestData && requestData.FieldWithValue;
+        if (typeof requestData === 'string') {
+            var match = /(?:^|&)FieldWithValue=([^&]*)/.exec(requestData);
+            if (match) {
+                fieldWithValue = decodeURIComponent(match[1].replace(/\+/g, ' '));
+            }
+        }
+        return typeof fieldWithValue === 'string' &&
+            fieldWithValue.indexOf('format(T.PaymentDate') !== -1;
+    }
+
+    function updateEsDateRangeHeader() {
+        var rawVal = $('#expense-summary-report-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').val() || '';
+        rawVal = rawVal.trim();
+        if (!rawVal) return;
+        if (rawVal.indexOf(' - ') !== -1) {
+            var parts = rawVal.split(' - ');
+            $('#lblDateRangeBar').text(parts[0].trim() + ' - ' + parts[1].trim());
+        } else {
+            $('#lblDateRangeBar').text(rawVal);
+        }
+    }
+
+    function getSummaryClassValues() {
+        var values = $('#gjFilterClass').val();
+        return Array.isArray(values) ? values.filter(function (value) {
+            return value !== null && value !== '';
+        }) : (values ? [values] : []);
+    }
+
+    function rememberSummaryClassSelection(value) {
+        if (!value) return;
+        var order = window.expenseSummaryClassSelectionOrder || [];
+        value = String(value);
+        window.expenseSummaryClassSelectionOrder = order.filter(function (item) { return item !== value; });
+        window.expenseSummaryClassSelectionOrder.push(value);
+    }
+
+    function forgetSummaryClassSelection(value) {
+        if (!value) return;
+        value = String(value);
+        window.expenseSummaryClassSelectionOrder = (window.expenseSummaryClassSelectionOrder || [])
+            .filter(function (item) { return item !== value; });
+    }
+
+    function getSummaryHeaderClassValue() {
+        var values = getSummaryClassValues().map(String);
+        var order = window.expenseSummaryClassSelectionOrder || [];
+        for (var i = order.length - 1; i >= 0; i--) {
+            if (values.indexOf(order[i]) !== -1) return order[i];
+        }
+        return values.length ? values[values.length - 1] : '';
+    }
+
+    function updateSummaryCompanyHeader() {
+        var requestId = (window.expenseSummaryHeaderRequest || 0) + 1;
+        window.expenseSummaryHeaderRequest = requestId;
+        var selectedValue = getSummaryHeaderClassValue();
+        var $filter = $('#gjFilterClass');
+        var className = $.trim($filter.find('option').filter(function () {
+            return this.value === selectedValue;
+        }).first().text()) || selectedValue;
+
+        if (!selectedValue) {
+            window.expenseSummaryResolvedHeader = null;
+            $('#lblCompanyNameEn').text(window.expenseSummaryDefaultCompanyEn);
+            $('#lblCompanyNameKh').text(window.expenseSummaryDefaultCompanyKh);
+            return;
+        }
+
+        var lookup = window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.lastData
+            ? (window.AccountingAdvanceFilter.lastData.classes || window.AccountingAdvanceFilter.lastData.Classes || [])
+            : [];
+        var classRecord = null;
+        $.each(lookup, function (_, item) {
+            if ($.trim(String(item.ClassName || '')) === className) {
+                classRecord = item;
+                return false;
+            }
+        });
+        var databaseClassId = classRecord && classRecord.ClassID != null
+            ? String(classRecord.ClassID)
+            : (/^\d+$/.test(selectedValue) ? selectedValue : '');
+        window.expenseSummaryResolvedHeader = null;
+        $('#lblCompanyNameEn, #lblCompanyNameKh').text('');
+
+        $.ajax({
+            url: '@Url.Action("GetCompanyHeader", "ExpenseSummaryReport")',
+            type: 'GET',
+            data: { className: className, classId: databaseClassId },
+            success: function (response) {
+                if (requestId !== window.expenseSummaryHeaderRequest) return;
+                if (!response || !response.success || !response.companyNameEn) {
+                    console.warn('Expense Summary company header could not be resolved for class:', className);
+                    return;
+                }
+                window.expenseSummaryResolvedHeader = {
+                    selectionKey: selectedValue,
+                    classId: response.classId || databaseClassId,
+                    companyNameEn: response.companyNameEn,
+                    companyNameKh: response.companyNameKh || ''
+                };
+                $('#lblCompanyNameEn').text(response.companyNameEn);
+                $('#lblCompanyNameKh').text(response.companyNameKh || '');
+            },
+            error: function (xhr, status, error) {
+                if (requestId === window.expenseSummaryHeaderRequest) {
+                    console.warn('Expense Summary company header request failed:', status, error);
+                }
+            }
+        });
+    }
+
+    function placeAdvancePanel() {
+        var $wrapper = $('#expense-summary-report-view-wrapper');
+        if ($wrapper.length === 0) return;
+        var $panel = $wrapper.find('#gjAdvanceContainer');
+        var $header = $wrapper.find('#esReportHeader').first();
+
+        var $form = $wrapper.find('form, .form-search').first();
+        if ($form.length && $panel.length) {
+            $form.after($panel);
+        }
+
+        var $grid = $wrapper.find('[data-role="grid"], .k-grid, #TableGride').first();
+        var $gridHost = $grid.closest('.ShowGridTable');
+        var $tableContainer = $grid.closest('.table-responsive, [class*="tableresponsive_"]');
+        if ($tableContainer.length === 0) {
+            $tableContainer = $grid.closest('.k-grid');
+        }
+
+        if ($header.length && $gridHost.length) {
+            $gridHost.before($header);
+            $header.show();
+        } else if ($header.length && $tableContainer.length) {
+            $tableContainer.before($header);
+            $header.show();
+        } else if ($header.length && $panel.length) {
+            $panel.after($header);
+            $header.show();
+        }
+
+        updateEsDateRangeHeader();
+    }
+
+    function injectSearchButton() {
+        var $wrapper = $('#expense-summary-report-view-wrapper');
+        $wrapper.find('#btnEdSearch').remove();
+
+        var $dateInput = $wrapper.find('#TxtFromDate, input[name="TxtFromDate"]').first();
+        if ($dateInput.length === 0) return;
+
+        var $btn = $('<button id="btnEdSearch" type="button" style="height:36px;padding:0 18px;background-color:#4f46e5;color:#fff;border:none;border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin-left:8px;"><i class="fas fa-search"></i> Search</button>');
+        $btn.on('click', function () {
+            if (typeof LoadTableGrid === 'function') { LoadTableGrid(1); }
+            else {
+                $wrapper.find('#BunSearch, button[type="submit"]').first().trigger('click');
+                setTimeout(applyEdFilters, 400);
+            }
+        });
+
+        var $td = $dateInput.closest('td');
+        if ($td.length > 0) { $td.after($('<td style="padding:0;"></td>').append($btn)); }
+        else { $dateInput.after($btn); }
+
+        $wrapper.find('#BunSearch, button[type="submit"].btn-search').hide();
+    }
+
+    function updateSummaryFilterBadge(activeCount, totalRows, filteredRows) {
+        var $badge = $('#gjFilterStatusBadge');
+        if (activeCount === 0) {
+            $badge.hide().html('');
+            return;
+        }
+        var html = '<span class="gj-badge active">' +
+            '<i class="fas fa-filter" style="font-size:10px;"></i> ' +
+            activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active &mdash; ' +
+            filteredRows + ' / ' + totalRows + ' rows' +
+            '</span>';
+        $badge.html(html).show();
+    }
+
+    window.applyEdFilters = function () {
+        var grid = getKendoGrid();
+        if (!grid || !grid.dataSource) return;
+
+        /* 1. Column visibility */
+        $('#gjShownColumnsDropdown input[type=checkbox]').each(function () {
+            var fieldName = $(this).val();
+            if ($(this).is(':checked')) { grid.showColumn(fieldName); }
+            else                        { grid.hideColumn(fieldName); }
+        });
+
+        /* 2. Sorting */
+        var sortField = $.trim($('#gjFilterSortBy').val());
+        var sortDir   = $('#gjFilterOrderBy').val() || 'asc';
+        if (sortField) {
+            grid.dataSource.sort({ field: sortField, dir: sortDir });
+        } else {
+            // Default chronological order matching accounting standard & screenshot
+            grid.dataSource.sort([
+                { field: "ExpenseDate", dir: sortDir },
+                { field: "Number", dir: sortDir }
+            ]);
+        }
+
+        /* 3. Build Kendo filters */
+        var parseMulti = function (val) {
+            if (Array.isArray(val)) {
+                return val.filter(function (x) { return x !== null && x !== '' && x !== undefined; });
+            }
+            if (val && typeof val === 'string' && $.trim(val) !== '') {
+                return val.split(',').map(function (s) { return $.trim(s); }).filter(function (x) { return !!x; });
+            }
+            return [];
+        };
+
+        var selectedVendors  = parseMulti($('#edFilterVendor').val());
+        var selectedAccounts = parseMulti($('#gjFilterAccount').val());
+        var selectedClasses  = parseMulti($('#gjFilterClass').val());
+        var selectedMethods  = parseMulti($('#edFilterPaymentMethod').val());
+        var selectedUsers    = parseMulti($('#gjFilterCreatedBy').val());
+        var itemName = $.trim($('#edFilterItemName').val());
+        var fromAmt  = parseFloat($('#edFilterFromAmount').val());
+        var toAmt    = parseFloat($('#edFilterToAmount').val());
+
+        var hasFilter = !!(selectedVendors.length || selectedAccounts.length || selectedClasses.length || selectedMethods.length || selectedUsers.length || itemName || !isNaN(fromAmt) || !isNaN(toAmt));
+
+        var activeCount = 0;
+        if (selectedVendors.length) activeCount++;
+        if (selectedAccounts.length) activeCount++;
+        if (selectedClasses.length) activeCount++;
+        if (selectedMethods.length) activeCount++;
+        if (selectedUsers.length) activeCount++;
+        if (itemName) activeCount++;
+        if (!isNaN(fromAmt) || !isNaN(toAmt)) activeCount++;
+
+        var allData = grid.dataSource.data();
+        var totalBefore = allData.length;
+
+        if (hasFilter) {
+            var matchingRowIds = {};
+
+            for (var i = 0; i < allData.length; i++) {
+                var item = allData[i];
+                if (!item) continue;
+                allData[i]._rowId = (i + 1);
+
+                var match = true;
+
+                // 1. Vendors / Contact Name
+                if (selectedVendors.length > 0) {
+                    var strV = (item.ContactName || item.GroupName || item.VendorName || '').toString().toLowerCase().trim();
+                    var vId = (item.VendorID || '').toString().toLowerCase().trim();
+                    var vMatch = false;
+                    for (var v = 0; v < selectedVendors.length; v++) {
+                        var targetV = selectedVendors[v].toLowerCase().trim();
+                        if (strV === targetV || vId === targetV || (targetV.length >= 3 && strV.indexOf(targetV) !== -1)) {
+                            vMatch = true;
+                            break;
+                        }
+                    }
+                    if (!vMatch) match = false;
+                }
+
+                // 2. Accounts
+                if (match && selectedAccounts.length > 0) {
+                    var strA = (item.GroupName || item.Category || '').toString().toLowerCase().trim();
+                    var accNo = (item.AccountNo || '').toString().toLowerCase().trim();
+                    var aMatch = false;
+                    for (var a = 0; a < selectedAccounts.length; a++) {
+                        var targetA = selectedAccounts[a].toLowerCase().trim();
+                        if (strA === targetA || accNo === targetA || strA.indexOf(targetA) !== -1 || (strA && targetA.indexOf(strA) !== -1) || accNo.indexOf(targetA) !== -1) {
+                            aMatch = true;
+                            break;
+                        }
+                    }
+                    if (!aMatch) match = false;
+                }
+
+                // 3. Classes
+                if (match && selectedClasses.length > 0) {
+                    var cls = (item.ClassName || '').toString().toLowerCase().trim();
+                    var cMatch = false;
+                    for (var c = 0; c < selectedClasses.length; c++) {
+                        var targetC = selectedClasses[c].toLowerCase().trim();
+                        if (cls === targetC) {
+                            cMatch = true;
+                            break;
+                        }
+                    }
+                    if (!cMatch) match = false;
+                }
+
+                // 4. Payment Method
+                if (match && selectedMethods.length > 0) {
+                    var pm = (item.PaymentMethod || '').toString().toLowerCase().trim();
+                    var pmMatch = false;
+                    for (var m = 0; m < selectedMethods.length; m++) {
+                        var targetM = selectedMethods[m].toLowerCase().trim();
+                        if (pm === targetM) {
+                            pmMatch = true;
+                            break;
+                        }
+                    }
+                    if (!pmMatch) match = false;
+                }
+
+                // 5. Item / Keyword / Memo
+                if (match && itemName) {
+                    var q = itemName.toLowerCase();
+                    var text = ((item.Memo || '') + ' ' + (item.GroupName || '') + ' ' + (item.Number || '') + ' ' + (item.ContactName || '')).toLowerCase();
+                    if (text.indexOf(q) === -1) {
+                        match = false;
+                    }
+                }
+
+                // 6. Amounts
+                var amt = parseFloat(item.AmountUSD) || 0;
+                if (match && !isNaN(fromAmt) && amt < fromAmt) match = false;
+                if (match && !isNaN(toAmt) && amt > toAmt) match = false;
+
+                if (match) {
+                    matchingRowIds[i + 1] = true;
+                }
+            }
+
+            grid.dataSource.filter({
+                field: "_rowId",
+                operator: function (rowId) {
+                    return !!matchingRowIds[rowId];
+                },
+                value: 1
+            });
+        } else {
+            grid.dataSource.filter([]);
+        }
+
+        var totalAfter = grid.dataSource.total();
+        setTimeout(renumberSummaryRows, 50);
+        updateSummaryFilterBadge(activeCount, totalBefore, totalAfter);
+    };
+
+    function renumberSummaryRows() {
+        var grid = getKendoGrid();
+        if (!grid) return;
+        var noColIndex = -1;
+        var cols = grid.columns || [];
+        for (var c = 0; c < cols.length; c++) {
+            if (cols[c].field === 'No' || cols[c].title === 'Nº' || cols[c].title === 'No' || cols[c].title === '#') {
+                noColIndex = c;
+                break;
+            }
+        }
+        if (noColIndex === -1) return;
+        var currentNo = 1;
+        grid.tbody.children('tr').each(function () {
+            var $row = $(this);
+            if ($row.hasClass('k-grouping-row') || $row.hasClass('k-group-footer') || $row.hasClass('k-footer-template')) {
+                return;
+            }
+            var $cells = $row.children('td:not(.k-group-cell)');
+            if ($cells.length > noColIndex) {
+                $cells.eq(noColIndex).text(currentNo++);
+            }
+        });
+    }
+
+    function bindDataBound() {
+        var grid = getKendoGrid();
+        if (!grid) return;
+
+        bindExpenseSummaryExcelHeader(grid);
+        bindExpenseSummaryPdfExport();
+        if (grid._expenseSummaryDataBoundBound) return;
+
+        grid.bind('dataBound', function () {
+            setTimeout(function () {
+                renumberSummaryRows();
+                var totalBefore = grid.dataSource.data().length;
+                var totalAfter = grid.dataSource.total();
+                var activeCount = (grid.dataSource.filter() && grid.dataSource.filter().filters) ? grid.dataSource.filter().filters.length : 0;
+                updateSummaryFilterBadge(activeCount, totalBefore, totalAfter);
+            }, 40);
+        });
+        grid._expenseSummaryDataBoundBound = true;
+    }
+
+    function getSummaryExportHeader() {
+        var selectedValue = getSummaryHeaderClassValue();
+        var resolved = window.expenseSummaryResolvedHeader;
+        return {
+            companyNameEn: resolved && resolved.selectionKey === selectedValue
+                ? resolved.companyNameEn
+                : $.trim($('#lblCompanyNameEn').text()),
+            companyNameKh: resolved && resolved.selectionKey === selectedValue
+                ? resolved.companyNameKh
+                : $.trim($('#lblCompanyNameKh').text()),
+            classId: resolved && resolved.selectionKey === selectedValue
+                ? resolved.classId
+                : selectedValue,
+            className: $.trim($('#gjFilterClass option').filter(function () {
+                return String(this.value) === String(selectedValue);
+            }).first().text()),
+            title: 'Expense Summary'
+        };
+    }
+
+    function bindExpenseSummaryExcelHeader(grid) {
+        if (grid._expenseSummaryExcelHeaderBound) return;
+
+        grid.bind('excelExport', function (e) {
+            var header = getSummaryExportHeader();
+            var exportTitle = header.companyNameEn
+                ? header.companyNameEn + ' - ' + header.title
+                : header.title;
+            if (grid.options && grid.options.excel && header.companyNameEn) {
+                grid.options.excel.fileName = header.companyNameEn.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') + '_Expense_Summary.xlsx';
+            }
+            var visibleColumns = grid.columns.filter(function (column) {
+                return !column.hidden && column.field;
+            });
+            var noColumnIndex = visibleColumns.findIndex(function (column) { return column.field === 'No'; });
+            var numberColumnIndex = visibleColumns.findIndex(function (column) { return column.field === 'NumberLink'; });
+            var dataRows = 0;
+            e.workbook.sheets[0].rows.forEach(function (row) {
+                if (row.type !== 'data' || !row.cells) return;
+                dataRows++;
+                if (noColumnIndex >= 0 && row.cells[noColumnIndex]) {
+                    row.cells[noColumnIndex].value = dataRows;
+                }
+                if (numberColumnIndex >= 0 && row.cells[numberColumnIndex]) {
+                    row.cells[numberColumnIndex].value = String(row.cells[numberColumnIndex].value || '')
+                        .replace(/<a\b[^>]*>/gi, '')
+                        .replace(/<\/a>/gi, '');
+                }
+            });
+            var colSpan = Math.max(1, visibleColumns.length);
+            var exportHeaderRows = [
+                {
+                    cells: [{ value: header.companyNameKh, colSpan: colSpan, textAlign: 'center', fontSize: 16, fontFamily: 'Khmer OS Muol Light', bold: true }],
+                    type: 'header',
+                    height: 30
+                },
+                {
+                    cells: [{ value: header.companyNameEn, colSpan: colSpan, textAlign: 'center', fontSize: 14, bold: true }],
+                    type: 'header',
+                    height: 24
+                },
+                {
+                    cells: [{ value: exportTitle, colSpan: colSpan, textAlign: 'center', fontSize: 12, bold: true }],
+                    type: 'header',
+                    height: 22
+                }
+            ];
+            var dateRange = $.trim($('#lblDateRangeBar').text());
+            exportHeaderRows.push({
+                cells: [{ value: dateRange || 'All', colSpan: colSpan, textAlign: 'center', fontSize: 10 }],
+                type: 'header',
+                height: 20
+            });
+            exportHeaderRows.push({
+                cells: [{ value: 'Print Date: ' + kendo.toString(new Date(), 'dd-MMM-yyyy HH:mm'), colSpan: colSpan, textAlign: 'center', fontSize: 10 }],
+                type: 'header',
+                height: 20
+            });
+            e.workbook.sheets[0].rows.splice.apply(e.workbook.sheets[0].rows, [0, 0].concat(exportHeaderRows));
+        });
+
+        grid._expenseSummaryExcelHeaderBound = true;
+    }
+
+    function bindExpenseSummaryPdfExport() {
+        var exportPdf = window.kendoGridPdfExport;
+        if (!exportPdf || exportPdf._expenseSummaryWrapped) return;
+
+        var wrappedExport = function (e, config) {
+            if (!document.getElementById('expense-summary-report-view-wrapper')) {
+                return exportPdf.call(this, e, config);
+            }
+            if (!e || !e.sender || typeof window._kFetchAllRows !== 'function' ||
+                typeof window._flattenKendoGroups !== 'function' || !config || !config.serverRoot) {
+                console.error('Expense Summary PDF export could not start: export configuration is incomplete.');
+                alert('Failed to generate the Expense Summary PDF. Please try again.');
+                return;
+            }
+
+            var header = getSummaryExportHeader();
+            var dateRange = $.trim($('#lblDateRangeBar').text()) || 'All';
+            e.preventDefault();
+            var grid = e.sender;
+            var optionalFields = [
+                { field: 'ContactCode', title: 'Contact Code' },
+                { field: 'VATTIN', title: 'VAT TIN' },
+                { field: 'AccountCode', title: 'Account Code' },
+                { field: 'AccountName', title: 'Account Name' },
+                { field: 'PaymentMethod', title: 'Payment Method' },
+                { field: 'Reference', title: 'Reference' },
+                { field: 'TaxUSD', title: 'Tax ($)', type: 'number', format: '{0:n2}' },
+                { field: 'TaxRate', title: 'Tax' }
+            ];
+            var gridCols = grid.columns
+                .filter(function (column) {
+                    return !column.hidden && column.field &&
+                        String(column.title || '').toLowerCase().trim() !== 'action';
+                })
+                .map(function (column) {
+                    return {
+                        field: column.field === 'NumberLink' ? 'Number' : column.field,
+                        title: column.field === 'NumberLink' ? 'Number' : (column.title || column.field),
+                        type: column.field === 'AmountUSD' ? 'number' : (column.type || null),
+                        format: column.field === 'AmountUSD' ? '{0:n2}' : (column.format || null)
+                    };
+                });
+            optionalFields.forEach(function (field) {
+                var columnExists = grid.columns.some(function (column) {
+                    return column.field === field.field;
+                });
+                if (columnExists && !gridCols.some(function (column) { return column.field === field.field; })) {
+                    gridCols.push({
+                        field: field.field,
+                        title: field.title,
+                        type: field.type || null,
+                        format: field.format || null
+                    });
+                }
+            });
+            localStorage.setItem('kendo_grid_columns', JSON.stringify(gridCols));
+            localStorage.setItem('report_title', header.title);
+            if (typeof window._kShowLoader === 'function') window._kShowLoader('Opening report…', 'Fetching all records');
+
+            window._kFetchAllRows(grid.dataSource)
+                .then(function (allData) {
+                    var exportRows = window._flattenKendoGroups(allData);
+                    exportRows.forEach(function (row, index) {
+                        row.No = index + 1;
+                    });
+                    var data = JSON.stringify(exportRows);
+                    localStorage.setItem('kendo_grid_export', data);
+                    if (typeof window._kUpdateLoader === 'function') window._kUpdateLoader('Generating report…', 'Please do not close this page');
+                    return $.ajax({
+                        url: config.serverRoot + 'KendoPDFExport',
+                        type: 'POST',
+                        headers: { Authorization: 'Bearer ' + access_Token },
+                        data: { data: data, systemId: localStorage.getItem('SystemID') }
+                    });
+                })
+                .then(function (response) {
+                    var pdfDocument = new DOMParser().parseFromString(String(response), 'text/html');
+                    var reportDateElement = pdfDocument.querySelector('.report-date');
+                    if (reportDateElement) {
+                        reportDateElement.textContent = dateRange + ' | Print Date: ' + kendo.toString(new Date(), 'dd-MMM-yyyy HH:mm');
+                    }
+                    var select = pdfDocument.getElementById('classSelect');
+                    var selectedOption = null;
+                    if (select) {
+                        $(select).find('option').each(function () {
+                            this.removeAttribute('selected');
+                            this.selected = !!header.classId && this.value === String(header.classId);
+                            if (this.selected) {
+                                this.setAttribute('selected', 'selected');
+                                selectedOption = this;
+                            }
+                        });
+                        if (!selectedOption && header.classId) {
+                            selectedOption = pdfDocument.createElement('option');
+                            selectedOption.value = String(header.classId);
+                            selectedOption.textContent = header.className || header.companyNameEn || String(header.classId);
+                            selectedOption.selected = true;
+                            selectedOption.setAttribute('selected', 'selected');
+                            select.appendChild(selectedOption);
+                        }
+                    }
+                    if (selectedOption) {
+                        selectedOption.setAttribute('data-name-en', header.companyNameEn || '');
+                        selectedOption.setAttribute('data-name-kh', (header.companyNameKh || '').replace(/^ក្រុមហ៊ុន\s*/, ''));
+                    }
+                    var companyEn = pdfDocument.getElementById('companyNameEN');
+                    var companyKh = pdfDocument.getElementById('companyNameKH');
+                    var reportTitle = pdfDocument.getElementById('report-title');
+                    if (companyEn) companyEn.textContent = header.companyNameEn;
+                    if (companyKh) companyKh.textContent = header.companyNameKh;
+                    if (reportTitle) reportTitle.textContent = header.title;
+                    var exportStyles = pdfDocument.createElement('style');
+                    exportStyles.textContent = '.wrap{border-top:0!important;border-bottom:0!important}.pdf-header,#report-title,.footer{border-top:0!important;border-bottom:0!important}';
+                    pdfDocument.head.appendChild(exportStyles);
+
+                    var newTab = window.open('', '_blank');
+                    if (!newTab) throw new Error('The PDF preview window was blocked by the browser.');
+                    newTab.document.open();
+                    newTab.document.write('<!DOCTYPE html>\n' + pdfDocument.documentElement.outerHTML);
+                    newTab.document.close();
+                    if (typeof window._kHideLoader === 'function') setTimeout(window._kHideLoader, 800);
+                })
+                .catch(function (error) {
+                    if (typeof window._kHideLoader === 'function') window._kHideLoader();
+                    console.error('Expense Summary PDF export failed:', error);
+                    alert('Failed to generate the Expense Summary PDF. Please try again.');
+                });
+        };
+        wrappedExport._expenseSummaryWrapped = true;
+        window.kendoGridPdfExport = wrappedExport;
+    }
+
+    function initSummaryLookups() {
+        if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.loadLookups === 'function') {
+            window.AccountingAdvanceFilter.loadLookups('/ExpenseSummaryReport/GetFilterOptions');
+        } else {
+            setTimeout(initSummaryLookups, 100);
+        }
+    }
+
+    initSummaryLookups();
+
+    $(document).ajaxSuccess(function (event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('LoadTableGrid') !== -1) {
+            if (window.expenseSummaryInitialDateFilterPending && isExpenseSummaryDateFilterRequest(settings)) {
+                window.expenseSummaryInitialDateFilterPending = false;
+                $('#expense-summary-report-view-wrapper .ShowGridTable').first().css('visibility', '');
+            }
+            setTimeout(function () {
+                placeAdvancePanel();
+                updateEsDateRangeHeader();
+                injectSearchButton();
+                bindDataBound();
+                applyEdFilters();
+            }, 80);
+        }
+    });
+
+    $(function () {
+        placeAdvancePanel();
+        window.expenseSummaryDefaultCompanyEn = $.trim($('#lblCompanyNameEn').text());
+        window.expenseSummaryDefaultCompanyKh = $.trim($('#lblCompanyNameKh').text());
+        setTimeout(function () {
+            placeAdvancePanel();
+            updateEsDateRangeHeader();
+            injectSearchButton();
+            bindDataBound();
+            if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.populateLookups === 'function') {
+                window.AccountingAdvanceFilter.populateLookups();
+            }
+            if (window.expenseSummaryInitialDateFilterPending) {
+                var $dateInput = $wrapper.find('#TxtFromDate, input[name="TxtFromDate"]').first();
+                if ($dateInput.val() && $dateInput.data('daterangepicker') && typeof LoadTableGrid === 'function') {
+                    if (typeof window.invalidateLoadGridCache === 'function') {
+                        window.invalidateLoadGridCache();
+                    }
+                    LoadTableGrid(1);
+                } else {
+                    window.expenseSummaryInitialDateFilterPending = false;
+                    $wrapper.find('.ShowGridTable').first().css('visibility', '');
+                }
+            }
+            getSummaryClassValues().forEach(rememberSummaryClassSelection);
+            updateSummaryCompanyHeader();
+        }, 150);
+
+        var $wrapper = $('#expense-summary-report-view-wrapper');
+        $(document).off('select2:select.expenseSummaryHeader', '#gjFilterClass')
+            .on('select2:select.expenseSummaryHeader', '#gjFilterClass', function (event) {
+                var selected = event.params && event.params.data ? event.params.data.id : '';
+                rememberSummaryClassSelection(selected);
+                setTimeout(updateSummaryCompanyHeader, 0);
+            });
+        $(document).off('select2:unselect.expenseSummaryHeader', '#gjFilterClass')
+            .on('select2:unselect.expenseSummaryHeader', '#gjFilterClass', function (event) {
+                var removed = event.params && event.params.data ? event.params.data.id : '';
+                forgetSummaryClassSelection(removed);
+                setTimeout(updateSummaryCompanyHeader, 0);
+            });
+        $(document).off('change.expenseSummaryHeader', '#gjFilterClass')
+            .on('change.expenseSummaryHeader', '#gjFilterClass', function () {
+                var values = getSummaryClassValues().map(String);
+                window.expenseSummaryClassSelectionOrder = (window.expenseSummaryClassSelectionOrder || [])
+                    .filter(function (value) { return values.indexOf(value) !== -1; });
+                values.forEach(function (value) {
+                    if (window.expenseSummaryClassSelectionOrder.indexOf(value) === -1) {
+                        window.expenseSummaryClassSelectionOrder.push(value);
+                    }
+                });
+                updateSummaryCompanyHeader();
+            });
+
+        // Auto filter grid when date range selection is applied or changed
+        $wrapper.on('apply.daterangepicker change', 'input[name="TxtFromDate"], #TxtFromDate', function () {
+            updateEsDateRangeHeader();
+            if (typeof window.invalidateLoadGridCache === 'function') {
+                window.invalidateLoadGridCache();
+            }
+            if (typeof LoadTableGrid === 'function') {
+                LoadTableGrid(1);
+            }
+        });
+    });
+})();
+</script>
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    .report-header-print {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .report-header-print .metadata-bar {
+        display: flex;
+        justify-content: space-between;
+        font-size: 15px;
+        font-weight: bold;
+        border-bottom: 0;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    /* Left align date range search form and limit input width */
+    #expense-summary-report-view-wrapper form,
+    #expense-summary-report-view-wrapper .form-search {
+        display: block !important;
+        text-align: left !important;
+        width: 100% !important;
+    }
+
+    #expense-summary-report-view-wrapper form table,
+    #expense-summary-report-view-wrapper .form-search table {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+        width: auto !important;
+        border-collapse: separate !important;
+        border-spacing: 0 8px !important;
+    }
+
+    #expense-summary-report-view-wrapper form table td,
+    #expense-summary-report-view-wrapper .form-search table td {
+        text-align: left !important;
+        width: auto !important;
+    }
+
+    #expense-summary-report-view-wrapper form table td:first-child,
+    #expense-summary-report-view-wrapper .form-search table td:first-child,
+    #expense-summary-report-view-wrapper form table td label,
+    #expense-summary-report-view-wrapper .form-search table td label {
+        text-align: left !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        padding-left: 0 !important;
+        padding-right: 12px !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        min-width: auto !important;
+    }
+
+    #expense-summary-report-view-wrapper #TxtFromDate,
+    #expense-summary-report-view-wrapper input[name="TxtFromDate"] {
+        width: 240px !important;
+        max-width: 240px !important;
+        display: inline-block !important;
+        text-align: center !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 6px 12px !important;
+        height: 38px !important;
+        box-shadow: none !important;
+    }
+</style>

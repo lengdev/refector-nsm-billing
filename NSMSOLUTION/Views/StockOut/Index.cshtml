@@ -1,0 +1,17 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function SIForm(RequestNo, RequestItemID, IsRequestApprovalItemOut) {
+        ShowDialogBox2("Request No:. " + RequestNo, "auto", "500", "Items/ItemRequestForm?ID=" + RequestItemID + "&IsRequestApprovalItemOut=" + IsRequestApprovalItemOut, 0, "dialogitemrequest", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#divItemRequestForm").printThis();
+            });
+        });
+    }
+    function showForm(salesId, soNumber, saleType) {
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox("Preview Sales Order Form No.: " + soNumber, "Auto", "500", URL);
+    }
+</script>

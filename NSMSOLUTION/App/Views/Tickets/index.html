@@ -1,0 +1,296 @@
+﻿<div ng-controller="TicketsController" class="tickets-page">
+    <link rel="stylesheet" href="App/Views/Tickets/style.css">
+
+    <!-- ============ Page header ============ -->
+    <section class="tickets-page-header">
+        <div class="tickets-page-header-text">
+            <p class="tickets-flow-tag"><i class="ti ti-headset"></i> ISP support</p>
+            <h2>Customer tickets</h2>
+        </div>
+
+        <div class="tickets-header-actions">
+            <button class="tickets-btn tickets-btn-ghost" ng-click="ToggleFlowGuide()">
+                <i class="ti" ng-class="ShowFlowGuide ? 'ti-chevron-up' : 'ti-help-circle'"></i>
+                {{ShowFlowGuide ? 'Hide guide' : 'How it works'}}
+            </button>
+            <button class="tickets-btn tickets-btn-ghost" ng-click="RefreshTickets()">
+                <i class="ti ti-refresh"></i> Refresh
+            </button>
+            <button class="tickets-btn tickets-new-btn" ng-click="ToggleNewForm()">
+                <i class="ti" ng-class="ShowNewForm ? 'ti-x' : 'ti-plus'"></i>
+                {{ShowNewForm ? 'Cancel' : 'New ticket'}}
+            </button>
+        </div>
+    </section>
+
+    <!-- ============ Compact status strip (always visible) ============ -->
+    <section class="tickets-status-strip">
+        <span class="ticket-status-badge open"><i class="ti ti-message-plus"></i> Open {{StatusCounts.OPEN}}</span>
+        <span class="ticket-status-badge assigned"><i class="ti ti-user-check"></i> Assigned
+            {{StatusCounts.ASSIGNED}}</span>
+        <span class="ticket-status-badge in-progress"><i class="ti ti-tool"></i> In progress
+            {{StatusCounts.IN_PROGRESS}}</span>
+        <span class="ticket-status-badge waiting-customer"><i class="ti ti-clock-pause"></i> Waiting
+            {{StatusCounts.WAITING_CUSTOMER}}</span>
+        <span class="ticket-status-badge scheduled"><i class="ti ti-calendar-event"></i> Scheduled
+            {{StatusCounts.SCHEDULED}}</span>
+        <span class="ticket-status-badge resolved"><i class="ti ti-circle-check"></i> Resolved
+            {{StatusCounts.RESOLVED}}</span>
+        <span class="ticket-status-badge closed"><i class="ti ti-lock"></i> Closed {{StatusCounts.CLOSED}}</span>
+        <span class="ticket-status-badge reopened"><i class="ti ti-rotate"></i> Reopened
+            {{StatusCounts.REOPENED}}</span>
+        <span class="ticket-status-badge cancelled"><i class="ti ti-ban"></i> Cancelled
+            {{StatusCounts.CANCELLED}}</span>
+    </section>
+
+    <!-- ============ Lifecycle guide (collapsed by default) ============ -->
+    <section class="tickets-flow-overview" ng-if="ShowFlowGuide">
+        <div class="tickets-flow-card">
+            <div class="tickets-flow-header">
+                <div>
+                    <p class="tickets-flow-tag"><i class="ti ti-route"></i> Ticket lifecycle</p>
+                    <p class="tickets-flow-copy">How a ticket moves from creation through resolution and closure.</p>
+                </div>
+                <button class="tickets-detail-close" ng-click="ToggleFlowGuide()"><i class="ti ti-x"></i></button>
+            </div>
+            <div class="tickets-flow-steps">
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-message-plus"></i> OPEN</strong>
+                    <span>Customer reports an issue and creates a support ticket.</span>
+                </div>
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-user-check"></i> ASSIGNED</strong>
+                    <span>Support team assigns the ticket to the right technician or department.</span>
+                </div>
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-tool"></i> IN_PROGRESS</strong>
+                    <span>Technician investigates the issue and reviews customer service info.</span>
+                </div>
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-circle-check"></i> RESOLVED</strong>
+                    <span>The issue is fixed remotely or a technician visit is scheduled.</span>
+                </div>
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-lock"></i> CLOSED</strong>
+                    <span>Customer confirms the fix and the ticket is completed.</span>
+                </div>
+                <div class="tickets-flow-step">
+                    <strong><i class="ti ti-rotate"></i> REOPENED</strong>
+                    <span>If the problem persists, the ticket returns to investigation.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Toolbar: search + filters ============ -->
+    <section class="tickets-toolbar-section">
+        <div class="tickets-toolbar">
+            <div class="tickets-search-wrap">
+                <i class="ti ti-search"></i>
+                <input type="text" ng-model="SearchText" ng-change="ApplyFilters()"
+                    placeholder="Search by ticket #, subject, or customer" class="tickets-search-input" />
+            </div>
+
+            <select ng-model="StatusFilter" ng-change="ApplyFilters()" class="tickets-filter-select">
+                <option value="ALL">All statuses</option>
+                <option ng-repeat="s in Statuses" value="{{s}}">{{s}}</option>
+            </select>
+
+            <select ng-model="PriorityFilter" ng-change="ApplyFilters()" class="tickets-filter-select">
+                <option value="ALL">All priorities</option>
+                <option ng-repeat="p in Priorities" value="{{p}}">{{p}}</option>
+            </select>
+
+            <button class="tickets-btn tickets-btn-ghost tickets-export-btn" ng-click="ExportTickets()">
+                <i class="ti ti-download"></i> Export
+            </button>
+
+            <select ng-model="PageSize" ng-options="size as (size + ' per page') for size in PageSizes"
+                ng-change="ChangePageSize()" class="tickets-filter-select tickets-page-size-select"></select>
+        </div>
+
+        <!-- ============ New ticket form ============ -->
+        <div class="tickets-new-form" ng-if="ShowNewForm">
+            <h3><i class="ti ti-ticket"></i> Create new ticket</h3>
+            <div class="tickets-form-grid">
+                <input type="text" ng-model="NewTicket.subject" placeholder="Subject" class="tickets-input" />
+                <input type="text" ng-model="NewTicket.customerName" placeholder="Customer name"
+                    class="tickets-input" />
+                <input type="text" ng-model="NewTicket.customerPhone" placeholder="Phone number"
+                    class="tickets-input" />
+
+                <select ng-model="NewTicket.category" class="tickets-input">
+                    <option ng-repeat="c in Categories" value="{{c}}">{{c}}</option>
+                </select>
+
+                <select ng-model="NewTicket.priority" class="tickets-input">
+                    <option ng-repeat="p in Priorities" value="{{p}}">{{p}}</option>
+                </select>
+
+                <textarea ng-model="NewTicket.description" placeholder="Describe the issue"
+                    class="tickets-input tickets-textarea"></textarea>
+            </div>
+            <button class="tickets-btn" ng-click="CreateTicket()">
+                <i class="ti ti-send"></i> Submit ticket
+            </button>
+        </div>
+    </section>
+
+    <!-- ============ Ticket list ============ -->
+    <section class="tickets-list-section">
+        <table class="tickets-table" ng-if="FilteredTickets.length">
+            <thead>
+                <tr>
+                    <th>Ticket #</th>
+                    <th>Subject</th>
+                    <th>Customer</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="t in PagedTickets" ng-click="SelectTicket(t)" class="tickets-row">
+                    <td><span class="tickets-id-cell"><i class="ti ti-hash"></i>{{t.id}}</span></td>
+                    <td>{{t.subject}}</td>
+                    <td>{{t.customerName}}</td>
+                    <td>{{t.category}}</td>
+                    <td>
+                        <span class="tickets-priority-pill" ng-class="'priority-' + (t.priority | lowercase)">
+                            <i class="ti ti-flag-filled"></i>{{t.priority}}
+                        </span>
+                    </td>
+                    <td><span class="ticket-status-badge" ng-class="StatusClass(t.status)">{{t.status}}</span></td>
+                    <td><i class="ti ti-user" style="color:#9ca3af;margin-right:4px;"></i>{{StaffName(t.assignedTo)}}
+                    </td>
+                    <td>{{t.updatedAt | date:'MMM d, h:mm a'}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="tickets-table-footer" ng-if="FilteredTickets.length">
+            <div class="tickets-pagination-info">
+                Showing {{PagedTickets.length}} of {{FilteredTickets.length}} tickets
+            </div>
+            <div class="tickets-pagination">
+                <button class="tickets-btn tickets-btn-ghost" ng-click="ChangePage(CurrentPage-1)"
+                    ng-disabled="CurrentPage === 1">
+                    <i class="ti ti-chevron-left"></i> Prev
+                </button>
+                <button class="tickets-page-btn" ng-repeat="page in GetPageNumbers()"
+                    ng-class="{active: page === CurrentPage}" ng-click="ChangePage(page)">
+                    {{page}}
+                </button>
+                <button class="tickets-btn tickets-btn-ghost" ng-click="ChangePage(CurrentPage+1)"
+                    ng-disabled="CurrentPage === TotalPages">
+                    Next <i class="ti ti-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="tickets-empty" ng-if="!FilteredTickets.length">
+            <i class="ti ti-inbox"></i>
+            No tickets match your current search/filters.
+        </div>
+    </section>
+
+    <!-- ============ Detail / action panel ============ -->
+    <div class="tickets-detail-overlay" ng-if="SelectedTicket" ng-click="CloseDetail()">
+        <div class="tickets-detail-panel" ng-click="$event.stopPropagation()">
+            <button class="tickets-detail-close" ng-click="CloseDetail()"><i class="ti ti-x"></i></button>
+
+            <div class="tickets-detail-head">
+                <h3><i class="ti ti-ticket" style="color:var(--blue);margin-right:6px;"></i>{{SelectedTicket.id}} —
+                    {{SelectedTicket.subject}}</h3>
+                <span class="ticket-status-badge" ng-class="StatusClass(SelectedTicket.status)">
+                    {{SelectedTicket.status}}
+                </span>
+            </div>
+
+            <p class="tickets-detail-meta">
+                <i class="ti ti-user"></i>
+                <strong>Customer:</strong> {{SelectedTicket.customerName}} ({{SelectedTicket.customerPhone}})
+            </p>
+            <p class="tickets-detail-meta">
+                <i class="ti ti-tag"></i> <strong>Category:</strong> {{SelectedTicket.category}} &nbsp;|&nbsp;
+                <i class="ti ti-flag-filled"></i> <strong>Priority:</strong> {{SelectedTicket.priority}} &nbsp;|&nbsp;
+                <i class="ti ti-calendar"></i> <strong>Created:</strong> {{SelectedTicket.createdAt | date:'MMM d, y,
+                h:mm a'}}
+            </p>
+            <p class="tickets-detail-desc">{{SelectedTicket.description}}</p>
+
+            <div class="tickets-detail-controls">
+                <div class="tickets-control-group">
+                    <label><i class="ti ti-user-plus"></i> Assign to</label>
+                    <select ng-model="SelectedTicket.assignedTo"
+                        ng-focus="SelectedTicket._previousAssignee = SelectedTicket.assignedTo"
+                        ng-change="AssignTicket(SelectedTicket, SelectedTicket.assignedTo, SelectedTicket._previousAssignee)">
+                        <option value="">Unassigned</option>
+                        <option ng-repeat="s in Staff" value="{{s.id}}">{{s.name}} — {{s.role}}</option>
+                    </select>
+                </div>
+
+                <div class="tickets-control-group">
+                    <label><i class="ti ti-flag"></i> Status</label>
+                    <select ng-model="SelectedTicket.status"
+                        ng-focus="SelectedTicket._previousStatus = SelectedTicket.status"
+                        ng-change="ChangeStatus(SelectedTicket, SelectedTicket._previousStatus)">
+                        <option ng-repeat="s in Statuses" value="{{s}}">{{s}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tickets-comments">
+                <div class="tickets-accordion">
+                    <button class="tickets-accordion-toggle" ng-click="ToggleComments()"
+                        aria-expanded="{{ShowAllComments}}">
+                        <span>
+                            <i class="ti ti-message-circle"></i> Activity
+                            <span class="tickets-accordion-count">{{SelectedTicket.comments.length}}</span>
+                        </span>
+                        <span class="tickets-accordion-state">
+                            {{ShowAllComments ? 'Hide' : 'Show'}}
+                            <i class="ti ti-chevron-down" ng-class="{'is-open': ShowAllComments}"></i>
+                        </span>
+                    </button>
+
+                    <div class="tickets-accordion-panel" ng-class="{open: ShowAllComments}">
+                        <div class="tickets-comment-list">
+                            <div class="tickets-comment"
+                                ng-repeat="c in SelectedTicket.comments | limitTo:(ShowAllComments ? SelectedTicket.comments.length : 4)">
+                                <div class="tickets-comment-avatar">{{c.author.charAt(0)}}</div>
+                                <div class="tickets-comment-body">
+                                    <div class="tickets-comment-head">
+                                        <strong>{{c.author}}</strong>
+                                        <span class="tickets-comment-time">{{c.at | date:'MMM d, h:mm a'}}</span>
+                                    </div>
+                                    <p>{{c.text}}</p>
+                                </div>
+                            </div>
+
+                            <div ng-if="!SelectedTicket.comments.length" class="tickets-empty-comments">
+                                <i class="ti ti-messages-off"></i>
+                                No comments yet.
+                            </div>
+                        </div>
+
+                        <div ng-if="SelectedTicket.comments.length > 4 && !ShowAllComments"
+                            class="tickets-comments-summary">
+                            Showing latest 4 of {{SelectedTicket.comments.length}}.
+                            <button class="tickets-link" ng-click="ToggleComments()">View all</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tickets-comment-form">
+                    <textarea ng-model="NewComment.text" placeholder="Add a comment or update..."></textarea>
+                    <button class="tickets-btn" ng-click="AddComment()">
+                        <i class="ti ti-send"></i> Add comment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,549 @@
+﻿@{ Layout = null;}
+
+<nav class="navbar sticky-top justify-content-end p-2">
+    <div class="btn-group flex-wrap panel-toolbar gap-8 px-3 py-2" role="group">
+        <button type="button" id="Edit" class="btn btn-warning btn-sm " data-bs-toggle="tooltip" title="Edit">
+            <i class="ti ti-pencil-minus"></i> <span class="d-none d-md-inline">Edit</span>
+        </button>
+        <button type="button" id="ShowHideImages" class="btn btn-danger btn-sm ">
+            <i class="ti ti-eye-off"></i> <span class="d-none d-md-inline">Hide Images</span>
+        </button>
+        <button type="button" id="ClonePO" class="btn btn-secondary btn-sm " data-bs-toggle="tooltip" title="Clone PO">
+            <i class="ti ti-copy"></i> <span class="d-none d-md-inline">Clone PO</span>
+        </button>
+        <button type="button" id="CloneBill" class="btn btn-secondary btn-sm " data-bs-toggle="tooltip" title="Clone Bill">
+            <i class="ti ti-copy"></i> <span class="d-none d-md-inline">Clone Bill</span>
+        </button>
+        <button type="button" id="ShowPO" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Show PO" onclick="ShowBill('PO');">
+            <i class="ti ti-file"></i> <span class="d-none d-md-inline">Show PO</span>
+        </button>
+        <button type="button" id="ShowBill" class="btn btn-warning btn-sm " data-bs-toggle="tooltip" title="Show Bill" onclick="ShowBill('Bill');">
+            <i class="ti ti-file-invoice"></i> <span class="d-none d-md-inline">Show Bill</span>
+        </button>
+        <button type="button" id="ReceivedNote" class="btn btn-info btn-sm " data-bs-toggle="tooltip" title="Goods Received Note" onclick="ShowBill('ReceivedNote');">
+            <i class="ti ti-list-check"></i> <span class="d-none d-md-inline">GSRN</span>
+        </button>
+        <button id="PaymentVoucher" class="btn btn-danger btn-sm " data-bs-toggle="tooltip" title="Payment Voucher" onclick="ShowBill('PaymentVoucher');">
+            <i class="ti ti-file-dollar"></i>
+            <span class="d-none d-md-inline">Payment Voucher (Disburse)</span>
+        </button>
+        <!-- Send Email Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <i class="ti ti-mail"></i>
+                <span class="d-none d-md-inline">Send Email</span>
+            </button>
+
+            <div class="dropdown-menu" role="menu">
+
+                <!-- Unpaid Invoice Email Options -->
+                <button class="dropdown-item" id="mail_invoice_created"
+                        onclick="sendEmail('mail_invoice_created')">
+                    Invoice Created
+                </button>
+
+                <button class="dropdown-item" id="mail_invoice_reminder"
+                        onclick="sendEmail('mail_invoice_reminder')">
+                    Invoice Payment Reminder
+                </button>
+
+                <button class="dropdown-item" id="mail_invoice_overdue"
+                        onclick="sendEmail('mail_invoice_overdue')">
+                    Invoice Overdue Notice
+                </button>
+
+                <!-- Paid Invoice Email Options -->
+                <button class="dropdown-item" id="mail_invoice_confirm" style="display:none"
+                        onclick="sendEmail('mail_invoice_confirm')">
+                    Payment Confirmation
+                </button>
+
+            </div>
+        </div>
+
+        <!-- PDF Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <i class="ti ti-file-type-pdf"></i>
+                <span class="d-none d-md-inline">PDF</span>
+            </button>
+
+            <div class="dropdown-menu" role="menu">
+                <button id="View_PDF_Customer" class="dropdown-item">View PDF</button>
+                <button id="Download_PDF_Customer" class="dropdown-item">Download PDF</button>
+                <button id="Download_Excel_Customer" class="dropdown-item">Download Excel</button>
+            </div>
+        </div>
+
+        <!-- New PO -->
+        <button type="button" id="NewVendorPO" class="btn btn-secondary btn-sm " data-bs-toggle="tooltip" title="New PO">
+            <i class="ti ti-file-plus"></i> <span class="d-none d-md-inline">New PO</span>
+        </button>
+
+        <!-- New Bill -->
+        <button type="button" id="NewVendorBill" class="btn btn-primary btn-sm " data-bs-toggle="tooltip" title="New Bill">
+            <i class="ti ti-file-plus"></i> <span class="d-none d-md-inline">New Bill</span>
+        </button>
+
+        <!-- Print -->
+        <button type="button" id="Print" class="btn btn-default btn-sm">
+            <i class="ti ti-printer"></i> <span class="d-none d-md-inline">Print</span>
+        </button>
+
+    </div>
+</nav>
+
+
+<div id="" class="bg-white p-2">
+    <div id="div_PO">
+        <div id="div_show_info">
+            @if (ViewBag.Type == "PO")
+            {
+                <div class="invoice-po"></div>
+            }
+            else
+            {
+                @Html.Raw(@ViewBag.Data)
+            }
+        </div>
+        <div id="div_show_PO" style="display:none"></div>
+        <div id="div_show_Bill" style="display:none"></div>
+        <div id="div_show_receivedNote" style="display:none"></div>
+        <div id="div_show_PaymentVoucher" style="display:none"></div>
+    </div>
+</div>
+<script>
+    var url = $(location).attr('href');
+    var UrlEndPoint = url.split("/")[4];
+    var BillNumber = "@ViewBag.BillNumber";
+    var PurchaseOrderID = "@ViewBag.PurchaseOrderID";
+    var PaymentStatus = "@ViewBag.PaymentStatus";
+    var BillID = "@ViewBag.BillID";
+    var BillType = "@ViewBag.BillType";
+    var OfficialReceipt = "@ViewBag.OfficialReceipt";
+    var Status_ID = "@ViewBag.StatusID";
+    var Type = "@ViewBag.Type";
+    var POID = "@ViewBag.POID";
+    var PONumber = "@ViewBag.PONumber";
+    var VendorID = "@ViewBag.VendorID";
+    var div_show_PO = "";
+    var div_show_Bill = "";
+    var div_show_info = "";
+    var div_show_receivedNote = "";
+    var div_show_PaymentVoucher = "";
+    var StockInID = "@ViewBag.StockInID";
+    var StockInStatusID = "@ViewBag.StockInStatusID";
+    $(function () {
+        $("#PaymentVoucher").hide();
+        $("#NewVendorBill").click(function () {
+            NewBill(VendorID);
+        });
+        $("#NewVendorPO").click(function () {
+            NewPurchaseOrder(VendorID);
+        });
+        if (BillID == "") {
+            $("#ShowBill").hide();
+        }
+        $("#ClonePO").hide();
+        $("#CloneBill").hide();
+        $("#ReceivedNote").hide();
+        $('#ShowHideImages').click(function () {
+            $('.img').toggle();
+            if ($('.img').is(':hidden')) {
+                $(this).html('<i class="ti ti-eye"></i> <span class="d-none d-md-inline">Show Images</span>');
+            } else {
+                $(this).html('<i class="ti ti-eye-off"></i> <span class="d-none d-md-inline">Hide Images</span>');
+            }
+        });
+        if (Type == 'PO') {
+            if (Status_ID != 60 && Status_ID != 91) {
+                $("#Edit").remove();
+            }
+            $("#ClonePO").show();
+            $("#Edit").click(function () {
+                var URL = 'PurchaseOrder/CreatePurchaseOrder?PrimaryFieldValue=' + POID + '&Type=EditPO';
+                ShowDialogBox("Edit Purchase Order", "Auto", 600, URL, POID);
+            });
+            $("#ClonePO").click(function () {
+                var URL = 'PurchaseOrder/CreatePurchaseOrder?PrimaryFieldValue=' + POID + '&Type=EditPO&Clone=true';
+                ShowDialogBox("Clone Purchase Order", "Auto", 600, URL, POID);
+            });
+        }
+        else if (Type == 'Bill') {
+            $("#CloneBill").show();
+            $("#ShowBill").show();
+            //if (BillType == "Stock In") {
+            //    $("#ReceivedNote").show();
+            //}
+            //else
+            if (BillType == "Bill") {
+                if (UrlEndPoint == "EnterBill" && StockInID == "") {
+                    $("#ConfirmReceivingPO").remove();
+                    $("#ConfirmReceivingPO_FromBill").remove();
+                    var btn = "<div class=\"\"><button type=\"button\" id=\"ConfirmReceivingPO_FromBill\" class=\"btn btn-warning \">";
+                    btn += '<i class="fa fa-download"></i> Confirm Receive This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+            }
+            $("#ConfirmReceivingPO_FromBill").click(function () {
+                //var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=Stock In';
+                var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+                ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+            });
+            $("#Edit").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=' + BillType;
+                ShowDialogBox("Edit Bill", "Auto", 600, URL, POID);
+            });
+            $("#CloneBill").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Clone=true&Status=' + BillType;
+                ShowDialogBox("Close Bill", "Auto", 600, URL, POID);
+            });
+        }
+        $("#Print").click(function () {
+            $("#div_PO").printThis();
+        });
+
+        if (PaymentStatus == 14) {
+            $("#Edit").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=ConvertToCreditNote';
+                ShowDialogBox("Edit Credit Note", "Auto", 600, URL, POID);
+            });
+        }
+
+        var row = '<i class="ti ti-printer" aria-hidden="true"></i> Print';
+        $("#SaveChange").html(row);
+        $("#SaveChange").click(function () {
+            $("#div_PO").printThis();
+        });
+        if (Type == 'PO') {
+            //if (Status_ID == 60 || Status_ID == 66) {
+            //if (BillType == "Bill") {
+            //    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO();\" id=\"ConfirmReceivingPO\" class=\"btn btn-warning \">";
+            //    btn += '<i class="fa fa-download"></i> Confirm Receive This PO</button></div>';
+            //    $("#SaveChange").before(btn);
+            //}
+            let POStatus = "@ViewBag.POStatus";
+
+            if (Status_ID == 60 || Status_ID == 90 || Status_ID == 91 || Status_ID == 92) {
+                if (POStatus == 0) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(92);\" id=\"CheckVerify\" class=\"btn btn-primary\">";
+                    btn += '<i class="ti ti-checkbox"></i> CheckVerify This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                    btn += '<i class="ti ti-circle-dashed-x"></i> Disapprove This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                    btn += '<i class="ti ti-circle-dashed-check"></i> Approve This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    if (BillID == "" && StockInID == "" && StockInStatusID == "") {
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                        btn += '<i class="ti ti-receipt-2"></i> Convert To Bill</button></div>';
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                        btn += '<i class="ti ti-receipt-2"></i> Convert To Received</button></div>';
+                        $("#SaveChange").before(btn);
+                    }
+                }
+                else if (POStatus == 90) {
+                    if (UrlEndPoint == "AuthorizePurchaseOrder") {
+                        let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                        btn += '<i class="ti ti-circle-dashed-x"></i> Disapprove This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                    }
+                }
+                else if (POStatus == 91) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                    btn += '<i class="ti ti-circle-dashed-check"></i> Approve This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+                else if (POStatus == 92) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                    btn += '<i class="ti ti-circle-dashed-x"></i> Disapprove This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                    btn += '<i class="ti ti-circle-dashed-check"></i> Approve This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+            }
+            if (Status_ID == 90) {
+                if (UrlEndPoint == "PurchaseOrder" && BillID == "") {
+                    //let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                    //btn += '<i class="ti ti-circle-dashed-x"></i> Disapprove This PO</button></div>';
+                    //$("#SaveChange").before(btn);
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"RequestEditPO();\" id=\"RequestEdit\" class=\"btn btn-info\">";
+                    btn += '<i class="ti ti-send-2"></i> Request Edit PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"CloseCancelPO('cancel');\" id=\"CancelPO\" class=\"btn btn-warning \">";
+                    btn += '<i class="ti ti-circle-dashed-x"></i> Cancel PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"CloseCancelPO('close');\" id=\"ClosePO\" class=\"btn btn-danger\">";
+                    btn += '<i class="ti ti-circle-dashed-x"></i> Close PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"d-none\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                    btn += '<i class="ti ti-receipt-2"></i> Convert To Bill</button></div>';
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"d-none\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                    btn += '<i class="ti ti-receipt-2"></i> Convert To Received</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+            }
+            if (UrlEndPoint == "GoodsReceived" && BillID=="") {
+                var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBillFromReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                btn += '<i class="ti ti-receipt-2"></i> Convert To Bill</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+        //if (UrlEndPoint == "GoodsReceived" && BillID == "") {
+        //    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-danger\">";
+        //    btn += '<i class="ti ti-receipt-2"></i> Convert To Bill</button></div>';
+        //    $("#SaveChange").before(btn);
+        //}
+        if (Status_ID == 64 && Status_ID != "" && Status_ID != 10 && Status_ID != 60 && Status_ID != 65 && PaymentStatus != 10 && PaymentStatus != 14) {
+            if (UrlEndPoint == "EnterBill") {
+
+                $("#VendorPaymentsMade").remove();
+                var btn = "<div class=\"\"><button type=\"button\" onclick=\"VendorPaymentsMade(" + VendorID + ", '', '" + BillID + "');\" id=\"VendorPaymentsMade\" class=\"btn btn-danger\">";
+                btn += '<i class="ti ti-receipt-2"></i> Payments</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+
+        if (UrlEndPoint == "EnterBill") {
+            $("#ReceivedNote").show();
+            $("#VendorCreditNote").remove();
+            var btn = "<div class=\"\"><button type=\"button\" id=\"VendorCreditNote\" class=\"btn btn-info\">";
+            btn += '<i class="ti ti-file-invoice"></i> Convert To Credit Note</button></div>';
+            $("#SaveChange").before(btn);
+
+            $("#VendorCreditNote").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + BillID + '&Type=EditBill&Clone=true&Status=ConvertToCreditNote';
+                ShowDialogBox("Credit Note", "Auto", 600, URL, BillID);
+            });
+        }
+        if (PaymentStatus == 10 || PaymentStatus == 15) {
+            $("#PaymentVoucher").show();
+        }
+        if (PurchaseOrderID == 0)
+            $("#ShowPO").hide();
+        if (PaymentStatus == 11) {
+            if (UrlEndPoint == "EnterBill") {
+                $("#VendorPaymentsMade").remove();
+                let btn = "<div class=\"\"><button type=\"button\" onclick=\"VendorPaymentsMade(" + VendorID + ", '', '" + BillID + "');\" id=\"VendorPaymentsMade\" class=\"btn btn-danger\">";
+                btn += '<i class="ti ti-receipt-2"></i> Payments</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+
+
+        GetInvoicePO();
+        if (Type == "PO") {
+            const res = CheckPOHasStockIN();
+            if (res.qty > 0) {
+                $("#CancelPO").hide();
+                $("#ClosePO").toggle(!res.IsClose);
+            } else {
+                $("#ClosePO").hide();
+                $("#CancelPO").toggle(!res.IsCancel);
+            }
+        }
+
+    });
+
+    function CloseCancelPO(status){
+        DoSaveChangeSweetCofirm("PurchaseOrder/CloseCancelPO", { POID: POID, Status: status }, function (result) {
+            if (result.Result == 2) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                $("#BtnSearchVendorPO").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", "");
+    }
+
+    function CheckPOHasStockIN() {
+        let res = 0;
+        LoadData("PurchaseOrder/CheckPOHasStockIN?POID=" + POID, function (response) {
+            res = JSON.parse(JSON.parse(response).data)[0];
+        });
+        return res;
+    }
+
+    function ConfirmReceivingThisPO(Status) {
+        if (BillID != "") {
+            //var URL = 'Bills/CreateBill?PrimaryFieldValue=' + BillID + '&Type=EditBill&Status=Stock In';
+            var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+            ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+        }
+        else {
+            Status = (typeof Status == 'undefined' ? 'Stock In' : Status);
+
+            if (Status == "ConvertToReceived") {
+                var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+                ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+            } else if (Status == "ConvertToBillFromReceived") {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + VendorID + '&Type=Bill&PO_Number=' + encodeURIComponent(PONumber) + '&Status=' + Status;
+                Title = "Convert To Bill";
+                ShowDialogBox(Title, "Auto", "600", URL, VendorID);
+            } else {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + VendorID + '&Type=Bill&PO_Number=' + encodeURIComponent(PONumber) + '&Status=' + Status;
+                var Title = "New Bill";
+                if (Status == "ConvertToBill") {
+                    Title = "Convert To Bill";
+                }
+                ShowDialogBox(Title, "Auto", "600", URL, VendorID);
+            }
+        }
+    }
+
+    function ShowBill(Type) {
+        $("#div_show_PO").hide();
+        $("#div_show_Bill").hide();
+        $("#div_show_info").hide();
+        $("#div_show_receivedNote").hide();
+        $("#div_show_PaymentVoucher").hide();
+        if (Type == 'PO') {
+            $("#div_show_PO").show();
+            if (div_show_PO == "") {
+                var url = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + PurchaseOrderID + "&Type=PO&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_PO").html(responetext);
+                    div_show_PO = responetext;
+                });
+            }
+            else {
+                $("#div_show_PO").html(div_show_PO);
+            }
+        }
+        else if (Type == 'Bill') {
+            $("#div_show_Bill").show();
+            if (div_show_Bill == "") {
+                var url = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + BillID + "&Type=Bill&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_Bill").html(responetext);
+                    div_show_Bill = responetext;
+                });
+            }
+            else {
+                $("#div_show_Bill").html(div_show_Bill);
+            }
+        }
+        else if (Type == 'ReceivedNote') {
+            $("#div_show_receivedNote").show();
+            if (div_show_receivedNote == "") {
+                var url = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + BillID + "&Type=ReceivingNote&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_receivedNote").html(responetext);
+                    $("p#p_TermsConditions").remove();
+                    $("div#div_inv_footer").remove();
+                    setTimeout(function () {
+                        div_show_receivedNote = $("#div_show_receivedNote").html();
+                    }, 500);
+                });
+            }
+            else {
+                $("#div_show_receivedNote").html(div_show_receivedNote);
+            }
+        }
+        else if (Type == 'PaymentVoucher') {
+            $("#div_show_PaymentVoucher").show();
+            if (div_show_PaymentVoucher == "") {
+                var url = "Profile/BLPayment?VendorID=" + VendorID + "&OfficialReceipt=" + OfficialReceipt;
+                LoadData(url, function (responetext) {
+                    $("#div_show_PaymentVoucher").html(responetext);
+                    div_show_PaymentVoucher = responetext;
+                });
+            }
+            else {
+                $("#div_show_PaymentVoucher").html(div_show_PaymentVoucher);
+            }
+        }
+    }
+
+    function ApprovePO(POStatus) {
+        if (POStatus == 90 || POStatus == 92) {
+            DoSaveChangeSweetCofirm("PurchaseOrder/ApprovPO", { POID: POID, POStatus: POStatus }, function (result) {
+                if (result.Result == 2) {
+                    $("#CloseModal").click();
+                    $("#BunSearch").click();
+                    $("#BtnSearchVendorPO").click();
+                    LoadTableGrid(CurrentPage);
+                }
+            });
+        }
+        else if (POStatus == 91) {
+            DoSaveChangeSweetCofirm("PurchaseOrder/ApprovPO", { POID: POID, POStatus: POStatus, Comment: $("#txtComment").val(), IsDisFromSystem: true }, function (result) {
+                if (result.Result == 2) {
+                    $("#CloseModal").click();
+                    $("#BunSearch").click();
+                    $("#BtnSearchVendorPO").click();
+                    LoadTableGrid(CurrentPage);
+                }
+            }, "", "","Disapprove This PO");
+        }
+    }
+
+    function GetInvoicePO() {
+        PostData("PurchaseOrder/InvoicePO?VendorID=" + VendorID + "&POID=" + POID + "&PONumber=" +PONumber, "", function (result) {
+            $(".invoice-po").html(result);
+        });
+    }
+
+    function RequestEditPO() {
+        LoadData("Sales/LoadUserApproval", function (res) {
+            const data = JSON.parse(JSON.parse(res).data);
+            let select = `
+            <div class="mb-3">
+            <select class="rounded-0 rounded-start form-select" id="SelectApproval" name="SelectApproval">
+            <option data-bind="Approve By" value="0">Please select approval</option>
+        `;
+            data.forEach((item) => {
+                select += `<option data-bind="${item.ApproveUsername}" value="${item.NeedApproveByID}">${item.NeedApproveBy}</option>`;
+            });
+            select += `
+            </select></div>
+            <textarea id="cmt" class="form-control" name="ReqEditComment" rows="2" placeholder="Add comment" required></textarea>
+        `;
+
+            DialogSweetCofirm(function () {
+                let dtselect = $("#SelectApproval").select2('data')[0];
+                let approveBy = dtselect.text;
+                let approveById = dtselect.id;
+                let approveUsername = $(dtselect.element).attr("data-bind");
+                let comment = $("#cmt").val();
+                if (approveById == 0) {
+                    DialogSweetAlert("error", "Please select an approval option.");
+                    return;
+                }
+                if (!comment) {
+                    DialogSweetAlert("error", "Please input comment.");
+                    return;
+                }
+                const param = {
+                    PurchaseID: POID,
+                    PONumber: PONumber,
+                    ApproveByID: approveById,
+                    ApproveBy: approveBy,
+                    Username: approveUsername,
+                    Comment: comment,
+                };
+
+                PostData("PurchaseOrder/RequestEditPO", param,
+                    function (res) {
+                        DialogSweetAlert('success', res.Result == 2
+                            ? `Request edit PO has been sent!`
+                            : res.Message
+                        );
+                    },true, true, "json");
+            }, "", "Are you sure?", "Yes do it now.", "", select, function () {
+                $("#SelectApproval").select2({
+                    dropdownParent: $("#SelectApproval").parent(),
+                    theme: 'bootstrap4'
+                });
+            });
+        });
+    }
+</script>
+

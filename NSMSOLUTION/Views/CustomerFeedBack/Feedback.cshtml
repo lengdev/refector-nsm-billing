@@ -1,0 +1,365 @@
+﻿@{ Layout = null; }
+<link href="~/Content/bootstrap-star-rating-master/css/star-rating.min.css" media="all" rel="stylesheet"
+    type="text/css" />
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLForm)
+    </div>
+</div>
+<div class="row">
+    <!--<div class="col-6">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">1. Network Reliability</h3>
+        </div>-->
+    <!-- /.card-header -->
+    <!--<div class="card-body">
+    <form>
+        <div class="row">
+            <div class="col">-->
+    <!-- radio -->
+    <!--<div class="form-group">
+                        <div class="custom-control custom-radio mb-3">
+                            <input class="custom-control-input" value="Stable Connection" type="radio" id="StableConnection" name="NetworkReliability" checked />
+                            <label for="StableConnection" class="custom-control-label">Stable Connection</label>
+                        </div>
+                        <div class="custom-control custom-radio mb-3">
+                            <input class="custom-control-input" value="Not Stable Connection" type="radio" id="NotStableConnection" name="NetworkReliability">
+                            <label for="NotStableConnection" class="custom-control-label">Not Stable Connection</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input class="custom-control-input" value="Poor Connection" type="radio" id="PoorConnection" name="NetworkReliability">
+                            <label for="PoorConnection" class="custom-control-label">Poor Connection</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>-->
+    <!-- /.card-body -->
+    <!--</div>
+    </div>-->
+    <div class="col-6">
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title">1. Internet Speed</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <!-- radio -->
+                            <div class="form-group">
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Smoothly" type="radio" id="Smoothly"
+                                        name="InternetSpeed" checked />
+                                    <label for="Smoothly" class="custom-control-label">Smoothly</label>
+                                </div>
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Slow" type="radio" id="Slow"
+                                        name="InternetSpeed">
+                                    <label for="Slow" class="custom-control-label">Slow</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" value="Not Stable" type="radio" id="NotStable"
+                                        name="InternetSpeed">
+                                    <label for="NotStable" class="custom-control-label">Not Stable</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">2. Pricing</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <!-- radio -->
+                            <div class="form-group">
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Reasonable" type="radio" id="Reasonable"
+                                        name="Pricing" checked />
+                                    <label for="Reasonable" class="custom-control-label">Reasonable</label>
+                                </div>
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Cheap" type="radio" id="Cheap"
+                                        name="Pricing">
+                                    <label for="Cheap" class="custom-control-label">Cheap</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" value="Expensive" type="radio" id="Expensive"
+                                        name="Pricing">
+                                    <label for="Expensive" class="custom-control-label">Expensive</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title text-white">3. Customer Services</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <!-- radio -->
+                            <div class="form-group">
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Very Good" type="radio" id="VeryGood"
+                                        name="CustomerServices" checked>
+                                    <label for="VeryGood" class="custom-control-label">Very Good</label>
+                                </div>
+                                <div class="custom-control custom-radio mb-3">
+                                    <input class="custom-control-input" value="Good" type="radio" id="Good"
+                                        name="CustomerServices">
+                                    <label for="Good" class="custom-control-label">Good</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input class="custom-control-input" value="Bad" type="radio" id="Bad"
+                                        name="CustomerServices">
+                                    <label for="Bad" class="custom-control-label">Bad</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header bg-indigo">
+                <h3 class="card-title">4. Rating us</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col mb-4">
+                        <span class="">How would customer rates overall experience?</span>
+                    </div>
+                </div>
+                @*<input id="input-2" name="input-2" value="2.5" class="rating-loading">*@
+                <input type="text" id="RecommendsUs" class="kv-gly-heart rating-loading" value="4" data-size="xl"
+                    data-theme="krajee-fas" data-show-clear="false" data-show-caption="false">
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <div class="card" style="height:296px">
+            <div class="card-header bg-fuchsia">
+                <h3 class="card-title text-white">5. Customer Comment</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <form>
+                    @*<div class="mb-3 floating-label validate-input" data-validate="Customer Comment is required.">*@
+                        <textarea rows="8" name="CustomerComment" id="CustomerComment" required=""
+                            placeholder="Enter customer Comment" class="form-control"></textarea>
+                        @*<label for="CustomerComment">Customer Comment</label>
+                    </div>*@
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card card-primary" style="height:296px">
+            <div class="card-header">
+                <h3 class="card-title">6. Submit</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row mb-3 mt-3">
+                    <div class="col">
+                        <div class="mb-3 floating-label">
+                            <select class="form-control" id="ContactBy">
+                                <option value="Phone Call">Phone Call</option>
+                                <option value="Telegram Call">Telegram Call</option>
+                                <option value="Telegram Message">Telegram Message</option>
+                            </select>
+                            <label for="ContactBy">Contact By</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3 floating-label">
+                            <input type="text" name="UserContact" id="UserContact" value="@ViewBag.UserName" required=""
+                                placeholder="Enter User Contact" class="form-control">
+                            <label for="UserContact">User Contact</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 mt-3">
+                    <div class="col">
+                        <div class="mb-3 floating-label">
+                            <select class="form-control" id="Complaint">
+                                <option value="Complaint">Complaint</option>
+                                <option value="No Complaint">No Complaint</option>
+                            </select>
+                            <label for="Complaint">Complaint</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <button class="btn btn-primary" id="SubmitCustFeedback">Submit</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-danger" id="btnNoAnswer">No Answer</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-danger" id="btnBusy">Busy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Content/bootstrap-star-rating-master/js/star-rating.min.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap-star-rating-master/themes/krajee-fas/theme.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap-star-rating-master/themes/krajee-svg/theme.js" type="text/javascript"></script>
+<script src="~/Content/bootstrap-star-rating-master/themes/krajee-gly/theme.js" type="text/javascript"></script>
+<script>
+    $(function () {
+        //$('#CustomerComment').summernote({
+        //    placeholder: "Enter Customer Comment",
+        //    toolbar: false,
+        //});
+        $('#RecommendsUs').rating({
+            step: 1,
+            //containerClass: 'is-heart',
+            //displayOnly: true,
+            //defaultCaption: '{rating} hearts',
+            //starCaptions: function (rating) {
+            //    return rating == 1 ? 'One heart' : rating + ' hearts';
+            //},
+            //filledStar: '<i class="glyphicon glyphicon-heart"></i>',
+            //emptyStar: '<i class="glyphicon glyphicon-heart-empty"></i>',
+            //containerClass: 'is-heart',
+            //defaultCaption: '{rating} hearts',
+            //theme: 'krajee-fa',
+            //filledStar: '<i class="fa fa-heart"></i>',
+            //emptyStar: '<i class="fa fa-heart-o"></i>',
+            //step: 1,
+            //starCaptions: { 1: 'Very Poor', 2: 'Poor', 3: 'Ok', 4: 'Good', 5: 'Very Good' },
+            //starCaptionClasses: { 1: 'text-danger', 2: 'text-warning', 3: 'text-info', 4: 'text-primary', 5: 'text-success' }
+        });
+        $("#SubmitCustFeedback").click(function () {
+            SaveChageCustFeedback(0, 0);
+        });
+        $("#btnNoAnswer").click(function () {
+            SweetCofirmYesNoCancel("", "No Answer", "", function (comment) {
+                SaveChageCustFeedback(1, 0, encodeURIComponent(nl2br(comment)));
+            }, "", true);
+        });
+        $("#btnBusy").click(function () {
+            SweetCofirmYesNoCancel("", "Busy", "", function (comment) {
+                SaveChageCustFeedback(0, 1, encodeURIComponent(nl2br(comment)));
+            }, "", true);
+        });
+    });
+
+    function SaveChageCustFeedback(isNoAnswer, isBusy, CommentNoAnswerOrBusy) {
+        isNoAnswer = typeof isNoAnswer == "undefined" ? 0 : isNoAnswer;
+        isBusy = typeof isBusy == "undefined" ? 0 : isBusy;
+        CommentNoAnswerOrBusy = typeof CommentNoAnswerOrBusy == "undefined" ? "" : CommentNoAnswerOrBusy;
+        var _CustomerID = $("#Customer_Code_CID_CustomerID").val();
+        var CustomerCode = $("#Customer_Code_CID").val();
+        var CustomerName = $("#CustomerName").val();
+        var CustomerPhone = $("#CustomerPhone").val();
+        var CustomerComment = encodeURIComponent(nl2br($("#CustomerComment").val()));
+        var InternetSpeed = $("input[name=InternetSpeed]:checked").val();
+        var Pricing = $("input[name=Pricing]:checked").val();
+        var CustomerServices = $("input[name=CustomerServices]:checked").val();
+        var Ratingus = $("#RecommendsUs").val();
+        var ContactBy = $("#ContactBy").val();
+        var UserContact = $("#UserContact").val();
+        var Complaint = $("#Complaint").val();
+
+        if (isNoAnswer == 1 || isBusy == 1) {
+            CustomerComment = '';
+            InternetSpeed = '';
+            Pricing = '';
+            CustomerServices = '';
+            Ratingus = '';
+        }
+
+        if (CustomerCode == "") {
+            DialogSweetAlert("error", "Please enter CID.", function () { $("#Customer_Code_CID").focus() });
+            return false;
+        }
+        else if (CustomerName == "") {
+            DialogSweetAlert("error", "Please enter Customer Name.", function () { $("#CustomerName").focus() });
+            return false;
+        }
+        else if (CustomerPhone == "") {
+            DialogSweetAlert("error", "Please enter Customer Phone.", function () { $("#CustomerPhone").focus() });
+            return false;
+        }
+        else if (CustomerComment == "" && isNoAnswer == 0 && isBusy == 0) {
+            DialogSweetAlert("error", "Please enter Customer Comment.", function () { $("#CustomerComment").focus() });
+            return false;
+        }
+        var Data = JSON.stringify({
+            CustomerID: _CustomerID,
+            CustomerCode: CustomerCode,
+            CustomerName: CustomerName,
+            CustomerPhone: CustomerPhone,
+            InternetSpeed: InternetSpeed,
+            Pricing: Pricing,
+            CustomerServices: CustomerServices,
+            Ratingus: Ratingus,
+            ContactBy: ContactBy,
+            IsNoAnswer: isNoAnswer,
+            IsBusy: isBusy,
+            CustomerComment: CustomerComment,
+            CommentNoAnswerOrBusy: CommentNoAnswerOrBusy,
+            UserContact: UserContact,
+            Complaint: Complaint
+        });
+        DoSaveChangeData("CustomerFeedBack/SaveChagneCustomerFeedback", { Data: Data },
+            function (response) {
+                if (response.Result == 2) {
+                    ModalDialogBox("Customer Feedback Result", "CustomerFeedBack/ShowCustFeedbackResult?FeedbackID=" + response.FeedbackID + "&CustomerID=" + _CustomerID, "", "", "", "", "", true);
+                    $("#Customer_Code_CID_CustomerID").val('');
+                    $("#Customer_Code_CID").val('').focus();
+                    $("#CustomerName").val('');
+                    $("#CustomerPhone").val('');
+                    $("#CustomerComment").val('');
+                    if (isNoAnswer == 0 && isBusy == 0 && Complaint == 'Complaint')
+                        LoadData("CustomerFeedBack/SendTelegramNotification?CustomerID=" + _CustomerID + "&FeedbackID=" + response.FeedbackID + "&FeedbackNo=" + response.FeedbackNo + "&CustomerComment=" + encodeURIComponent(response.CustomerComment), function (response) { });
+                }
+            });
+    }
+    function checkcust() {
+        var IsFeedback = $("#Customer_Code_CID_IsFeedback").val();
+        if (IsFeedback == "True") {
+            DialogSweetAlert("error", "This customer already feedback.", function () {
+                $("#Customer_Code_CID_IsFeedback").focus();
+            });
+        }
+    }
+</script>

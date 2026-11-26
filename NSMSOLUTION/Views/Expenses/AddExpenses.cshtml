@@ -1,0 +1,1523 @@
+@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+@using System.Data
+<style>
+
+    .section-banner {
+        background-color: #F89C39;
+        color: #fff;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+</style>
+@{
+    decimal totalAmount = 0;
+    decimal paidAmount = 0;
+    decimal PreviousPaidAmount = 0;
+    bool IsRequestedPayment = false;
+    decimal balanceAmount = 0;
+    string PostedPaymentNo = "";
+    if (!string.IsNullOrWhiteSpace(Convert.ToString(ViewBag.PaymentNo)))
+    {
+        DataTable dt = ViewBag.ItemDetails as DataTable ?? new DataTable();
+        DataTable dtSummary = ViewBag.dtSummary as DataTable ?? new DataTable();
+        DataTable dtPaymentHistory = ViewBag.dtPaymentHistory as DataTable ?? new DataTable();
+
+        if (dtSummary.Rows.Count > 0)
+        {
+            DataRow r = dtSummary.Rows[0];
+
+            totalAmount = r["TotalAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(r["TotalAmount"]);
+            PreviousPaidAmount = r["PreviousPaidAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(r["PreviousPaidAmount"]);
+            paidAmount = r["PaidAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(r["PaidAmount"]);
+            balanceAmount = r["BalanceAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(r["BalanceAmount"]);
+            IsRequestedPayment = r["IsRequestedPayment"] == DBNull.Value ? false : Convert.ToBoolean(r["IsRequestedPayment"]);
+            PostedPaymentNo = r["PostedPaymentNo"] == DBNull.Value ? "" : r["PostedPaymentNo"].ToString();
+            //if (IsRequestedPayment)
+            //{
+            //    balanceAmount += paidAmount;
+            //}
+        }
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-warning text-white fw-bold">
+                    Item Details
+                </div>
+
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-bordered table-hover table-sm">
+                        <thead class="table-light text-nowrap">
+                            <tr class="text-uppercase text-center">
+                                <th class="text-center">#</th>
+                                <th>Expense Account</th>
+                                <th>Account No</th>
+                                <th>Item / Service</th>
+                                @*<th>Description</th>*@
+                                <th class="text-center">UOM</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Discount</th>
+                                <th class="text-end">Tax</th>
+                                <th class="text-end">Grand Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int i = 1;
+                                decimal grandTotal = 0;
+                            }
+
+                            @foreach (DataRow row in dt.Rows)
+                            {
+                                grandTotal += Convert.ToDecimal(row["Total"]);
+
+                                <tr>
+
+                                    <td class="text-center">@i</td>
+
+                                    <td>@row["ExpenseAccount"]</td>
+
+                                    <td>@row["AccountNo"]</td>
+
+                                    <td>
+                                        @row["ItemName"]<br />
+                                        @row["ItemName_Description"]
+                                    </td>
+
+                                    @*<td>@row["ItemName_Description"]</td>*@
+
+                                    <td class="text-center">@row["UM"]</td>
+
+                                    <td class="text-right">@Convert.ToDecimal(row["QTY"]).ToString("N0")</td>
+
+                                    <td class="text-right">@Convert.ToDecimal(row["UnitPrice"]).ToString("N4")</td>
+
+                                    <td class="text-right">@Convert.ToDecimal(row["DisUSD"]).ToString("N2")</td>
+
+                                    <td class="text-right">@Convert.ToDecimal(row["ItemTAX"]).ToString("N2")%</td>
+
+                                    <td class="text-right fw-bold">
+                                        @Convert.ToDecimal(row["Total"]).ToString("N2")
+                                    </td>
+
+                                </tr>
+
+                                i++;
+                            }
+
+                        </tbody>
+
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="9" class="text-right">
+                                    Grand Total
+                                </th>
+
+                                <th class="text-right text-primary">
+                                    <label name="SubTotal">@grandTotal.ToString("N2")</label>
+                                    
+                                </th>
+                            </tr>
+                        </tfoot>
+
+                    </table>
+
+                </div>
+            </div>
+            <div class="card shadow-sm border-0 pt-2">
+
+                <div class="card-header bg-warning text-white fw-bold">
+                    Payment Information
+                </div>
+
+                <div class="card-body">
+
+                    <!-- Payment Amount -->
+                    <div class="row align-items-center mb-4">
+                        <label class="fw-semibold pr-1">
+                            Payment Amount: <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="">
+                            <input type="text"
+                                   id="txtAmountInput"
+                                   class="form-control form-control-lg text-end"
+                                   placeholder="0.00"
+                                   value="@(IsRequestedPayment ? PreviousPaidAmount.ToString("N2") : "")" />
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Summary -->
+                    <div style="font-size:16px">
+
+                        <div class="row py-2 text-nowrap text-primary">
+                            <div class="col-5 fw-semibold">
+                                Total Expense:
+                            </div>
+
+                            <div class="col-auto text-end fs-5 fw-bold">
+                                @totalAmount.ToString("C2")
+                            </div>
+                        </div>
+
+                        <div class="row py-2 text-nowrap">
+                            <div class="col-5 fw-semibold">
+                                Already Paid:
+                            </div>
+
+                            <div class="col-auto text-end text-primary fw-bold">
+                                @paidAmount.ToString("C2")
+                            </div>
+                        </div>
+
+                        <div class="row py-2 border-top text-nowrap">
+                            <div class="col-5 fw-semibold">
+                                Balance:
+                            </div>
+
+                            <div class="col-auto text-end text-danger fw-bold fs-5">
+                                <span id="lblTotalAll">@balanceAmount.ToString("C2")</span>
+                            </div>
+                        </div>
+
+                        <div class="row py-2 border-top text-nowrap">
+                            <div class="col-5 fw-bold">
+                                Remaining Balance:
+                            </div>
+
+                            <div class="col-auto text-end text-success fw-bold fs-4">
+                                <span id="lblRemainingBalance">
+                                    @balanceAmount.ToString("C2")
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card shadow-sm mt-3">
+
+                <div class="card-header bg-warning text-white fw-bold">
+                    Payment History
+                </div>
+
+                <div class="card-body p-0 table-responsive">
+
+                    <table class="table table-bordered table-hover table-sm mb-0">
+
+                        <thead class="table-light">
+                            <tr class="text-center text-uppercase text-nowrap">
+
+                                <th style="width:50px">No.</th>
+
+                                <th>Created Date</th>
+                                <th>Posted Date</th>
+
+                                <th>Payment No</th>
+
+                                <th>Payment Method</th>
+
+                                <th class="text-end">Paid Amount</th>
+
+                                <th class="text-end">Running Balance</th>
+
+                                <th>Posted By</th>
+                                <th>Workflow Status</th>
+                                <th>Payment Status</th>
+
+                                <th>Remark</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int no = 1;
+                            }
+
+                            @foreach (DataRow row in dtPaymentHistory.Rows)
+                            {
+                                <tr>
+
+                                    <td class="text-center">@no</td>
+
+                                    <td class="text-center">
+                                        @(row["CreatedDate"] == DBNull.Value ? "" :
+        Convert.ToDateTime(row["CreatedDate"]).ToString("dd/MM/yyyy"))
+                                    </td>
+                                    <td class="text-center">
+                                        @(row["PostedDate"] == DBNull.Value ? "" :
+        Convert.ToDateTime(row["PostedDate"]).ToString("dd/MM/yyyy"))
+                                    </td>
+
+                                    <td>@row["PaymentNo"]</td>
+
+                                    <td>@row["PaymentMethod"]</td>
+
+                                    <td class="text-right text-success fw-bold">
+                                        @Convert.ToDecimal(row["PaidAmount"]).ToString("N2")
+                                    </td>
+
+                                    <td class="text-right text-danger fw-bold">
+                                        @Convert.ToDecimal(row["BalanceAmount"]).ToString("N2")
+                                    </td>
+
+                                    <td>@row["PaidBy"]</td>
+
+                                    <td class="text-center">
+
+                                        @if (Convert.ToBoolean(row["IsPosted"]))
+                                        {
+                                            <span class="badge badge-success">Posted</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">
+                                                @row["Status"]
+                                            </span>
+                                        }
+
+                                    </td>
+                                    <td class="text-center">
+
+                                        @*@if (Convert.ToBoolean(row["IsPosted"]))
+                                        {
+                                            <span class="badge badge-success">Posted</span>
+                                        }
+                                        else
+                                        {*@
+                                            <span class="badge badge-warning">
+                                                @row["PaymentStatus"]
+                                            </span>
+                                        @*}*@
+
+                                    </td>
+                                    <td>@row["Remark"]</td>
+
+                                </tr>
+
+                                no++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+                                }
+                                }
+<script>
+    var POData = "";
+    var IsRequestedPayment = @IsRequestedPayment.ToString().ToLower();
+    var PreviousPaidAmount = "@PreviousPaidAmount";
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var PaymentNo = "@ViewBag.PaymentNo";
+    var ExpenseNo = "@ViewBag.ExpenseNo";
+    var ExpensePaymentID = "@ViewBag.ExpensePaymentID";
+    var No = "@ViewBag.No";
+    var Status = "@ViewBag.Status";
+    var IsReferenceChange = false;
+    var VendorBankInfo = [];
+    var EPaidAmount = "@ViewBag.PaidAmount";
+    var PostedPaymentNo = "@PostedPaymentNo";
+    var ExistingVATRemark = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Convert.ToString(ViewBag.VATRemark ?? "")))";
+    function checkVATRemarkVisibility() {
+        var hasVAT = false;
+        $("#TblExpensesItem [name='ItemTAX'], #TblExpensesItem input[name='ItemTAX']").each(function () {
+            var val = 0;
+            var $el = $(this);
+            var combo = $el.data("kendoComboBox") || $el.data("kendoDropDownList");
+            if (combo) {
+                val = parseFloat(combo.value()) || 0;
+                if (!val) {
+                    var txt = combo.text() || "";
+                    if (txt.indexOf("%") >= 0 || txt.toLowerCase().indexOf("vat") >= 0 || txt.toLowerCase().indexOf("tax") >= 0) {
+                        var match = txt.match(/\d+(\.\d+)?/);
+                        if (match) val = parseFloat(match[0]);
+                    }
+                }
+            } else {
+                val = parseFloat($el.val()) || 0;
+                if (!val) {
+                    var text = $el.is("select") ? $el.find("option:selected").text() : ($el.val() || "");
+                    if (text.indexOf("%") >= 0 || text.toLowerCase().indexOf("vat") >= 0 || text.toLowerCase().indexOf("tax") >= 0) {
+                        var m = text.match(/\d+(\.\d+)?/);
+                        if (m) val = parseFloat(m[0]);
+                    }
+                }
+            }
+            if (val > 0) {
+                hasVAT = true;
+            }
+        });
+
+        if (!hasVAT) {
+            $("#TblExpensesItem tbody tr").each(function () {
+                var taxVal = parseFloat($(this).find("input[name='ItemTAX']").val()) || 0;
+                if (taxVal > 0) hasVAT = true;
+            });
+        }
+
+        if ($("#trVATRemarkRow").length === 0) {
+            var vatRowHtml = `
+<tr id="trVATRemarkRow" style="display: none;">
+    <td colspan="2" style="vertical-align: middle; font-weight: bold; text-align: left; background-color: #f8f9fa; padding: 8px 12px; color: #333;">
+        Remark for VAT:
+    </td>
+    <td colspan="9" style="background-color: #f8f9fa; padding: 6px;">
+        <textarea id="VATRemark" name="VATRemark" class="form-control form-control-sm" rows="2" placeholder="Enter remark for VAT..."></textarea>
+    </td>
+</tr>`;
+            var $tfoot = $("#TblExpensesItem tfoot");
+            if ($tfoot.length > 0) {
+                $tfoot.append(vatRowHtml);
+            } else {
+                $("#TblExpensesItem").append("<tfoot>" + vatRowHtml + "</tfoot>");
+            }
+        }
+
+        $("#divVATRemarkBox").remove();
+
+        if (hasVAT) {
+            $("#trVATRemarkRow").stop(true, true).show();
+            if (ExistingVATRemark && !$("#VATRemark").val()) {
+                $("#VATRemark").val(ExistingVATRemark);
+            }
+        } else {
+            $("#trVATRemarkRow").stop(true, true).hide();
+        }
+    }
+
+    function ItemTAX_Change(sender) {
+        TblExpensesItem_TotalAll();
+        checkVATRemarkVisibility();
+        return true;
+    }
+
+    function AddNewPayee(ID) {
+        ID = (typeof ID == "undefined" ? 0 : ID);
+        var Type = "AddNewVendor";
+        var Title = "New Vendor";
+        if (ID != 0) {
+            Type = "EditVendor";
+            Title = "Edit Vendor";
+        }
+        var URL = "AddVendor/CreateVendor?PrimaryFieldValue=" + ID + "&Type=" + Type;
+        ShowDialogBox2(Title, "Auto", "", URL, ID, "DialogAddNewVendor", function () {
+            $("#DialogAddNewVendor").on('hide.bs.modal', function () {
+                Reload_PayeeID();
+            });
+            //if (ID != 0) {
+            //    $("#DialogAddNewVendor").on('hide.bs.modal', function () {
+            //        LoadVendorInfo();
+            //    });
+            //} else {
+            //    $("#DialogAddNewVendor").on('hide.bs.modal', function () {
+            //        if (SaveChangeResponse.length > 0) {
+            //            var name = SaveChangeResponse[4].value + ' - ' + SaveChangeResponse[5].value;
+            //            $("#Vendor_Name").val('');
+            //            var fn = window["Reload_VendorName"];
+            //            if (typeof fn != "undefined") {
+            //                if (typeof fn === "function") {
+            //                    Reload_VendorName(function () {
+            //                        $("#Vendor_Name").val(name);
+            //                        setTimeout(function () {
+            //                            $("#Vendor_Name").val(name).trigger("change");
+            //                            $("#Vendor_Name").focus();
+            //                        }, 500);
+            //                    });
+            //                }
+            //            }
+            //            else {
+            //                Reload_Vendor_Name(function () {
+            //                    $("#Vendor_Name").val(name);
+            //                    setTimeout(function () {
+            //                        $("#Vendor_Name").val(name).trigger("change");
+            //                        $("#Vendor_Name").focus();
+            //                    }, 500);
+            //                });
+            //            }
+
+            //            SaveChangeResponse = [];
+            //        }
+            //    });
+            //}
+        });
+    }
+    $(function () {
+        checkVATRemarkVisibility();
+        $(document).on("change kendoChange blur keyup", "#TblExpensesItem [name='ItemTAX']", function () {
+            checkVATRemarkVisibility();
+        });
+        setTimeout(function () {
+            checkVATRemarkVisibility();
+        }, 500);
+        setTimeout(function () {
+            checkVATRemarkVisibility();
+        }, 1500);
+
+        //$("div[name='VendorDepositDetail']").parent().hide();
+
+        $("#ChequeTo").closest(".row").parent().removeClass("p-2");
+        $("#ChequeTo").closest(".row").addClass("p-2");
+        $("#ChequeTo").closest(".row").hide();
+
+        $("#BankAccountName").closest(".row").parent().removeClass("p-2");
+        $("#BankAccountName").closest(".row").addClass("p-2");
+        $("#BankAccountName").closest(".row").hide();
+
+        if (PaymentNo == "") {
+            setTimeout(function () {
+                $("textarea[name=ItemName_Description]").focus();
+                const target = document.querySelector('label[name="GrandTotal"]');
+                $("#TxtDisUSD").val($("#Discount").val());
+                const observer = new MutationObserver(function (mutations) {
+                    //console.log("SubTotal changed:", target.textContent);
+                    $("#lblTotalAll").html(target.textContent);
+                    $("#txtAmountInput").val(accounting.unformat(target.textContent));
+                    calWithExchangeRate();
+                });
+
+                observer.observe(target, {
+                    childList: true,
+                    characterData: true,
+                    subtree: true
+                });
+
+                // Old listener backup:
+                // $("#ExchangeRate").keyup(function () { calWithExchangeRate(); });
+                // New listener (handles keyup, change, input):
+                $("#ExchangeRate").on("keyup change input", function () {
+                    calWithExchangeRate();
+                });
+            }, 1500);
+
+            setTimeout(function () {
+                if (PrimaryFieldValue != 0 && PaymentNo == "")
+                    $("#txtAmountInput").val(accounting.unformat(EPaidAmount));                  
+                $("#inputExchangeRateTotalRow").val($("#GrantTotalAsRiel").val());
+            }, 4500);
+        }
+        else {
+            $("#txtAmountInput").on("keyup change", function () {
+                calRequestPaidAmount();
+            });
+
+            if (IsRequestedPayment) {
+                //calRequestPaidAmount();
+            }
+            else {
+                $("#Description").val("");
+                $("#PostedBy").val("");
+                $("#PostedBy_PostedByTelegramUserName").val("");
+                $("#PostedBy_PostedByUserID").val("");
+            }
+        }
+
+//        $("table#TblExpensesItem tfoot tr:last").after(`
+//    <tr class="paid-amount-row">
+//        <td colspan="9" style="text-align:right; font-weight:600;">
+//            Paid Amount
+//        </td>
+//        <td>
+//            <input type="number"
+//                   id="PaidAmount"
+//                   name="PaidAmount"
+//                   class="form-control"
+//                   value="0.00"
+//                   min="0"
+//                   step="0.01"
+//                   style="text-align:right;" />
+//        </td>
+//    </tr>
+//`);
+
+        var trrow = `<div style="position: absolute; right: 310px; display: flex; align-items: center; gap: 10px;">`;
+        if (PaymentNo == "") {
+            trrow += `<label style="margin: 0;">
+           <span class="text-danger"> សរុប / Total: <span id="lblTotalAll">0</span></span>
+           <span class="text-success"> Paid Amount: </span>
+        </label>
+        <input type="number"
+               id="txtAmountInput"
+               class="form-control"
+               placeholder="Enter amount"
+               style="width: 160px;" />`;
+        }
+        trrow += `</div>`;
+        $("#AttachmentFile").before(trrow);
+
+        function updateUnitPriceNumeric($el) {
+            try {
+                $el.autoNumeric('update', { mDec: 8, aPad: false, vMin: '0', vMax: '999999999999999999' });
+            } catch (e) {
+                try {
+                    $el.autoNumeric({ mDec: 8, aPad: false, vMin: '0', vMax: '999999999999999999' });
+                } catch (err) {}
+            }
+        }
+
+        $(document).on('focus', '#TblExpensesItem input[name=UnitPrice]', function () {
+            updateUnitPriceNumeric($(this));
+        });
+
+        setTimeout(function() {
+            $('#TblExpensesItem input[name=UnitPrice]').each(function() {
+                updateUnitPriceNumeric($(this));
+            });
+        }, 500);
+    });
+
+
+    function calRequestPaidAmount() {
+        var balance = @balanceAmount;
+
+        var payment = parseFloat($("#txtAmountInput").val().replace(/,/g, "")) || 0;
+
+        var remaining = balance - payment;
+
+        if (IsRequestedPayment)
+            remaining = (balance + parseFloat(PreviousPaidAmount)) - payment;
+
+        //console.log(balance, PreviousPaidAmount, payment, IsRequestedPayment)
+
+        if (remaining < 0)
+            remaining = 0;
+
+        $("#lblRemainingBalance").text(
+            remaining.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            })
+        );
+    }
+
+    function calWithExchangeRate() {
+        var exchangeRate = accounting.unformat($.trim($("#ExchangeRate").val()));
+        var SubTotal = accounting.unformat($.trim($("label[name=GrandTotal]").text()));
+
+        if (!exchangeRate || exchangeRate == 0 || SubTotal <= 0) {
+            $("#exchangeRateTotalRow").remove();
+            return;
+        }
+
+        var rawRiel = SubTotal * exchangeRate;
+        var roundedRiel = Math.round(rawRiel);
+        var exchangeRateTotalRow = accounting.formatNumber(roundedRiel, 0);
+        if ($("#inputExchangeRateTotalRow").length > 0) {
+            if (!$("#inputExchangeRateTotalRow").is(":focus")) {
+                $("#inputExchangeRateTotalRow").val(exchangeRateTotalRow);
+            }
+        } else {
+            var html = `
+<tr id="exchangeRateTotalRow">
+    <td colspan="9" align="right">
+        <label class="col-form-label khmerFont1">
+            សរុបជាប្រាក់រៀល (គិតតាមអត្រាប្តូរប្រាក់):
+        </label>
+    </td>
+    <td align="center">
+        <input type="text" class="input2 text-center text-bold" value="${exchangeRateTotalRow}" id="inputExchangeRateTotalRow" name="inputExchangeRateTotalRow">
+    </td>
+</tr>`;
+
+            $("#TblExpensesItem tfoot tr:last").after(html);
+            $('#inputExchangeRateTotalRow').autoNumeric({vMin: "-99999999999", vMax: "9999999999999999999999999999999999999999999999999999999"});
+        }
+    }
+
+    var objRN=[]
+    function getLastValue(value) {
+        if (!value) return '';
+        return value.split(',').pop();
+    }
+    function removeFirst(value) {
+        return value.includes(',')
+            ? value.substring(value.indexOf(',') + 1)
+            : '';
+    }
+    //var poData = [];
+    var validReferences = [];
+    var validSources = [];
+    var isRemovingInvalidTag = false;
+
+    function restoreValidTags() {
+        isRemovingInvalidTag = true;
+        try {
+            if (typeof $("#Reference").tagsinput === "function") {
+                $("#Reference").tagsinput('removeAll');
+                if (validReferences.length > 0) {
+                    $.each(validReferences, function (i, ref) {
+                        $("#Reference").tagsinput('add', ref);
+                    });
+                }
+            } else {
+                $("#Reference").val(validReferences.length > 0 ? ("," + validReferences.join(',')) : "");
+            }
+        } catch (e) {
+            console.log("Error restoring tags:", e);
+        }
+
+        $("#Source").val(validSources.length > 0 ? ("," + validSources.join(',')) : "");
+        isRemovingInvalidTag = false;
+    }
+
+    function LoadDetail(THIS) {
+        if (isRemovingInvalidTag) return;
+
+        var Source = $("#Source").val();
+        var Reference = removeFirst($("#Reference").val());
+
+        var Sources = Source.split(',').filter(x => x !== "");
+        var References = Reference.split(',').filter(x => x !== "");
+
+        var PO = [], RF = [], ADV = [], PostPO = '', PostRF = '', PostADV = '';
+
+        $.each(Sources, function (key, value) {
+            var Data = References[key];
+            if (!Data) return;
+
+            if (value == "PO") {
+                PO.push(Data);
+            }
+            else if (value == "RF") {
+                RF.push(Data);
+            }
+            else if (value == "ADV") {
+                ADV.push(Data);
+            }
+        });
+        PostPO = PO.join(',');
+        PostRF = RF.join(',');
+        PostADV = ADV.join(',');
+
+        var lastSource = getLastValue(Source);
+
+        if (PostPO != "" || PostRF != "" || PostADV != "") {
+            LoadData(`Expenses/LoadDetail?Type=${lastSource}&PO=${PostPO}&RF=${PostRF}&ADV=${PostADV}`, function (response) {
+                POData = JSON.parse(response).Data;
+                if (POData != "" && POData != "[]") {
+                    POData = JSON.parse(POData);
+
+                    // Check Vendor matching
+                    //var multicolumncombobox = $("#PayeeID").data("kendoMultiColumnComboBox");
+                    //var currentPayeeID = multicolumncombobox ? multicolumncombobox.value() : "";
+
+                    //if (POData.length > 0 && POData[0].VendorID != 0) {
+                    //    var firstVendorID = POData[0].VendorID;
+                    //    var firstVendorName = POData[0].VendorName || "";
+                    //    var hasVendorMismatch = false;
+                    //    var mismatchVendorName = "";
+
+                    // 1. Check if items in POData belong to different vendors
+                    //for (var i = 0; i < POData.length; i++) {
+                    //    if (POData[i].VendorID != 0 && POData[i].VendorID != firstVendorID) {
+                    //        hasVendorMismatch = true;
+                    //        mismatchVendorName = POData[i].VendorName || "";
+                    //        break;
+                    //    }
+                    //}
+
+                    // 2. Check if selected PayeeID is set and doesn't match the reference vendor
+                    //if (!hasVendorMismatch && currentPayeeID != "" && currentPayeeID != "0" && currentPayeeID != firstVendorID) {
+                    //    hasVendorMismatch = true;
+                    //    mismatchVendorName = firstVendorName;
+                    //}
+
+                    //if (hasVendorMismatch) {
+                    //    // Immediately restore valid tags so invalid tag is NOT shown in input
+                    //    restoreValidTags();
+
+                    //    DialogSweetAlert('error', `Cannot select Reference No. from a different vendor! (${mismatchVendorName})`);
+                    //    return false;
+                    //}
+
+                    // Update tracking of valid tags
+                    //validReferences = References;
+                    //validSources = Sources;
+
+                    // Auto-select payee if empty
+                    //if (currentPayeeID == "" || currentPayeeID == "0") {
+                    //  if (multicolumncombobox) {
+                    //    multicolumncombobox.value(firstVendorID);
+                    //  multicolumncombobox.trigger("change");
+                    //}
+                    //}
+                    //}
+
+                    $("div[name=ItemDetails]").show();
+                    RemoveAllTableRow('TR_No', 'ItemName');
+                    //console.log(POData)
+                    //SetValueTableRow(POData, 'ItemName, ItemName_Description', 'TblExpensesItem', 'TR_No', rowData_TblExpensesItem, 'TD_No', this, `Reload_ExpenseCategory,Reload_ItemTypeID,Reload_ItemTAX,Reload_UM(), CallSetAutoComplete_ItemName(), TblExpensesItem_TotalAll(),TblExpensesItem_CallTotalAll()`, '', '', '', '', '', '', RowFields2_TblExpensesItem);
+                    SetValueTableRow(POData, 'ItemName, ItemName_Description', 'TblExpensesItem', 'TR_No', rowData_TblExpensesItem, 'TD_No', this, `Reload_ExpenseCategory,Reload_ItemTAX,Reload_UM(), CallSetAutoComplete_ItemName(), TblExpensesItem_TotalAll(),TblExpensesItem_CallTotalAll()`, '', '', '', '', '', '', RowFields2_TblExpensesItem);
+
+                    var ExpenseTransactionType = $("#ExpenseTransactionType").val();
+                    if (ExpenseTransactionType == "Vendor Deposit") {
+                        const summary = POData.reduce(
+                            (result, item) => {
+                                const qty = Number(item.QTY) || 0;
+                                const total = Number(item.Total) || 0;
+                                const rate = Number(item.ItemTAX) || 0;
+
+                                result.QTY += qty;
+
+                                if (rate !== 0) {
+                                    result.Total += total + (total * rate / 100);
+                                } else {
+                                    result.Total += total;
+                                }
+
+                                return result;
+                            },
+                            {
+                                QTY: 0,
+                                Total: 0
+                            }
+                        );
+                        RemoveAllTableRow('VTR_No', 'VendorDepositDescription');
+                        $("input[name='VQTY']").eq(0).val(summary.QTY);
+                        $("input[name='OriginalAmount']").eq(0).val(summary.Total.toFixed(2));
+                        $("input[name='PONoInvoiceNo']").eq(0).val(removeFirst($("#Reference").val()));
+                    }
+
+                    //if (POData.length > 0) {
+                    //    if (POData[0].ClassID != "") {
+                    //        var comboClass = $("#ClassName").data("kendoComboBox");
+                    //        if (comboClass) {
+                    //            if (comboClass.value() == "" || comboClass.value() == 0) {
+                    //                comboClass.value(POData[0].ClassID);
+                    //                comboClass.trigger("change");
+                    //            }
+                    //        }
+                    //    }
+
+                    //    //setTimeout(function () {
+                    //    //    cal();
+                    //    //}, 2000);
+                    //}
+                    //var multicolumncombobox = $("#PayeeID").data("kendoMultiColumnComboBox");
+                    //multicolumncombobox.value(POData[0].VendorID);
+                    //multicolumncombobox.trigger("change");
+                }
+            });
+        }
+        else {
+            validReferences = [];
+            validSources = [];
+            RemoveAllTableRow('TR_No', 'ItemName');
+            //setTimeout(function () {
+                //console.log('222');
+              //  $("input[name=ItemName]").eq(0).focus();
+            //}, 1000);
+        }
+    }
+    function LoadVendorBankInfo() {
+        VendorBankInfo = [];
+        var multicolumncombobox = $("#PayeeID").data("kendoMultiColumnComboBox");
+        var VendorID = multicolumncombobox.value();
+        if (VendorID != "0" && VendorID != "" && PrimaryFieldValue ==0) {
+            $("#TblExpensesItem #BankInfo").val('');
+            LoadData("AddVendor/LoadVendorBankInfo?VendorID=" + VendorID, function (response) {
+                if (response != "[]" && response != "") {
+                    var rst = JSON.parse(response)[0];
+                    VendorBankInfo.push(rst);
+                    var row = '';
+                    if (rst.BankerName != "")
+                        row += `Banker's Name: ` + rst.BankerName + `\n`;
+                    if (rst.SwiftCode != "")
+                        row += `Swift Code: ` + rst.SwiftCode + `\n`;
+                    if (rst.AccountNo != "")
+                        row += `Account No: ` + rst.AccountNo + `\n`;
+                    if (rst.AccountName != "")
+                        row += `Account Name: ` + rst.AccountName + `\n`;
+
+                    $("#BankerName").val(rst.BankerName);
+                    $("#BankAccountName").val(rst.AccountName);
+                    $("#BankAccountNo").val(rst.AccountNo);
+                    //$("#TblExpensesItem #BankInfo").val(row);
+                }
+            });
+        }
+    }
+
+    function SaveChangeExpense() {
+        var AmountInput = accounting.unformat($("#txtAmountInput").val()) == "" ? 0 : accounting.unformat($("#txtAmountInput").val());
+        var AmountNeedToPaid = accounting.unformat($("#lblTotalAll").text());
+
+        if (PaymentNo != "") {
+            if (AmountInput === "" || AmountInput === 0) {
+                DialogSweetAlert('error', 'Please Input Amount.', function () {
+                    $("#txtAmountInput").focus();
+                    return false;
+                });
+                return false;
+            }
+        }
+
+        if (AmountInput === "") {
+            DialogSweetAlert('error', 'Please Input Amount.', function () {
+                $("#txtAmountInput").focus();
+                return false;
+            });
+            return false;
+        }
+        //else if (AmountInput > AmountNeedToPaid) {
+        //    DialogSweetAlert('error', `Input Amount cannot > ${AmountNeedToPaid}.`, function () {
+        //        $("#txtAmountInput").focus();
+        //        return false;
+        //    });
+        //    return false;
+        //}
+        var VendorID = 0, EmployeeID = 0, CustomerID = 0, TransactionType = '', isValid = true;
+
+        var ClassName = $("#ClassName").val();
+        var ExpenseTransactionType = $("#ExpenseTransactionType").val();
+        var PaymentMethodID = $("#PaymentMethodID").val();
+        var PayeeID = $("#PayeeID").val();
+        var No = $("#No").val();
+        var No_NoPrefix = $("#No_NoPrefix").val();
+        var PaymentAccountID = $("#PaymentAccountID").val();
+        var PaymentDate = $("#PaymentDate").val();
+        var PaidOnDate = $("#PaidOnDate").val();
+        var PVNo = $("#PVNo").val();
+        var PVNo_PVNoPrefix = $("#PVNo_PVNoPrefix").val();
+
+        var CheckedBy = $("#CheckedBy").val();
+        var CheckedBy_CheckedByTelegramUserName = $("#CheckedBy_CheckedByTelegramUserName").val();
+        var CheckedBy_CheckedByUserID = $("#CheckedBy_CheckedByUserID").val();
+
+        var VerifiedBy = $("#VerifiedBy").val();
+        var VerifiedBy_VerifiedByTelegramUserName = $("#VerifiedBy_VerifiedByTelegramUserName").val();
+        var VerifiedBy_VerifiedByUserID = $("#VerifiedBy_VerifiedByUserID").val();
+
+        var ApprovedBy = "";//$("#ApprovedBy").val();
+        var ApprovedBy_ApprovedByTelegramUserName = "";// $("#ApprovedBy_ApprovedByTelegramUserName").val();
+        var ApprovedBy_ApprovedByUserID = 0;// $("#ApprovedBy_ApprovedByUserID").val();
+
+        var PostedBy = $("#PostedBy").val();
+        var PostedByUserID = $("#PostedBy_PostedByUserID").val();
+        var PostedByTelegramUserName = $("#PostedBy_PostedByTelegramUserName").val();
+
+        var PostingNumber = $("#PostingNumber").val();
+        var PostingNumber_PostingPrefix = $("#PostingNumber_PostingPrefix").val();
+        var BankInfo = "";// $("#BankInfo").val();
+        var Reference = removeFirst($("#Reference").val());
+        var BillInvoiceNo = $("#BillInvoiceNo").val();
+        var BankerName = $("#BankerName").val();
+        var ChequeBankerName = $("#ChequeBankerName").val();
+        var BankAccountName = $("#BankAccountName").val();
+        var BankAccountNo = $("#BankAccountNo").val();
+        var ChequeTo = $("#ChequeTo").val();
+        var ChequeNo = $("#ChequeNo").val();
+        var Description = $("#Description").val();
+        var ExchangeRate = $("#ExchangeRate").val() == "" ? 0 : accounting.unformat($("#ExchangeRate").val());
+        //console.log(BillInvoiceNo);
+        if (BankerName == "" && VendorBankInfo.length > 0) {
+            BankerName = VendorBankInfo[0].BankerName;
+            BankAccountName = VendorBankInfo[0].AccountName;
+            BankAccountNo = VendorBankInfo[0].AccountNo;
+        }
+        var Total = accounting.unformat($("label[name=SubTotal]").text());
+
+        // Get the Kendo MultiColumnComboBox instance
+        var comboBox = $("#PayeeID").data("kendoMultiColumnComboBox");
+        var items = comboBox.listView.dataItems();
+        var selectedValue = comboBox.value();
+        var selectedItem = items.find(x => x.PayeeID == selectedValue);
+        var Gender = selectedItem?.Gender;
+        var PhoneNumber = selectedItem?.PhoneNumber;
+        TransactionType = selectedItem?.Type;
+        var VendorName = selectedItem?.Name;
+        if (TransactionType == 'Vendor')
+            VendorID = selectedValue;
+        else if (TransactionType == 'Customer')
+            CustomerID = selectedValue;
+        else if (TransactionType == 'Employee')
+            EmployeeID = selectedValue;
+
+        var combo = $("#PaymentTerms").data("kendoComboBox");
+
+        var PaymentTermsID = StringToDate($("#PaymentTerms").val());//combo ? combo.value() : "";
+        var TermName = "";// combo ? combo.text() : "";
+
+        var Expense = [];
+        var objExpense = {};
+        var GrantTotalAsRiel = 0;
+        var value = $("#inputExchangeRateTotalRow").val();
+        if (value) {
+            GrantTotalAsRiel = accounting.unformat(value) || 0;
+        }
+        var Discount = accounting.unformat($("#TxtDisUSD").val());
+        objExpense = {
+            ExpenseID: PrimaryFieldValue,
+            Status: Status,
+            ClassName: ClassName,
+            ExpenseTransactionType: ExpenseTransactionType,
+            PaymentMethodID: PaymentMethodID,
+            PayeeID: PayeeID,
+            No: No,
+            NoPrefix: No_NoPrefix,
+            PaymentAccountID: PaymentAccountID,
+            PaymentDate: StringToDate(PaymentDate),
+            PaidOnDate: StringToDate(PaidOnDate),
+            PVNo: PVNo,
+            PVNoPrefix: PVNo_PVNoPrefix,
+            CheckedBy: CheckedBy,
+            CheckedByTelegramUserName: CheckedBy_CheckedByTelegramUserName,
+            CheckedByUserID: CheckedBy_CheckedByUserID,
+            VerifiedBy: VerifiedBy,
+            VerifiedByTelegramUserName: VerifiedBy_VerifiedByTelegramUserName,
+            VerifiedByUserID: VerifiedBy_VerifiedByUserID,
+            ApprovedBy: ApprovedBy,
+            ApprovedByTelegramUserName: ApprovedBy_ApprovedByTelegramUserName,
+            ApprovedByUserID: ApprovedBy_ApprovedByUserID,
+            PostingNumber: PostingNumber,
+            PostingPrefix: PostingNumber_PostingPrefix,
+            Reference: Reference,
+            BankInfo: BankInfo,
+            BankerName: BankerName,
+            ChequeBankerName: ChequeBankerName,
+            BankAccountName: BankAccountName,
+            BankAccountNo: BankAccountNo,
+            ChequeTo: ChequeTo,
+            ChequeNo: ChequeNo,
+            Total: Total,
+            VendorID: VendorID,
+            EmployeeID: EmployeeID,
+            CustomerID: CustomerID,
+            TransactionType: TransactionType,
+            Gender: Gender,
+            PhoneNumber: PhoneNumber,
+            PostedBy: PostedBy,
+            PostedByUserID: PostedByUserID,
+            PostedByTelegramUserName: PostedByTelegramUserName,
+            ExchangeRate: ExchangeRate,
+            PaymentTermsID: PaymentTermsID,
+            TermName: TermName,
+            TotalAmount: AmountNeedToPaid,
+            PaidAmount: AmountInput,
+            Description: Description,
+            PaymentNo: PaymentNo,
+            No: No,
+            ExpenseNo: ExpenseNo,
+            PostedPaymentNo: PostedPaymentNo,
+            ExpensePaymentID: ExpensePaymentID,
+            VendorName: VendorName,
+            BillInvoiceNo: BillInvoiceNo,
+            GrantTotalAsRiel:GrantTotalAsRiel,
+            Discount: Discount,
+            VATRemark: $("#VATRemark").val()
+        };
+        Expense.push(objExpense);
+
+        if (PaymentNo == "") {
+            setTimeout(function () {
+                RowFields = [];
+                //addRowFiled("ItemTypeID", "ItemTypeID", "Required");
+                addRowFiled("ExpenseCategory", "ExpenseCategory", "Required", "", "", true);
+                addRowFiled("ItemName", "ItemName", "Required");
+                addRowFiled("ItemID", "ItemID", "");
+                addRowFiled("ItemName_Description", "ItemName_Description", "");
+                //addRowFiled("ItemName_Description", "ItemName_Description", "");
+                addRowFiled("UM", "UM", "");
+                addRowFiled("QTY", "QTY", "Required", "Unformat");
+                addRowFiled("UnitPrice", "UnitPrice", "Required", "Unformat");
+                addRowFiled("DisUSD", "DisUSD", "", "Unformat");
+                addRowFiled("Total", "Total", "", "Unformat");
+                addRowFiled("ItemTAX", "ItemTAX", "", "Unformat");
+                addRowFiled("ItemGrandTotal", "ItemGrandTotal", "", "Unformat");
+                addRowFiled("RefNo", "RefNo", "");
+                addRowFiled("SourceType", "SourceType", "");
+                //getRowData(TRNAME, FieldName, TableName, InputName, HTMLTblID)
+                var RowData = getRowData('TR_No', RowFields);//, 'TblExpensesItem', '','TblExpensesItem');
+
+                if (RowData && Array.isArray(RowData)) {
+                    $("#TblExpensesItem tbody tr").each(function (i) {
+
+                        var $row = $(this);
+
+                        //var itemTypeCombo = $row.find("input[name=ItemTypeID]").data("kendoComboBox");
+                        var ItemType = "";// itemTypeCombo ? itemTypeCombo.text() : "";
+
+                        var $ExpenseCategory = $row.find("input[name=ExpenseCategory]");
+                        var $ItemName = $row.find("input[name=ItemName]");
+                        var $UM = $row.find("input[name=UM]");
+                        var $QTY = $row.find("input[name=QTY]");
+                        var $UnitPrice = $row.find("input[name=UnitPrice]");
+                        var $ItemTAX = $row.find("input[name=ItemTAX]");
+                        var $ItemID = $row.find("input[name=ItemID]");
+                        var $DisUSD = $row.find("input[name=DisUSD]");
+                        //var ExpenseDetailID = $row.find("input[name=ExpenseDetailID]");
+
+                        var ItemID = parseInt($ItemID.val()) || 0;
+
+                        // 🔴 Inventory must have ItemID
+                        //if (ItemType === "Inventory" && ItemID === 0) {
+
+                        //    DialogSweetAlert('error', 'Please enter a valid item.', function () {
+                        //        $ItemName.focus();
+                        //    });
+
+                        //    isValid = false;
+                        //    return false; // stop loop
+                        //}
+
+                        // 🔵 Other Types validation
+                        //if (ItemType !== "") {
+                        if ($ExpenseCategory.val() !== "") {
+                            // Create RowData[i] if it doesn't exist
+                            if (!RowData[i]) {
+                                RowData[i] = {};
+                            }
+                            //RefNo = POData[i].RefNo;
+                            //SourceType = POData[i].SourceType;
+                            //RowData[i].RefNo = RefNo;
+                            //RowData[i].SourceType = SourceType;
+
+                            if ($ExpenseCategory.val() === "") {
+                                DialogSweetAlert('error', 'Please enter Expense Account.', function () {
+                                    $ExpenseCategory.focus();
+                                });
+                                isValid = false;
+                                return false;
+                            }
+
+                            if ($ItemName.val() === "") {
+                                DialogSweetAlert('error', 'Please enter Item.', function () {
+                                    $ItemName.focus();
+                                });
+                                isValid = false;
+                                return false;
+                            }
+
+                            if ($UM.val() === "") {
+                                DialogSweetAlert('error', 'Please enter UM.', function () {
+                                    $UM.focus();
+                                });
+                                isValid = false;
+                                return false;
+                            }
+
+                            if ($QTY.val() === "") {
+                                DialogSweetAlert('error', 'Please enter QTY.', function () {
+                                    $QTY.focus();
+                                });
+                                isValid = false;
+                                return false;
+                            }
+
+                            if ($UnitPrice.val() === "") {
+                                DialogSweetAlert('error', 'Please enter Unit Price.', function () {
+                                    $UnitPrice.focus();
+                                });
+                                isValid = false;
+                                return false;
+                            }
+                            var Account_Name = $row
+                                .find("input[name=ExpenseCategory]")
+                                .data("kendoMultiColumnComboBox");
+
+                            var AccountName = Account_Name
+                                ? Account_Name.text()
+                                : "";
+                            var AccountID = Account_Name
+                                ? Account_Name.value()
+                                : "";
+                            var Description = AccountName + "-" + $ItemName.val();
+                            //RowData[i].ExpenseDetailID = ExpenseDetailID;
+                            RowData[i].AccountName = AccountName;
+                            RowData[i].AccountID = AccountID;
+                            RowData[i].Description = Description;
+                            var itemSubtotal = ($UnitPrice.val() * $QTY.val()) - $DisUSD.val();
+                            var itemVAT = (itemSubtotal * $ItemTAX.val()) / 100;
+                            RowData[i].ItemVAT = Math.round((itemVAT + Number.EPSILON) * 100) / 100;
+                        }
+
+                    });
+                    if (!isValid) {
+                        return false;
+                    }
+                    var DATA = {
+                        DATA: JSON.stringify({
+                            ExpenseData: Expense,
+                            Details: RowData
+                        })
+                    };
+
+                    DoSaveChageAjaxForm("FrmAddExpense", "Expenses/CreateAsync", DATA, "", function (response) {
+                        if (response.Result === 2) {
+                            //closeDialogClick("modal-default");
+                            $("#modal-default").modal('hide');
+                            $('.modal').remove();
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass("modal-open");
+                            $("#BunSearch").click();
+                        }
+                        else {
+                            DialogSweetAlert('error', response.message);
+                        }
+                    });
+                }
+            }, 500);
+        }
+        else {
+            var DATA = {
+                DATA: JSON.stringify({
+                    ExpenseData: Expense,
+                    Details: []
+                })
+            };
+            DoSaveChageAjaxForm("FrmAddExpense", "Expenses/CreateAsync", DATA, "", function (response) {
+                if (response.Result === 2) {
+                    //closeDialogClick("modal-default");
+                    $("#modal-default").modal('hide');
+                    $('.modal').remove();
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass("modal-open");
+                    if (PaymentNo != "") {
+                        //console.log(PaymentNo)
+                        $("#Transcation_tab").click();
+                    }
+                    else {
+                        $("#BunSearch").click();
+                    }
+                }
+                else {
+                    DialogSweetAlert('error', response.message);
+                }
+            });
+        }
+    }
+
+    function PaymentMothod(THIS) {
+        if (PrimaryFieldValue == "") PrimaryFieldValue = 0;
+        //var text = THIS.text();
+        var PaymentMethodID = $("#PaymentMethodID").val();
+        var ClassID = $("#ClassName").val();
+        if (!ClassID) return false;
+        //console.log(THIS.value());
+        if (!$("#PaymentMethodID").data("kendoComboBox")) return false;
+        var text = $("#PaymentMethodID").data("kendoComboBox").text();
+
+        //$("#ChequeTo").closest(".row").hide();
+        var $row = $("#ChequeTo").closest(".row");
+        //$row.stop(true, true).slideDown(150);
+        if (text == "Cheque")
+            $row.stop(true, true).slideDown(150);
+        else
+            $row.stop(true, true).slideUp(150);
+
+        $row = $("#BankAccountName").closest(".row");
+        if (text == "Bank Transfer" || text == "Petty Cash")
+            $row.stop(true, true).slideDown(150);
+        else
+            $row.stop(true, true).slideUp(150);
+        if (ClassID == "" || ClassID == null) {
+            DialogSweetAlert('error', "Please select Calss Name.", function () {
+                $("#ClassName").focus();
+                return true;
+            });
+            return true;
+        }
+        else if (PaymentMethodID != "" && PaymentMethodID != null) {
+            LoadData("Expenses/GetPostingNumber?PaymentMethodID=" + PaymentMethodID + "&ClassID=" + ClassID, function (response) {
+                var rst = JSON.parse(response);
+                $("#PostingNumber").val(rst.PostingNo);
+                $("#PostingNumber_PostingPrefix").val(rst.Prefix);
+            });
+            LoadData("Expenses/GetPostingNumber?PaymentMethodID=" + PaymentMethodID + "&ClassID=" + ClassID + "&Type=PrefixPV", function (response) {
+                var rst = JSON.parse(response);
+                $("#No").val(rst.PostingNo);
+                $("#No_NoPrefix").val(rst.Prefix);
+            });
+            LoadData("Expenses/GetPVNumber?ClassID=" + ClassID, function (response) {
+                var rst = JSON.parse(response);
+                $("#PVNo").val(rst.PVNo);
+                $("#PVNo_PVNoPrefix").val(rst.Prefix);
+            });
+        }
+    }
+    function ClassChange() {
+        var ClassNameID = $("#ClassName").val();
+        console.log(ClassNameID);
+        //if (PrimaryFieldValue == 0) {
+        //    LoadData("Expenses/GetPVNumber?AccountExpenseTypeID=" + AccountExpenseTypeID, function (response) {
+        //        $("#No").val(response);
+        //    });
+        //}
+    }
+
+    function ExpenseTypeChange() {
+        var AccountExpenseTypeID = $("#AccountExpenseTypeID").val();
+        if (PrimaryFieldValue == 0) {
+            LoadData("Expenses/GetPVNumber?AccountExpenseTypeID=" + AccountExpenseTypeID, function (response) {
+                $("#No").val(response);
+            });
+        }
+    }
+
+    function AddPoNO() {
+        var multicolumncombobox = $("#PayeeID").data("kendoMultiColumnComboBox");
+        var VendorID = multicolumncombobox.value();
+        ShowDialogBox2("Purchase Order", "auto", "500", "PurchaseOrder/PurchaseOrderInof", VendorID , "DialogPO");
+    }
+    function AddGRN() {
+        var multicolumncombobox = $("#PayeeID").data("kendoMultiColumnComboBox");
+        var VendorID = multicolumncombobox.value();
+        ShowDialogBox2("Goods Received", "auto", "500", "PurchaseOrder/ReceiveNoteInof", VendorID, "DialogPO");
+    }
+
+    $(document).on("input", "input[name='ApplyPercent']", function () {
+
+        const $row = $(this).closest("tr");
+
+        const originalAmount =
+            parseFloat($row.find("input[name='OriginalAmount']").val()) || 0;
+
+        let applyPercent =
+            parseFloat($(this).val()) || 0;
+
+        // Limit 0 - 100
+        if (applyPercent < 0) {
+            applyPercent = 0;
+            $(this).val(0);
+        }
+
+        if (applyPercent > 100) {
+            applyPercent = 100;
+            $(this).val(100);
+        }
+
+        // Calculate Apply Amount
+        const applyAmount =
+            originalAmount * applyPercent / 100;
+
+        // Calculate Remaining Amount
+        const remainAmount =
+            originalAmount - applyAmount;
+
+        // Set values
+        $row.find("input[name='ApplyAmount']")
+            .val(applyAmount.toFixed(2));
+
+        $row.find("input[name='RemainAmount']")
+            .val(remainAmount.toFixed(2));
+
+        console.log(remainAmount);
+        // Update summary
+        calculateVendorDepositTotal();
+    });
+
+    function calculateVendorDepositTotal() {
+
+        let originalTotal = 0;
+        let totalApplyAmount = 0;
+        let unusedDepositBalance = 0;
+
+        $("table#TblAccountVendorDepositDetails tbody tr").each(function () {
+
+            const $row = $(this);
+
+            const originalAmount =
+                parseFloat(
+                    $row.find("input[name='OriginalAmount']").val()
+                ) || 0;
+
+            const applyAmount =
+                parseFloat(
+                    $row.find("input[name='ApplyAmount']").val()
+                ) || 0;
+
+            const remainAmount =
+                parseFloat(
+                    $row.find("input[name='RemainAmount']").val()
+                ) || 0;
+
+            originalTotal += originalAmount;
+            totalApplyAmount += applyAmount;
+            unusedDepositBalance += remainAmount;
+        });
+
+        $("#OriginalTotal").text(originalTotal.toFixed(2));
+        $("#TotalApplyAmount").text(totalApplyAmount.toFixed(2));
+        $("#UnusedDepositBalance").text(unusedDepositBalance.toFixed(2));
+    }
+
+
+    function OnApplyAmount(THIS) {
+        const $row = $(THIS).closest("tr");
+
+        if ($row.length > 0) {
+            const ApplyAmount =
+                parseFloat(accounting.unformat($(THIS).val())) || 0;
+
+            const originalAmount =
+                parseFloat(
+                    accounting.unformat(
+                        $row.find("input[name='OriginalAmount']").val()
+                    )
+                ) || 0;
+
+            // Apply Amount cannot be greater than Original Amount
+            if (ApplyAmount > originalAmount) {
+                DialogSweetAlert(
+                    'error',
+                    'Apply Amount cannot be bigger than Original Amount.'
+                );
+                return false;
+            }
+
+            // Calculate Remaining Amount
+            const remainAmount = originalAmount - ApplyAmount;
+
+            // Calculate Apply Percent
+            let percent = 0;
+
+            if (originalAmount > 0) {
+                percent = (ApplyAmount / originalAmount) * 100;
+            }
+
+            // Round percentage to 2 decimal places
+            percent = Math.round((percent + Number.EPSILON) * 100) / 100;
+
+            // Set values
+            $row.find("input[name='RemainAmount']")
+                .val(remainAmount.toFixed(2));
+
+            $row.find("input[name='ApplyPercent']")
+                .val(percent.toFixed(2) + '%');
+
+            UpdateVendorDepositSummary(THIS);
+        }
+    }
+
+    function OnApplyPercent(THIS) {
+        const $row = $(THIS).closest("tr");
+        if ($row.length > 0) {
+            //var ApplyAmount = accounting.unformat($(THIS).val())
+            const originalAmount = parseFloat(accounting.unformat($row.find("input[name='OriginalAmount']").val())) || 0;
+            //if (ApplyAmount > originalAmount) {
+            //    DialogSweetAlert('error', `Apply Amount cannot bigger then Original Amount.`);
+            //    return false;
+            //}
+            let applyPercent = parseFloat(accounting.unformat($(THIS).val())) || 0;
+            //console.log(applyPercent)
+            // Limit 0 - 100
+            if (applyPercent < 0) {
+                applyPercent = 0;
+                $(THIS).val(0);
+            }
+
+            if (applyPercent > 100) {
+                applyPercent = 100;
+                $(THIS).val(100);
+            }
+
+            // Calculate Apply Amount
+            const applyAmount = originalAmount * applyPercent / 100;
+
+            // Calculate Remaining Amount
+            const remainAmount = originalAmount - accounting.unformat(applyAmount);
+            const percent = (applyAmount / originalAmount) * 100;
+
+            // Set values
+            $row.find("input[name='ApplyAmount']").val(applyAmount.toFixed(2));
+
+            $row.find("input[name='RemainAmount']").val(remainAmount.toFixed(2));
+            //$row.find("input[name='ApplyPercent']").val(percent + '%');
+            UpdateVendorDepositSummary(THIS);
+        }
+    }
+
+    function OnChangeExpenseTransactionType(THIS) {
+        //$("div[name='VendorDepositDetail']").parent().hide();
+        var ExpenseTransactionType = THIS.value();
+        //if (ExpenseTransactionType == "Vendor Deposit") {
+        //    $("div[name='VendorDepositDetail']").parent().show();
+        //    UpdateVendorDepositSummary(THIS);
+        //}
+    }
+    function UpdateVendorDepositSummary(THIS) {
+        THIS = typeof THIS == "undefined" ? "" : THIS;        
+        var originalTotal = 0;
+        var totalApplyAmount = 0;
+
+        $("#TblAccountVendorDepositDetails tbody tr:not(.vendor-deposit-summary)").each(function () {
+
+            var original = accounting.unformat(
+                $(this).find('[name="OriginalAmount"]').val()
+            ) || 0;
+
+            var apply = accounting.unformat(
+                $(this).find('[name="ApplyAmount"]').val()
+            ) || 0;
+
+            originalTotal += original;
+            totalApplyAmount += apply;
+        });
+
+        var unusedDepositBalance = originalTotal - totalApplyAmount;
+
+        var $tbody = $("#TblAccountVendorDepositDetails tbody");
+
+        $(".vendor-deposit-summary").remove();
+
+        $tbody.after(`
+        <tfoot>
+        <tr class="vendor-deposit-summary">
+            <td colspan="8" style="text-align:right; font-weight:bold;">
+                Original Total:
+            </td>
+            <td style="text-align:right; font-weight:bold;">
+                ${originalTotal.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}
+            </td>
+        </tr>
+
+        <tr class="vendor-deposit-summary">
+            <td colspan="8" style="text-align:right; font-weight:bold;">
+                Total Apply Amount:
+            </td>
+            <td style="text-align:right; font-weight:bold;">
+                ${totalApplyAmount.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}
+            </td>
+        </tr>
+
+        <tr class="vendor-deposit-summary">
+            <td colspan="8" style="text-align:right; font-weight:bold;">
+                Unused Deposit Balance:
+            </td>
+            <td style="text-align:right; font-weight:bold;">
+                ${unusedDepositBalance.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}
+            </td>
+        </tr></tfoot>
+    `);
+    }
+    //function cal() {
+    //    var t = $("label[name=SubTotal]").html();
+    //    console.log(t);
+    //    $("#lblTotalAll").html(t);
+    //}
+</script>
+
+
+

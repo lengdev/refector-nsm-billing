@@ -1,0 +1,671 @@
+@using System.Data
+@using System.Web
+@{
+    Layout = null;
+    var error = ViewBag.Error as string;
+    if (!string.IsNullOrEmpty(error))
+    {
+        <div style="color:red;padding:20px;border:1px solid red;background:#fff1f0;margin:20px;font-family:sans-serif;border-radius:4px;">
+            <strong>Error:</strong> @error
+        </div>
+        return;
+    }
+
+    var dataRows = (System.Data.DataTableCollection)ViewBag.Data;
+    if (dataRows == null || dataRows.Count < 4)
+    {
+        <div style="color:orange;padding:20px;border:1px solid orange;background:#fffbe6;margin:20px;font-family:sans-serif;border-radius:4px;">
+            <strong>Notice:</strong> The document data could not be loaded. Please verify the ID or Reference Number.
+        </div>
+        return;
+    }
+
+    var company  = dataRows[0].Rows.Count > 0 ? dataRows[0].Rows[0] : dataRows[0].NewRow();
+    var accounts = dataRows[1].Rows.Count > 0 ? dataRows[1].Rows[0] : dataRows[1].NewRow();
+    var master   = dataRows[2].Rows.Count > 0 ? dataRows[2].Rows[0] : dataRows[2].NewRow();
+    var details  = dataRows[3].Rows;
+
+    var systemId = ViewBag.systemID?.ToString() ?? "0";
+    string bgColor  = "#ffccff";
+    string txtColor = "#000";
+    if (systemId == "13") { bgColor = "#f89c39"; txtColor = "#fff"; }
+    else if (systemId == "25") { bgColor = "#c5d9f1"; txtColor = "#000"; }
+
+    string transferDateRaw = master.Table.Columns.Contains("TransferDateText") && master["TransferDateText"] != DBNull.Value ? master["TransferDateText"].ToString()
+                     : (master.Table.Columns.Contains("TransferDate") && master["TransferDate"] != DBNull.Value ? master["TransferDate"].ToString() : "");
+    string transferDate = "";
+    DateTime tempTransferDate;
+    if (DateTime.TryParse(transferDateRaw, out tempTransferDate))
+    {
+        transferDate = tempTransferDate.ToString("dd-MMM-yy");
+    }
+    else
+    {
+        transferDate = transferDateRaw;
+    }
+
+    string preparedBy   = master.Table.Columns.Contains("PreparedBy") && master["PreparedBy"] != DBNull.Value ? master["PreparedBy"].ToString()
+                     : (master.Table.Columns.Contains("PostedBy") && master["PostedBy"] != DBNull.Value ? master["PostedBy"].ToString() : "");
+    string createDateRaw   = master.Table.Columns.Contains("CreateDateText") && master["CreateDateText"] != DBNull.Value ? master["CreateDateText"].ToString()
+                     : (master.Table.Columns.Contains("CreateDate") && master["CreateDate"] != DBNull.Value ? master["CreateDate"].ToString() : "");
+    if (string.IsNullOrEmpty(createDateRaw))
+    {
+        createDateRaw = transferDateRaw;
+    }
+    string createDate = "";
+    DateTime tempCreateDate;
+    if (DateTime.TryParse(createDateRaw, out tempCreateDate))
+    {
+        createDate = tempCreateDate.ToString("dd-MMM-yy");
+    }
+
+    var journalData = ViewBag.JournalData as System.Data.DataTable ?? new System.Data.DataTable();
+
+    string fromAccountNo  = accounts.Table.Columns.Contains("FromAccountNo") ? accounts["FromAccountNo"]?.ToString() : "";
+    string toAccountNo    = accounts.Table.Columns.Contains("ToAccountNo")   ? accounts["ToAccountNo"]?.ToString()   : "";
+    string fromAccount    = accounts.Table.Columns.Contains("FromAccount")   ? accounts["FromAccount"]?.ToString()   : "";
+    string toAccount      = accounts.Table.Columns.Contains("ToAccount")     ? accounts["ToAccount"]?.ToString()     : "";
+    
+    string abaAcc = "";
+    string payTo = toAccount;
+    if (!string.IsNullOrEmpty(toAccount))
+    {
+        int start = toAccount.IndexOf('(');
+        int end = toAccount.LastIndexOf(')');
+        if (start >= 0 && end > start)
+        {
+            payTo = toAccount.Substring(0, start).Trim();
+        }
+    }
+
+    string refNo          = master.Table.Columns.Contains("RefNo")           ? master["RefNo"]?.ToString()           : "N/A";
+    string className      = master.Table.Columns.Contains("ClassName")       ? master["ClassName"]?.ToString()       : "";
+    string companyName    = company.Table.Columns.Contains("CompanyName")    ? company["CompanyName"]?.ToString()    : "NSM Solution and Maintenance Co., Ltd";
+    if (className.Trim().Equals("NSM ISP", StringComparison.OrdinalIgnoreCase))
+    {
+        companyName = "NSM-Internet Service Provider";
+    }
+
+    string companyAddr    = company.Table.Columns.Contains("CompanyAddress") ? company["CompanyAddress"]?.ToString() : "";
+    string checkedBy      = master.Table.Columns.Contains("CheckedBy")       ? master["CheckedBy"]?.ToString()       : "";
+    string verifiedBy     = master.Table.Columns.Contains("VerifiedBy")      ? master["VerifiedBy"]?.ToString()      : "";
+    string approvedBy     = master.Table.Columns.Contains("ApprovedBy")      ? master["ApprovedBy"]?.ToString()      : "";
+    string attn           = master.Table.Columns.Contains("Attn")            ? master["Attn"]?.ToString()            : "";
+    string fromName       = master.Table.Columns.Contains("FromName")        ? master["FromName"]?.ToString()        : "";
+    bool isToAccountBank = !string.IsNullOrEmpty(toAccount) && 
+                           (toAccount.IndexOf("Bank", StringComparison.OrdinalIgnoreCase) >= 0 || 
+                            toAccount.IndexOf("J Trust", StringComparison.OrdinalIgnoreCase) >= 0);
+
+    // Extract abaAcc from fromAccount (the paying bank), not the receiving account
+    if (isToAccountBank && !string.IsNullOrEmpty(fromAccount))
+    {
+        int fromStart = fromAccount.IndexOf('(');
+        int fromEnd   = fromAccount.LastIndexOf(')');
+        if (fromStart >= 0 && fromEnd > fromStart)
+        {
+            abaAcc = fromAccount.Substring(fromStart + 1, fromEnd - fromStart - 1).Trim();
+        }
+    }
+
+    string abaName = ""; // Always blank
+
+    string ttOnRaw           = master.Table.Columns.Contains("TTOnText")        ? master["TTOnText"]?.ToString()
+                          : (master.Table.Columns.Contains("TTOn")           ? master["TTOn"]?.ToString()            : transferDateRaw);
+    string ttOn = "";
+    DateTime tempTTOn;
+    if (DateTime.TryParse(ttOnRaw, out tempTTOn))
+    {
+        ttOn = tempTTOn.ToString("d/M/yyyy");
+    }
+    else
+    {
+        ttOn = ttOnRaw;
+    }
+
+    string journalEntryNo = master.Table.Columns.Contains("JournalEntryNo")  ? master["JournalEntryNo"]?.ToString()  : "";
+    if (string.IsNullOrEmpty(journalEntryNo))
+    {
+        journalEntryNo = ViewBag.JournalEntryNo as string ?? "";
+    }
+    string postedBy       = "";
+    string paymentMethod  = master.Table.Columns.Contains("PaymentMethodName") ? master["PaymentMethodName"]?.ToString() : (master.Table.Columns.Contains("PaymentMethod") ? master["PaymentMethod"]?.ToString() : "");
+
+    string bankName = "";
+    if (!string.IsNullOrEmpty(fromAccount))
+    {
+        int start = fromAccount.IndexOf('(');
+        if (start >= 0)
+        {
+            bankName = fromAccount.Substring(0, start).Trim();
+        }
+        else
+        {
+            bankName = fromAccount.Trim();
+        }
+    }
+    string bankDisplay = paymentMethod;
+    if (string.IsNullOrEmpty(bankDisplay) || bankDisplay.Equals("Bank Transfer", StringComparison.OrdinalIgnoreCase))
+    {
+        if (bankName.IndexOf("ABA", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankDisplay = "ABA";
+        }
+        else if (bankName.IndexOf("AC Bank", StringComparison.OrdinalIgnoreCase) >= 0 || bankName.IndexOf("ACLEDA", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankDisplay = "ACLEDA";
+        }
+        else
+        {
+            bankDisplay = bankName;
+        }
+    }
+
+    string bankPrefix = "ABA"; // Default fallback
+    string targetForPrefix = fromAccount; // Always use fromAccount (paying bank) for prefix
+
+    if (!string.IsNullOrEmpty(targetForPrefix))
+    {
+        if (targetForPrefix.IndexOf("ABA Bank", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankPrefix = "ABA";
+        }
+        else if (targetForPrefix.IndexOf("AC Bank", StringComparison.OrdinalIgnoreCase) >= 0 || targetForPrefix.IndexOf("ACLEDA", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankPrefix = "ACLEDA";
+        }
+        else if (targetForPrefix.IndexOf("May Bank", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankPrefix = "May";
+        }
+        else if (targetForPrefix.IndexOf("J Trust", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            bankPrefix = "J Trust";
+        }
+        else
+        {
+            int bankIndex = targetForPrefix.IndexOf("Bank", StringComparison.OrdinalIgnoreCase);
+            if (bankIndex > 0)
+            {
+                bankPrefix = targetForPrefix.Substring(0, bankIndex).Trim();
+            }
+            else
+            {
+                string[] parts = targetForPrefix.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0)
+                {
+                    bankPrefix = parts[0];
+                }
+            }
+        }
+    }
+
+    string checkedDateRaw = master.Table.Columns.Contains("CheckedDate") && master["CheckedDate"] != DBNull.Value ? master["CheckedDate"].ToString() : "";
+    string checkedDate = "";
+    DateTime tempCheckedDate;
+    if (DateTime.TryParse(checkedDateRaw, out tempCheckedDate))
+    {
+        checkedDate = tempCheckedDate.ToString("dd-MMM-yy");
+    }
+
+    string verifiedDateRaw = master.Table.Columns.Contains("VerifiedDate") && master["VerifiedDate"] != DBNull.Value ? master["VerifiedDate"].ToString() : "";
+    string verifiedDate = "";
+    DateTime tempVerifiedDate;
+    if (DateTime.TryParse(verifiedDateRaw, out tempVerifiedDate))
+    {
+        verifiedDate = tempVerifiedDate.ToString("dd-MMM-yy");
+    }
+
+    string approvalDateRaw = master.Table.Columns.Contains("ApprovalDate") && master["ApprovalDate"] != DBNull.Value ? master["ApprovalDate"].ToString() : "";
+    string approvalDate = "";
+    DateTime tempApprovalDate;
+    if (DateTime.TryParse(approvalDateRaw, out tempApprovalDate))
+    {
+        approvalDate = tempApprovalDate.ToString("dd-MMM-yy");
+    }
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ── */
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+#FT_Doc {
+    font-family: inherit;
+    color: #000;
+    line-height: 1.4;
+    background: #fff;
+    padding: 20px 30px;
+}
+.mytable-head,
+.mytable-head tr,
+.mytable-head td,
+.mytable-head th {
+    border: 0 !important;
+    outline: 0 !important;
+    padding-bottom: 0 !important;
+}
+.mytable-head tr td:first-child {
+    font-weight: bold;
+}
+.mytable th, .mytable td {
+    border: 1px solid #000000 !important;
+}
+.mytable thead {
+    background: @bgColor !important;
+    color: @txtColor !important;
+}
+.moul { font-family: "Moul", serif; font-weight: 400; }
+
+/* ── Top bar: company left, print-date right ── */
+.top-bar {
+    display: table;
+    width: 100%;
+    margin-bottom: 6px;
+}
+.top-bar-left  { display: table-cell; vertical-align: bottom; font-weight: 600; }
+.top-bar-right { display: table-cell; vertical-align: top; text-align: right; white-space: nowrap; }
+
+/* ── Title ── */
+.doc-title { text-align: center; margin: 6px 0 10px; }
+.doc-title .kh  { }
+.doc-title .en  { font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── Info grid ── */
+.info-grid {
+    display: table;
+    width: 100%;
+    margin-bottom: 8px;
+}
+.info-col-l { display: table-cell; width: 55%; vertical-align: top; padding-right: 10px; }
+.info-col-r { display: table-cell; width: 45%; vertical-align: top; }
+.info-row   { display: table; width: 100%; margin-bottom: 3px; }
+.info-lbl   { display: table-cell; font-weight: bold; white-space: nowrap; width: 90px; }
+.info-col-r .info-lbl { width: 75px; }
+.info-val   { display: table-cell; padding-bottom: 1px; }
+
+/* ── Main details table ── */
+.main-tbl { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.main-tbl th, .main-tbl td {
+    border: 1px solid #000;
+}
+.main-tbl thead tr {
+    background: @bgColor;
+    color: @txtColor;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+.main-tbl th { text-align: center; white-space: nowrap; }
+.main-tbl td { white-space: normal; word-break: break-word; }
+.main-tbl td.c { text-align: center; }
+.main-tbl td.r { text-align: right; }
+.main-tbl tr.total { background: #f5f5f5; font-weight: 700; }
+
+.table-borderless,
+.table-borderless td,
+.table-borderless th,
+.table-borderless tr {
+    border: 0 !important;
+}
+
+/* ── Amount in word ── */
+.amt-word { margin-bottom: 8px; }
+
+/* ── 4-col sig table ── */
+.sig-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.sig-tbl td {
+    border: 1px solid #000;
+    padding: 5px 7px;
+    vertical-align: top;
+    width: 25%;
+}
+.sig-role { font-weight: 700; margin-bottom: 50px; display: block; }
+.sig-name { border-top: 1px solid #000; padding-top: 2px; font-weight: 600; }
+.sig-date { }
+
+/* ── Double entry ── */
+.de-wrap { display: table; width: 100%; margin-bottom: 8px; }
+.de-l    { display: table-cell; width: 27%; vertical-align: top; padding-right: 8px; }
+.de-l p  { margin: 2px 0; }
+.de-r    { display: table-cell; width: 73%; vertical-align: top; }
+.de-tbl  { width: 100%; border-collapse: collapse; }
+.de-tbl th, .de-tbl td { border: 1px solid #000; padding: 5px; }
+.de-tbl thead tr {
+    background: @bgColor;
+    color: @txtColor;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+.de-tbl th { text-align: center; white-space: nowrap; }
+.de-tbl td.r { text-align: right; }
+.de-approved { text-align: center; font-weight: 700; margin-top: 3px; }
+
+/* ── Bottom footer ── */
+.bt-footer { margin-top: 18px; }
+.bt-row    { display: table; width: 100%; margin-bottom: 12px; }
+.bt-l      { display: table-cell; width: 50%; vertical-align: top; }
+.bt-r      { display: table-cell; width: 50%; vertical-align: top; text-align: right; }
+.bt-row p  { margin: 3px 0; }
+.ul        { display: inline-block; border-bottom: 1px solid #000; min-width: 120px; }
+
+/* ── Print ── */
+@@media print {
+    .no-print { display: none !important; }
+
+    @@page {
+        size: A3 !important;
+        margin: 20px 20px 0 50px !important; /* Matching InvoicePO margin base */
+    }
+
+    body, html {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: #fff !important;
+        overflow: visible !important; /* Resetting to visible like InvoicePO */
+    }
+
+    /* visibility trick to kill all leaked artifacts from parent containers */
+    body {
+        visibility: hidden !important;
+        background: #fff !important;
+    }
+    #FT_Doc, #FT_Doc * {
+        visibility: visible !important;
+    }
+    #FT_Doc {
+        position: absolute !important;
+        left: 0 !important;
+        top: 30px !important;
+        width: 92% !important;
+        margin: 0 4% !important; /* Centering with 92% width */
+        padding: 0 !important;
+        background: #fff !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Broadly kill borders/shadows/radii for anything that might still be visible */
+    *:not(table):not(tr):not(td):not(th) {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+    }
+
+    #FT_Doc .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Space saving for single page fit */
+    #FT_Doc .mt-4, #FT_Doc .mb-4, #FT_Doc .mt-2, #FT_Doc .mb-2 {
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* Inherit default spacious height and space to match InvoicePO */
+
+    .sig-role {
+        margin-bottom: 30px !important;
+    }
+    .sig-tbl td {
+        padding: 2px 4px !important;
+    }
+
+    .bt-footer {
+        margin-top: 5px !important;
+    }
+
+    .sig-tbl     { page-break-inside: avoid; }
+    .de-wrap     { page-break-inside: avoid; }
+    .bt-footer   { page-break-inside: avoid; }
+    .bt-row      { page-break-inside: avoid; }
+
+    .mytable thead {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+</style>
+
+<div id="FT_Doc" class="wrapper">
+
+    <!-- Top bar: matches InvoicePO row structure -->
+    <div class="row justify-content-between align-items-start">
+        <div class="col-9 mt-4 mb-4">
+            <h3 style="font-family: 'Times New Roman', Times, serif; font-weight: bold; margin: 0; color: #F9B060; white-space: nowrap;">@companyName</h3>
+        </div>
+        <div class="col-3 mt-4 mb-4 text-right">
+            <small class="text text-sm">Print Date: @ViewBag.PrintDate</small>
+        </div>
+    </div>
+
+    <!-- Title: matches InvoicePO h4 font-size:20px -->
+    <div class="row" style="margin-top: 20px; margin-bottom: 25px;">
+        <div class="col-12" style="text-align: center;">
+            @* <h4 class="page-header mb-2 moul" style="font-size: 20px; color: #000; margin: 0;">ប័ណ្ណផ្ទេរប្រាក់</h4> *@
+            <h4 class="page-header text-uppercase" style="font-size: 20px; font-weight: bold; color: #000; margin: 0; letter-spacing: 0.5px;">Fund Transfer Voucher</h4>
+        </div>
+    </div>
+
+    <!-- Info grid: Bootstrap row/col matching InvoicePO layout -->
+    <div class="row justify-content-between">
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border: 0 !important; width: 100%;">
+                <tr><td width="35%">Pay To :</td><td>@payTo</td></tr>
+                <tr><td>Company :</td><td>@companyName</td></tr>
+                <tr><td>Attn :</td><td>@attn</td></tr>
+                <tr><td>Address :</td><td>@companyAddr</td></tr>
+                <tr><td>@bankPrefix ACC :</td><td style="font-weight: 500;">@abaAcc</td></tr>
+                <tr><td>@bankPrefix Name :</td><td>@abaName</td></tr>
+            </table>
+        </div>
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border: 0 !important; width: 100%;">
+                <tr><td width="40%" class="text-right">Date :</td><td>@transferDate</td></tr>
+                <tr><td class="text-right">Voucher :</td><td style="font-weight: 700; color: #d9534f;">@refNo</td></tr>
+                <tr><td class="text-right">Bank :</td><td>@bankDisplay</td></tr>
+                <tr><td class="text-right">TT on :</td><td>@ttOn</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Details table -->
+    <table class="table table-bordered mytable main-tbl">
+        <thead>
+            <tr>
+                <th style="width:30px;">No</th>
+                <th style="width:90px;">Acc.ID</th>
+                <th>Description</th>
+                <th style="width:90px;">Acc.ID</th>
+                <th style="width:60px;">Qty</th>
+                <th style="width:100px;">Unit Price</th>
+                <th style="width:100px;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                string memo = master.Table.Columns.Contains("Memo") ? master["Memo"]?.ToString() : "";
+                if (!string.IsNullOrWhiteSpace(memo))
+                {
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="desc">@memo</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+
+                int rowCount = 0;
+                foreach (System.Data.DataRow row in details)
+                {
+                    rowCount++;
+                    string accId  = toAccountNo;
+                    string accId2 = fromAccountNo;
+                    string desc = row["Description"]?.ToString();
+                    if (desc == "Fund Transfer") {
+                        desc = "Amount on ( " + transferDate + " )";
+                    }
+                    <tr>
+                        <td class="c">@row["No"]</td>
+                        <td class="c">@accId</td>
+                        <td class="desc">@desc</td>
+                        <td class="c">@accId2</td>
+                        <td class="c">@row["Qty"]</td>
+                        <td class="r">$ @Convert.ToDecimal(row["UnitPrice"]).ToString("N2")</td>
+                        <td class="r" style="font-weight:600;">$ @Convert.ToDecimal(row["Amount"]).ToString("N2")</td>
+                    </tr>
+                }
+                int fillRows = string.IsNullOrWhiteSpace(memo) ? 6 : 5;
+                for (int i = rowCount; i < fillRows; i++)
+                {
+                    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                }
+            }
+            <tr class="total">
+                <td colspan="6" style="text-align: center; font-weight: bold;">Grand Total</td>
+                <td class="r">$ @ViewBag.TransferAmount.ToString("N2")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Amount in words -->
+    <div class="amt-word" style="font-size: 13px; margin-bottom: 12px;">
+        <strong>Amount in Word (USD) :</strong>
+        <span>@ViewBag.AmountInWords</span>
+    </div>
+
+    <table class="sig-tbl">
+        <tr>
+            <td>
+                <span class="sig-role">Prepared by:</span>
+                @if (!string.IsNullOrEmpty(ViewBag.PreparedBySig?.ToString())) {
+                    <img class="img" height="50" src="@Url.Content("~/Uploads/Users/" + ViewBag.PreparedBySig)" style="display:block; margin: 5px auto;" />
+                } else {
+                    <div style="height: 50px;"></div>
+                }
+                <div class="sig-title" style="text-align: left; font-weight: bold; font-size: 13px; margin-top: 20px;">Junior Accountant</div>
+                <div class="sig-date" style="margin-top: 5px; text-align: left;">Date: @(!string.IsNullOrEmpty(createDate) ? createDate : "................................")</div>
+            </td>
+            <td>
+                <span class="sig-role">Checked by:</span>
+                @if (!string.IsNullOrEmpty(ViewBag.CheckedBySig?.ToString()) && !string.IsNullOrEmpty(checkedDate)) {
+                    <img class="img" height="50" src="@Url.Content("~/Uploads/Users/" + ViewBag.CheckedBySig)" style="display:block; margin: 5px auto;" />
+                } else {
+                    <div style="height: 50px;"></div>
+                }
+                <div class="sig-title" style="text-align: left; font-weight: bold; font-size: 13px; margin-top: 20px;">Accountant</div>
+                <div class="sig-date" style="margin-top: 5px; text-align: left;">Date: @(!string.IsNullOrEmpty(checkedDate) ? checkedDate : "................................")</div>
+            </td>
+            <td>
+                <span class="sig-role">Verified by:</span>
+                @if (!string.IsNullOrEmpty(ViewBag.VerifiedBySig?.ToString()) && !string.IsNullOrEmpty(verifiedDate)) {
+                    <img class="img" height="50" src="@Url.Content("~/Uploads/Users/" + ViewBag.VerifiedBySig)" style="display:block; margin: 5px auto;" />
+                } else {
+                    <div style="height: 50px;"></div>
+                }
+                <div class="sig-title" style="text-align: left; font-weight: bold; font-size: 13px; margin-top: 20px;">Senior Accountant</div>
+                <div class="sig-date" style="margin-top: 5px; text-align: left;">Date: @(!string.IsNullOrEmpty(verifiedDate) ? verifiedDate : "................................")</div>
+            </td>
+            <td>
+                <span class="sig-role">Approved By:</span>
+                @if (!string.IsNullOrEmpty(ViewBag.ApprovedBySig?.ToString()) && !string.IsNullOrEmpty(approvalDate)) {
+                    <img class="img" height="50" src="@Url.Content("~/Uploads/Users/" + ViewBag.ApprovedBySig)" style="display:block; margin: 5px auto;" />
+                } else {
+                    <div style="height: 50px;"></div>
+                }
+                <div class="sig-title" style="text-align: left; font-weight: bold; font-size: 13px; margin-top: 20px;">Finance Manager</div>
+                <div class="sig-date" style="margin-top: 5px; text-align: left;">Date: @(!string.IsNullOrEmpty(approvalDate) ? approvalDate : "................................")</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Double Entry + Audit table -->
+    <div class="de-wrap">
+        <div class="de-l">
+            <p><strong>Double Entry</strong></p>
+            <p>Journal Entry: @journalEntryNo</p>
+            <p>Posted in system by: <strong>@postedBy</strong></p>
+        </div>
+        <div class="de-r">
+            <table class="de-tbl">
+                <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th style="width:85px;">Acc-Code</th>
+                        <th style="width:100px;">Debit</th>
+                        <th style="width:100px;">Credit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (System.Data.DataRow entry in journalData.Rows)
+                    {
+                        decimal debit  = Convert.ToDecimal(entry["Debit"]);
+                        decimal credit = Convert.ToDecimal(entry["Credit"]);
+                        <tr>
+                            <td>@entry["AccountName"]</td>
+                            <td class="r">@entry["AccountNo"]</td>
+                            <td class="r">@(debit  > 0 ? "$ " + debit.ToString("N2")  : "$ -")</td>
+                            <td class="r">@(credit > 0 ? "$ " + credit.ToString("N2") : "$ -")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Alignment Row matching Footer columns -->
+    <table style="width: 100%; border: 0 !important; margin-top: 15px; font-size: 13px;" class="table-borderless">
+        <tr>
+            <td style="width: 35%; border: 0 !important; padding: 0;"></td>
+            <td style="width: 35%; border: 0 !important; padding: 0; font-weight: bold;">Verified by:</td>
+            <td style="width: 30%; border: 0 !important; padding: 0; font-weight: bold;">Approved By: COO</td>
+        </tr>
+    </table>
+
+    <!-- Bottom footer -->
+    <table style="width: 100%; border: 0 !important; margin-top: 50px; font-size: 13px;" class="table-borderless">
+        <tr>
+            <td style="width: 35%; vertical-align: top; border: 0 !important; padding: 5px 0;">
+                <p style="margin: 0; font-weight: bold;">Accountant</p>
+                <p style="margin: 5px 0 0 0;">Date:.....................................</p>
+            </td>
+            <td style="width: 35%; vertical-align: top; border: 0 !important; padding: 5px 0;">
+                <p style="margin: 0; font-weight: bold;">Senior Accountant</p>
+                <p style="margin: 5px 0 0 0;">Date:.....................................</p>
+            </td>
+            <td style="width: 30%; vertical-align: top; border: 0 !important; padding: 5px 0;">
+                <p style="margin: 0; font-weight: bold;">&nbsp;</p>
+                <p style="margin: 5px 0 0 0; font-weight: bold;">Date:.....................................</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top; border: 0 !important; padding: 15px 0 5px 0;">
+                <p style="margin: 0; font-weight: bold;">Received By:........................</p>
+            </td>
+            <td style="border: 0 !important; padding: 15px 0 5px 0;">
+                <!-- Empty for alignment -->
+            </td>
+            <td style="border: 0 !important; padding: 15px 0 5px 0;">
+                <!-- Empty for alignment -->
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top; border: 0 !important; padding: 45px 0 5px 0;">
+                <p style="margin: 0; font-weight: bold;">Signature: .............................</p>
+                <p style="margin: 5px 0 0 0; font-weight: bold;">Date:......................................</p>
+            </td>
+            <td style="border: 0 !important; padding: 45px 0 5px 0;">
+                <!-- Empty for alignment -->
+            </td>
+            <td style="border: 0 !important; padding: 45px 0 5px 0;">
+                <!-- Empty for alignment -->
+            </td>
+        </tr>
+    </table>
+
+</div><!-- #FT_Doc -->

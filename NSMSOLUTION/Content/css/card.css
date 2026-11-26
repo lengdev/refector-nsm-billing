@@ -1,0 +1,581 @@
+﻿
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 1rem 0
+    }
+
+    to {
+        background-position: 0 0
+    }
+}
+
+.progress {
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    font-size: .75rem;
+    background-color: #e9ecef;
+    border-radius: .25rem
+}
+
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #3f6ad8;
+    transition: width .6s ease
+}
+
+@media screen and (prefers-reduced-motion:reduce) {
+    .progress-bar {
+        transition: none
+    }
+}
+
+.progress-bar-striped {
+    background-image: linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);
+    background-size: 1rem 1rem
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite
+}
+
+
+.border {
+    border: 1px solid #dee2e6 !important
+}
+
+.border-top {
+    border-top: 1px solid #dee2e6 !important
+}
+
+.border-right {
+    border-right: 1px solid #dee2e6 !important
+}
+
+.border-bottom {
+    border-bottom: 1px solid #dee2e6 !important
+}
+
+.border-left {
+    border-left: 1px solid #dee2e6 !important
+}
+
+.border-0 {
+    border: 0 !important
+}
+
+.border-top-0 {
+    border-top: 0 !important
+}
+
+.border-right-0 {
+    border-right: 0 !important
+}
+
+.border-bottom-0 {
+    border-bottom: 0 !important
+}
+
+.border-left-0 {
+    border-left: 0 !important
+}
+
+.border-primary {
+    border-color: #3f6ad8 !important
+}
+
+.border-secondary {
+    border-color: #6c757d !important
+}
+
+.border-success {
+    border-color: #3ac47d !important
+}
+
+.border-info {
+    border-color: #16aaff !important
+}
+
+.border-warning {
+    border-color: #f7b924 !important
+}
+
+.border-danger {
+    border-color: #d92550 !important
+}
+
+.border-light {
+    border-color: #eee !important
+}
+
+.border-dark {
+    border-color: #343a40 !important
+}
+
+.border-focus {
+    border-color: #444054 !important
+}
+
+.border-alternate {
+    border-color: #794c8a !important
+}
+
+.border-white {
+    border-color: #fff !important
+}
+
+.progress .progress-bar:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem
+}
+
+.progress.progress-bar-sm {
+    height: .5rem
+}
+
+.progress.progress-bar-xs {
+    height: .3rem
+}
+
+.progress.progress-bar-rounded {
+    border-radius: 30px
+}
+
+.progress-bar-animated-alt.progress-bar,
+.progress-bar-animated-alt .progress-bar {
+    position: relative
+}
+
+    .progress-bar-animated-alt.progress-bar::after,
+    .progress-bar-animated-alt .progress-bar::after {
+        content: '';
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+        animation: progress-active 2s ease infinite
+    }
+
+@keyframes progress-active {
+    0% {
+        opacity: .4;
+        width: 0
+    }
+
+    100% {
+        opacity: 0;
+        width: 100%
+    }
+}
+
+
+.widget-chart {
+    text-align: center;
+    padding: 1rem;
+    position: relative
+}
+
+    .widget-chart .progress-sub-label {
+        opacity: .8;
+        padding: 5px 0 0
+    }
+
+    .widget-chart .progress-circle-wrapper {
+        min-width: 68px;
+        margin-right: 1rem
+    }
+
+        .widget-chart .progress-circle-wrapper .react-sweet-progress-symbol {
+            font-size: .8rem
+        }
+
+    .widget-chart .widget-chart-content {
+        position: relative;
+        z-index: 5
+    }
+
+    .widget-chart .widget-chart-content-lg {
+        padding: 2rem 0 1rem 2rem
+    }
+
+        .widget-chart .widget-chart-content-lg .widget-numbers {
+            margin-bottom: 0
+        }
+
+    .widget-chart .widget-chart-wrapper {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        opacity: .25;
+        z-index: 4;
+        border-bottom-right-radius: .25rem;
+        border-bottom-left-radius: .25rem;
+        overflow: hidden
+    }
+
+    .widget-chart .widget-numbers {
+        font-weight: 700;
+        font-size: 2.5rem;
+        display: block;
+        line-height: 1;
+        margin: 1rem auto
+    }
+
+        .widget-chart .widget-numbers + .widget-chart-flex,
+        .widget-chart .widget-numbers + .widget-description,
+        .widget-chart .widget-numbers + .widget-subheading {
+            margin-top: -.5rem
+        }
+
+    .widget-chart .widget-subheading {
+        margin: -.5rem 0 0;
+        display: block;
+        opacity: .6
+    }
+
+        .widget-chart .widget-subheading:first-child {
+            margin-top: 0
+        }
+
+        .widget-chart .widget-subheading + .widget-numbers {
+            margin-top: .5rem
+        }
+
+    .widget-chart .widget-description {
+        margin: 1rem 0 0
+    }
+
+    .widget-chart.widget-chart-hover {
+        transition: all .2s
+    }
+
+        .widget-chart.widget-chart-hover:hover {
+            z-index: 15;
+            transform: scale(1.15);
+            box-shadow: 0 .46875rem 4.1875rem rgba(4,9,20,.05),0 .9375rem 2.40625rem rgba(4,9,20,.05),0 .25rem 1.3125rem rgba(4,9,20,.06),0 .125rem 1.1875rem rgba(4,9,20,.06);
+            cursor: pointer;
+            background: #fff
+        }
+
+    .widget-chart .widget-chart-actions {
+        position: absolute;
+        right: .5rem;
+        top: .5rem;
+        z-index: 12
+    }
+
+        .widget-chart .widget-chart-actions .btn-link {
+            font-size: 1.1rem;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: .6
+        }
+
+    .widget-chart .widget-progress-wrapper {
+        margin-top: 1rem
+    }
+
+        .widget-chart .widget-progress-wrapper.progress-wrapper-bottom {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%
+        }
+
+            .widget-chart .widget-progress-wrapper.progress-wrapper-bottom .progress {
+                margin: 0 -1px -1px
+            }
+
+            .widget-chart .widget-progress-wrapper.progress-wrapper-bottom .progress {
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: .25rem;
+                border-bottom-left-radius: .25rem
+            }
+
+                .widget-chart .widget-progress-wrapper.progress-wrapper-bottom .progress .progress-bar {
+                    border-bottom-left-radius: .25rem
+                }
+
+    .widget-chart .widget-chart-flex {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        margin-bottom: 1rem
+    }
+
+        .widget-chart .widget-chart-flex:last-child {
+            margin-bottom: 0
+        }
+
+        .widget-chart .widget-chart-flex .widget-subheading {
+            margin: 0
+        }
+
+        .widget-chart .widget-chart-flex .widget-description {
+            margin-top: 0
+        }
+
+    .widget-chart.text-left {
+        flex-direction: row;
+        align-items: center
+    }
+
+        .widget-chart.text-left .icon-wrapper {
+            min-width: 54px;
+            margin: 0 1rem 0 0
+        }
+
+        .widget-chart.text-left .widget-numbers {
+            margin-left: 0
+        }
+
+        .widget-chart.text-left .widget-chart-content {
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            flex: 1;
+            position: relative
+        }
+
+            .widget-chart.text-left .widget-chart-content > .widget-numbers:first-child {
+                margin-top: 0
+            }
+
+            .widget-chart.text-left .widget-chart-content .widget-description {
+                align-self: flex-start
+            }
+
+        .widget-chart.text-left .widget-chart-wrapper {
+            height: 35%
+        }
+
+    .widget-chart.widget-chart-left {
+        padding-bottom: 15%
+    }
+
+    .widget-chart .chart-wrapper-relative {
+        position: relative;
+        opacity: 1;
+        margin-top: 1rem
+    }
+
+.widget-chart-actions {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    z-index: 12
+}
+
+    .widget-chart-actions .btn-link {
+        font-size: 1.1rem;
+        padding-top: 0;
+        padding-bottom: 0;
+        opacity: .6
+    }
+
+.widget-chart:hover .widget-chart-actions .btn-link,
+.widget-content:hover .widget-chart-actions .btn-link {
+    opacity: 1
+}
+
+.grid-menu .widget-chart.widget-chart-hover:hover {
+    background: #fff;
+    border-radius: .25rem
+}
+
+.icon-wrapper {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden
+}
+
+    .icon-wrapper[class*=border-] {
+        border-width: 1px;
+        border-style: solid
+    }
+
+    .icon-wrapper .icon-wrapper-bg {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 3;
+        opacity: .2
+    }
+
+        .icon-wrapper .icon-wrapper-bg.bg-light {
+            opacity: .08
+        }
+
+    .icon-wrapper i {
+        margin: 0 auto;
+        font-size: 1.7rem;
+        position: relative;
+        z-index: 5
+    }
+
+        .icon-wrapper i:before {
+            margin-top: -3px
+        }
+
+    .icon-wrapper .progress-circle-wrapper {
+        width: 100%;
+        margin-right: 0;
+        margin-top: 4px
+    }
+
+.widget-chart2 .widget-chart-flex {
+    display: flex;
+    align-items: baseline;
+    align-content: center;
+    margin-bottom: 0
+}
+
+    .widget-chart2 .widget-chart-flex .widget-subtitle {
+        margin-left: auto
+    }
+
+    .widget-chart2 .widget-chart-flex .widget-numbers {
+        font-weight: 400
+    }
+
+    .widget-chart2 .widget-chart-flex + .widget-chart-flex .widget-numbers {
+        margin-bottom: 0
+    }
+
+.widget-chart2 .widget-chat-wrapper-outer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-width: 100%
+}
+
+    .widget-chart2 .widget-chat-wrapper-outer .widget-chart-wrapper {
+        height: 70px;
+        opacity: .8;
+        position: relative;
+        margin: 1rem auto -.5rem
+    }
+
+    .widget-chart2 .widget-chat-wrapper-outer .widget-chart-wrapper-lg {
+        height: 130px
+    }
+
+    .widget-chart2 .widget-chat-wrapper-outer .widget-chart-wrapper-xlg {
+        height: 160px
+    }
+
+.card-btm-border {
+    border-bottom: transparent solid 4px
+}
+
+.progress-box {
+    text-align: center
+}
+
+    .progress-box h4 {
+        font-size: .88rem;
+        font-weight: 700;
+        opacity: .6;
+        text-transform: uppercase;
+        padding-bottom: .33333rem
+    }
+
+    .progress-box svg {
+        margin: 0 auto
+    }
+
+.svg-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: .1
+}
+
+    .svg-bg svg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0
+    }
+
+.widget-numbers-sm {
+    font-size: 1.5rem
+}
+
+.widget-content {
+    padding: 1rem;
+    flex-direction: row;
+    align-items: center
+}
+
+    .widget-content .widget-content-wrapper {
+        display: flex;
+        flex: 1;
+        position: relative;
+        align-items: center
+    }
+
+    .widget-content .widget-content-left .widget-heading {
+        opacity: .8;
+        font-weight: 700
+    }
+
+    .widget-content .widget-content-left .widget-subheading {
+        opacity: .5
+    }
+
+    .widget-content .widget-content-right {
+        margin-left: auto
+    }
+
+    .widget-content .widget-numbers {
+        font-weight: 700;
+        font-size: 1.8rem;
+        display: block
+    }
+
+    .widget-content .widget-content-outer {
+        display: flex;
+        flex: 1;
+        flex-direction: column
+    }
+
+    .widget-content .widget-progress-wrapper {
+        margin-top: 1rem
+    }
+
+        .widget-content .widget-progress-wrapper .progress-sub-label {
+            margin-top: .33333rem;
+            opacity: .5;
+            display: flex;
+            align-content: center;
+            align-items: center
+        }
+
+            .widget-content .widget-progress-wrapper .progress-sub-label .sub-label-right {
+                margin-left: auto
+            }
+
+    .widget-content .widget-content-right.widget-content-actions {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity .2s
+    }
+
+    .widget-content:hover .widget-content-right.widget-content-actions {
+        visibility: visible;
+        opacity: 1
+    }

@@ -1,0 +1,243 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+Khmer:wght@100..900&display=swap");
+
+.rp-jv-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, .48);
+}
+
+.rp-jv-dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #fff;
+    color: #343a40;
+    font-family: "Segoe UI", "Noto Serif Khmer", Arial, sans-serif;
+}
+
+.rp-jv-header {
+    display: flex;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.rp-jv-close {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.rp-jv-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 18px 3.2vw 24px;
+}
+
+.rp-jv-report-heading {
+    margin: 8px 0 12px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.rp-jv-report-heading strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.rp-jv-title {
+    margin: 0;
+    color: #343a40;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rp-jv-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.rp-jv-table {
+    width: 100%;
+    min-width: 900px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.rp-jv-table th,
+.rp-jv-table td {
+    padding: 5px 6px;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-jv-table th {
+    background: #495057;
+    color: #fff;
+    text-align: left;
+    font-weight: 600;
+}
+
+.rp-jv-table td {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.rp-jv-table th:nth-child(1) { width: 11%; }
+.rp-jv-table th:nth-child(2) { width: 11%; }
+.rp-jv-table th:nth-child(3) { width: 7%; }
+.rp-jv-table th:nth-child(4) { width: 14%; }
+.rp-jv-table th:nth-child(5) { width: 7%; }
+.rp-jv-table th:nth-child(6) { width: 14%; }
+.rp-jv-table th:nth-child(7) { width: 7%; }
+.rp-jv-table th:nth-child(8) { width: 7%; }
+.rp-jv-table th:nth-child(9) { width: 22%; }
+
+.rp-jv-table .rp-jv-number {
+    text-align: right;
+}
+
+.rp-jv-table tfoot td {
+    border-bottom: 0;
+    font-weight: 700;
+}
+
+.rp-jv-table tfoot td:nth-child(7),
+.rp-jv-table tfoot td:nth-child(8) {
+    border-top: 1px solid #495057;
+    border-bottom: 3px double #111827;
+}
+
+.rp-jv-error {
+    padding: 18px;
+    color: #b91c1c;
+}
+
+.rp-jv-customize-panel {
+    position: absolute;
+    bottom: 56px;
+    left: 12px;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    gap: 8px 16px;
+    max-width: min(680px, calc(100vw - 24px));
+    padding: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+    font-size: 13px;
+}
+
+.rp-jv-customize-panel[hidden] {
+    display: none;
+}
+
+.rp-jv-customize-panel label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-weight: 400;
+}
+
+.rp-jv-footer {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 14px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rp-jv-footer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.rp-jv-btn {
+    padding: 7px 12px;
+    border: 1px solid var(--base-bg-color, #078844);
+    border-radius: 4px;
+    background: var(--base-bg-color, #078844);
+    color: var(--base-color, #fff);
+    font: inherit;
+    cursor: pointer;
+}
+
+.rp-jv-btn:hover {
+    filter: brightness(.94);
+}
+
+@media (max-width: 900px) {
+    .rp-jv-table {
+        min-width: 1100px;
+    }
+
+    .rp-jv-customize-panel {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+
+    .rp-jv-footer {
+        flex-wrap: wrap;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    .rp-jv-backdrop,
+    .rp-jv-backdrop * {
+        visibility: visible !important;
+    }
+
+    .rp-jv-backdrop {
+        position: absolute !important;
+        inset: 0 !important;
+        background: #fff !important;
+        overflow: visible !important;
+    }
+
+    .rp-jv-dialog {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .rp-jv-body {
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    .rp-jv-footer,
+    .rp-jv-close,
+    .rp-jv-customize-panel {
+        display: none !important;
+    }
+
+    .rp-jv-table {
+        min-width: 0 !important;
+        font-size: 9px !important;
+    }
+}

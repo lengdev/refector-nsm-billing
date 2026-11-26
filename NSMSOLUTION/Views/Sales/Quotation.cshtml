@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showQuoteForm(salesId, quoteNumber, saleType) {
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox("Preview Quotation Form No.: " + quoteNumber, "Auto", "500", URL);
+    }
+</script>

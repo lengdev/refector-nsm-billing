@@ -1,0 +1,13 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    $(function () {
+        var loc = window.location.href;
+        var Type = getQueryStringValue(loc, 'Type');
+        if (Type != "") {
+            setTimeout(function () {
+                $("#txtConnectionType").val(Type).trigger('change');
+            }, 500);
+        }
+    });
+</script>

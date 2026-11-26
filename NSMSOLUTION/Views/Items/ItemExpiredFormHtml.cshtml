@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = null;
+}
+
+<link href="~/Content/css/custom.css" rel="stylesheet">
+<link href="~/Content/css/custom_bootstrap.css" rel="stylesheet">
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+<style>
+    .mytable th,
+    .mytable td {
+        border: 1px solid #000000 !important;
+    }
+</style>
+<div id="item-expire-date">
+    @Html.Raw(@ViewBag.Data)
+</div>

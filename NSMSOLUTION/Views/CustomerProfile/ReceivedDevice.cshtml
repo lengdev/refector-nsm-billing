@@ -1,0 +1,14 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    function CallBackSaveChangeReceivedDevice(response) {
+        $("#DialogReceivedDevice").modal('hide');
+        $("#Customer-Connection-tab").click();
+        $("#deviceinfo-tabs").click();
+
+        const requestData = {
+            ID: response.Data,
+        }
+        PostData("CustomerProfile/SendAlertReturnDevice", requestData);
+    }
+</script>

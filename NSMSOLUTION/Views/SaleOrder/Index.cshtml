@@ -1,0 +1,24 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+<script>
+    function onGridClick(THIS) {
+        if ($(THIS).index() != 9) {
+            var index = ($(THIS).parent().index() + 1);
+            var CustID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+            var url = '#!/CustomerProfile?ID=' + CustID;
+            OpenNewTap(url);
+        }
+    }
+
+    function Edit_SaleOrder(CustID, InvNo) {
+        //let CustID = $(THIS).attr("id");
+        //let InvNo = $(THIS).closest("tr").find('td:eq(1)').html();
+        //console.log(CustID, InvNo);
+        //Edit_Tbl_Row('', '', InvNo, false, '', CustID, false, '', '');
+        let obj = { PrimaryFieldValue: "0", InvoiceNo: InvNo, CustomerID: CustID, FormStatus: "CreateInvoice", ConnectionID: '', EditInvoice: true, IsRenew: false, ISSO: 2 };
+        AddQuotation(obj, "Edit Customer Invoice");
+    }
+
+</script>

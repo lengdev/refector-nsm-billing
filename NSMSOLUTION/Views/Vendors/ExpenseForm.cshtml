@@ -1,0 +1,4589 @@
+﻿@{ Layout = null; }
+
+<style>
+    /* ============================================================
+       EXPENSE FORM — MODERN 2025 REDESIGN
+       Complete restyle. Markup names, IDs, and JS hooks preserved.
+    ============================================================ */
+    .expense-account-kendo .expense-account-group-header {
+        padding: 9px 12px;
+        font-weight: 700;
+        font-size: 12px;
+        color: #4FA3E3;
+        background: #0C1626;
+        border-bottom: 1px solid rgba(255,255,255,.12);
+        text-transform: uppercase;
+    }
+    /* Account dropdown */
+    .expense-wrapper .expense-account-kendo {
+        width: 100%;
+        min-height: 45px;
+        border-radius: 10px;
+        border: 1px solid var(--ex-border-strong);
+        background: var(--ex-surface);
+        transition: all .18s ease;
+    }
+
+        /* Focus */
+        .expense-wrapper .expense-account-kendo:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+        }
+
+        /* Input */
+        .expense-wrapper .expense-account-kendo .k-input-inner {
+            min-height: 43px;
+            padding-left: 42px !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+    /* Dropdown table headers */
+    .k-multicolumncombobox-popup .k-table-thead,
+    .k-multicolumncombobox-popup .k-grid-header {
+        background: #f8fafc;
+    }
+
+    /* Account number */
+    .expense-account-no {
+        display: inline-block;
+        color: #6478ff;
+        font-weight: 600;
+    }
+
+    /* Account name */
+    .expense-account-name {
+        color: #1e293b;
+    }
+
+    /* Group header */
+    .k-list-group-item,
+    .k-group-header {
+        padding: 12px 16px !important;
+        font-weight: 700;
+        color: #334155;
+        background: #e9e8ff !important;
+        border-bottom: 1px solid #d6d9ed;
+    }
+
+    /* Dropdown row */
+    .k-multicolumncombobox-popup .k-list-item {
+        padding: 12px 16px;
+        min-height: 48px;
+    }
+
+        /* Hover */
+        .k-multicolumncombobox-popup .k-list-item:hover {
+            background: #eef2ff !important;
+        }
+
+    /* Selected */
+    .k-multicolumncombobox-popup .k-selected {
+        background: #e5e7ff !important;
+    }
+
+    /* Dark mode */
+    html[data-theme="dark"] .expense-wrapper .expense-account-kendo,
+    body[data-theme="dark"] .expense-wrapper .expense-account-kendo,
+    body.dark-mode .expense-wrapper .expense-account-kendo {
+        background: var(--ex-surface-2);
+        border-color: var(--ex-border-strong);
+    }
+
+    html[data-theme="dark"] .expense-account-name,
+    body[data-theme="dark"] .expense-account-name,
+    body.dark-mode .expense-account-name {
+        color: var(--ex-text);
+    }
+    /* Payee Kendo MultiColumnComboBox */
+    .expense-wrapper .expense-payee-kendo {
+        width: 100%;
+/*        min-height: 45px;*/
+        border: 1px solid var(--ex-border-strong);
+        border-radius: 10px;
+        background: var(--ex-surface);
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+        /* Input */
+        .expense-wrapper .expense-payee-kendo .k-input-inner {
+/*            min-height: 43px;*/
+/*            padding-left: 42px !important;*/
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+    /* Person icon positioning */
+    .expense-wrapper .expense-payee-kendo {
+        position: relative;
+    }
+
+        /* Focus */
+        .expense-wrapper .expense-payee-kendo:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .16);
+        }
+
+        /* Dropdown arrow */
+        .expense-wrapper .expense-payee-kendo .k-input-button {
+            border: none;
+            background: transparent;
+        }
+
+        /* Hover */
+        .expense-wrapper .expense-payee-kendo:hover {
+            border-color: #94a3b8;
+        }
+
+    /* Dark theme */
+    html[data-theme="dark"] .expense-wrapper .expense-payee-kendo,
+    body[data-theme="dark"] .expense-wrapper .expense-payee-kendo,
+    body.dark-mode .expense-wrapper .expense-payee-kendo {
+        background: var(--ex-surface-2);
+        border-color: var(--ex-border-strong);
+    }
+
+        html[data-theme="dark"] .expense-wrapper .expense-payee-kendo .k-input-inner,
+        body[data-theme="dark"] .expense-wrapper .expense-payee-kendo .k-input-inner,
+        body.dark-mode .expense-wrapper .expense-payee-kendo .k-input-inner {
+            color: var(--ex-text);
+        }
+    /* ---------- Design tokens ---------- */
+    .expense-wrapper {
+        --ex-accent: #4f46e5;
+        --ex-accent-hover: #4338ca;
+        --ex-accent-soft: rgba(79, 70, 229, .08);
+        --ex-accent-ring: rgba(79, 70, 229, .18);
+        --ex-success: #059669;
+        --ex-success-soft: rgba(5, 150, 105, .10);
+        --ex-danger: #dc2626;
+        --ex-danger-soft: rgba(220, 38, 38, .08);
+        --ex-warning: #d97706;
+        --ex-warning-soft: rgba(217, 119, 6, .10);
+        --ex-info: #0284c7;
+        --ex-info-soft: rgba(2, 132, 199, .08);
+        --ex-bg: #f6f7fb;
+        --ex-surface: #ffffff;
+        --ex-surface-2: #f9fafb;
+        --ex-surface-3: #f3f4f6;
+        --ex-border: #e5e7eb;
+        --ex-border-strong: #d1d5db;
+        --ex-text: #111827;
+        --ex-text-2: #374151;
+        --ex-muted: #6b7280;
+        --ex-faint: #9ca3af;
+        --ex-radius-lg: 14px;
+        --ex-radius: 10px;
+        --ex-radius-sm: 7px;
+        --ex-shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+        --ex-shadow-sm: 0 1px 3px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .04);
+        --ex-shadow: 0 4px 12px rgba(16, 24, 40, .06), 0 2px 4px rgba(16, 24, 40, .04);
+        --ex-shadow-lg: 0 12px 32px rgba(16, 24, 40, .10), 0 4px 8px rgba(16, 24, 40, .05);
+        --ex-inset: inset 0 1px 2px rgba(16, 24, 40, .04);
+        --ex-ease: cubic-bezier(.4, 0, .2, 1);
+        --ex-t: .18s var(--ex-ease);
+        width: 100%;
+        color: var(--ex-text);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: var(--ex-bg);
+        min-height: 100vh;
+    }
+
+        .expense-wrapper *,
+        .expense-wrapper *::before,
+        .expense-wrapper *::after {
+            box-sizing: border-box;
+        }
+
+        .expense-wrapper .expense-shell {
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 24px 24px;
+        }
+
+        /* ============================================================
+       PAGE HEADER
+    ============================================================ */
+        .expense-wrapper .expense-page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 20px 24px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius-lg);
+            background: var(--ex-surface);
+            box-shadow: var(--ex-shadow-sm);
+        }
+
+        .expense-wrapper .expense-heading-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .expense-wrapper .expense-heading-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 52px;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            font-size: 1.35rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, .30);
+        }
+
+        .expense-wrapper .expense-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            color: var(--ex-muted);
+            font-size: .75rem;
+            font-weight: 500;
+        }
+
+            .expense-wrapper .expense-breadcrumb i {
+                font-size: .6rem;
+                opacity: .6;
+            }
+
+            .expense-wrapper .expense-breadcrumb .current {
+                color: var(--ex-accent);
+                font-weight: 600;
+            }
+
+        .expense-wrapper .expense-heading h1 {
+            margin: 0;
+            color: var(--ex-text);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            line-height: 1.2;
+        }
+
+        .expense-wrapper .expense-heading p {
+            margin: 3px 0 0;
+            color: var(--ex-muted);
+            font-size: .85rem;
+        }
+
+        .expense-wrapper .expense-header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .expense-wrapper .expense-header-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: 24px;
+            color: var(--ex-text-2);
+            background: var(--ex-surface-2);
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+            .expense-wrapper .expense-header-status i {
+                color: var(--ex-warning);
+                font-size: .5rem;
+            }
+
+        /* ============================================================
+       CARDS
+    ============================================================ */
+        .expense-wrapper .section-card,
+        .expense-wrapper .journal-card,
+        .expense-wrapper .doc-card {
+            min-width: 0;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius-lg);
+            background: var(--ex-surface);
+            box-shadow: var(--ex-shadow-sm);
+            transition: box-shadow var(--ex-t);
+        }
+
+            .expense-wrapper .section-card:hover {
+                box-shadow: var(--ex-shadow);
+            }
+
+        .expense-wrapper .section-header,
+        .expense-wrapper .journal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ex-border);
+            background: var(--ex-surface);
+        }
+
+        .expense-wrapper .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .expense-wrapper .section-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+
+        .expense-wrapper .icon-blue {
+            color: var(--ex-accent);
+            background: var(--ex-accent-soft);
+        }
+
+        .expense-wrapper .icon-green {
+            color: var(--ex-success);
+            background: var(--ex-success-soft);
+        }
+
+        .expense-wrapper .icon-orange {
+            color: var(--ex-warning);
+            background: var(--ex-warning-soft);
+        }
+
+        .expense-wrapper .icon-info {
+            color: var(--ex-info);
+            background: var(--ex-info-soft);
+        }
+
+        .expense-wrapper .section-title h6,
+        .expense-wrapper .journal-header h6 {
+            margin: 0;
+            color: var(--ex-text);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -.01em;
+        }
+
+        .expense-wrapper .section-title small {
+            display: block;
+            margin-top: 2px;
+            color: var(--ex-muted);
+            font-size: .78rem;
+            font-weight: 400;
+        }
+
+        .expense-wrapper .section-body {
+            padding: 20px 24px 24px;
+        }
+
+        /* ============================================================
+       STATUS CHIPS
+    ============================================================ */
+        .expense-wrapper .sec-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: .74rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+            .expense-wrapper .sec-status.is-ok {
+                color: #047857;
+                background: var(--ex-success-soft);
+                border-color: rgba(5,150,105,.2);
+            }
+
+            .expense-wrapper .sec-status.is-warn {
+                color: #b45309;
+                background: var(--ex-warning-soft);
+                border-color: rgba(217,119,6,.25);
+            }
+
+            .expense-wrapper .sec-status.is-danger {
+                color: #b91c1c;
+                background: var(--ex-danger-soft);
+                border-color: rgba(220,38,38,.2);
+            }
+
+        /* ============================================================
+       GUIDANCE BANNER
+    ============================================================ */
+        .expense-wrapper .ux-guide {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border: 1px solid rgba(2,132,199,.2);
+            border-left: 3px solid var(--ex-info);
+            border-radius: var(--ex-radius);
+            background: var(--ex-info-soft);
+            color: #0c4a6e;
+            font-size: .84rem;
+            line-height: 1.5;
+        }
+
+            .expense-wrapper .ux-guide > i {
+                color: var(--ex-info);
+                font-size: 1.1rem;
+                margin-top: 1px;
+                flex-shrink: 0;
+            }
+
+            .expense-wrapper .ux-guide strong {
+                font-weight: 700;
+            }
+
+        /* ============================================================
+       FORM FIELDS
+    ============================================================ */
+        .expense-wrapper .expense-fields-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px 20px;
+            align-items: start;
+        }
+
+        .expense-wrapper .expense-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+        }
+
+            .expense-wrapper .expense-field > label {
+                display: block;
+                margin: 0;
+                color: var(--ex-text-2);
+                font-size: .82rem;
+                font-weight: 600;
+                line-height: 1.35;
+            }
+
+                .expense-wrapper .expense-field > label b,
+                .expense-wrapper .expense-field > label .required {
+                    color: var(--ex-danger);
+                    font-weight: 700;
+                    margin-left: 2px;
+                }
+
+        .expense-wrapper .form-control,
+        .expense-wrapper .form-select {
+/*            min-height: 44px;*/
+/*            padding: 10px 14px;*/
+            border: 1px solid var(--ex-border-strong);
+            border-radius: var(--ex-radius);
+            color: var(--ex-text);
+            background-color: var(--ex-surface);
+            font-size: .875rem;
+            box-shadow: var(--ex-inset);
+            transition: border-color var(--ex-t), box-shadow var(--ex-t);
+        }
+
+            .expense-wrapper .form-control::placeholder {
+                color: var(--ex-faint);
+            }
+
+            .expense-wrapper .form-control:hover,
+            .expense-wrapper .form-select:hover {
+                border-color: #9ca3af;
+            }
+
+            .expense-wrapper .form-control:focus,
+            .expense-wrapper .form-select:focus {
+                border-color: var(--ex-accent);
+                box-shadow: 0 0 0 4px var(--ex-accent-ring);
+                outline: 0;
+            }
+
+        .expense-wrapper textarea.form-control {
+            min-height: 90px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .expense-wrapper .form-control[readonly],
+        .expense-wrapper .form-control:disabled,
+        .expense-wrapper .form-select:disabled {
+            background-color: var(--ex-surface-3);
+            color: var(--ex-muted);
+            cursor: not-allowed;
+        }
+
+        /* Leading icons */
+        .expense-wrapper .expense-control-wrap {
+            position: relative;
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+        }
+
+            .expense-wrapper .expense-control-wrap > .form-control,
+            .expense-wrapper .expense-control-wrap > .form-select {
+                min-width: 0;
+                width: 100%;
+            }
+
+        .expense-wrapper .expense-field .expense-control-wrap > .form-control,
+        .expense-wrapper .expense-field .expense-control-wrap > .form-select {
+/*            padding-left: 42px;*/
+        }
+
+        .expense-wrapper .expense-control-icon {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            color: var(--ex-faint);
+            font-size: 15px;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+
+        .expense-wrapper .expense-control-wrap:has(textarea) .expense-control-icon {
+            top: 16px;
+            transform: none;
+        }
+
+        /* Input groups */
+        .expense-wrapper .expense-field .input-group {
+            display: flex;
+            flex-wrap: nowrap;
+            min-width: 0;
+        }
+
+            .expense-wrapper .expense-field .input-group > .expense-control-wrap {
+                flex: 1 1 0;
+            }
+
+                .expense-wrapper .expense-field .input-group > .expense-control-wrap > .form-control,
+                .expense-wrapper .expense-field .input-group > .expense-control-wrap > .form-select {
+                    border-top-right-radius: 0;
+                    border-bottom-right-radius: 0;
+                }
+
+        .expense-wrapper .input-group-text {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 14px;
+            border: 1px solid var(--ex-border-strong);
+            border-left: 0;
+            border-radius: 0 var(--ex-radius) var(--ex-radius) 0;
+            color: var(--ex-muted);
+            background: var(--ex-surface-2);
+            font-size: .8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .expense-wrapper .field-hint,
+        .expense-wrapper .expense-field small {
+            margin-top: 2px;
+            color: var(--ex-muted);
+            font-size: .72rem;
+        }
+
+        /* Wide field + summary */
+        .expense-wrapper .expense-field-wide {
+            grid-column: span 2;
+        }
+
+        .expense-wrapper .expense-summary-inline {
+            grid-column: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 4px;
+        }
+
+            .expense-wrapper .expense-summary-inline > div {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 10px 14px;
+                border: 1px solid var(--ex-border);
+                border-radius: var(--ex-radius);
+                background: var(--ex-surface-2);
+                color: var(--ex-text-2);
+                font-size: .82rem;
+                font-weight: 500;
+            }
+
+            .expense-wrapper .expense-summary-inline strong {
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+                font-size: .9rem;
+            }
+
+            .expense-wrapper .expense-summary-inline > div:nth-child(2) {
+                color: #047857;
+                background: var(--ex-success-soft);
+                border-color: rgba(5,150,105,.25);
+            }
+
+        .expense-wrapper .expense-summary-khr {
+            display: none !important;
+        }
+
+        /* ============================================================
+       BUTTONS
+    ============================================================ */
+        .expense-wrapper .ex-btn,
+        .expense-wrapper .add-row-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 38px;
+            padding: 8px 16px;
+            border: 1px solid var(--ex-border-strong);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface);
+            color: var(--ex-text-2);
+            font-size: .84rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: var(--ex-shadow-xs);
+            transition: all var(--ex-t);
+        }
+
+            .expense-wrapper .ex-btn:hover,
+            .expense-wrapper .add-row-btn:hover {
+                border-color: var(--ex-accent);
+                color: var(--ex-accent);
+                box-shadow: 0 2px 8px rgba(79, 70, 229, .15);
+                transform: translateY(-1px);
+            }
+
+            .expense-wrapper .ex-btn:focus-visible,
+            .expense-wrapper .add-row-btn:focus-visible {
+                outline: 2px solid var(--ex-accent);
+                outline-offset: 2px;
+            }
+
+        .expense-wrapper .ex-btn-primary {
+            border-color: var(--ex-accent);
+            background: var(--ex-accent);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(79,70,229,.25);
+        }
+
+            .expense-wrapper .ex-btn-primary:hover {
+                background: var(--ex-accent-hover);
+                border-color: var(--ex-accent-hover);
+                color: #fff;
+                box-shadow: 0 4px 14px rgba(79,70,229,.35);
+            }
+
+        .expense-wrapper .ex-btn-danger {
+            color: var(--ex-danger);
+        }
+
+        .expense-wrapper .ex-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ============================================================
+       ENTRY MODE TABS
+    ============================================================ */
+        .expense-wrapper .mode-tabs-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .expense-wrapper .mode-tabs-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--ex-muted);
+            font-size: .75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+            .expense-wrapper .mode-tabs-label i {
+                color: var(--ex-accent);
+            }
+
+        .expense-wrapper .mode-toggle {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface-3);
+            margin-bottom: 16px;
+        }
+
+            .expense-wrapper .mode-toggle button {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 18px;
+                border: 0;
+                border-radius: var(--ex-radius-sm);
+                background: transparent;
+                color: var(--ex-muted);
+                font-size: .86rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all var(--ex-t);
+                white-space: nowrap;
+            }
+
+                .expense-wrapper .mode-toggle button i {
+                    font-size: 1rem;
+                    opacity: .7;
+                }
+
+                .expense-wrapper .mode-toggle button:hover {
+                    color: var(--ex-text);
+                }
+
+                .expense-wrapper .mode-toggle button.active {
+                    color: var(--ex-accent);
+                    background: var(--ex-surface);
+                    box-shadow: var(--ex-shadow-sm);
+                }
+
+                    .expense-wrapper .mode-toggle button.active i {
+                        opacity: 1;
+                    }
+
+            .expense-wrapper .mode-toggle .mode-count {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 22px;
+                height: 20px;
+                padding: 0 7px;
+                border-radius: 10px;
+                background: var(--ex-border);
+                color: var(--ex-text-2);
+                font-size: .7rem;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .expense-wrapper .mode-toggle button.active .mode-count {
+                background: var(--ex-accent-soft);
+                color: var(--ex-accent);
+            }
+
+        .expense-wrapper .mode-context {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface-2);
+            color: var(--ex-muted);
+            font-size: .82rem;
+        }
+
+            .expense-wrapper .mode-context strong {
+                color: var(--ex-text);
+                font-weight: 700;
+            }
+
+            .expense-wrapper .mode-context i {
+                color: var(--ex-accent);
+            }
+
+        /* ============================================================
+       TABLES
+    ============================================================ */
+        .expense-wrapper .table-container {
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface);
+        }
+
+        .expense-wrapper .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .expense-wrapper .expense-table {
+            width: 100%;
+            min-width: 900px;
+            margin: 0;
+            font-size: .84rem;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+            .expense-wrapper .expense-table thead th {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                padding: 11px 12px;
+                border-bottom: 1px solid var(--ex-border);
+                background: var(--ex-surface-2);
+                color: var(--ex-muted);
+                font-size: .73rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                white-space: nowrap;
+            }
+
+            .expense-wrapper .expense-table tbody td {
+                padding: 8px 10px;
+                border-bottom: 1px solid var(--ex-border);
+                vertical-align: middle;
+                background: var(--ex-surface);
+            }
+
+            .expense-wrapper .expense-table tbody tr:nth-child(even) td {
+                background: var(--ex-surface-2);
+            }
+
+            .expense-wrapper .expense-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+            .expense-wrapper .expense-table tbody tr {
+                transition: background var(--ex-t);
+            }
+
+                .expense-wrapper .expense-table tbody tr:hover td {
+                    background: var(--ex-accent-soft) !important;
+                }
+
+            .expense-wrapper .expense-table .form-control,
+            .expense-wrapper .expense-table .form-select {
+                min-height: 38px;
+                padding: 6px 10px;
+                border-radius: var(--ex-radius-sm);
+                font-size: .84rem;
+                box-shadow: none;
+            }
+
+            .expense-wrapper .expense-table .expense-control-wrap > .form-control,
+            .expense-wrapper .expense-table .expense-control-wrap > .form-select {
+                padding-left: 32px;
+            }
+
+            .expense-wrapper .expense-table .expense-control-icon {
+                left: 10px;
+                width: 14px;
+                font-size: 12px;
+            }
+
+            .expense-wrapper .expense-table .empty-row td {
+                padding: 36px 20px;
+                color: var(--ex-muted);
+                text-align: center;
+                font-size: .86rem;
+                background: var(--ex-surface) !important;
+                font-style: italic;
+            }
+
+        .expense-wrapper .remove-row-btn {
+            display: inline-grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: var(--ex-radius-sm);
+            background: transparent;
+            color: var(--ex-danger);
+            cursor: pointer;
+            transition: all var(--ex-t);
+        }
+
+            .expense-wrapper .remove-row-btn:hover {
+                background: var(--ex-danger-soft);
+                transform: scale(1.05);
+            }
+
+        .expense-wrapper .row-total {
+            color: var(--ex-text);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .expense-wrapper .table-scroll-hint {
+            display: none;
+            margin-top: 8px;
+            color: var(--ex-muted);
+            font-size: .74rem;
+        }
+
+        /* ============================================================
+       DOCUMENT UPLOADER
+    ============================================================ */
+        .expense-wrapper .doc-dropzone {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 140px;
+            padding: 24px 20px;
+            border: 2px dashed var(--ex-border-strong);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface-2);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--ex-t);
+        }
+
+            .expense-wrapper .doc-dropzone:hover,
+            .expense-wrapper .doc-dropzone.is-dragover,
+            .expense-wrapper .doc-dropzone:focus-within {
+                border-color: var(--ex-accent);
+                background: var(--ex-accent-soft);
+            }
+
+            .expense-wrapper .doc-dropzone input[type="file"] {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                cursor: pointer;
+                z-index: 2;
+            }
+
+        .expense-wrapper .doc-dropzone-icon {
+            color: var(--ex-accent);
+            font-size: 2rem;
+        }
+
+        .expense-wrapper .doc-dropzone h6 {
+            margin: 0;
+            color: var(--ex-text);
+            font-size: .9rem;
+            font-weight: 600;
+        }
+
+        .expense-wrapper .doc-dropzone p {
+            margin: 0;
+            color: var(--ex-muted);
+            font-size: .78rem;
+        }
+
+        .expense-wrapper .doc-browse {
+            color: var(--ex-accent);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .expense-wrapper .doc-list-header,
+        .expense-wrapper .doc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 14px;
+            color: var(--ex-muted);
+            font-size: .78rem;
+        }
+
+        .expense-wrapper .doc-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .expense-wrapper .doc-empty {
+            padding: 24px;
+            color: var(--ex-muted);
+            text-align: center;
+            font-size: .84rem;
+            font-style: italic;
+        }
+
+        .expense-wrapper .doc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface);
+            transition: all var(--ex-t);
+        }
+
+            .expense-wrapper .doc-item:hover {
+                border-color: var(--ex-accent);
+                box-shadow: var(--ex-shadow-sm);
+            }
+
+        .expense-wrapper .doc-item-thumb {
+            display: grid;
+            place-items: center;
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--ex-radius-sm);
+            color: var(--ex-accent);
+            background: var(--ex-accent-soft);
+            font-size: 1.1rem;
+        }
+
+        .expense-wrapper .doc-item-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .expense-wrapper .doc-item-name {
+            overflow: hidden;
+            color: var(--ex-text);
+            font-size: .84rem;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .expense-wrapper .doc-item-meta {
+            color: var(--ex-muted);
+            font-size: .74rem;
+        }
+
+        .expense-wrapper .doc-clear-btn {
+            border: 0;
+            background: transparent;
+            color: var(--ex-danger);
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .expense-wrapper .doc-remove-btn {
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border: 0;
+            border-radius: var(--ex-radius-sm);
+            background: transparent;
+            color: var(--ex-danger);
+            cursor: pointer;
+            transition: background var(--ex-t);
+        }
+
+            .expense-wrapper .doc-remove-btn:hover {
+                background: var(--ex-danger-soft);
+            }
+
+        /* ============================================================
+       JOURNAL PREVIEW
+    ============================================================ */
+        .expense-wrapper .journal-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            font-size: .84rem;
+        }
+
+            .expense-wrapper .journal-table th,
+            .expense-wrapper .journal-table td {
+                padding: 10px 14px;
+                border-bottom: 1px solid var(--ex-border);
+            }
+
+            .expense-wrapper .journal-table th {
+                color: var(--ex-muted);
+                background: var(--ex-surface-2);
+                font-size: .73rem;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                font-weight: 700;
+                text-align: left;
+            }
+
+            .expense-wrapper .journal-table td {
+                color: var(--ex-text);
+                background: var(--ex-surface);
+            }
+
+            .expense-wrapper .journal-table tbody tr:nth-child(even) td {
+                background: var(--ex-surface-2);
+            }
+
+            .expense-wrapper .journal-table .num {
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .expense-wrapper .journal-table tfoot td {
+                color: var(--ex-text);
+                font-weight: 700;
+                background: var(--ex-surface-3);
+            }
+
+        .expense-wrapper .journal-balance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #b45309;
+            background: var(--ex-warning-soft);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+            .expense-wrapper .journal-balance-badge.is-balanced {
+                color: #047857;
+                background: var(--ex-success-soft);
+            }
+
+            .expense-wrapper .journal-balance-badge.is-unbalanced {
+                color: #b91c1c;
+                background: var(--ex-danger-soft);
+            }
+
+        .expense-wrapper .acct-validation-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 16px 20px;
+            padding: 12px 14px;
+            border: 1px solid rgba(5,150,105,.22);
+            border-radius: var(--ex-radius);
+            color: #047857;
+            background: var(--ex-success-soft);
+            font-size: .82rem;
+        }
+
+            .expense-wrapper .acct-validation-banner.is-error {
+                border-color: rgba(220,38,38,.25);
+                color: #b91c1c;
+                background: var(--ex-danger-soft);
+            }
+
+        /* ============================================================
+       DETAILS PANELS
+    ============================================================ */
+        .expense-wrapper .expense-extra-panel {
+            margin-bottom: 16px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius-lg);
+            background: var(--ex-surface);
+            box-shadow: var(--ex-shadow-sm);
+            overflow: hidden;
+        }
+
+            .expense-wrapper .expense-extra-panel > summary {
+                padding: 16px 20px;
+                cursor: pointer;
+                color: var(--ex-text);
+                font-size: .9rem;
+                font-weight: 600;
+                list-style: none;
+                user-select: none;
+                transition: background var(--ex-t);
+            }
+
+                .expense-wrapper .expense-extra-panel > summary::-webkit-details-marker {
+                    display: none;
+                }
+
+                .expense-wrapper .expense-extra-panel > summary:hover {
+                    background: var(--ex-surface-2);
+                }
+
+                .expense-wrapper .expense-extra-panel > summary:after {
+                    content: "⌄";
+                    float: right;
+                    color: var(--ex-muted);
+                    transition: transform var(--ex-t);
+                }
+
+            .expense-wrapper .expense-extra-panel[open] > summary:after {
+                transform: rotate(180deg);
+            }
+
+            .expense-wrapper .expense-extra-panel .doc-card {
+                border: 0;
+                box-shadow: none;
+                margin: 0;
+                border-radius: 0;
+            }
+
+        /* ============================================================
+       TOASTS
+    ============================================================ */
+        .expense-wrapper .toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 88px;
+            z-index: 1080;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .expense-wrapper .expense-toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 420px;
+            padding: 14px 16px;
+            border: 1px solid var(--ex-border);
+            border-left: 4px solid var(--ex-accent);
+            border-radius: var(--ex-radius);
+            color: var(--ex-text);
+            background: var(--ex-surface);
+            box-shadow: var(--ex-shadow-lg);
+            font-size: .84rem;
+            pointer-events: auto;
+            animation: toastIn .22s var(--ex-ease);
+        }
+
+    @@keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .expense-wrapper .expense-toast button {
+        margin-left: auto;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+        opacity: .6;
+        transition: opacity var(--ex-t);
+    }
+
+        .expense-wrapper .expense-toast button:hover {
+            opacity: 1;
+        }
+
+    .expense-wrapper .expense-toast-success {
+        border-left-color: var(--ex-success);
+    }
+
+        .expense-wrapper .expense-toast-success > i {
+            color: var(--ex-success);
+        }
+
+    .expense-wrapper .expense-toast-error {
+        border-left-color: var(--ex-danger);
+    }
+
+        .expense-wrapper .expense-toast-error > i {
+            color: var(--ex-danger);
+        }
+
+    .expense-wrapper .expense-toast-info > i {
+        color: var(--ex-accent);
+    }
+
+    /* ============================================================
+       VALIDATION
+    ============================================================ */
+    .expense-wrapper .is-invalid {
+        border-color: var(--ex-danger) !important;
+        box-shadow: 0 0 0 4px rgba(220,38,38,.14) !important;
+    }
+
+    .expense-wrapper .error-summary {
+        margin-bottom: 20px;
+        padding: 14px 18px;
+        border: 1px solid rgba(220,38,38,.3);
+        border-left: 4px solid var(--ex-danger);
+        border-radius: var(--ex-radius);
+        background: var(--ex-danger-soft);
+        color: #b91c1c;
+        font-size: .84rem;
+    }
+
+        .expense-wrapper .error-summary h6 {
+            margin: 0 0 8px;
+            font-size: .88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expense-wrapper .error-summary ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .expense-wrapper .error-summary a {
+            color: #b91c1c;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+    /* ============================================================
+       DARK MODE (base)
+    ============================================================ */
+    html[data-theme="dark"] .expense-wrapper,
+    body[data-theme="dark"] .expense-wrapper,
+    body.dark-mode .expense-wrapper {
+        --ex-bg: #0b1220;
+        --ex-surface: #131b2e;
+        --ex-surface-2: #1a2438;
+        --ex-surface-3: #232f47;
+        --ex-border: #2a364e;
+        --ex-border-strong: #3a4863;
+        --ex-text: #e8eef8;
+        --ex-text-2: #b8c4d8;
+        --ex-muted: #8fa0b8;
+        --ex-faint: #6a7c95;
+        --ex-shadow-xs: 0 1px 2px rgba(0,0,0,.3);
+        --ex-shadow-sm: 0 2px 6px rgba(0,0,0,.3);
+        --ex-shadow: 0 6px 18px rgba(0,0,0,.4);
+        --ex-shadow-lg: 0 14px 40px rgba(0,0,0,.5);
+        --ex-inset: inset 0 1px 2px rgba(0,0,0,.3);
+        background: var(--ex-bg);
+    }
+
+        html[data-theme="dark"] .expense-wrapper .form-control,
+        html[data-theme="dark"] .expense-wrapper .form-select,
+        body[data-theme="dark"] .expense-wrapper .form-control,
+        body[data-theme="dark"] .expense-wrapper .form-select,
+        body.dark-mode .expense-wrapper .form-control,
+        body.dark-mode .expense-wrapper .form-select {
+            background-color: var(--ex-surface-2);
+            color: var(--ex-text);
+            border-color: var(--ex-border-strong);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body.dark-mode .expense-wrapper .expense-table thead th {
+            background: var(--ex-surface-3);
+            color: var(--ex-muted);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .doc-item,
+        body[data-theme="dark"] .expense-wrapper .doc-item,
+        body.dark-mode .expense-wrapper .doc-item {
+            background: var(--ex-surface-2);
+            border-color: var(--ex-border);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .doc-dropzone,
+        body[data-theme="dark"] .expense-wrapper .doc-dropzone,
+        body.dark-mode .expense-wrapper .doc-dropzone {
+            background: var(--ex-surface-2);
+            border-color: var(--ex-border-strong);
+        }
+
+    /* ============================================================
+       RESPONSIVE (base)
+    ============================================================ */
+    @@media (max-width: 1100px) {
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .expense-wrapper .expense-field-wide {
+            grid-column: span 1;
+        }
+
+        .expense-wrapper .expense-summary-inline {
+            grid-column: span 1;
+        }
+
+        .expense-wrapper .table-scroll-hint {
+            display: block;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .expense-wrapper .expense-shell {
+            padding: 16px 16px 24px;
+        }
+
+        .expense-wrapper .section-body {
+            padding: 16px;
+        }
+
+        .expense-wrapper .expense-page-header {
+            padding: 16px;
+        }
+
+        .expense-wrapper .expense-heading h1 {
+            font-size: 1.15rem;
+        }
+
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .expense-wrapper .expense-field,
+        .expense-wrapper .expense-field-wide,
+        .expense-wrapper .expense-summary-inline {
+            grid-column: 1;
+        }
+
+        .expense-wrapper .toast-container {
+            left: 16px;
+            right: 16px;
+            align-items: stretch;
+            bottom: 100px;
+        }
+
+        .expense-wrapper .expense-toast {
+            max-width: none;
+        }
+
+        .expense-wrapper .mode-tabs-label {
+            display: none;
+        }
+
+        .expense-wrapper .mode-toggle button {
+            padding: 8px 14px;
+            font-size: .8rem;
+        }
+    }
+
+    /* ============================================================
+       ACCESSIBILITY
+    ============================================================ */
+    @@media (prefers-reduced-motion: reduce) {
+        .expense-wrapper *,
+        .expense-wrapper *::before,
+        .expense-wrapper *::after {
+            animation-duration: .01ms !important;
+            transition-duration: .01ms !important;
+        }
+    }
+
+    .expense-wrapper .remove-row-btn:focus-visible,
+    .expense-wrapper .doc-remove-btn:focus-visible,
+    .expense-wrapper .doc-clear-btn:focus-visible,
+    .expense-wrapper .doc-dropzone:focus-visible {
+        outline: 2px solid var(--ex-accent);
+        outline-offset: 2px;
+    }
+
+    .expense-wrapper .expense-table input:focus,
+    .expense-wrapper .expense-table select:focus {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ============================================================
+       EXPENSE FORM — PREMIUM ERP STYLE OVERRIDES
+    ============================================================ */
+    .expense-wrapper {
+        --ex-accent: #2563eb;
+        --ex-accent-hover: #1d4ed8;
+        --ex-accent-soft: rgba(37, 99, 235, .09);
+        --ex-accent-ring: rgba(37, 99, 235, .16);
+        --ex-bg: #f3f6fb;
+        --ex-surface: #ffffff;
+        --ex-surface-2: #f8fafc;
+        --ex-surface-3: #eef2f7;
+        --ex-border: #e2e8f0;
+        --ex-border-strong: #cbd5e1;
+        --ex-text: #0f172a;
+        --ex-text-2: #334155;
+        --ex-muted: #64748b;
+        --ex-faint: #94a3b8;
+        --ex-radius-lg: 16px;
+        --ex-radius: 11px;
+        --ex-radius-sm: 8px;
+        --ex-shadow-xs: 0 1px 2px rgba(15, 23, 42, .04);
+        --ex-shadow-sm: 0 2px 8px rgba(15, 23, 42, .045);
+        --ex-shadow: 0 8px 20px rgba(15, 23, 42, .065);
+        --ex-shadow-lg: 0 16px 40px rgba(15, 23, 42, .12);
+        background: var(--ex-bg);
+    }
+
+        .expense-wrapper .expense-shell {
+            padding: clamp(14px, 2vw, 28px) clamp(12px, 2.2vw, 32px) 24px;
+        }
+
+        .expense-wrapper .expense-page-header {
+            border-color: var(--ex-border);
+            border-radius: 18px;
+            padding: clamp(16px, 2vw, 24px);
+            background: linear-gradient(135deg, var(--ex-surface) 0%, var(--ex-surface-2) 100%);
+            box-shadow: var(--ex-shadow-sm);
+        }
+
+        .expense-wrapper .expense-heading-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
+            border-radius: 15px;
+        }
+
+        .expense-wrapper .expense-heading h1 {
+            font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+            letter-spacing: -.035em;
+        }
+
+        .expense-wrapper .section-card,
+        .expense-wrapper .journal-card,
+        .expense-wrapper .doc-card,
+        .expense-wrapper .expense-extra-panel {
+            border-radius: 16px;
+            border-color: var(--ex-border);
+            box-shadow: var(--ex-shadow-sm);
+        }
+
+            .expense-wrapper .section-card:hover {
+                box-shadow: var(--ex-shadow);
+                border-color: #d5dfed;
+            }
+
+        .expense-wrapper .section-header,
+        .expense-wrapper .journal-header {
+            padding: 17px 22px;
+            background: linear-gradient(180deg, var(--ex-surface) 0%, var(--ex-surface-2) 100%);
+        }
+
+            .expense-wrapper .section-title h6,
+            .expense-wrapper .journal-header h6 {
+                font-size: .98rem;
+                letter-spacing: -.025em;
+            }
+
+        .expense-wrapper .section-icon {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            border-radius: 12px;
+        }
+
+        .expense-wrapper .section-body {
+            padding: clamp(16px, 2vw, 24px);
+        }
+
+        .expense-wrapper .expense-fields-grid {
+            gap: 17px 20px;
+        }
+
+        .expense-wrapper .expense-field > label {
+            color: var(--ex-text-2);
+            font-size: .8rem;
+            letter-spacing: -.005em;
+        }
+
+        .expense-wrapper .form-control,
+        .expense-wrapper .form-select {
+            min-height: 45px;
+            border-radius: 10px;
+            border-color: var(--ex-border-strong);
+            background-color: var(--ex-surface);
+            font-size: .86rem;
+            box-shadow: none;
+        }
+
+            .expense-wrapper .form-control:hover,
+            .expense-wrapper .form-select:hover {
+                border-color: #94a3b8;
+            }
+
+            .expense-wrapper .form-control:focus,
+            .expense-wrapper .form-select:focus {
+                border-color: var(--ex-accent);
+                box-shadow: 0 0 0 3px var(--ex-accent-ring);
+            }
+
+        .expense-wrapper .input-group-text {
+            border-color: var(--ex-border-strong);
+            background: var(--ex-surface-3);
+            color: var(--ex-muted);
+            font-weight: 650;
+        }
+
+        .expense-wrapper .expense-summary-inline > div {
+            border-radius: 11px;
+            padding: 11px 14px;
+            background: var(--ex-surface-2);
+        }
+
+            .expense-wrapper .expense-summary-inline > div:nth-child(2) {
+                border-color: rgba(16, 185, 129, .28);
+                background: linear-gradient(135deg, rgba(16,185,129,.09), rgba(16,185,129,.04));
+                color: #047857;
+            }
+
+                .expense-wrapper .expense-summary-inline > div:nth-child(2) strong {
+                    font-size: 1rem;
+                }
+
+        .expense-wrapper .ux-guide {
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(14,165,233,.08), rgba(59,130,246,.04));
+            line-height: 1.65;
+        }
+
+        .expense-wrapper .ex-btn,
+        .expense-wrapper .add-row-btn {
+            min-height: 40px;
+            border-radius: 10px;
+            padding: 9px 15px;
+            font-weight: 650;
+            transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+        }
+
+        .expense-wrapper .ex-btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-color: #2563eb;
+        }
+
+            .expense-wrapper .ex-btn-primary:hover {
+                background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                border-color: #1d4ed8;
+            }
+
+        .expense-wrapper .mode-toggle {
+            padding: 5px;
+            border-radius: 12px;
+            background: var(--ex-surface-3);
+        }
+
+            .expense-wrapper .mode-toggle button {
+                border-radius: 9px;
+                padding: 10px 16px;
+            }
+
+                .expense-wrapper .mode-toggle button.active {
+                    color: var(--ex-accent);
+                    border: 1px solid var(--ex-border);
+                    box-shadow: 0 2px 6px rgba(15, 23, 42, .06);
+                }
+
+        .expense-wrapper .mode-context {
+            border-radius: 10px;
+            padding: 11px 14px;
+        }
+
+        .expense-wrapper .table-container {
+            border-radius: 12px;
+            border-color: var(--ex-border);
+        }
+
+        .expense-wrapper .expense-table {
+            min-width: 940px;
+        }
+
+            .expense-wrapper .expense-table thead th {
+                padding: 12px 13px;
+                background: #f1f5f9;
+                color: #64748b;
+                border-bottom-color: #dbe3ed;
+                font-size: .7rem;
+            }
+
+            .expense-wrapper .expense-table tbody td {
+                padding: 9px 10px;
+            }
+
+            .expense-wrapper .expense-table tbody tr:nth-child(even) td {
+                background: #fafcff;
+            }
+
+            .expense-wrapper .expense-table tbody tr:hover td {
+                background: rgba(37, 99, 235, .055) !important;
+            }
+
+            .expense-wrapper .expense-table .form-control,
+            .expense-wrapper .expense-table .form-select {
+                min-height: 38px;
+                border-radius: 8px;
+            }
+
+        .expense-wrapper .row-total {
+            font-weight: 750;
+            color: #1d4ed8;
+        }
+
+        .expense-wrapper .remove-row-btn {
+            border-radius: 8px;
+        }
+
+        .expense-wrapper .doc-dropzone {
+            min-height: 150px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--ex-surface-2), var(--ex-surface));
+        }
+
+        .expense-wrapper .doc-dropzone-icon {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--ex-accent-soft);
+        }
+
+        .expense-wrapper .doc-item {
+            border-radius: 11px;
+            padding: 11px 13px;
+        }
+
+        .expense-wrapper .journal-table th {
+            background: #f1f5f9;
+        }
+
+        .expense-wrapper .journal-table tfoot td {
+            background: #eaf0f8;
+        }
+
+        .expense-wrapper .expense-extra-panel > summary {
+            padding: 17px 20px;
+        }
+
+        .expense-wrapper .expense-toast {
+            border-radius: 12px;
+        }
+
+        .expense-wrapper .error-summary {
+            border-radius: 12px;
+        }
+
+    /* Dark theme refinement for premium block */
+    html[data-theme="dark"] .expense-wrapper,
+    body[data-theme="dark"] .expense-wrapper,
+    body.dark-mode .expense-wrapper {
+        --ex-accent: #60a5fa;
+        --ex-accent-hover: #3b82f6;
+        --ex-accent-soft: rgba(96, 165, 250, .12);
+        --ex-accent-ring: rgba(96, 165, 250, .2);
+        --ex-bg: #0b1220;
+        --ex-surface: #111c2e;
+        --ex-surface-2: #17243a;
+        --ex-surface-3: #202f47;
+        --ex-border: #2a3a52;
+        --ex-border-strong: #3a4b65;
+        --ex-text: #e5edf8;
+        --ex-text-2: #c2d0e2;
+        --ex-muted: #8fa4bd;
+        --ex-faint: #6f829b;
+        background: var(--ex-bg);
+    }
+
+        html[data-theme="dark"] .expense-wrapper .expense-page-header,
+        body[data-theme="dark"] .expense-wrapper .expense-page-header,
+        body.dark-mode .expense-wrapper .expense-page-header {
+            background: linear-gradient(135deg, var(--ex-surface), var(--ex-surface-2));
+        }
+
+        html[data-theme="dark"] .expense-wrapper .section-header,
+        body[data-theme="dark"] .expense-wrapper .section-header,
+        body.dark-mode .expense-wrapper .section-header,
+        html[data-theme="dark"] .expense-wrapper .journal-header,
+        body[data-theme="dark"] .expense-wrapper .journal-header,
+        body.dark-mode .expense-wrapper .journal-header {
+            background: linear-gradient(180deg, var(--ex-surface), var(--ex-surface-2));
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body.dark-mode .expense-wrapper .expense-table thead th,
+        html[data-theme="dark"] .expense-wrapper .journal-table th,
+        body[data-theme="dark"] .expense-wrapper .journal-table th,
+        body.dark-mode .expense-wrapper .journal-table th {
+            background: var(--ex-surface-3);
+            color: var(--ex-muted);
+            border-color: var(--ex-border);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table tbody tr:nth-child(even) td,
+        body[data-theme="dark"] .expense-wrapper .expense-table tbody tr:nth-child(even) td,
+        body.dark-mode .expense-wrapper .expense-table tbody tr:nth-child(even) td,
+        html[data-theme="dark"] .expense-wrapper .journal-table tbody tr:nth-child(even) td,
+        body[data-theme="dark"] .expense-wrapper .journal-table tbody tr:nth-child(even) td,
+        body.dark-mode .expense-wrapper .journal-table tbody tr:nth-child(even) td {
+            background: var(--ex-surface-2);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table tbody tr:hover td,
+        body[data-theme="dark"] .expense-wrapper .expense-table tbody tr:hover td,
+        body.dark-mode .expense-wrapper .expense-table tbody tr:hover td {
+            background: rgba(96, 165, 250, .1) !important;
+        }
+
+        html[data-theme="dark"] .expense-wrapper .journal-table tfoot td,
+        body[data-theme="dark"] .expense-wrapper .journal-table tfoot td,
+        body.dark-mode .expense-wrapper .journal-table tfoot td {
+            background: var(--ex-surface-3);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-summary-inline > div:nth-child(2),
+        body[data-theme="dark"] .expense-wrapper .expense-summary-inline > div:nth-child(2),
+        body.dark-mode .expense-wrapper .expense-summary-inline > div:nth-child(2) {
+            color: #34d399;
+            background: rgba(16, 185, 129, .1);
+            border-color: rgba(16, 185, 129, .22);
+        }
+
+        html[data-theme="dark"] .expense-wrapper .row-total,
+        body[data-theme="dark"] .expense-wrapper .row-total,
+        body.dark-mode .expense-wrapper .row-total {
+            color: #93c5fd;
+        }
+
+    /* ============================================================
+       EXPENSE FORM — VENDOR-MATCHED STYLE (EXPENSE-ONLY CSS)
+    ============================================================ */
+    .expense-wrapper {
+        --ex-accent: #f47721;
+        --ex-accent-hover: #e76513;
+        --ex-accent-soft: rgba(244, 119, 33, .09);
+        --ex-accent-ring: rgba(244, 119, 33, .14);
+        --ex-success: #15976a;
+        --ex-success-soft: #eaf8f1;
+        --ex-danger: #dc4458;
+        --ex-danger-soft: #fff0f2;
+        --ex-warning: #d97706;
+        --ex-warning-soft: #fff7e8;
+        --ex-info: #0284c7;
+        --ex-info-soft: #eff8ff;
+        --ex-text: #172438;
+        --ex-text-2: #334155;
+        --ex-muted: #718096;
+        --ex-faint: #98a4b5;
+        --ex-bg: #f4f6fa;
+        --ex-surface: #ffffff;
+        --ex-surface-2: #f8fafc;
+        --ex-surface-3: #f1f5f9;
+        --ex-border: #e5eaf1;
+        --ex-border-strong: #d9e1ec;
+        --ex-radius-lg: 11px;
+        --ex-radius: 9px;
+        --ex-radius-sm: 7px;
+        --ex-shadow-xs: 0 1px 2px rgba(25, 42, 70, .035);
+        --ex-shadow-sm: 0 4px 16px rgba(25, 42, 70, .045);
+        --ex-shadow: 0 5px 18px rgba(25, 42, 70, .06);
+        --ex-shadow-lg: 0 12px 28px rgba(25, 42, 70, .09);
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.5;
+        background: var(--ex-bg);
+        color: var(--ex-text);
+        min-height: 100%;
+        -webkit-font-smoothing: antialiased;
+    }
+
+        .expense-wrapper .expense-shell {
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 18px 18px 24px;
+        }
+
+        .expense-wrapper .expense-page-header {
+            margin-bottom: 17px;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            gap: 14px;
+        }
+
+        .expense-wrapper .expense-heading-left {
+            gap: 12px;
+        }
+
+        .expense-wrapper .expense-heading-icon {
+            width: 44px;
+            height: 44px;
+            flex-basis: 44px;
+            border-radius: 12px;
+            color: var(--ex-accent);
+            background: var(--ex-accent-soft);
+            font-size: 18px;
+            box-shadow: none;
+        }
+
+        .expense-wrapper .expense-breadcrumb {
+            font-size: 10px;
+            margin-bottom: 3px;
+            gap: 7px;
+        }
+
+            .expense-wrapper .expense-breadcrumb .current {
+                color: var(--ex-accent);
+                font-weight: 700;
+            }
+
+        .expense-wrapper .expense-heading h1 {
+            font-size: 21px;
+            font-weight: 800;
+            line-height: 1.3;
+            letter-spacing: 0;
+        }
+
+        .expense-wrapper .expense-heading p {
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--ex-muted);
+        }
+
+        .expense-wrapper .expense-header-status {
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .expense-wrapper .section-card,
+        .expense-wrapper .journal-card,
+        .expense-wrapper .doc-card {
+            margin-bottom: 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: var(--ex-radius);
+            background: var(--ex-surface);
+            box-shadow: var(--ex-shadow-sm);
+            overflow: hidden;
+        }
+
+        .expense-wrapper .section-header,
+        .expense-wrapper .journal-header {
+            min-height: 54px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--ex-border);
+            background: var(--ex-surface);
+            gap: 12px;
+        }
+
+        .expense-wrapper .section-title {
+            gap: 10px;
+        }
+
+        .expense-wrapper .section-icon {
+            width: 33px;
+            height: 33px;
+            flex-basis: 33px;
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        .expense-wrapper .icon-blue {
+            color: var(--ex-accent);
+            background: var(--ex-accent-soft);
+        }
+
+        .expense-wrapper .icon-green {
+            color: var(--ex-success);
+            background: var(--ex-success-soft);
+        }
+
+        .expense-wrapper .icon-orange {
+            color: var(--ex-warning);
+            background: var(--ex-warning-soft);
+        }
+
+        .expense-wrapper .icon-info {
+            color: var(--ex-info);
+            background: var(--ex-info-soft);
+        }
+
+        .expense-wrapper .section-title h6,
+        .expense-wrapper .journal-header h6 {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .expense-wrapper .section-title small {
+            margin-top: 2px;
+            font-size: 10px;
+        }
+
+        .expense-wrapper .section-body {
+            padding: 17px;
+        }
+
+        .expense-wrapper .sec-status {
+            padding: 4px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px 17px;
+            align-items: start;
+        }
+
+        .expense-wrapper .expense-field {
+            display: block;
+            min-width: 0;
+        }
+
+            .expense-wrapper .expense-field > label {
+                margin: 0 0 6px;
+                color: var(--ex-text);
+                font-size: 10px;
+                font-weight: 750;
+                line-height: 1.35;
+            }
+
+                .expense-wrapper .expense-field > label b,
+                .expense-wrapper .expense-field > label .required {
+                    color: var(--ex-danger);
+                    font-size: 12px;
+                }
+
+        .expense-wrapper .expense-control-wrap {
+            position: relative;
+            display: block;
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+
+        .expense-wrapper .expense-control-icon {
+            position: absolute;
+            z-index: 3;
+            top: 50%;
+            left: 13px;
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            color: #9aa7b8;
+            font-size: 13px;
+            line-height: 14px;
+            text-align: center;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .expense-wrapper input.form-control,
+        .expense-wrapper select.form-control,
+        .expense-wrapper select.form-select,
+        .expense-wrapper textarea.form-control {
+            display: block;
+            position: relative;
+            float: none;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            min-height: 44px;
+            height: 44px;
+            margin: 0;
+/*            padding: 0 13px 0 40px;*/
+            border: 1px solid var(--ex-border-strong);
+            border-radius: 9px;
+            outline: 0;
+            background-color: var(--ex-surface);
+            background-image: none;
+            color: var(--ex-text);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: normal;
+            box-shadow: none;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+            .expense-wrapper input.form-control::placeholder,
+            .expense-wrapper textarea.form-control::placeholder {
+                color: var(--ex-faint);
+                opacity: 1;
+            }
+
+        .expense-wrapper .expense-control-wrap:hover > .form-control,
+        .expense-wrapper .expense-control-wrap:hover > .form-select {
+            border-color: #bdc9d8;
+        }
+
+        .expense-wrapper .expense-control-wrap:focus-within .expense-control-icon {
+            color: var(--ex-accent);
+        }
+
+        .expense-wrapper input.form-control:focus,
+        .expense-wrapper select.form-control:focus,
+        .expense-wrapper select.form-select:focus,
+        .expense-wrapper textarea.form-control:focus {
+            border-color: var(--ex-accent);
+            box-shadow: 0 0 0 3px var(--ex-accent-ring);
+            outline: 0;
+        }
+
+        .expense-wrapper select.form-control,
+        .expense-wrapper select.form-select {
+            padding-right: 34px;
+            cursor: pointer;
+        }
+
+        .expense-wrapper textarea.form-control {
+            height: auto;
+            min-height: 76px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .expense-wrapper .expense-control-wrap:has(textarea) .expense-control-icon {
+            top: 17px;
+            transform: none;
+        }
+
+        .expense-wrapper input.form-control[readonly],
+        .expense-wrapper input.form-control:disabled,
+        .expense-wrapper select.form-control:disabled,
+        .expense-wrapper select.form-select:disabled {
+            background: var(--ex-surface-2);
+            color: var(--ex-muted);
+            cursor: default;
+        }
+
+        .expense-wrapper .input-group-text {
+            border-color: var(--ex-border-strong);
+            border-radius: 0 9px 9px 0;
+            background: var(--ex-surface-2);
+            font-size: 11px;
+        }
+
+        .expense-wrapper .field-hint,
+        .expense-wrapper .expense-field small {
+            margin-top: 4px;
+            color: var(--ex-muted);
+            font-size: 9px;
+        }
+
+        .expense-wrapper .ex-btn,
+        .expense-wrapper .add-row-btn {
+            min-height: 38px;
+            padding: 8px 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 750;
+            box-shadow: none;
+        }
+
+        .expense-wrapper .ex-btn-primary {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(135deg, #f47721, #ff923f);
+            box-shadow: 0 4px 11px rgba(244,119,33,.2);
+        }
+
+            .expense-wrapper .ex-btn-primary:hover {
+                color: #fff;
+                background: var(--ex-accent-hover);
+                border-color: var(--ex-accent-hover);
+            }
+
+        .expense-wrapper .ex-btn:not(.ex-btn-primary),
+        .expense-wrapper .add-row-btn {
+            color: var(--ex-text);
+            background: var(--ex-surface);
+        }
+
+            .expense-wrapper .ex-btn:not(.ex-btn-primary):hover,
+            .expense-wrapper .add-row-btn:hover {
+                color: var(--ex-accent);
+                border-color: var(--ex-accent);
+            }
+
+        .expense-wrapper .mode-toggle {
+            padding: 4px;
+            border: 1px solid var(--ex-border);
+            border-radius: 8px;
+            background: var(--ex-surface-3);
+        }
+
+            .expense-wrapper .mode-toggle button {
+                padding: 8px 14px;
+                border-radius: 7px;
+                font-size: 11px;
+            }
+
+                .expense-wrapper .mode-toggle button.active {
+                    color: var(--ex-accent);
+                    background: var(--ex-surface);
+                    box-shadow: var(--ex-shadow-xs);
+                }
+
+                    .expense-wrapper .mode-toggle button.active .mode-count {
+                        color: var(--ex-accent);
+                        background: var(--ex-accent-soft);
+                    }
+
+        .expense-wrapper .mode-context {
+            border-radius: 9px;
+            padding: 11px 14px;
+        }
+
+        .expense-wrapper .table-container {
+            border-color: var(--ex-border);
+            border-radius: 9px;
+        }
+
+        .expense-wrapper .expense-table {
+            min-width: 940px;
+            font-size: 11px;
+        }
+
+            .expense-wrapper .expense-table thead th {
+                padding: 12px 13px;
+                background: #f1f5f9;
+                color: #64748b;
+                border-bottom-color: #dbe3ed;
+                font-size: 10px;
+            }
+
+            .expense-wrapper .expense-table tbody td {
+                padding: 9px 10px;
+            }
+
+            .expense-wrapper .expense-table tbody tr:nth-child(even) td {
+                background: #fafcff;
+            }
+
+            .expense-wrapper .expense-table tbody tr:hover td {
+                background: rgba(244,119,33,.055) !important;
+            }
+
+            .expense-wrapper .expense-table .form-control,
+            .expense-wrapper .expense-table .form-select {
+                min-height: 38px;
+                height: 38px;
+                border-radius: 7px;
+                font-size: 11px;
+                padding-left: 10px;
+            }
+
+            .expense-wrapper .expense-table .expense-control-wrap > .form-control,
+            .expense-wrapper .expense-table .expense-control-wrap > .form-select {
+                padding-left: 32px;
+            }
+
+            .expense-wrapper .expense-table .expense-control-icon {
+                left: 10px;
+                width: 14px;
+                font-size: 12px;
+            }
+
+        .expense-wrapper .row-total {
+            color: #e76513;
+            font-weight: 750;
+        }
+
+        .expense-wrapper .remove-row-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+        }
+
+        .expense-wrapper .doc-dropzone {
+            min-height: 150px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--ex-surface-2), var(--ex-surface));
+        }
+
+        .expense-wrapper .doc-dropzone-icon {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--ex-accent-soft);
+        }
+
+        .expense-wrapper .doc-item {
+            padding: 11px 13px;
+            border-radius: 9px;
+        }
+
+        .expense-wrapper .journal-table th {
+            background: #f1f5f9;
+        }
+
+        .expense-wrapper .journal-table tfoot td {
+            background: #eaf0f8;
+        }
+
+        .expense-wrapper .expense-extra-panel > summary {
+            padding: 15px 17px;
+        }
+
+    /* Dark theme (vendor block) */
+    html[data-theme="dark"] .expense-wrapper,
+    body[data-theme="dark"] .expense-wrapper,
+    body.dark-mode .expense-wrapper {
+        --ex-text: #e5edf7;
+        --ex-text-2: #cbd5e1;
+        --ex-muted: #9aabc0;
+        --ex-faint: #71849d;
+        --ex-bg: #0b1220;
+        --ex-surface: #111c2d;
+        --ex-surface-2: #172438;
+        --ex-surface-3: #162236;
+        --ex-border: #27374d;
+        --ex-border-strong: #2a3a50;
+        --ex-shadow-sm: 0 5px 20px rgba(0,0,0,.15);
+    }
+
+        html[data-theme="dark"] .expense-wrapper input.form-control,
+        html[data-theme="dark"] .expense-wrapper select.form-control,
+        html[data-theme="dark"] .expense-wrapper select.form-select,
+        html[data-theme="dark"] .expense-wrapper textarea.form-control,
+        body[data-theme="dark"] .expense-wrapper input.form-control,
+        body[data-theme="dark"] .expense-wrapper select.form-control,
+        body[data-theme="dark"] .expense-wrapper select.form-select,
+        body[data-theme="dark"] .expense-wrapper textarea.form-control,
+        body.dark-mode .expense-wrapper input.form-control,
+        body.dark-mode .expense-wrapper select.form-control,
+        body.dark-mode .expense-wrapper select.form-select,
+        body.dark-mode .expense-wrapper textarea.form-control {
+            background-color: #0d1624 !important;
+            color: #e5edf7 !important;
+            border-color: #2a3a50 !important;
+        }
+
+            html[data-theme="dark"] .expense-wrapper input.form-control[readonly],
+            body[data-theme="dark"] .expense-wrapper input.form-control[readonly],
+            body.dark-mode .expense-wrapper input.form-control[readonly] {
+                background: #162236 !important;
+            }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body[data-theme="dark"] .expense-wrapper .expense-table thead th,
+        body.dark-mode .expense-wrapper .expense-table thead th,
+        html[data-theme="dark"] .expense-wrapper .journal-table th,
+        body[data-theme="dark"] .expense-wrapper .journal-table th,
+        body.dark-mode .expense-wrapper .journal-table th {
+            background: #172438;
+            color: #9aabc0;
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table tbody td,
+        body[data-theme="dark"] .expense-wrapper .expense-table tbody td,
+        body.dark-mode .expense-wrapper .expense-table tbody td {
+            background: #111c2d;
+        }
+
+        html[data-theme="dark"] .expense-wrapper .expense-table tbody tr:nth-child(even) td,
+        body[data-theme="dark"] .expense-wrapper .expense-table tbody tr:nth-child(even) td,
+        body.dark-mode .expense-wrapper .expense-table tbody tr:nth-child(even) td {
+            background: #172438;
+        }
+
+    /* ============================================================
+       ★★★ FOUR-COLUMN EXPENSE INFORMATION GRID (NEW OVERRIDE) ★★★
+    ============================================================ */
+    .expense-wrapper .expense-fields-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px 18px;
+        align-items: start;
+    }
+
+    .expense-wrapper .expense-field-wide {
+        grid-column: span 2;
+    }
+
+    .expense-wrapper .expense-summary-inline {
+        grid-column: 3 / span 2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 0;
+        min-width: 0;
+    }
+
+        .expense-wrapper .expense-summary-inline > div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 14px;
+            border: 1px solid var(--ex-border);
+            border-radius: 9px;
+            background: var(--ex-surface-2);
+            color: var(--ex-text-2);
+            font-size: 12px;
+            font-weight: 600;
+            min-height: 44px;
+        }
+
+        .expense-wrapper .expense-summary-inline strong {
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            font-size: 14px;
+        }
+
+        .expense-wrapper .expense-summary-inline > div:nth-child(2) {
+            color: #047857;
+            background: linear-gradient(135deg, rgba(21,151,106,.10), rgba(21,151,106,.04));
+            border-color: rgba(21,151,106,.28);
+        }
+
+    .expense-wrapper input.form-control,
+    .expense-wrapper select.form-control,
+    .expense-wrapper select.form-select {
+        padding-left: 38px;
+    }
+
+    .expense-wrapper .expense-control-icon {
+        left: 12px;
+        font-size: 12.5px;
+    }
+
+    .expense-wrapper .expense-field .input-group {
+        display: flex;
+        align-items: stretch;
+    }
+
+        .expense-wrapper .expense-field .input-group > .expense-control-wrap {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+            .expense-wrapper .expense-field .input-group > .expense-control-wrap > .form-control {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+    .expense-wrapper .input-group-text {
+        flex: 0 0 auto;
+        padding: 0 12px;
+        min-height: 44px;
+        font-size: 10.5px;
+    }
+
+    @@media (max-width: 1280px) {
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .expense-wrapper .expense-field-wide {
+            grid-column: span 2;
+        }
+
+        .expense-wrapper .expense-summary-inline {
+            grid-column: 3 / span 1;
+        }
+    }
+
+    @@media (max-width: 1050px) {
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .expense-wrapper .expense-field-wide {
+            grid-column: span 2;
+        }
+
+        .expense-wrapper .expense-summary-inline {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+            .expense-wrapper .expense-summary-inline > div {
+                flex: 1 1 0;
+                min-width: 140px;
+            }
+    }
+
+    @@media (max-width: 650px) {
+        .expense-wrapper .expense-fields-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        .expense-wrapper .expense-field-wide,
+        .expense-wrapper .expense-summary-inline {
+            grid-column: 1;
+        }
+
+        .expense-wrapper .expense-summary-inline {
+            flex-direction: column;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .expense-wrapper *, .expense-wrapper *::before, .expense-wrapper *::after {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+</style>
+
+<div class="expense-wrapper">
+    <div class="expense-shell">
+        <form id="expenseForm" method="post" enctype="multipart/form-data" autocomplete="off" novalidate
+              aria-describedby="errorSummary">
+            @Html.AntiForgeryToken()
+
+            <div id="errorSummary" class="error-summary" hidden role="alert" aria-live="assertive">
+                <h6><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Please review these fields</h6>
+                <ul id="errorSummaryList"></ul>
+            </div>
+
+            <!-- 1. EXPENSE INFORMATION -->
+            <section class="section-card" aria-labelledby="expenseInfoHeading" data-section="info">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="section-icon icon-blue" aria-hidden="true">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div>
+                            <h6 id="expenseInfoHeading">Expense Information</h6>
+                            <small>Basic transaction, payment and verification details</small>
+                        </div>
+                    </div>
+                    <span class="sec-status is-warn" id="infoStatus" role="status" aria-live="polite">
+                        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                        <span>Required fields</span>
+                    </span>
+                </div>
+
+                <div class="section-body">
+                    <div class="expense-fields-grid">
+                        <!-- Row 1: Class | Payment Method | Payee | Expense No -->
+                        <div class="expense-field">
+                            <label for="ClassName">Class Name</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-tags expense-control-icon" aria-hidden="true"></i>
+                                @Html.DropDownList(
+                                    "ClassID",
+                                    ViewBag.ClassList as IEnumerable<SelectListItem>,
+                                    "-- Select Class --",
+                                    new { @class = "form-control", id = "ClassID", name = "ClassName" }
+                                )
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="PaymentMethod">Payment Method <b aria-hidden="true">*</b></label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-credit-card expense-control-icon" aria-hidden="true"></i>
+                                @Html.DropDownList(
+                                "PaymentMethodID",
+                                ViewBag.PaymentMethodList as IEnumerable<SelectListItem>,
+                                "-- Select Payment Method --",
+                                new { @class = "form-control", id = "PaymentMethodID", name = "PaymentMethod" }
+                            )
+                                @*<select class="form-select" name="PaymentMethod" id="PaymentMethod" required aria-required="true">
+            <option value="">Select method</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Other">Other</option>
+        </select>*@
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="Payee">Payee <b aria-hidden="true">*</b></label>
+
+                            <div class="expense-control-wrap expense-payee-wrap">
+                                <i class="bi bi-person-badge expense-control-icon" aria-hidden="true"></i>
+                                <div id="Payee"></div>
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="ExpenseNo">Expense No.</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-upc-scan expense-control-icon" aria-hidden="true"></i>
+                                <input class="form-control" name="ExpenseNo" id="ExpenseNo" placeholder="Enter expense no" />                                
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Payment Account | Date | Terms | Paid On Date -->
+                        <div class="expense-field">
+                            <label for="PaymentAccountID">Payment Account <b aria-hidden="true">*</b></label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-wallet2 expense-control-icon" aria-hidden="true"></i>
+                                @*<select class="form-select" name="PaymentAccountID" id="PaymentAccountID" required aria-required="true">
+                                    <option value="">Select cash or bank account</option>
+                                </select>*@
+                                <div id="PaymentAccountID"></div>
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="ExpenseDate">Date <b aria-hidden="true">*</b></label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-calendar3 expense-control-icon" aria-hidden="true"></i>
+                                <input type="text"
+                                       class="form-control"
+                                       name="ExpenseDate"
+                                       id="ExpenseDate"
+                                       required
+                                       aria-required="true"
+                                       autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="Terms">Terms</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-file-earmark-text expense-control-icon" aria-hidden="true"></i>
+                                <input type="text"
+                                       class="form-control"
+                                       name="Terms"
+                                       id="Terms"
+                                       placeholder="Enter terms"
+                                       autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="PaidOnDate">Paid On Date</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-calendar-check expense-control-icon" aria-hidden="true"></i>
+                                <input type="text"
+                                       class="form-control"
+                                       name="PaidOnDate"
+                                       id="PaidOnDate"
+                                       placeholder="Enter paid on date"
+                                       autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Checked By | Verified By | Posted By | Exchange Rate -->
+                        <div class="expense-field">
+                            <label for="CheckedBy">Checked By</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-person-check expense-control-icon" aria-hidden="true"></i>
+                                <select id="CheckedBy"
+                                        name="CheckedBy"
+                                        class="expense-account-kendo"
+                                        style="width: 100%;">
+                                    <option value="">Select Checked By...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="VerifiedBy">Verified By</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-patch-check expense-control-icon" aria-hidden="true"></i>
+                                @*<input class="form-control" name="VerifiedBy" id="VerifiedBy" placeholder="Enter verified by" />*@
+                                <select id="VerifiedBy" name="VerifiedBy" class="expense-account-kendo" style="width:100%">
+                                    <option value="">Select Verified By...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="PostedBy">Posted By</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-person-badge-fill expense-control-icon" aria-hidden="true"></i>
+                                <select id="PostedBy" name="PostedBy" class="expense-account-kendo" style="width:100%">
+                                    <option value="">Select Posted By...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="ExchangeRate">Exchange Rate</label>
+                            <div class="input-group">
+                                <div class="expense-control-wrap">
+                                    <i class="bi bi-currency-exchange expense-control-icon" aria-hidden="true"></i>
+                                    <input type="number" class="form-control" name="ExchangeRate" id="ExchangeRate"
+                                           value="4100" min="0.000001" step="0.000001" inputmode="decimal" />
+                                </div>
+                                <span class="input-group-text">KHR</span>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: PO/RF/ADV No. | Bill/Invoice No. | Description (spans 2) -->
+                        <div class="expense-field">
+                            <label for="ReferenceNo">PO/RF/ADV No.</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-hash expense-control-icon" aria-hidden="true"></i>
+                                <input class="form-control" name="ReferenceNo" id="ReferenceNo" placeholder="Enter po/rf/adv no." />
+                            </div>
+                        </div>
+                        <div class="expense-field">
+                            <label for="InvoiceNo">Bill/Invoice No.</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-receipt expense-control-icon" aria-hidden="true"></i>
+                                <input class="form-control" name="InvoiceNo" id="InvoiceNo" placeholder="Enter bill/invoice no" />
+                            </div>
+                        </div>
+                        <div class="expense-field expense-field-wide">
+                            <label for="Description">Description</label>
+                            <div class="expense-control-wrap">
+                                <i class="bi bi-card-text expense-control-icon" aria-hidden="true"></i>
+                                <textarea class="form-control" name="Description" id="Description" maxlength="1000" rows="2"
+                                          placeholder="Enter description..." aria-describedby="descriptionCount"></textarea>
+                            </div>
+                            <small><span id="descriptionCount">0</span>/1000 characters</small>
+                        </div>
+
+                        <!-- Summary card occupies the remaining 2 columns -->
+                        <div class="expense-summary-inline" aria-label="Summary totals">
+                            <div><span>Sub Total</span><strong id="summarySubtotal">0.00 USD</strong></div>
+                            <div><span>Grand Total</span><strong id="grandTotal">0.00 USD</strong></div>
+                            <div class="expense-summary-khr"><span>Converted</span><strong id="fxKhrTotal">0.00 KHR</strong></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="DiscountAmount" id="DiscountAmount" value="0" />
+                    <input type="hidden" name="VatRate" id="VatRate" value="0" />
+                    <input type="hidden" name="WhtRate" id="WhtRate" value="0" />
+                    <input type="hidden" name="EntryMode" id="EntryMode" value="items" />
+                    <input type="hidden" name="Subtotal" id="SubtotalValue" />
+                    <input type="hidden" name="VatAmount" id="VatAmountValue" />
+                    <input type="hidden" name="WhtAmount" id="WhtAmountValue" />
+                    <input type="hidden" name="GrandTotal" id="GrandTotalValue" />
+                    <input type="hidden" name="GrandTotalKhr" id="GrandTotalKhrValue" />
+                    <span id="summaryItemSubtotal" hidden>0.00</span>
+                    <span id="summaryAccountSubtotal" hidden>0.00</span>
+                    <span id="fxRate" hidden>4,100</span>
+                    <span id="basisLabel" hidden></span>
+                    <span id="lastCalculated" hidden></span>
+                </div>
+            </section>
+
+            <!-- 2. TRANSACTION DETAILS -->
+            <section class="section-card" aria-labelledby="transactionHeading" data-section="lines">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="section-icon icon-green" aria-hidden="true">
+                            <i class="bi bi-list-check"></i>
+                        </div>
+                        <div>
+                            <h6 id="transactionHeading">Transaction Details</h6>
+                            <small>Record purchased items or allocate expenses to accounts</small>
+                        </div>
+                    </div>
+                    <span class="sec-status is-warn" id="linesStatus" role="status" aria-live="polite">
+                        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                        <span>No lines yet</span>
+                    </span>
+                </div>
+
+                <div class="section-body">
+                    <div class="ux-guide">
+                        <i class="bi bi-lightbulb" aria-hidden="true"></i>
+                        <div>
+                            <strong>Pick one mode.</strong>
+                            Use <strong>Items</strong> when you bought physical goods or services with quantity × price.
+                            Use <strong>Expense Accounts</strong> when you're allocating the total to ledger accounts
+                            (rent, utilities, etc.). You can switch anytime — totals update automatically.
+                        </div>
+                    </div>
+
+                    <div class="mode-tabs-bar">
+                        <span class="mode-tabs-label">
+                            <i class="bi bi-ui-checks" aria-hidden="true"></i>
+                            Choose entry mode
+                        </span>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="add-row-btn" id="addItemBtn">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> Add Item
+                            </button>
+                            <button type="button" class="add-row-btn" id="addAccountBtn" style="display:none;">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> Add Account
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mode-toggle" role="tablist" aria-label="Entry mode tabs">
+                        <button type="button" id="modeItems" class="active" role="tab" aria-selected="true"
+                                aria-controls="itemsPane" tabindex="0">
+                            <i class="bi bi-box-seam" aria-hidden="true"></i>
+                            <span>Items</span>
+                            <span class="mode-count" id="modeItemsCount" aria-label="0 items">0</span>
+                        </button>
+                        <button type="button" id="modeAccounts" role="tab" aria-selected="false"
+                                aria-controls="accountsPane" tabindex="-1">
+                            <i class="bi bi-journal-text" aria-hidden="true"></i>
+                            <span>Expense Accounts</span>
+                            <span class="mode-count" id="modeAccountsCount" aria-label="0 accounts">0</span>
+                        </button>
+                    </div>
+
+                    <div class="mode-context" id="modeContext" role="status" aria-live="polite">
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                        <span>You are viewing <strong id="modeContextLabel">Items</strong> — totals and journal below use this mode.</span>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="itemsPane" role="tabpanel"
+                             aria-labelledby="modeItems" tabindex="0">
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table expense-table">
+                                        <caption class="visually-hidden">Expense line items</caption>
+                                        <thead>
+                                            <tr>
+                                                <th style="width:45px" scope="col">#</th>
+                                                <th style="min-width:210px" scope="col">Item / Service</th>
+                                                <th style="min-width:90px" scope="col">UOM</th>
+                                                <th style="min-width:100px" scope="col">Qty</th>
+                                                <th style="min-width:120px" scope="col">Unit Price</th>
+                                                <th style="min-width:120px" scope="col">Discount</th>
+                                                <th style="min-width:130px;text-align:right" scope="col">Total</th>
+                                                <th style="width:45px" scope="col"><span class="visually-hidden">Actions</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemTableBody">
+                                            <tr class="empty-row"><td colspan="8">No items added yet. Click "Add Item" to begin.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="table-scroll-hint"><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Swipe horizontally to see all columns</div>
+
+                            <div class="d-flex justify-content-between mt-3">
+                                <small class="empty-hint">Tip: press <kbd>Enter</kbd> in the last cell to add a new row.</small>
+                                <strong style="font-size:13px">Items: <span id="itemSubtotal">0.00</span> USD</strong>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="accountsPane" role="tabpanel" aria-labelledby="modeAccounts" tabindex="0">
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table expense-table">
+                                        <caption class="visually-hidden">Expense account allocations</caption>
+                                        <thead>
+                                            <tr>
+                                                <th style="width:45px" scope="col">#</th>
+                                                <th style="min-width:210px" scope="col">Expense Account</th>
+                                                <th style="min-width:190px" scope="col">Description</th>
+                                                <th style="min-width:85px" scope="col">UOM</th>
+                                                <th style="min-width:95px" scope="col">Qty</th>
+                                                <th style="min-width:120px" scope="col">Unit Price</th>
+                                                <th style="min-width:130px;text-align:right" scope="col">Total</th>
+                                                <th style="width:45px" scope="col"><span class="visually-hidden">Actions</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expenseTableBody">
+                                            <tr class="empty-row"><td colspan="8">No expense accounts added yet. Click "Add Account" to begin.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="table-scroll-hint"><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Swipe horizontally to see all columns</div>
+
+                            <div class="text-end mt-3">
+                                <strong style="font-size:13px">Expense Accounts: <span id="accountSubtotal">0.00</span> USD</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <details class="expense-extra-panel">
+                <summary><i class="bi bi-paperclip" aria-hidden="true"></i> Supporting Documents <span class="empty-hint">Optional attachments</span></summary>
+                <div class="doc-card">
+                    <div class="doc-dropzone" id="docDropzone" tabindex="0" role="button"
+                         aria-label="Add attachments (drag and drop or press Enter)">
+                        <input type="file" id="Attachments" name="Attachments" multiple
+                               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                               aria-label="Attachment files" />
+                        <span class="doc-dropzone-icon" aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
+                        <h6>Drop files here or <span class="doc-browse">click to browse</span></h6>
+                        <p>Max 10 MB per file · Up to 10 files</p>
+                    </div>
+                    <div class="doc-list-header"><span id="docCountBadge">0 files</span><span id="docTotalSize">0 KB</span></div>
+                    <div class="doc-list" id="attachmentList">
+                        <div class="doc-empty" id="docEmptyState">No files attached yet.</div>
+                    </div>
+                    <div class="doc-footer">
+                        <span><strong id="docCount">0</strong> file(s) selected</span>
+                        <button type="button" class="doc-clear-btn" id="docClearBtn" hidden>Clear all</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="expense-extra-panel expense-journal-panel">
+                <summary><i class="bi bi-journal-bookmark" aria-hidden="true"></i> Journal Entry Preview <span class="empty-hint">Accounting validation</span></summary>
+                <section class="journal-card" aria-labelledby="journalHeading" data-section="journal">
+                    <div class="journal-header">
+                        <h6 id="journalHeading">
+                            <i class="bi bi-journal-bookmark" aria-hidden="true"></i>
+                            Journal Entry Preview
+                        </h6>
+                        <span class="journal-balance-badge is-balanced" id="journalBalanceBadge" role="status" aria-live="polite">
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                            <span id="journalBalanceText">Balanced</span>
+                        </span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="journal-table">
+                            <caption class="visually-hidden">Journal entry preview</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width:120px">Account</th>
+                                    <th scope="col">Account Name</th>
+                                    <th scope="col" class="num" style="width:140px">Debit</th>
+                                    <th scope="col" class="num" style="width:140px">Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="journalBody">
+                                <tr>
+                                    <td colspan="4" class="empty-hint" style="text-align:center;padding:24px">
+                                        Add expense details to preview the journal entry.
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">Totals</td>
+                                    <td class="num" id="journalDrTotal">0.00</td>
+                                    <td class="num" id="journalCrTotal">0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div id="acctValidation" class="acct-validation-banner is-ok" role="status" aria-live="polite">
+                        <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                        <div id="acctValidationMsg">Ready to post. All accounting checks passed.</div>
+                    </div>
+                </section>
+            </details>
+        </form>
+
+        <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    </div>
+</div>
+
+<script>
+    (function (window, document) {
+        "use strict";
+
+        /* ============================================================
+           EXPENSE FORM INITIALISER
+        ============================================================ */
+        function initExpenseForm(root) {
+            root = root || document;
+            const form = root.querySelector && root.querySelector("#expenseForm");
+            if (!form || form.dataset.expenseInitialized === "true") return;
+
+            const config = window.ExpenseFormConfig || {};
+
+            /* ---------- DOM helpers ---------- */
+            const byId = (id) => form.querySelector("#" + id);
+            const all = (sel, ctx) => (ctx || form).querySelectorAll(sel);
+
+            const money = (v) => {
+                if (v == null || String(v).trim() === "") return 0;
+                const n = Number(String(v).replace(/,/g, ""));
+                return Number.isFinite(n) ? n : 0;
+            };
+            const round2 = (v) => Math.round((money(v) + Number.EPSILON) * 100) / 100;
+            const fmt = (v) => round2(v).toLocaleString(undefined, {
+                minimumFractionDigits: 2, maximumFractionDigits: 2
+            });
+
+            const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, ch => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[ch]));
+
+            const setText = (id, value) => {
+                const el = byId(id);
+                if (el) el.textContent = value;
+            };
+
+            const setValue = (id, value) => {
+                const el = byId(id);
+                if (el) el.value = value;
+            };
+
+            /* ---------- Required nodes ---------- */
+            const itemBody = byId("itemTableBody");
+            const accountBody = byId("expenseTableBody");
+            const attachmentInput = byId("Attachments");
+            const dropzone = byId("docDropzone");
+            const toastHost = byId("toastContainer");
+            if (!itemBody || !accountBody) return;
+
+            form.dataset.expenseInitialized = "true";
+
+            /* ---------- Field icons ---------- */
+            const fieldIconMap = {
+                Payee: "bi-person-badge",
+                ExpenseDate: "bi-calendar3",
+                InvoiceNo: "bi-receipt",
+                DiscountAmount: "bi-percent",
+                PaymentAccountID: "bi-wallet2",
+                PaidOnDate: "bi-calendar-check",
+                ReferenceNo: "bi-upc-scan",
+                VatRate: "bi-percent",
+                PaymentMethod: "bi-credit-card",
+                ExchangeRate: "bi-currency-exchange",
+                ClassName: "bi-tags",
+                WhtRate: "bi-shield-check",
+                Description: "bi-card-text",
+                Attachments: "bi-paperclip"
+            };
+
+            function getFieldIcon(control) {
+                const id = control.id || "";
+                if (fieldIconMap[id]) return fieldIconMap[id];
+
+                const cls = control.classList;
+                if (cls.contains("item-name")) return "bi-box-seam";
+                if (cls.contains("item-uom")) return "bi-rulers";
+                if (cls.contains("item-qty") || cls.contains("account-qty")) return "bi-hash";
+                if (cls.contains("item-price") || cls.contains("account-price")) return "bi-cash";
+                if (cls.contains("item-discount")) return "bi-percent";
+                if (cls.contains("account-select")) return "bi-journal-text";
+                if (cls.contains("account-description")) return "bi-card-text";
+                if (cls.contains("account-uom")) return "bi-rulers";
+                return control.tagName === "SELECT" ? "bi-chevron-expand" : "bi-pencil-square";
+            }
+
+            function enhanceFieldIcons(scope) {
+                const controls = scope.querySelectorAll(
+                    '.expense-field input:not([type="hidden"]):not([type="file"]), ' +
+                    '.expense-field select, .expense-field textarea, ' +
+                    '.expense-table input:not([type="hidden"]), .expense-table select'
+                );
+
+                controls.forEach(function (control) {
+                    if (control.closest(".expense-control-wrap")) return;
+                    if (control.type === "file" || control.type === "checkbox" || control.type === "radio") return;
+
+                    const wrapper = document.createElement("span");
+                    wrapper.className = "expense-control-wrap";
+                    const icon = document.createElement("i");
+                    icon.className = "bi " + getFieldIcon(control) + " expense-control-icon";
+                    icon.setAttribute("aria-hidden", "true");
+
+                    const parent = control.parentNode;
+                    parent.insertBefore(wrapper, control);
+                    wrapper.appendChild(icon);
+                    wrapper.appendChild(control);
+                });
+            }
+
+            enhanceFieldIcons(form);
+
+            const iconObserver = new MutationObserver(function (records) {
+                records.forEach(function (record) {
+                    record.addedNodes.forEach(function (node) {
+                        if (node.nodeType === 1) {
+                            if (node.matches && node.matches("tr[data-row]")) enhanceFieldIcons(node);
+                            else if (node.querySelectorAll) enhanceFieldIcons(node);
+                        }
+                    });
+                });
+            });
+            iconObserver.observe(form, { childList: true, subtree: true });
+
+            /* ---------- State ---------- */
+            let itemIndex = 0;
+            let accountIndex = 0;
+            let selectedFiles = [];
+            let isSubmitting = false;
+            let calcPending = false;
+            let dirty = false;
+            let activeMode = "items";
+            let isResetting = false;
+            let calcRaf = null;
+
+            /* ---------- Account data ---------- */
+            const samplePaymentAccounts = [
+                { id: "1000", code: "1000", name: "Cash on Hand" },
+                { id: "1010", code: "1010", name: "Bank – Operating Account" },
+                { id: "1020", code: "1020", name: "Bank – Petty Cash" }
+            ];
+            const sampleExpenseAccounts = [
+                { id: "5000", code: "5000", name: "Office Supplies", type: "expense" },
+                { id: "5010", code: "5010", name: "Travel & Transportation", type: "expense" },
+                { id: "5020", code: "5020", name: "Meals & Entertainment", type: "expense" },
+                { id: "5030", code: "5030", name: "Utilities", type: "expense" },
+                { id: "5040", code: "5040", name: "Professional Fees", type: "expense" },
+                { id: "1500", code: "1500", name: "Equipment", type: "asset" },
+                { id: "1510", code: "1510", name: "Prepaid Expenses", type: "asset" }
+            ];
+
+            const useDemoAccounts = config.useDemoAccounts === true;
+            const paymentAccounts = Array.isArray(config.paymentAccounts)
+                ? config.paymentAccounts
+                : (useDemoAccounts ? samplePaymentAccounts : []);
+            const expenseAccounts = (Array.isArray(config.expenseAccounts)
+                ? config.expenseAccounts
+                : (useDemoAccounts ? sampleExpenseAccounts : []))
+                .filter(a => !a.type || /expense|asset/i.test(String(a.type)));
+
+            /* ============================================================
+               TOASTS
+            ============================================================ */
+            function showToast(message, type) {
+                type = type || "info";
+                if (!toastHost) { window.alert(message); return; }
+                const toast = document.createElement("div");
+                toast.className = "expense-toast expense-toast-" + type;
+                toast.setAttribute("role", "status");
+                toast.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+
+                const icon = type === "success" ? "bi-check-circle"
+                    : type === "error" ? "bi-exclamation-circle"
+                        : "bi-info-circle";
+
+                toast.innerHTML =
+                    '<i class="bi ' + icon + '" aria-hidden="true"></i>' +
+                    '<span>' + escapeHtml(message) + '</span>' +
+                    '<button type="button" aria-label="Dismiss">&times;</button>';
+
+                let timer = window.setTimeout(() => toast.remove(), 4500);
+                toast.querySelector("button").addEventListener("click", () => {
+                    window.clearTimeout(timer);
+                    toast.remove();
+                });
+                toastHost.appendChild(toast);
+            }
+
+            /* ============================================================
+               STATUS
+            ============================================================ */
+            function setStatus(text, state) {
+                /* Optional: update #postingStatus if host page provides one. */
+                const node = document.getElementById("postingStatus");
+                if (node) {
+                    const icon = state === "posted" ? "bi-check-circle-fill"
+                        : state === "warning" ? "bi-exclamation-circle-fill"
+                            : "bi-circle";
+                    node.innerHTML = '<i class="bi ' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text);
+                    node.dataset.state = state || "draft";
+                }
+            }
+
+            /* ============================================================
+               OPTIONS
+            ============================================================ */
+            function optionsHtml(list, placeholder, selected) {
+                selected = selected == null ? "" : selected;
+                const disabled = !list.length ? " disabled" : "";
+                let head = '<option value=""' + disabled + '>' + escapeHtml(placeholder) + '</option>';
+                return head + list.map(function (a) {
+                    const id = a.id ?? a.value ?? a.AccountID ?? a.accountId ?? "";
+                    const code = a.code ?? a.AccountCode ?? a.AccountNo ?? "";
+                    const name = a.name ?? a.text ?? a.AccountName ?? a.accountName ?? "";
+                    const label = [code, name].filter(Boolean).join(" - ") || String(id);
+                    return '<option value="' + escapeHtml(id) + '"' +
+                        (String(id) === String(selected) ? " selected" : "") + '>' +
+                        escapeHtml(label) + '</option>';
+                }).join("");
+            }
+
+            /* ============================================================
+               TABLE HELPERS
+            ============================================================ */
+            function updateEmptyState(tbody, colspan, message) {
+                const rows = tbody.querySelectorAll('tr[data-row]');
+                const emptyRow = tbody.querySelector(".empty-row");
+                if (!rows.length) {
+                    if (!emptyRow) {
+                        const tr = document.createElement("tr");
+                        tr.className = "empty-row";
+                        const td = document.createElement("td");
+                        td.colSpan = colspan;
+                        td.textContent = message;
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                    }
+                } else if (emptyRow) {
+                    emptyRow.remove();
+                }
+            }
+
+            function renumber(tbody) {
+                tbody.querySelectorAll('tr[data-row]').forEach(function (row, i) {
+                    const cell = row.querySelector("[data-row-number]");
+                    if (cell) cell.textContent = i + 1;
+                });
+            }
+
+            /* ============================================================
+               ROW BUILDERS
+            ============================================================ */
+            function addItemRow(values) {
+                values = values || {};
+                const e = itemBody.querySelector(".empty-row");
+                if (e) e.remove();
+
+                const index = itemIndex++;
+                const tr = document.createElement("tr");
+                tr.dataset.row = "item";
+                tr.innerHTML =
+                    '<td data-row-number>' + (itemBody.querySelectorAll('tr[data-row]').length + 1) + '</td>' +
+                    '<td><input class="form-control item-name" name="Items[' + index + '].ItemName" value="' +
+                    escapeHtml(values.name || "") + '" placeholder="Product or service" maxlength="250"></td>' +
+                    '<td><input class="form-control item-uom" name="Items[' + index + '].UOM" value="' +
+                    escapeHtml(values.uom || "Unit") + '" placeholder="Unit" maxlength="50"></td>' +
+                    '<td><input class="form-control item-qty" type="number" min="0" step="0.0001" inputmode="decimal" ' +
+                    'name="Items[' + index + '].Quantity" value="' + (values.qty != null ? values.qty : 1) + '"></td>' +
+                    '<td><input class="form-control item-price" type="number" min="0" step="0.01" inputmode="decimal" ' +
+                    'name="Items[' + index + '].UnitPrice" value="' + (values.price != null ? values.price : 0) + '"></td>' +
+                    '<td><input class="form-control item-discount" type="number" min="0" step="0.01" inputmode="decimal" ' +
+                    'name="Items[' + index + '].Discount" value="' + (values.discount != null ? values.discount : 0) + '"></td>' +
+                    '<td class="text-end fw-semibold"><span class="row-total">0.00</span></td>' +
+                    '<td><button type="button" class="remove-row-btn" data-remove-row aria-label="Remove item" title="Remove item">' +
+                    '<i class="bi bi-trash3" aria-hidden="true"></i></button></td>';
+
+                itemBody.appendChild(tr);
+                dirty = true;
+                scheduleCalculate();
+
+                const nameInput = tr.querySelector(".item-name");
+                if (nameInput) nameInput.focus();
+                return tr;
+            }
+
+            function addExpenseRow(values) {
+                values = values || {};
+                const e = accountBody.querySelector(".empty-row");
+                if (e) e.remove();
+
+                const index = accountIndex++;
+                const tr = document.createElement("tr");
+                tr.dataset.row = "account";
+                tr.innerHTML =
+                    '<td data-row-number>' + (accountBody.querySelectorAll('tr[data-row]').length + 1) + '</td>' +
+                    '<td><select class="form-select account-select" name="ExpenseAccounts[' + index + '].AccountID">' +
+                    optionsHtml(expenseAccounts,
+                        expenseAccounts.length ? "Select expense account" : "Configure expense accounts",
+                        values.accountId) +
+                    '</select></td>' +
+                    '<td><input class="form-control account-description" name="ExpenseAccounts[' + index + '].Description" value="' +
+                    escapeHtml(values.description || "") + '" placeholder="Expense description" maxlength="500"></td>' +
+                    '<td><input class="form-control account-uom" name="ExpenseAccounts[' + index + '].UOM" value="' +
+                    escapeHtml(values.uom || "Unit") + '" placeholder="Unit" maxlength="50"></td>' +
+                    '<td><input class="form-control account-qty" type="number" min="0" step="0.0001" inputmode="decimal" ' +
+                    'name="ExpenseAccounts[' + index + '].Quantity" value="' + (values.qty != null ? values.qty : 1) + '"></td>' +
+                    '<td><input class="form-control account-price" type="number" min="0" step="0.01" inputmode="decimal" ' +
+                    'name="ExpenseAccounts[' + index + '].UnitPrice" value="' + (values.price != null ? values.price : 0) + '"></td>' +
+                    '<td class="text-end fw-semibold"><span class="row-total">0.00</span></td>' +
+                    '<td><button type="button" class="remove-row-btn" data-remove-row aria-label="Remove account" title="Remove account">' +
+                    '<i class="bi bi-trash3" aria-hidden="true"></i></button></td>';
+
+                accountBody.appendChild(tr);
+                dirty = true;
+                scheduleCalculate();
+
+                const sel = tr.querySelector(".account-select");
+                if (sel) sel.focus();
+                return tr;
+            }
+
+            /* ============================================================
+               MATH
+            ============================================================ */
+            function rowAmount(row, type) {
+                const qtyEl = row.querySelector(type === "item" ? ".item-qty" : ".account-qty");
+                const priceEl = row.querySelector(type === "item" ? ".item-price" : ".account-price");
+                const discEl = type === "item" ? row.querySelector(".item-discount") : null;
+                const qty = Math.max(0, money(qtyEl && qtyEl.value));
+                const price = Math.max(0, money(priceEl && priceEl.value));
+                const discount = discEl ? Math.max(0, money(discEl.value)) : 0;
+                return round2(Math.max(0, qty * price - discount));
+            }
+
+            function getTotals() {
+                let items = 0, accounts = 0;
+                itemBody.querySelectorAll('tr[data-row="item"]').forEach(r => items += rowAmount(r, "item"));
+                accountBody.querySelectorAll('tr[data-row="account"]').forEach(r => accounts += rowAmount(r, "account"));
+                items = round2(items); accounts = round2(accounts);
+
+                const hasAccounts = activeMode === "accounts";
+                const baseSubtotal = hasAccounts ? accounts : items;
+
+                const discountEl = byId("DiscountAmount");
+                const discount = Math.min(baseSubtotal, Math.max(0, money(discountEl && discountEl.value)));
+                const taxableBase = round2(baseSubtotal - discount);
+
+                const vatRate = Math.max(0, money((byId("VatRate") || {}).value));
+                const whtRate = Math.max(0, money((byId("WhtRate") || {}).value));
+                const vat = round2(taxableBase * vatRate / 100);
+                const wht = round2(taxableBase * whtRate / 100);
+                const grand = round2(taxableBase + vat - wht);
+
+                const rate = Math.max(0, money((byId("ExchangeRate") || {}).value));
+
+                return {
+                    items, accounts,
+                    subtotal: round2(baseSubtotal),
+                    basis: hasAccounts ? "accounts" : "items",
+                    discount, taxableBase,
+                    vatRate, vat, whtRate, wht, grand, rate,
+                    khr: round2(grand * rate)
+                };
+            }
+
+            function localDateValue(date) {
+                const d = date || new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, "0");
+                const day = String(d.getDate()).padStart(2, "0");
+                return y + "-" + m + "-" + day;
+            }
+
+            function scheduleCalculate() {
+                if (isResetting) return;
+                dirty = true;
+                if (calcPending) return;
+                calcPending = true;
+                const raf = window.requestAnimationFrame || (fn => setTimeout(fn, 16));
+                calcRaf = raf(() => {
+                    calcPending = false;
+                    calcRaf = null;
+                    calculate();
+                });
+            }
+
+            /* ============================================================
+               MODE TAB HELPERS
+            ============================================================ */
+            function updateModeCounts() {
+                const itemCount = itemBody.querySelectorAll('tr[data-row="item"]').length;
+                const accountCount = accountBody.querySelectorAll('tr[data-row="account"]').length;
+                const ic = byId("modeItemsCount");
+                const ac = byId("modeAccountsCount");
+                if (ic) {
+                    ic.textContent = itemCount;
+                    ic.setAttribute("aria-label", itemCount + (itemCount === 1 ? " item" : " items"));
+                }
+                if (ac) {
+                    ac.textContent = accountCount;
+                    ac.setAttribute("aria-label", accountCount + (accountCount === 1 ? " account" : " accounts"));
+                }
+            }
+
+            /* ============================================================
+               MAIN CALCULATE
+            ============================================================ */
+            function calculate() {
+                itemBody.querySelectorAll('tr[data-row="item"]').forEach(r => {
+                    const c = r.querySelector(".row-total");
+                    if (c) c.textContent = fmt(rowAmount(r, "item"));
+                });
+                accountBody.querySelectorAll('tr[data-row="account"]').forEach(r => {
+                    const c = r.querySelector(".row-total");
+                    if (c) c.textContent = fmt(rowAmount(r, "account"));
+                });
+
+                updateEmptyState(itemBody, 8, 'No items added yet. Click "Add Item" to begin.');
+                updateEmptyState(accountBody, 8, 'No expense accounts added yet. Click "Add Account" to begin.');
+                renumber(itemBody);
+                renumber(accountBody);
+                updateModeCounts();
+
+                const t = getTotals();
+
+                setText("itemSubtotal", fmt(t.items));
+                setText("accountSubtotal", fmt(t.accounts));
+                setText("summaryItemSubtotal", fmt(t.items));
+                setText("summaryAccountSubtotal", fmt(t.accounts));
+                setText("summarySubtotal", fmt(t.subtotal) + " USD");
+                setText("grandTotal", fmt(t.grand) + " USD");
+                setText("fxKhrTotal", fmt(t.khr) + " KHR");
+                setText("fxRate", t.rate.toLocaleString());
+
+                setText("basisLabel", t.basis === "accounts" ? "(from accounts)"
+                    : t.basis === "items" ? "(from items)" : "");
+
+                const lc = byId("lastCalculated");
+                if (lc) lc.textContent = "Updated " + new Date().toLocaleTimeString();
+
+                setValue("SubtotalValue", t.subtotal.toFixed(2));
+                setValue("VatAmountValue", t.vat.toFixed(2));
+                setValue("WhtAmountValue", t.wht.toFixed(2));
+                setValue("GrandTotalValue", t.grand.toFixed(2));
+                setValue("GrandTotalKhrValue", t.khr.toFixed(2));
+
+                updateSectionStatuses(t);
+                renderJournal(t);
+                return t;
+            }
+
+            /* ============================================================
+               SECTION STATUS CHIPS
+            ============================================================ */
+            function updateSectionStatuses(t) {
+                const required = ["ExpenseDate", "PaymentMethod", "PaymentAccountID"];
+                const missing = required.filter(id => !String((byId(id) || {}).value || "").trim());
+                const infoStatus = byId("infoStatus");
+                if (infoStatus) {
+                    if (missing.length === 0) {
+                        infoStatus.className = "sec-status is-ok";
+                        infoStatus.innerHTML = '<i class="bi bi-check-circle" aria-hidden="true"></i><span>Complete</span>';
+                    } else {
+                        infoStatus.className = "sec-status is-warn";
+                        infoStatus.innerHTML = '<i class="bi bi-exclamation-circle" aria-hidden="true"></i><span>' +
+                            missing.length + ' required missing</span>';
+                    }
+                }
+
+                const linesStatus = byId("linesStatus");
+                if (linesStatus) {
+                    const count = itemBody.querySelectorAll('tr[data-row="item"]').length +
+                        accountBody.querySelectorAll('tr[data-row="account"]').length;
+                    if (count === 0) {
+                        linesStatus.className = "sec-status is-warn";
+                        linesStatus.innerHTML = '<i class="bi bi-exclamation-circle" aria-hidden="true"></i><span>No lines yet</span>';
+                    } else if (t.subtotal <= 0) {
+                        linesStatus.className = "sec-status is-warn";
+                        linesStatus.innerHTML = '<i class="bi bi-exclamation-circle" aria-hidden="true"></i><span>Add amounts</span>';
+                    } else {
+                        linesStatus.className = "sec-status is-ok";
+                        linesStatus.innerHTML = '<i class="bi bi-check-circle" aria-hidden="true"></i><span>' +
+                            count + ' line' + (count === 1 ? '' : 's') + '</span>';
+                    }
+                }
+            }
+
+            /* ============================================================
+               JOURNAL
+            ============================================================ */
+            function renderJournal(t) {
+                const body = byId("journalBody");
+                if (!body) return;
+
+                const lines = [];
+                const accountRows = accountBody.querySelectorAll('tr[data-row="account"]');
+                const itemRows = itemBody.querySelectorAll('tr[data-row="item"]');
+
+                if (activeMode === "accounts") {
+                    accountRows.forEach(function (row) {
+                        const select = row.querySelector(".account-select");
+                        const option = select && select.selectedOptions[0];
+                        const amount = rowAmount(row, "account");
+                        if (amount > 0) {
+                            lines.push({
+                                code: (option && option.value) || "—",
+                                name: (option && option.textContent.trim()) || "Unselected expense account",
+                                debit: amount, credit: 0
+                            });
+                        }
+                    });
+                } else {
+                    itemRows.forEach(function (row) {
+                        const nameEl = row.querySelector(".item-name");
+                        const name = (nameEl && nameEl.value.trim()) || "Expense item";
+                        const amount = rowAmount(row, "item");
+                        if (amount > 0) lines.push({ code: "ITEM", name, debit: amount, credit: 0 });
+                    });
+                }
+
+                if (t.discount > 0) lines.push({ code: "DISC", name: "Discount Received", debit: 0, credit: t.discount });
+                if (t.vat > 0) lines.push({ code: "VAT-IN", name: "Input VAT", debit: t.vat, credit: 0 });
+                if (t.wht > 0) lines.push({ code: "WHT-PAY", name: "Withholding Tax Payable", debit: 0, credit: t.wht });
+
+                // const payment = byId("PaymentAccountID");
+                // const paymentName = (payment && payment.selectedOptions[0])
+                //     ? payment.selectedOptions[0].textContent.trim()
+                //     : "Payment account";
+                // if (t.grand > 0) {
+                //     lines.push({
+                //         code: (payment && payment.value) || "PAYMENT",
+                //         name: paymentName, debit: 0, credit: round2(t.grand)
+                //     });
+                // }
+
+                if (!lines.length) {
+                    body.innerHTML = '<tr><td colspan="4" style="padding:24px">' +
+                        '<div class="text-center" style="color:var(--ex-muted)">' +
+                        '<i class="bi bi-journal-x" aria-hidden="true" style="font-size:1.6rem;display:block;margin-bottom:8px"></i>' +
+                        'Add an item or expense account to see how this will be posted.' +
+                        '</div></td></tr>';
+                } else {
+                    body.innerHTML = lines.map(function (l) {
+                        return '<tr>' +
+                            '<td>' + escapeHtml(l.code) + '</td>' +
+                            '<td>' + escapeHtml(l.name) + '</td>' +
+                            '<td class="num">' + (l.debit ? fmt(l.debit) : "—") + '</td>' +
+                            '<td class="num">' + (l.credit ? fmt(l.credit) : "—") + '</td>' +
+                            '</tr>';
+                    }).join("");
+                }
+
+                const debit = round2(lines.reduce((s, x) => s + x.debit, 0));
+                const credit = round2(lines.reduce((s, x) => s + x.credit, 0));
+                setText("journalDrTotal", fmt(debit));
+                setText("journalCrTotal", fmt(credit));
+
+                const balanced = lines.length > 0 && Math.abs(debit - credit) < 0.01;
+                const badge = byId("journalBalanceBadge");
+                if (badge) {
+                    badge.classList.toggle("is-balanced", balanced);
+                    badge.classList.toggle("is-unbalanced", !balanced && lines.length > 0);
+                }
+                setText("journalBalanceText", lines.length === 0 ? "—" : (balanced ? "Balanced" : "Out of balance"));
+
+                const banner = byId("acctValidation");
+                const msg = byId("acctValidationMsg");
+                if (banner) {
+                    banner.classList.toggle("is-ok", balanced);
+                    banner.classList.toggle("is-error", !balanced && lines.length > 0);
+                }
+                if (msg) {
+                    if (lines.length === 0) {
+                        msg.textContent = "Add expense accounts or items to preview the journal entry.";
+                    } else if (balanced) {
+                        msg.textContent = "Journal preview is balanced. Confirm account mappings before posting.";
+                    } else {
+                        msg.textContent = "Journal is out of balance by " + fmt(Math.abs(debit - credit)) + ".";
+                    }
+                }
+            }
+
+            /* ============================================================
+               PAYMENT ACCOUNTS
+            ============================================================ */
+            function refreshPaymentAccounts() {
+                const select = byId("PaymentAccountID");
+                if (!select) return;
+                const current = select.value;
+                select.innerHTML = optionsHtml(
+                    paymentAccounts,
+                    paymentAccounts.length ? "Select cash or bank account" : "No payment accounts configured",
+                    current
+                );
+            }
+
+            /* ============================================================
+               VALIDATION
+            ============================================================ */
+            function getFieldLabel(el, fallback) {
+                if (!el) return fallback;
+                const wrapper = el.closest(".expense-field, .form-group, .mb-3");
+                if (wrapper) {
+                    const label = wrapper.querySelector("label, .form-label");
+                    if (label) return label.textContent.replace(/\*/g, "").trim();
+                }
+                return el.getAttribute("placeholder") || el.name || fallback || "Field";
+            }
+
+            function validateForm() {
+                all(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+                const issues = [];
+                const markInvalid = (el, label) => {
+                    if (!el) return;
+                    el.classList.add("is-invalid");
+                    issues.push({ el, label });
+                };
+
+                ["Payee", "ExpenseDate", "PaymentMethod", "PaymentAccountID"].forEach(function (id) {
+                    const el = byId(id);
+                    if (el && !String(el.value || "").trim()) {
+                        markInvalid(el, getFieldLabel(el, id) + " is required");
+                    }
+                });
+
+                const fx = byId("ExchangeRate");
+                if (fx && money(fx.value) <= 0) markInvalid(fx, "Exchange Rate must be greater than 0");
+
+                const t = calculate();
+                const disc = byId("DiscountAmount");
+                if (disc && money(disc.value) > t.subtotal + 0.001) {
+                    markInvalid(disc, "Discount cannot exceed subtotal");
+                }
+
+                if (activeMode === "accounts") {
+                    accountBody.querySelectorAll('tr[data-row="account"]').forEach(function (row) {
+                        const select = row.querySelector(".account-select");
+                        const amount = rowAmount(row, "account");
+                        if (select && !select.value && amount > 0) markInvalid(select, "Expense Account is required");
+                    });
+                }
+
+                const activeRows = activeMode === "accounts"
+                    ? accountBody.querySelectorAll('tr[data-row="account"]')
+                    : itemBody.querySelectorAll('tr[data-row="item"]');
+                const inactiveRows = activeMode === "accounts"
+                    ? itemBody.querySelectorAll('tr[data-row="item"]')
+                    : accountBody.querySelectorAll('tr[data-row="account"]');
+                const inactiveHasAmounts = Array.prototype.some.call(inactiveRows, function (row) {
+                    return rowAmount(row, activeMode === "accounts" ? "item" : "account") > 0;
+                });
+                if (inactiveHasAmounts) {
+                    issues.push({
+                        el: activeMode === "accounts" ? byId("modeItems") : byId("modeAccounts"),
+                        label: "There are entered amounts in the other entry mode. Switch to that mode to review and post them, or clear those rows."
+                    });
+                }
+                if (activeRows.length === 0) {
+                    showToast("Add at least one item or expense account before posting.", "error");
+                    issues.push({ el: byId("addItemBtn"), label: "Add at least one line item" });
+                }
+                if (t.subtotal <= 0 && activeRows.length > 0) {
+                    showToast("Add amounts so the expense total is greater than zero.", "error");
+                    issues.push({ el: byId("DiscountAmount"), label: "Total must be greater than zero" });
+                }
+
+                const summary = byId("errorSummary");
+                const list = byId("errorSummaryList");
+                if (issues.length && summary && list) {
+                    list.innerHTML = issues.map(function (it, i) {
+                        return '<li><a href="#" data-jump="' + i + '">' + escapeHtml(it.label) + '</a></li>';
+                    }).join("");
+                    summary.hidden = false;
+                    list.querySelectorAll("a").forEach(function (a) {
+                        a.addEventListener("click", function (ev) {
+                            ev.preventDefault();
+                            const it = issues[Number(a.dataset.jump)];
+                            if (it && it.el) {
+                                try { it.el.focus({ preventScroll: true }); } catch (e) { it.el.focus(); }
+                                it.el.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }
+                        });
+                    });
+                } else if (summary) {
+                    summary.hidden = true;
+                    if (list) list.innerHTML = "";
+                }
+
+                return issues;
+            }
+
+            /* ============================================================
+               ATTACHMENTS
+            ============================================================ */
+            const MAX_FILE_SIZE = 10 * 1024 * 1024;
+            const MAX_FILES = 10;
+
+            function formatBytes(bytes) {
+                if (!bytes) return "0 KB";
+                const units = ["B", "KB", "MB", "GB"];
+                let i = Math.floor(Math.log(bytes) / Math.log(1024));
+                if (i < 0) i = 0;
+                return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1) + " " + units[i];
+            }
+
+            function renderAttachments() {
+                const list = byId("attachmentList");
+                const badge = byId("docCountBadge");
+                const totalSize = byId("docTotalSize");
+                const count = byId("docCount");
+                const clearBtn = byId("docClearBtn");
+                if (!list) return;
+
+                if (!selectedFiles.length) {
+                    list.innerHTML = '<div class="doc-empty" id="docEmptyState">No files attached yet.</div>';
+                } else {
+                    list.innerHTML = selectedFiles.map(function (f, i) {
+                        return '<div class="doc-item">' +
+                            '<span class="doc-item-thumb"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>' +
+                            '<div class="doc-item-body">' +
+                            '<div class="doc-item-name">' + escapeHtml(f.name) + '</div>' +
+                            '<div class="doc-item-meta">' + formatBytes(f.size) + '</div>' +
+                            '</div>' +
+                            '<button type="button" class="doc-remove-btn" data-remove-file="' + i + '" ' +
+                            'aria-label="Remove ' + escapeHtml(f.name) + '">' +
+                            '<i class="bi bi-x-lg" aria-hidden="true"></i></button>' +
+                            '</div>';
+                    }).join("");
+                }
+
+                const totalBytes = selectedFiles.reduce((s, f) => s + f.size, 0);
+                if (badge) badge.textContent = selectedFiles.length + (selectedFiles.length === 1 ? " file" : " files");
+                if (totalSize) totalSize.textContent = formatBytes(totalBytes);
+                if (count) count.textContent = selectedFiles.length;
+                if (clearBtn) clearBtn.hidden = selectedFiles.length === 0;
+            }
+
+            function addFiles(fileList) {
+                const incoming = Array.prototype.slice.call(fileList || []);
+                if (!incoming.length) return;
+                if (selectedFiles.length + incoming.length > MAX_FILES) {
+                    showToast("You can attach up to " + MAX_FILES + " files.", "error");
+                    return;
+                }
+                incoming.forEach(function (f) {
+                    if (f.size > MAX_FILE_SIZE) {
+                        showToast('"' + f.name + '" exceeds the 10 MB limit and was skipped.', "error");
+                        return;
+                    }
+                    const dup = selectedFiles.some(x => x.name === f.name && x.size === f.size);
+                    if (!dup) selectedFiles.push(f);
+                });
+                syncAttachmentInput();
+                renderAttachments();
+                dirty = true;
+            }
+
+            function syncAttachmentInput() {
+                if (!attachmentInput) return;
+                if (typeof DataTransfer === "undefined") return;
+                try {
+                    const dt = new DataTransfer();
+                    selectedFiles.forEach(f => dt.items.add(f));
+                    attachmentInput.files = dt.files;
+                } catch (e) { /* noop */ }
+            }
+
+            if (attachmentInput) {
+                attachmentInput.addEventListener("change", function () {
+                    addFiles(this.files);
+                    if (!selectedFiles.length) this.value = "";
+                });
+            }
+
+            if (dropzone) {
+                ["dragenter", "dragover"].forEach(function (ev) {
+                    dropzone.addEventListener(ev, function (e) {
+                        e.preventDefault();
+                        dropzone.classList.add("is-dragover");
+                    });
+                });
+                ["dragleave", "drop"].forEach(function (ev) {
+                    dropzone.addEventListener(ev, function (e) {
+                        e.preventDefault();
+                        dropzone.classList.remove("is-dragover");
+                    });
+                });
+                dropzone.addEventListener("drop", function (e) {
+                    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+                });
+                dropzone.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        attachmentInput && attachmentInput.click();
+                    }
+                });
+            }
+
+            form.addEventListener("click", function (e) {
+                const removeFile = e.target.closest("[data-remove-file]");
+                if (removeFile) {
+                    selectedFiles.splice(Number(removeFile.dataset.removeFile), 1);
+                    syncAttachmentInput();
+                    renderAttachments();
+                    return;
+                }
+                if (e.target.closest("#docClearBtn")) {
+                    selectedFiles = [];
+                    if (attachmentInput) attachmentInput.value = "";
+                    renderAttachments();
+                }
+            });
+
+            /* ============================================================
+               MODE SWITCHING
+            ============================================================ */
+            function setActiveMode(mode) {
+                activeMode = mode === "accounts" ? "accounts" : "items";
+                setValue("EntryMode", activeMode);
+
+                const itemsBtn = byId("modeItems");
+                const accountsBtn = byId("modeAccounts");
+                const itemsPane = byId("itemsPane");
+                const accountsPane = byId("accountsPane");
+                const addItem = byId("addItemBtn");
+                const addAccount = byId("addAccountBtn");
+                const label = byId("modeContextLabel");
+
+                if (itemsBtn) {
+                    itemsBtn.classList.toggle("active", activeMode === "items");
+                    itemsBtn.setAttribute("aria-selected", activeMode === "items" ? "true" : "false");
+                    itemsBtn.setAttribute("tabindex", activeMode === "items" ? "0" : "-1");
+                }
+                if (accountsBtn) {
+                    accountsBtn.classList.toggle("active", activeMode === "accounts");
+                    accountsBtn.setAttribute("aria-selected", activeMode === "accounts" ? "true" : "false");
+                    accountsBtn.setAttribute("tabindex", activeMode === "accounts" ? "0" : "-1");
+                }
+                if (itemsPane) {
+                    itemsPane.classList.toggle("active", activeMode === "items");
+                    itemsPane.classList.toggle("show", activeMode === "items");
+                }
+                if (accountsPane) {
+                    accountsPane.classList.toggle("active", activeMode === "accounts");
+                    accountsPane.classList.toggle("show", activeMode === "accounts");
+                }
+                if (addItem) addItem.style.display = activeMode === "items" ? "" : "none";
+                if (addAccount) addAccount.style.display = activeMode === "accounts" ? "" : "none";
+                if (label) label.textContent = activeMode === "items" ? "Items" : "Expense Accounts";
+
+                scheduleCalculate();
+            }
+
+            byId("modeItems") && byId("modeItems").addEventListener("click", () => setActiveMode("items"));
+            byId("modeAccounts") && byId("modeAccounts").addEventListener("click", () => setActiveMode("accounts"));
+
+            const modeToggle = form.querySelector(".mode-toggle");
+            if (modeToggle) {
+                modeToggle.addEventListener("keydown", function (e) {
+                    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                    e.preventDefault();
+                    const next = activeMode === "items" ? "accounts" : "items";
+                    setActiveMode(next);
+                    const btn = byId(next === "items" ? "modeItems" : "modeAccounts");
+                    if (btn) btn.focus();
+                });
+            }
+
+            /* ============================================================
+               ROW EVENT HANDLING
+            ============================================================ */
+            form.addEventListener("click", function (e) {
+                const rm = e.target.closest("[data-remove-row]");
+                if (rm) {
+                    const row = rm.closest("tr[data-row]");
+                    if (row) {
+                        row.remove();
+                        scheduleCalculate();
+                        dirty = true;
+                    }
+                }
+            });
+
+            form.addEventListener("input", function (e) {
+                if (e.target.matches(".item-qty,.item-price,.item-discount,.account-qty,.account-price")) {
+                    scheduleCalculate();
+                }
+            });
+
+            // form.addEventListener("change", function (e) {
+            //     if (e.target.matches(".account-select,#PaymentAccountID,#PaymentMethod,#ClassName")) {
+            //         scheduleCalculate();
+            //     }
+            // });
+
+            /* Enter-key shortcut: add new row from the last editable cell of a row */
+            form.addEventListener("keydown", function (e) {
+                if (e.key !== "Enter") return;
+                const cell = e.target.closest("td");
+                if (!cell) return;
+                const row = cell.closest("tr[data-row]");
+                if (!row) return;
+                const editable = row.querySelectorAll("input,select,textarea");
+                const last = editable[editable.length - 1];
+                if (e.target !== last) return;
+                e.preventDefault();
+                if (row.dataset.row === "item") addItemRow();
+                else addExpenseRow();
+            });
+
+            /* Description character counter */
+            const desc = byId("Description");
+            const descCount = byId("descriptionCount");
+            if (desc && descCount) {
+                const update = () => { descCount.textContent = desc.value.length; };
+                desc.addEventListener("input", update);
+                update();
+            }
+
+            /* Add-row buttons */
+            byId("addItemBtn") && byId("addItemBtn").addEventListener("click", () => addItemRow());
+            byId("addAccountBtn") && byId("addAccountBtn").addEventListener("click", () => addExpenseRow());
+
+            /* Default dates */
+            const expDate = byId("ExpenseDate");
+            if (expDate && !expDate.value) expDate.value = localDateValue();
+
+            /* ============================================================
+               FORM SUBMIT (intercepted by #SaveChange button below)
+            ============================================================ */
+            form.addEventListener("submit", function (e) {
+                if (isSubmitting) { e.preventDefault(); return; }
+                const issues = validateForm();
+                if (issues.length) {
+                    e.preventDefault();
+                    showToast("Please fix the highlighted fields before saving.", "error");
+                    const first = issues[0].el;
+                    if (first && first.scrollIntoView) {
+                        first.scrollIntoView({ behavior: "smooth", block: "center" });
+                        try { first.focus({ preventScroll: true }); } catch (err) { first.focus(); }
+                    }
+                    return;
+                }
+                isSubmitting = true;
+                const btn = document.getElementById("SaveChange");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="ti ti-loader"></i> Saving…';
+                }
+                setStatus("Saving…", "warning");
+            });
+
+            /* Warn on unsaved navigation */
+            window.addEventListener("beforeunload", function (e) {
+                if (dirty && !isSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = "";
+                }
+            });
+
+            /* ============================================================
+               EXTERNAL MODAL FOOTER BUTTONS (your existing markup)
+               - #SaveChange triggers a validated submit
+               - #CloseModal is handled by Bootstrap data-dismiss
+            ============================================================ */
+            const externalSaveBtn = document.getElementById("SaveChange");
+            if (externalSaveBtn && !externalSaveBtn.dataset.expenseBound) {
+                externalSaveBtn.dataset.expenseBound = "true";
+                externalSaveBtn.addEventListener("click", function () {
+                    if (isSubmitting) return;
+                    const issues = validateForm();
+                    if (issues.length) {
+                        showToast("Please fix the highlighted fields before saving.", "error");
+                        const first = issues[0].el;
+                        if (first && first.scrollIntoView) {
+                            first.scrollIntoView({ behavior: "smooth", block: "center" });
+                            try { first.focus({ preventScroll: true }); } catch (err) { first.focus(); }
+                        }
+                        return;
+                    }
+                    if (form.requestSubmit) form.requestSubmit();
+                    else form.submit();
+                });
+            }
+
+            /* Optional: clear dirty flag when the modal closes, so
+               navigating away afterwards doesn't trigger beforeunload. */
+            const closeBtn = document.getElementById("CloseModal");
+            if (closeBtn && !closeBtn.dataset.expenseBound) {
+                closeBtn.dataset.expenseBound = "true";
+                closeBtn.addEventListener("click", function () {
+                    dirty = false;
+                });
+            }
+
+            /* ============================================================
+               BOOT
+            ============================================================ */
+            // refreshPaymentAccounts();
+            renderAttachments();
+            setActiveMode("items");
+            calculate();
+            setStatus("Draft", "draft");
+
+            /* Expose for host page if needed */
+            window.ExpenseForm = {
+                addItem: addItemRow,
+                addAccount: addExpenseRow,
+                calculate: calculate,
+                validate: validateForm,
+                getTotals: getTotals
+            };
+        }
+
+        /* Support both full page and modal/dialog injection */
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function () {
+                initExpenseForm(document);
+            });
+        } else {
+            initExpenseForm(document);
+        }
+
+        if (window.jQuery) {
+            window.jQuery(document).on("shown.bs.modal", function () {
+                initExpenseForm(document);
+            });
+        }
+
+        const dateFields = ['#ExpenseDate', '#Terms', '#PaidOnDate'];
+
+        dateFields.forEach(function(selector) {
+
+            const $date = $(selector);
+            const isExpenseDate = selector === '#ExpenseDate';
+
+            let initialDate = moment();
+
+            if ($date.val()) {
+                const parsedDate = moment(
+                    $date.val(),
+                    ['DD-MM-YYYY', 'YYYY-MM-DD'],
+                    true
+                );
+
+                if (parsedDate.isValid()) {
+                    initialDate = parsedDate;
+                }
+            }
+
+            $date.daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                autoApply: true,
+                autoUpdateInput: false,
+                startDate: initialDate,
+
+                locale: {
+                    format: "DD-MM-YYYY",
+                    firstDay: 1
+                }
+            });
+
+            // ExpenseDate defaults to today
+            if (isExpenseDate && !$date.val()) {
+                $date.val(moment().format('DD-MM-YYYY'));
+            }
+
+            // Terms and PaidOnDate remain empty by default
+            // Only populate when the user selects a date
+            $date.on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY'));
+            });
+
+            // Clear the input if needed
+            $date.on('cancel.daterangepicker', function() {
+                $(this).val('');
+            });
+
+        });
+    })(window, document);
+
+
+var dataSource_PayeeID = [];
+
+function InitializePayeeComboBox() {
+
+    var $payee = $("#Payee");
+
+    if (!$payee.length) {
+        console.warn("Payee element was not found.");
+        return;
+    }
+
+    // Destroy existing Kendo widget safely
+    var existingWidget = $payee.data("kendoMultiColumnComboBox");
+
+    if (existingWidget) {
+        existingWidget.destroy();
+        $payee.removeData("kendoMultiColumnComboBox");
+        $payee.empty();
+    }
+
+    // Preserve Bootstrap styling
+    $payee.addClass("form-control");
+
+    // Load Payee data
+    $.ajax({
+        url: '@Url.Action("GetPayeeList", "Vendors")',
+        type: "GET",
+        dataType: "json",
+        cache: false,
+
+        success: function (data) {
+
+            dataSource_PayeeID = Array.isArray(data) ? data : [];
+
+            var payeeDataSource = new kendo.data.DataSource({
+                data: dataSource_PayeeID,
+                schema: {
+                    model: {
+                        id: "PayeeID",
+                        fields: {
+                            PayeeID: { type: "number" },
+                            Name: { type: "string" },
+                            Type: { type: "string" }
+                        }
+                    }
+                }
+            });
+
+            $payee.kendoMultiColumnComboBox({
+
+                height: 350,
+
+                dataTextField: "Name",
+                dataValueField: "PayeeID",
+
+                placeholder: "Vendor / recipient",
+
+                filter: "contains",
+                autoBind: true,
+                suggest: true,
+
+                clearButton: true,
+
+                minLength: 0,
+
+                dataSource: payeeDataSource,
+
+                columns: [
+                    {
+                        field: "Name",
+                        title: "Name",
+                        width: 350
+                    },
+                    {
+                        field: "Type",
+                        title: "Type",
+                        width: 120
+                    }
+                ],
+
+                // Search Name and Type
+                filtering: function (e) {
+
+                    e.preventDefault();
+
+                    var filterValue = (
+                        e.filter && e.filter.value
+                            ? e.filter.value
+                            : ""
+                    ).toString().trim();
+
+                    if (!filterValue) {
+                        this.dataSource.filter({});
+                        return;
+                    }
+
+                    this.dataSource.filter({
+                        logic: "or",
+                        filters: [
+                            {
+                                field: "Name",
+                                operator: "contains",
+                                value: filterValue
+                            },
+                            {
+                                field: "Type",
+                                operator: "contains",
+                                value: filterValue
+                            }
+                        ]
+                    });
+                },
+
+                change: function (e) {
+
+                    var selectedItem = this.dataItem();
+
+                    if (selectedItem) {
+
+                        console.log("Selected Payee:", {
+                            PayeeID: selectedItem.PayeeID,
+                            Name: selectedItem.Name,
+                            Type: selectedItem.Type
+                        });
+
+                        // LoadVendorBankInfo();
+                    }
+                },
+
+                // Footer Add New button
+                footerTemplate: `
+                    <div class="payee-footer"
+                         style="padding:8px;text-align:center;">
+                        <button type="button"
+                                class="k-button k-primary btn-add-new-payee">
+                            <span class="k-icon k-i-plus"></span>
+                            Add New
+                        </button>
+                    </div>
+                `,
+
+                open: function () {
+
+                    var combo = this;
+
+                    // Use the widget popup instead of global ID
+                    combo.popup.element
+                        .off("click.payee")
+                        .on("click.payee", ".btn-add-new-payee", function (e) {
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            combo.close();
+
+                            AddNewPayee();
+                        });
+                },
+
+                dataBound: function () {
+
+                    // Optional: customize dropdown after binding
+                }
+
+            });
+
+            // Get initialized widget
+            var payeeCombo = $payee.data("kendoMultiColumnComboBox");
+
+            if (!payeeCombo) {
+                return;
+            }
+
+            // Preserve Bootstrap styling
+            payeeCombo.input.addClass("form-control");
+
+            payeeCombo.wrapper.addClass("expense-payee-kendo");
+
+            // Open dropdown when clicking input
+            payeeCombo.input
+                .off("click.payee")
+                .on("click.payee", function () {
+
+                    if (!payeeCombo.popup.visible()) {
+                        payeeCombo.open();
+                    }
+                });
+
+            // Open dropdown when clicking wrapper
+            payeeCombo.wrapper
+                .off("click.payee")
+                .on("click.payee", function (e) {
+
+                    if (
+                        $(e.target).closest(
+                            ".k-input-button, .k-clear-value"
+                        ).length
+                    ) {
+                        return;
+                    }
+
+                    if (!payeeCombo.popup.visible()) {
+                        payeeCombo.open();
+                    }
+                });
+
+        },
+
+        error: function (xhr, status, error) {
+
+            console.error("Failed to load Payee list:", error);
+
+            dataSource_PayeeID = [];
+
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+
+// Initialize
+$(document).ready(function () {
+
+    InitializePayeeComboBox();
+
+});
+
+
+// Reload Payee list after adding a new vendor
+function ReloadPayeeList(selectedPayeeID) {
+
+    $.getJSON('@Url.Action("GetPayeeList", "Vendors")')
+        .done(function (data) {
+
+            dataSource_PayeeID = Array.isArray(data) ? data : [];
+
+            var payeeCombo = $("#Payee")
+                .data("kendoMultiColumnComboBox");
+
+            if (!payeeCombo) {
+                InitializePayeeComboBox();
+                return;
+            }
+
+            payeeCombo.dataSource.data(dataSource_PayeeID);
+
+            payeeCombo.value(selectedPayeeID || "");
+
+            if (selectedPayeeID) {
+                payeeCombo.trigger("change");
+            }
+
+        })
+        .fail(function (xhr, status, error) {
+
+            console.error("Failed to reload Payee list:", error);
+
+        });
+}
+
+//var expenseAccountList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ExpenseAccountList));
+var expenseAccountList = @Html.Raw(
+    Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ExpenseAccountList)
+);
+
+// Keep the widget instance accessible
+var expenseAccountCombo = null;
+
+$(document).ready(function () {
+
+    var $paymentAccount = $("#PaymentAccountID");
+
+    // Destroy existing widget before initializing again
+    var existingCombo = $paymentAccount.data("kendoMultiColumnComboBox");
+
+    if (existingCombo) {
+        existingCombo.destroy();
+        $paymentAccount.removeData("kendoMultiColumnComboBox");
+    }
+
+    // Initialize MultiColumnComboBox
+    $paymentAccount.kendoMultiColumnComboBox({
+
+        height: 400,
+        autoBind: true,
+        filter: "contains",
+        suggest: true,
+
+        dataTextField: "AccountName",
+        dataValueField: "ChartOfAccountID",
+
+        placeholder: "Select expense account",
+
+        dataSource: {
+            data: expenseAccountList,
+
+            // GROUP BY ACCOUNT CATEGORY (A-Z)
+            group: {
+                field: "AccountCategory",
+                dir: "asc"
+            },
+
+            // SORT ACCOUNT NAME (A-Z) INSIDE EACH GROUP
+            sort: [
+                {
+                    field: "AccountCategory",
+                    dir: "asc"
+                },
+                {
+                    field: "AccountName",
+                    dir: "asc"
+                }
+            ]
+        },
+
+        // Display visible group heading
+        groupTemplate: function (data) {
+            return '<div class="expense-account-group-header">' +
+                kendo.htmlEncode(data || "") +
+                '</div>';
+        },
+
+        // Keep the two original columns
+        columns: [
+            {
+                field: "AccountNo",
+                title: "ACCOUNT NO",
+                width: "130px"
+            },
+            {
+                field: "AccountName",
+                title: "ACCOUNT NAME",
+                width: "350px"
+            }
+        ],
+
+        // Search across account fields
+        filtering: function (e) {
+
+            var combo = this;
+            var filterValue = e.filter ? e.filter.value : "";
+
+            e.preventDefault();
+
+            filterValue = filterValue
+                ? filterValue.toString().trim()
+                : "";
+
+            if (filterValue === "") {
+                combo.dataSource.filter({});
+                return;
+            }
+
+            combo.dataSource.filter({
+                logic: "or",
+                filters: [
+                    {
+                        field: "AccountNo",
+                        operator: "contains",
+                        value: filterValue
+                    },
+                    {
+                        field: "AccountName",
+                        operator: "contains",
+                        value: filterValue
+                    },
+                    {
+                        field: "AccountCategory",
+                        operator: "contains",
+                        value: filterValue
+                    },
+                    {
+                        field: "AccountTypes",
+                        operator: "contains",
+                        value: filterValue
+                    }
+                ]
+            });
+        },
+
+        change: function (e) {
+
+            var selected = this.dataItem();
+
+            // if (selected) {
+            //     console.log("Selected Account:", selected);
+            //     console.log(
+            //         "ChartOfAccountID:",
+            //         selected.ChartOfAccountID
+            //     );
+            // }
+        }
+    });
+
+    // Get initialized widget
+    expenseAccountCombo =
+        $paymentAccount.data("kendoMultiColumnComboBox");
+
+    if (expenseAccountCombo) {
+
+        // Click input to open dropdown
+        expenseAccountCombo.input
+            .off("click.expenseAccount")
+            .on("click.expenseAccount", function () {
+                expenseAccountCombo.open();
+            });
+
+        // Preserve existing CSS wrapper
+        expenseAccountCombo.wrapper.addClass("expense-account-kendo");
+    }
+});
+
+$(document).ready(function () {
+
+    // Get users from ViewBag
+    var dataSource_UserList = @Html.Raw(
+        Json.Encode(ViewBag.UserList ?? new List<SelectListItem>())
+    );
+
+    // Reusable Kendo ComboBox initialization
+    function initializeUserComboBox(elementId, placeholder) {
+
+        var $element = $("#" + elementId);
+
+        if (!$element.length) {
+            return;
+        }
+
+        // Prevent duplicate initialization
+        var existingWidget = $element.data("kendoComboBox");
+
+        if (existingWidget) {
+            existingWidget.destroy();
+            $element.show();
+        }
+
+        // Initialize ComboBox
+        $element.kendoComboBox({
+
+            dataSource: dataSource_UserList,
+
+            dataTextField: "Text",
+            dataValueField: "Value",
+
+            filter: "contains",
+            suggest: true,
+
+            placeholder: placeholder,
+
+            clearButton: true,
+            autoBind: true,
+
+            // Never select the first user automatically
+            index: -1,
+
+            height: 300,
+
+            popup: {
+                appendTo: "body"
+            },
+
+            noDataTemplate: "No users found",
+
+            change: function () {
+
+                if (!this.value()) {
+                    this.value("");
+                    this.text("");
+                }
+            }
+
+        });
+
+        var combo = $element.data("kendoComboBox");
+
+        // Clear default selection
+        combo.value("");
+        combo.text("");
+
+        // Full width
+        combo.wrapper.css("width", "100%");
+
+        // Click dropdown arrow to open / close
+        combo.wrapper.find(".k-select")
+            .off("click.userCombo")
+            .on("click.userCombo", function (e) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (combo.popup.visible()) {
+                    combo.close();
+                } else {
+                    combo.open();
+                }
+            });
+
+        // Click input to open dropdown
+        combo.input
+            .off("click.userCombo")
+            .on("click.userCombo", function () {
+                combo.open();
+            });
+
+    }
+
+    // Initialize all user ComboBoxes
+    initializeUserComboBox("CheckedBy", "Select Checked By...");
+    initializeUserComboBox("VerifiedBy", "Select Verified By...");
+    initializeUserComboBox("PostedBy", "Select Posted By...");
+
+});
+</script>

@@ -1,0 +1,62 @@
+﻿@{ 
+    //Layout = null;
+    ViewBag.Title = "Customer Invoice";
+    Layout = "~/Views/Shared/BlankPage.cshtml";
+}
+<div id="div_CustInvoice" class="bg-white p-2">
+    @Html.Raw(@ViewBag.InvoiceData)
+</div>
+<script>
+    $(function () {
+        var InvoiceNo = "@ViewBag.InvoiceNumber";
+        var CustomerName = "@ViewBag.CustomerName";
+        var FileName = 'Customer_Invoice_' + InvoiceNo + '.pdf';
+        HTMLToPDF("div_CustInvoice", FileName, function (pdfData) {
+            var DATA = { CustomerName: CustomerName, InvoiceNo: InvoiceNo, pdfData: pdfData };
+            Save_Change_Data("CustomerInvoice/SaveInvoiceToPDF", DATA, function (response) {
+                console.log(response);
+            });
+        });
+    });
+    function Save_Change_Data(endPointName, DATA, CallBackFunction) {
+        CallBackFunction = (typeof CallBackFunction == 'undefined') ? "" : CallBackFunction;
+        var TokenInfo = getStorage("TokenInfo");
+        var accessToken = JSON.parse(TokenInfo).accessToken;
+        var UserID = "";
+        var SystemID = "";
+        var WarehouseID = "";
+        var UserName = "";
+        var SysAndWH = JSON.parse(JSON.parse(TokenInfo).SysAndWH)[0];
+        UserID = SysAndWH.UserID;
+        SystemID = SysAndWH.SystemID;
+        WarehouseID = SysAndWH.WarehouseID;
+        UserName = JSON.parse(TokenInfo).userName;
+        var headerPara = {
+            UserID: UserID,
+            UserName: UserName,
+            SystemID: SystemID,
+            WarehouseID: WarehouseID
+        };
+        $.ajax({
+            url: ServerRoot + endPointName,
+            headers: { "Authorization": "Bearer " + accessToken },
+            dataType: "html",
+            async: true,
+            cache: false,
+            type: 'POST',
+            data: DATA,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('x-custom-header', JSON.stringify(headerPara));
+            },
+            success: function (response) {
+                var result = JSON.parse(response);
+                if (typeof CallBackFunction === 'function') {
+                    CallBackFunction(response);
+                }
+            },
+            error: function (response, callStatus, errorThrown) {
+                DialogSweetAlert("error", response.status + " " + response.statusText);
+            }
+        });
+    }
+</script>

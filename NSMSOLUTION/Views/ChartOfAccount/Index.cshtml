@@ -1,0 +1,655 @@
+@{
+    Layout = null;
+    var canAdd = ViewBag.CanAdd != null && (bool)ViewBag.CanAdd;
+    var canEdit = ViewBag.CanEdit != null && (bool)ViewBag.CanEdit;
+    var canDelete = ViewBag.CanDelete != null && (bool)ViewBag.CanDelete;
+    var hasRowActions = canEdit || canDelete;
+}
+
+<div class="coa-page">
+    <div class="coa-toolbar">
+        <input id="coaSearch" type="search" class="form-control" placeholder="Search accounts" />
+        @if (canAdd)
+        {
+            <button id="coaAdd" type="button" class="btn btn-primary">
+                <i class="ti ti-plus"></i> Add Account
+            </button>
+        }
+    </div>
+    <div id="coaError" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div id="chartOfAccountTree" class="coa-tree-wrap">
+        <table class="coa-table">
+            <colgroup>
+                <col style="width:500px;" />
+                <col style="width:200px;" />
+                <col style="width:160px;" />
+                <col >
+                @if (hasRowActions)
+                {
+                    <col style="width:64px;" />
+                }
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Account Type</th>
+                    <th class="coa-balance-heading">Balance</th>
+                    <th>Memo</th>
+                    @if (hasRowActions)
+                    {
+                        <th class="coa-action-heading"></th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="coaRows">
+                <tr><td colspan="@(hasRowActions ? 5 : 4)">Loading accounts...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .coa-page {
+        padding: 10px;
+    }
+
+    .coa-toolbar {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .coa-toolbar h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .coa-toolbar input {
+        max-width: 280px;
+    }
+
+    .coa-toolbar .btn {
+        white-space: nowrap;
+    }
+
+    .coa-tree-wrap {
+        border: 1px solid #e1e5ea;
+        border-radius: 12px;
+        max-height: 680px;
+        overflow: auto;
+    }
+
+    .coa-table {
+        background: #fff;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 1090px;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .coa-table th {
+        background: var(--coa-header-bg, var(--base-bg-color, #ff801f));
+        color: var(--coa-header-text, var(--base-color, #fff));
+        font-weight: 600;
+        padding: 12px 14px;
+        position: sticky;
+        text-align: left;
+        top: 0;
+        z-index: 2;
+    }
+
+    .coa-table td {
+        border-bottom: 1px solid #f1f3f5;
+        border-left: none;
+        border-right: none;
+        padding: 6px 10px;
+        vertical-align: middle;
+    }
+
+    .coa-table tbody tr:nth-child(even) {
+        background: #f7f8fa;
+    }
+
+    .coa-table tbody tr:hover {
+        background: #eceff2;
+    }
+
+    .coa-table tbody tr.coa-parent-account {
+        font-weight: 600;
+    }
+
+    .coa-table tbody tr.coa-parent-account .coa-memo {
+        font-weight: 400;
+    }
+
+    .coa-account-cell {
+        align-items: center;
+        display: flex;
+        min-height: 28px;
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    .coa-account-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .coa-tree-toggle,
+    .coa-tree-spacer {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 24px;
+        height: 20px;
+        justify-content: center;
+        margin-right: 4px;
+        width: 24px;
+    }
+
+    .coa-tree-toggle {
+        background: transparent;
+        border: 0;
+        border-radius: 4px;
+        color: #667085;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .coa-tree-toggle:hover,
+    .coa-tree-toggle:focus {
+        background: #e8edf2;
+        color: #1672d4;
+        outline: none;
+    }
+
+    .coa-tree-toggle i {
+        font-size: 12px;
+    }
+
+    .coa-memo {
+        min-width: 220px;
+        white-space: normal;
+    }
+
+    .coa-balance-cell {
+        font-weight: 600;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .coa-balance-link {
+        color: #1683e8;
+        text-decoration: none;
+    }
+
+    .coa-balance-link:hover,
+    .coa-balance-link:focus {
+        color: #0b5cab;
+        text-decoration: underline;
+    }
+
+    .coa-balance-heading,
+    .coa-action-heading {
+        text-align: right !important;
+    }
+
+    .coa-actions {
+        position: relative;
+        text-align: center;
+    }
+
+    .coa-actions summary {
+        color: #1672d4;
+        cursor: pointer;
+        list-style: none;
+        padding: 4px 8px;
+    }
+
+    .coa-actions summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .coa-actions-menu {
+        background: #fff;
+        border: 1px solid #e1e5ea;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+        min-width: 120px;
+        padding: 4px 0;
+        position: absolute;
+        right: 0;
+        text-align: left;
+        z-index: 5;
+    }
+
+    .coa-actions-menu button {
+        background: transparent;
+        border: 0;
+        display: block;
+        padding: 6px 12px;
+        text-align: left;
+        width: 100%;
+    }
+
+    .coa-actions-menu button:hover {
+        background: #f3f4f6;
+    }
+
+    .coa-actions-menu .text-danger {
+        color: #c62828;
+    }
+
+    @@media (max-width: 700px) {
+        .coa-toolbar {
+            flex-wrap: wrap;
+        }
+
+        .coa-toolbar h4 {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        var canEdit = @canEdit.ToString().ToLowerInvariant();
+        var canDelete = @canDelete.ToString().ToLowerInvariant();
+        var hasRowActions = @hasRowActions.ToString().ToLowerInvariant();
+        var accounts = [];
+        var roots = [];
+        var expandedAccounts = Object.create(null);
+
+        function applySystemHeaderTheme() {
+            var backgroundColor = "";
+            var textColor = "";
+
+            try {
+                backgroundColor = localStorage.getItem("BaseSystemBGColor") || "";
+                textColor = localStorage.getItem("BaseSystemColor") || "";
+            } catch (e) {
+            }
+
+            if (!backgroundColor) {
+                backgroundColor = getComputedStyle(document.documentElement)
+                    .getPropertyValue("--base-bg-color")
+                    .trim();
+            }
+
+            if (backgroundColor) {
+                document.documentElement.style.setProperty("--coa-header-bg", backgroundColor);
+            }
+            if (textColor) {
+                document.documentElement.style.setProperty("--coa-header-text", textColor);
+            }
+        }
+
+        applySystemHeaderTheme();
+        window.setTimeout(applySystemHeaderTheme, 3100);
+
+        function htmlEncode(value) {
+            return String(value == null ? "" : value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function accountId(account) {
+            return String(account.ChartOfAccountID);
+        }
+
+        function buildAccountTree(rows) {
+            var accountsById = Object.create(null);
+            var placed = Object.create(null);
+            roots = [];
+            expandedAccounts = Object.create(null);
+
+            rows.forEach(function (account) {
+                account.children = [];
+                accountsById[accountId(account)] = account;
+            });
+
+            rows.forEach(function (account) {
+                var parentId = account.ParentAccountID;
+                var parent = parentId == null
+                    ? null
+                    : accountsById[String(parentId)];
+
+                if (parent && parent !== account) {
+                    parent.children.push(account);
+                    placed[accountId(account)] = true;
+                } else {
+                    roots.push(account);
+                    placed[accountId(account)] = true;
+                }
+            });
+
+            rows.forEach(function (account) {
+                if (!placed[accountId(account)]) {
+                    roots.push(account);
+                }
+            });
+
+            rows.forEach(function (account) {
+                if (account.children.length) {
+                    expandedAccounts[accountId(account)] = true;
+                }
+            });
+        }
+
+        function rowMatches(account, query) {
+            if (!query) {
+                return true;
+            }
+
+            return [
+                account.AccountNo,
+                account.AccountName,
+                account.AccountTypes,
+                account.Memo
+            ].some(function (value) {
+                return String(value || "").toLowerCase().indexOf(query) !== -1;
+            });
+        }
+
+        function markSearchMatches(account, query, matchInfo) {
+            var childMatches = false;
+            account.children.forEach(function (child) {
+                if (markSearchMatches(child, query, matchInfo)) {
+                    childMatches = true;
+                }
+            });
+
+            var matches = rowMatches(account, query);
+            matchInfo[accountId(account)] = {
+                included: matches || childMatches,
+                expand: childMatches
+            };
+            return matches || childMatches;
+        }
+
+        function formatBalance(value) {
+            var balance = Number(value) || 0;
+            if (!balance) {
+                return "-";
+            }
+
+            return balance.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function actionCell(account) {
+            if (!hasRowActions) {
+                return "";
+            }
+
+            var id = htmlEncode(accountId(account));
+            var actions = "";
+            if (canEdit) {
+                actions += '<button type="button" class="coa-edit" data-account-id="' +
+                    id + '">Edit</button>';
+            }
+            if (canDelete) {
+                actions += '<button type="button" class="coa-delete text-danger" data-account-id="' +
+                    id + '">Delete</button>';
+            }
+
+            return '<td class="coa-actions-cell"><details class="coa-actions">' +
+                '<summary aria-label="Account actions" title="Account actions">' +
+                '<i class="ti ti-dots-vertical"></i></summary>' +
+                '<div class="coa-actions-menu">' + actions + '</div></details></td>';
+        }
+
+        function renderAccount(account, depth, ancestorsVisible, query, matchInfo, html, visited) {
+            var id = accountId(account);
+            if (visited[id]) {
+                return;
+            }
+            visited[id] = true;
+
+            var info = matchInfo[id] || { included: true, expand: false };
+            if (query && !info.included) {
+                return;
+            }
+
+            var children = account.children || [];
+            var hasChildren = children.length > 0;
+            var expanded = !!expandedAccounts[id] || (query && info.expand);
+            var indentation = depth * 18;
+            var expander = hasChildren
+                ? '<button type="button" class="coa-tree-toggle" data-account-id="' +
+                    htmlEncode(id) + '" aria-expanded="' + (expanded ? "true" : "false") +
+                    '" aria-label="' + (expanded ? "Close" : "Open") +
+                    ' child accounts"><i class="ti ' +
+                    (expanded ? "ti-chevron-down" : "ti-chevron-right") +
+                    '"></i></button>'
+                : '<span class="coa-tree-spacer"></span>';
+
+            html.push(
+                '<tr class="' + (hasChildren ? "coa-parent-account" : "") +
+                '" style="display:' + (ancestorsVisible ? "table-row" : "none") + '">' +
+                '<td><div class="coa-account-cell" style="padding-left:' + indentation + 'px">' +
+                expander +
+                '<span class="coa-account-label">' + htmlEncode((account.AccountNo || "") + "-" +
+                    (account.AccountName || "")) + '</span></div></td>' +
+                '<td>' + htmlEncode(account.AccountTypes || "") + '</td>' +
+                    '<td class="coa-balance-cell"><a href="#" class="coa-balance-link" data-account-no="' +
+                        htmlEncode(account.AccountNo || "") + '" data-account-name="' +
+                        htmlEncode(account.AccountName || "") + '" title="View transaction detail">' +
+                        formatBalance(account.Balance) + '</a></td>' +
+                    '<td class="coa-memo">' + htmlEncode(account.Memo || "") + '</td>' +
+                actionCell(account) +
+                '</tr>'
+            );
+
+            children.forEach(function (child) {
+                renderAccount(
+                    child,
+                    depth + 1,
+                    ancestorsVisible && expanded,
+                    query,
+                    matchInfo,
+                    html,
+                    visited
+                );
+            });
+        }
+
+        function renderTree() {
+            var query = $.trim($("#coaSearch").val() || "").toLowerCase();
+            var matchInfo = Object.create(null);
+            if (query) {
+                roots.forEach(function (account) {
+                    markSearchMatches(account, query, matchInfo);
+                });
+            }
+
+            var html = [];
+            var visited = Object.create(null);
+            roots.forEach(function (account) {
+                renderAccount(account, 0, true, query, matchInfo, html, visited);
+            });
+            accounts.forEach(function (account) {
+                if (!visited[accountId(account)]) {
+                    renderAccount(account, 0, true, query, matchInfo, html, visited);
+                }
+            });
+
+            if (!html.length) {
+                html.push('<tr><td colspan="' + (hasRowActions ? 5 : 4) +
+                    '">No accounts found.</td></tr>');
+            }
+            $("#coaRows").html(html.join(""));
+        }
+
+        function showError(message) {
+            $("#coaError").text(message).show();
+        }
+
+        function loadAccounts() {
+            $("#coaError").hide();
+            $.ajax({
+                url: "@Url.Action("GetChartOfAccountTree", "ChartOfAccount")",
+                type: "GET",
+                dataType: "json",
+                headers: { Authorization: "Bearer " + (window.access_Token || "") },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("x-custom-header", JSON.stringify(headerPara));
+                },
+                success: function (response) {
+                    if (!response || !$.isArray(response.rows)) {
+                        showError("The Chart of Accounts response is invalid.");
+                        return;
+                    }
+
+                    accounts = response.rows;
+                    buildAccountTree(accounts);
+                    renderTree();
+                },
+                error: function (xhr) {
+                    var message = "Could not load Chart of Accounts.";
+                    if (xhr && xhr.statusText) {
+                        message += " " + xhr.status + " " + xhr.statusText;
+                    }
+                    showError(message);
+                }
+            });
+        }
+
+        window.Reload_ChartOfAccountTree = loadAccounts;
+
+        function notifyError(message) {
+            if (typeof DialogSweetAlert === "function") {
+                DialogSweetAlert("error", message);
+            } else if (window.Swal) {
+                Swal.fire("Error", message, "error");
+            } else {
+                window.alert(message);
+            }
+        }
+
+        function editAccount(id) {
+            ShowDialogBox(
+                "Edit Chart Of Account",
+                "600",
+                "600",
+                "ChartOfAccount/CreateChartOfAccount",
+                id,
+                "",
+                false,
+                "",
+                "",
+                function () {
+                    $("#modal-default").one("hide.bs.modal", loadAccounts);
+                }
+            );
+        }
+
+        function deleteAccount(id) {
+            Swal.fire({
+                title: "Delete this account?",
+                text: "This action cannot be undone.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Delete"
+            }).then(function (result) {
+                if (!result.value && !result.isConfirmed) {
+                    return;
+                }
+
+                $.ajax({
+                    url: "DoActionData/DeleteData",
+                    type: "POST",
+                    dataType: "json",
+                    headers: {
+                        Authorization: "Bearer " + (window.access_Token || "")
+                    },
+                    data: {
+                        FieldName: "ChartOfAccountID",
+                        DataID: id,
+                        TableName: "TblChartOfAccount",
+                        DeleteUseProcedureName: "",
+                        DeleteWithTableName: "",
+                        DeletePrimaryTblName: "",
+                        DeletePrimaryFiledName: "",
+                        DeletePrimaryValue: "",
+                        DeletePrimaryTblNameDependOnTblName: "",
+                        FormID: "TblChartOfAccount",
+                        ClearByDates: new Date().toString()
+                    },
+                    beforeSend: function (xhr) {
+                        if (typeof headerPara !== "undefined") {
+                            xhr.setRequestHeader(
+                                "x-custom-header",
+                                JSON.stringify(headerPara)
+                            );
+                        }
+                    },
+                    success: function (response) {
+                        if (Number(response.Result) !== 1) {
+                            loadAccounts();
+                            if (typeof DialogSweetAlert === "function") {
+                                DialogSweetAlert("deleteted");
+                            }
+                            return;
+                        }
+
+                        notifyError(response.Message || "The account could not be deleted.");
+                    },
+                    error: function (xhr) {
+                        notifyError(
+                            xhr.status + " " + (xhr.statusText || "Delete request failed")
+                        );
+                    }
+                });
+            });
+        }
+
+        $(function () {
+            $("#coaSearch").on("input", renderTree);
+
+            $("#chartOfAccountTree")
+                .on("click", ".coa-tree-toggle", function () {
+                    var id = String($(this).attr("data-account-id"));
+                    expandedAccounts[id] = !expandedAccounts[id];
+                    renderTree();
+                })
+                .on("click", ".coa-edit", function () {
+                    editAccount(Number($(this).attr("data-account-id")));
+                })
+                .on("click", ".coa-delete", function () {
+                    deleteAccount(Number($(this).attr("data-account-id")));
+                })
+                .on("click", ".coa-balance-link", function (event) {
+                    event.preventDefault();
+                    if (typeof window.openAccountingTransactionDetailFromChart !== "function") {
+                        notifyError("The Accounting Report service is unavailable.");
+                        return;
+                    }
+
+                    window.openAccountingTransactionDetailFromChart(
+                        $(this).attr("data-account-no"),
+                        $(this).attr("data-account-name")
+                    );
+                });
+
+            $("#coaAdd").on("click", function () {
+                if (typeof AddNewChartOfAccount === "function") {
+                    AddNewChartOfAccount("ChartOfAccountTree");
+                } else {
+                    notifyError("The Add Chart of Account dialog is unavailable.");
+                }
+            });
+
+            loadAccounts();
+        });
+    })();
+</script>

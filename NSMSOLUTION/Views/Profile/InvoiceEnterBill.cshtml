@@ -1,0 +1,875 @@
+﻿
+@using System.Data
+@{
+    Layout = null;
+    //var dataRow1 = ViewBag.Data[0].Rows[0];
+    //var dataRow2 = ViewBag.Data[1].Rows[0];
+    //var dataRow3 = ViewBag.Data[2].Rows[0];
+    //var dataRow4 = ViewBag.Data[3].Rows;
+
+
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
+<style>
+    .moul-regular {
+        font-family: "Moul", serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .mytable-head tr td {
+        padding-bottom: 0 !important;
+    }
+
+        .mytable-head tr td:first-child {
+            font-weight: bold;
+        }
+
+    .mytable th, .mytable td {
+        border: 1px solid #000000 !important;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    @@media print {
+        @@page {
+            size: A3 !important;
+            margin: 20px 20px 0 50px !important;
+        }
+
+        .footer {
+            width: calc(100% - 20px) !important;
+            position: fixed;
+            bottom: 0 !important;
+        }
+
+        .deposit {
+            border: none;
+            outline: none;
+        }
+
+            .deposit::placeholder {
+                color: transparent;
+            }
+    }
+</style>
+<nav class="navbar sticky-top justify-content-end">
+    <div class="row">
+        <div class="col text-right p-2">
+            <div class="panel-toolbar">
+                <div class="btn-group flex-wrap" role="group">
+                    <a href="javascript:void(0);" id="Edit" class="btn btn-sm btn-warning text-white" data-toggle="tooltip" data-animation="true" data-placement="top" title="Edit" data-bs-original-title="Edit"><i class="fa-solid fa-pencil"></i> <span class="d-none d-md-inline">Edit</span></a>
+                    <a href="javascript:void(0);" id="ShowHideImages" class="btn btn-danger btn-sm text-white"><i class="fa fa-eye-slash"></i> <span class="d-none d-md-inline">Hide Images</span></a>
+                    <a href="javascript:void(0);" id="ClonePO" class="btn btn-sm btn-secondary text-white" data-toggle="tooltip" data-animation="true" data-placement="top" title="Clone PO" data-bs-original-title="Clone PO"><i class="fa fa-copy"></i> <span class="d-none d-md-inline">Clone PO</span></a>
+                    <a href="javascript:void(0);" id="CloneBill" class="btn btn-sm btn-secondary text-white" data-toggle="tooltip" data-animation="true" data-placement="top" title="Clone Bill" data-bs-original-title="Clone Bill"><i class="fa fa-copy"></i> <span class="d-none d-md-inline">Clone Bill</span></a>
+                    <a href="javascript:void(0);" onclick="ShowBill('PO');" id="ShowPO" class="btn btn-sm btn-danger" data-toggle="tooltip" data-animation="true" data-placement="top" title="Show PO" data-bs-original-title="Show PO"><i class="fas fa-file"></i> <span class="d-none d-md-inline">Show PO</span></a>
+                    <a href="javascript:void(0);" onclick="ShowBill('Bill');" id="ShowBill" class="btn btn-sm btn-warning text-white" data-toggle="tooltip" data-animation="true" data-placement="top" title="Show Bill" data-bs-original-title="Show Bill"><i class="fas fa-file-invoice"></i> <span class="d-none d-md-inline">Show Bill</span></a>
+                    <a href="javascript:void(0);" onclick="ShowBill('ReceivedNote');" id="ReceivedNote" class="btn btn-sm btn-info" data-toggle="tooltip" data-animation="true" data-placement="top" title="Goods Received Note" data-bs-original-title="Goods Received Note"><i class="fas fa-tasks"></i> <span class="d-none d-md-inline">GSRN</span></a>
+                    <a href="javascript:void(0);" onclick="ShowBill('PaymentVoucher');" id="PaymentVoucher" class="btn btn-sm btn-danger" data-toggle="tooltip" data-animation="true" data-placement="top" title="Payment Voucher (Disburse)" data-bs-original-title="Payment Voucher (Disburse)"><i class="fas fa-file-invoice-dollar"></i> <span class="d-none d-md-inline">Payment Voucher (Disburse)</span></a>
+                    <div class="btn-group " role="group">
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-envelope"></i> <span class="d-none d-md-inline">Send Email</span>
+                            <span class="caret"></span>
+                        </button>
+                        <div class="dropdown-menu" role="menu" style="">
+                            <span name="forUnpaidInvoice">
+                                <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_created" onclick="sendEmail('mail_invoice_created');">Invoice Created</a>
+                                <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_reminder" onclick="sendEmail('mail_invoice_reminder');">Invoice Payment Reminder</a>
+                                <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_overdue" onclick="sendEmail('mail_invoice_overdue');">Invoice Overdue Notice</a>
+                            </span>
+                            <span name="forPaidInvoice" style="display:none">
+                                <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_confirm" onclick="sendEmail('mail_invoice_confirm');">Invoice Payment Confirmation</a>
+                                @*<a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_refund" onclick="sendEmail('mail_invoice_refund');">Invoice Refund Confirmation</a>*@
+                            </span>
+                        </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-file-pdf-o"></i>
+                            <span class="d-none d-md-inline">PDF</span>
+                            <span class="caret"></span>
+                        </button>
+                        <div class="dropdown-menu" role="menu">
+                            <a id="ViewPDF" class="dropdown-item" href="javascript:void(0);">View PDF</a>
+                            <a id="Download_PDF" class="dropdown-item" href="javascript:void(0);">Download PDF</a>
+                        </div>
+                    </div>
+                    <a href="javascript:void(0);" id="NewVendorPO" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-animation="true" data-placement="top" title="New PO" data-bs-original-title="New PO"><i class="fa fa-file"></i> <span class="d-none d-md-inline">New PO</span></a>
+                    <a href="javascript:void(0);" id="NewVendorBill" class="btn btn-sm btn-primary" data-toggle="tooltip" data-animation="true" data-placement="top" title="New Bill" data-bs-original-title="New Bill"><i class="fa fa-file"></i> <span class="d-none d-md-inline">New Bill</span></a>
+                    <a href="javascript:void(0);" id="Print" class="btn btn-default btn-sm"><i class="fa fa-print"></i> <span class="d-none d-md-inline">Print</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<div  id="div_PO">
+    <div class="wrapper" id="divInvoiceEnterBill">
+        <div class="row justify-content-between align-items-start">
+
+            <div class="col-6 mt-4 mb-4">
+                <div class="">
+
+                    @*<img src="../Uploads/WarehouseLogo/@ViewBag.ClassLogo" width="200" />*@
+                    <img class="img-fluid" src="../Uploads/WarehouseLogo/NSM-ISPLOGOPNG-169319650995441.png" width="200">
+
+                </div>
+            </div>
+            <div class="col-6 mt-4 mb-4 text-right">
+                <div>
+                    <small class="text text-sm">Print Date: @ViewBag.printDate</small>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-12 mb-4" style="text-align: center; margin-top: 10px;">
+            <h4 class="page-header mb-2 moul-regular" style="font-size: 20px;">បង្កាន់ដៃបង់ប្រាក់</h4>
+            <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif; font-size: 20px;">Enter Bill</h4>
+        </div>
+
+
+    </div>
+
+    @*ViewBag.VendorName = drPOInfo["WarehouseName"].ToString();
+        ViewBag.VendorAddress = drPOInfo["DeliverTo"].ToString();
+        ViewBag.VendorPhone = drcomInfo["Phone"].ToString();
+        ViewBag.CompanyName = drvendorInfo["VendorName"].ToString();*@
+    <div class="row justify-content-between">
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border: 0 !important;width: 100%;">
+                <tr>
+                    <td width="30%">From</td>
+                    <td>@ViewBag.CompanyName</td>
+                </tr>
+                <tr>
+                    <td>Address:</td>
+                    <td>@ViewBag.CompanyAddress</td>
+                </tr>
+                <tr>
+                    @*ViewBag.ContactPhone  = drvendorInfo["ContactPhoneNumber"].ToString();*@
+                    <td>Phone:</td>
+                    <td>@ViewBag.ContactPhone</td>
+                </tr>
+                <tr>
+                    <td>ATTN:</td>
+                    <td>@ViewBag.AttVendor</td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td>@ViewBag.BillingEmail</td>
+                </tr>
+            </table>
+        </div>
+
+        @*ViewBag.CompanyAddress = drvendorInfo["Address"].ToString();
+            ViewBag.CompanyPhone =  drvendorInfo["HendPhone"].ToString();
+            ViewBag.CompanyContactName = drvendorInfo["ContactPersonName"].ToString();*@
+
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border: 0 !important;width: 100%;">
+                <tr>
+                    <td class="text-right">To</td>
+
+                    <td>@ViewBag.VendorName</td>
+                </tr>
+                <tr>
+                    <td width="60%" class="text-right">Address:</td>
+                    <td>@ViewBag.VendorAddress</td>
+                </tr>
+                <tr>
+                    <td class="text-right">ATTN</td>
+
+                    <td>@ViewBag.AttOurCom</td>
+                </tr>
+                <tr>
+                    <td width="60%" class="text-right">Bill Number#:</td>
+                    <td>@ViewBag.BillNumber</td>
+                </tr>
+                <tr>
+                    <td class="text-right">Order Number#:</td>
+                    <td>@ViewBag.orderNumber</td>
+                </tr>
+                <tr>
+                    <td class="text-right">Payment Terms:</td>
+                    <td>@ViewBag.paymentTerm</td>
+                </tr>
+                <tr>
+                    <td class="text-right">Payment Due:</td>
+                    <td style="color: #007bff; "> @ViewBag.paymentDue</td>
+                </tr>
+                @*<tr>
+                        <td class="text-right">Requested By:</td>
+                        <td>@dataRow3["RequestBy"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Need To Deposit:</td>
+                        <td style="color: #dc3545">@dataRow3["NeedToDeposit"].ToString()</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Status:</td>
+                        <td>@Html.Raw(HttpUtility.HtmlDecode(@dataRow3["Status"].ToString()))</td>*@
+                </tr>
+            </table>
+        </div>
+    </div>
+    <table class="table table-bordered mytable">
+        <thead style="background: #f89c39;color: #fff;">
+            <tr style="text-align:center;">
+                <th width="5%">#</th>
+             
+                <th width="40%">Item</th>
+                <th>QTY</th>
+                <th>UOM</th>
+                <th>Unit Price</th>
+                <th>Sale Price</th>
+                <th>Discount$</th>
+                <th width="10%">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*@{
+                    int i = 0;
+                    MVC.HTML html = new MVC.HTML();
+                    foreach (DataRow dr in dataRow4)
+                    {
+                        i++;
+                        <tr>
+                            <td class="text-right">@i</td>
+                            <td>
+                                @dr["ItemName"].ToString()
+                                @if (!string.IsNullOrEmpty(dr["ItemName"].ToString()))
+                                {
+                                    <br>
+                                    <p class="text-nowrap-pre text-muted">@Html.Raw(HttpUtility.HtmlDecode(dr["ItemDescription"].ToString()))</p>
+                                }
+                            </td>
+                            <td class="text-center">@dr["QTY"].ToString()</td>
+                            <td class="text-center">@dr["UM"].ToString()</td>
+                            <td class="text-center">$@float.Parse(dr["UnitPrice"].ToString()).ToString("#,#0.00")</td>
+                            <td class="text-center">$@dr["SalePrice"].ToString()</td>
+                            <td class="text-center">$@dr["DisUSD"].ToString()</td>
+                            <td class="text-center">$@dr["Amount"].ToString()</td>
+                        </tr>
+                    }
+                }*@
+            @{
+                int i = 0;
+                var table = ViewBag.TableData as System.Data.DataTable;
+                string type = ViewBag.Type as string; // e.g. "ReceivingNote" or others
+            }
+
+            @if (table != null && table.Rows.Count > 0)
+            {
+                foreach (System.Data.DataRow dr in table.Rows)
+                {
+                    i++;
+                    <tr>
+                        <td class="text-right">@i</td>
+
+                        <!-- ✅ Image -->
+                        @*<td class="img">
+                            @if (!string.IsNullOrEmpty(dr["ItemImage"]?.ToString()))
+                            {
+                                <img src="@("../Uploads/Items/" + dr["ItemImage"])" class="rounded m-2" height="80" />
+                            }
+                        </td>*@
+
+                        <!-- ✅ Item name and description -->
+                        <td>
+                            @dr["ItemName"]
+                            @if (!string.IsNullOrEmpty(dr["ItemDescription"]?.ToString()))
+                            {
+                                <br />
+                                <p class="text-nowrap-pre text-muted">
+                                    @Html.Raw(HttpUtility.HtmlDecode(dr["ItemDescription"].ToString()))
+                                </p>
+                            }
+                        </td>
+
+                        <!-- ✅ Conditional columns -->
+                        @if (type != "ReceivingNote" && type != "ReceivingNoteFromStockInOnly")
+                        {
+                            <td class="text-center">@float.Parse(dr["QTY"].ToString()).ToString("#,#0.000")</td>
+                            <td class="text-center">@dr["UM"]</td>
+                            <td class="text-center">$@float.Parse(dr["UnitPrice"].ToString()).ToString("#,#0.00")</td>
+                            <td class="text-center">$@dr["SalePrice"]</td>
+                            <td class="text-center">$@dr["DisUSD"]</td>
+                            <td class="text-center">$@dr["Amount"]</td>
+                        }
+                        else
+                        {
+                            <td class="text-center">@float.Parse(dr["OrderQTY"].ToString()).ToString("#,#0.000")</td>
+                            <td class="text-center">@float.Parse(dr["QTY"].ToString()).ToString("#,#0.000")</td>
+                            <td class="text-center">@dr["UM"]</td>
+                            <td class="text-center">@float.Parse(dr["QTYUnusable"].ToString()).ToString("#,#0.000")</td>
+                            <td class="text-center">@dr["Reason"]</td>
+                        }
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No data available</td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td rowspan="6" colspan="5">
+                    <div class="img">
+                        @*@{
+                                foreach (DataRow dr in ViewBag.Data[4].Rows)
+                                {
+                                    if (@dr["FileName"].ToString() != "" && @dr["FileName"].ToString() != "AttachmentFile")
+                                    {
+                                        <img height="120" style="margin: 10px 10px 0 0;" src="../@dr["DestinationFolder"]/@dr["FileName"]">
+                                    }
+                                }
+                            }*@
+                    </div>
+                </td>
+                @*ViewBag.SubTotal = drPOInfo["SubTotal"].ToString();
+                    ViewBag.Tax = drPOInfo["Tax"].ToString();
+                    ViewBag.DiscuntUsa = drPOInfo["DiscountUSD"].ToString();
+                    ViewBag.VAT = drPOInfo["VAT"].ToString();*@
+                <th class="text-right" colspan="2">Subtotal:</th>
+                <td class="text-center">@ViewBag.SubTotal</td>
+                @*<td class="text-center">$@dataRow3["SubTotal"].ToString()</td>*@
+            </tr>
+            <tr>
+                <th class="text-right" colspan="2">Tax :</th>
+                <td class="text-center">@ViewBag.VAT</td>
+            </tr>
+            <tr>
+                <th class="text-right" colspan="2">Discount $:</th>
+                <td class="text-center">@ViewBag.DiscuntUsa</td>
+            </tr>
+
+            <tr>
+                <th class="text-right" colspan="2">GrandTotal:</th>
+                <td class="text-center">@ViewBag.GrandTotal</td>
+            </tr>
+            <tr>
+                <th class="text-right" colspan="2">Amount Paid:</th>
+                <td class="text-center">@ViewBag.AmountPaid</td>
+            </tr>
+            <tr>
+                <th class="text-right" colspan="2">Balance:</th>
+                <td class="text-center">@ViewBag.Balance</td>
+            </tr>
+            @*@if (dataRow3["ClassName"].ToString() == "NSM")
+                {
+                    <tr>
+                        <th class="text-right" colspan="2">Tax @dataRow3["Tax"].ToString():</th>
+                        <td class="text-center">$@dataRow3["VAT"].ToString()</td>
+                    </tr>
+                }
+                <tr>
+                    <th class="text-right" colspan="2">Grand Total:</th>
+                    <td class="text-center">$@dataRow3["GrandTotal"].ToString()</td>
+                </tr>*@
+        </tfoot>
+    </table>
+    <div class="row">
+        <div class="col-12">
+            @*@if (dataRow3["CustomerNotes"].ToString() != "")
+                {
+                    <strong>Remark</strong>
+                    <p id="p_CustomerNotes" class="text-nowrap-pre well well-sm shadow-none">@Html.Raw(HttpUtility.HtmlDecode(dataRow3["CustomerNotes"].ToString()))</p>
+                }
+                @if (dataRow3["TermsConditions"].ToString() != "")
+                {
+                    <strong>Terms & Conditions</strong>
+                    <p id="TermCondition" class="text-nowrap-pre well well-sm shadow-none">@Html.Raw(HttpUtility.HtmlDecode(dataRow3["TermsConditions"].ToString()))</p>
+                }
+                @if (dataRow3["BankInformation"].ToString() != "")
+                {
+                    <strong>Bank Information</strong>
+                    <p id="BankInformation" class="text-nowrap-pre  well well-sm shadow-none" style="margin-top: 10px; color: #007bff;">@Html.Raw(HttpUtility.HtmlDecode(dataRow3["BankInformation"].ToString()))</p>
+                }*@
+            @*<strong>@ViewBag.CustomerNote</strong>*@
+            <strong>@Html.Raw(ViewBag.CustomerNote)</strong>
+
+        </div>
+    </div>
+
+    <footer class="footer" style="margin-bottom: 50px !important">
+        <div class="row justify-content-between" style="margin-top:100px; margin-bottom: 20px !important">
+            <div class="col-3">
+                <div class="text-center" style="height:90px">
+                    @*@if (ViewBag.CreateBySignature != "")
+                        {
+                            <img height="90" src="../Uploads/Users/@ViewBag.CreateBySignature">
+                        }*@
+                    @if (ViewBag.IssuedBySignature != "")
+                    {
+                        <img height="90" src="../Uploads/Users/@ViewBag.IssuedBySignature">
+                    }
+                </div>
+                <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase text-nowrap">Issued By</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="col-form-label text-nowrap">Name: @ViewBag.IssuedBy</label><br />
+                        <label class="col-form-label">Position: @(ViewBag.IssuedByPosition ?? "")</label><br />
+                        <label class="col-form-label text-nowrap">Date: @ViewBag.IssuedByDate</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="text-center" style="height:90px">
+                    @*@if (ViewBag.IssuedBySignatures != "")
+                        {
+                            <img height="90" src="../Uploads/Users/@ViewBag.IssuedBySignatures">
+                        }*@
+                </div>
+                <hr style="height:2px;width:100%;border-width:0;color:#000;background-color:#000" />
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase text-nowrap">Approved By</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        @{<label class="col-form-label text-nowrap">
+                                Name:
+                                @*@if (dataRow3["ApproveBy"].ToString() != "")
+                                    {
+                                        if (dataRow3["ApproveByUserID"].ToString() == "38")
+                                        {
+                                            <span>Boss</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@dataRow3["ApproveBy"].ToString()</span>
+                                        }
+                                    }*@
+                            </label><br />
+                        }
+                        <label class="col-form-label">Position:</label><br />
+                        <label class="col-form-label text-nowrap">Date:</label>
+                        @*<label class="col-form-label">Position: @dataRow3["ApprovedByPosition"].ToString()</label><br />
+                            <label class="col-form-label text-nowrap">Date: @dataRow3["ApprovalDate"].ToString()</label>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+
+<script>
+    var url = $(location).attr('href');
+    var UrlEndPoint = url.split("/")[4];
+    var BillNumber = "@ViewBag.BillNumber";
+    var PurchaseOrderID = "@ViewBag.PurchaseOrderID";
+    var PaymentStatus = "@ViewBag.PaymentStatus";
+    var BillID = "@ViewBag.BillID";
+    var BillType = "@ViewBag.BillType";
+    var OfficialReceipt = "@ViewBag.OfficialReceipt";
+    var Status_ID = "@ViewBag.StatusID";
+    var Type = "@ViewBag.Type";
+    var POID = "@ViewBag.POID";
+    var PONumber = "@ViewBag.PONumber";
+    var VendorID = "@ViewBag.VendorID";
+    var div_show_PO = "";
+    var div_show_Bill = "";
+    var div_show_info = "";
+    var div_show_receivedNote = "";
+    var div_show_PaymentVoucher = "";
+    var StockInID = "@ViewBag.StockInID";
+    var StockInStatusID = "@ViewBag.StockInStatusID";
+    $(function () {
+        $("#PaymentVoucher").hide();
+        $("#NewVendorBill").click(function () {
+            NewBill(VendorID);
+        });
+        $("#NewVendorPO").click(function () {
+            NewPurchaseOrder(VendorID);
+        });
+        if (BillID == "") {
+            $("#ShowBill").hide();
+        }
+        $("#ClonePO").hide();
+        $("#CloneBill").hide();
+        $("#ReceivedNote").hide();
+        $('#ShowHideImages').click(function () {
+            $('.img').toggle();
+            if ($('.img').is(':hidden')) {
+                $(this).html('<i class="fa fa-eye"></i> <span class="d-none d-md-inline">Show Images</span>');
+            } else {
+                $(this).html('<i class="fa fa-eye-slash"></i> <span class="d-none d-md-inline">Hide Images</span>');
+            }
+        });
+        if (Type == 'PO') {
+            if (Status_ID != 60 && Status_ID != 91) {
+                $("#Edit").remove();
+            }
+            $("#ClonePO").show();
+            $("#Edit").click(function () {
+                var URL = 'PurchaseOrder/CreatePurchaseOrder?PrimaryFieldValue=' + POID + '&Type=EditPO';
+                ShowDialogBox("Edit Purchase Order", "Auto", 600, URL, POID);
+            });
+            $("#ClonePO").click(function () {
+                var URL = 'PurchaseOrder/CreatePurchaseOrder?PrimaryFieldValue=' + POID + '&Type=EditPO&Clone=true';
+                ShowDialogBox("Clone Purchase Order", "Auto", 600, URL, POID);
+            });
+        }
+        else if (Type == 'Bill') {
+            $("#CloneBill").show();
+            $("#ShowBill").show();
+            //if (BillType == "Stock In") {
+            //    $("#ReceivedNote").show();
+            //}
+            //else
+            if (BillType == "Bill") {
+                if (UrlEndPoint == "EnterBill" && StockInID == "") {
+                    $("#ConfirmReceivingPO").remove();
+                    $("#ConfirmReceivingPO_FromBill").remove();
+                    var btn = "<div class=\"\"><button type=\"button\" id=\"ConfirmReceivingPO_FromBill\" class=\"btn btn-warning text-white\">";
+                    btn += '<i class="fa fa-download"></i> Confirm Receive This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+            }
+            $("#ConfirmReceivingPO_FromBill").click(function () {
+                //var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=Stock In';
+                var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+                ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+            });
+            $("#Edit").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=' + BillType;
+                ShowDialogBox("Edit Bill", "Auto", 600, URL, POID);
+            });
+            $("#CloneBill").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Clone=true&Status=' + BillType;
+                ShowDialogBox("Close Bill", "Auto", 600, URL, POID);
+            });
+        }
+        $("#Print").click(function () {
+            $("#div_PO").printThis();
+        });
+
+        if (PaymentStatus == 14) {
+            $("#Edit").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + POID + '&Type=EditBill&Status=ConvertToCreditNote';
+                ShowDialogBox("Edit Credit Note", "Auto", 600, URL, POID);
+            });
+        }
+
+        var row = '<i class="fa fa-print" aria-hidden="true"></i> Print';
+        $("#SaveChange").html(row);
+        $("#SaveChange").click(function () {
+            $("#div_PO").printThis();
+        });
+        if (Type == 'PO') {
+            //if (Status_ID == 60 || Status_ID == 66) {
+            //if (BillType == "Bill") {
+            //    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO();\" id=\"ConfirmReceivingPO\" class=\"btn btn-warning text-white\">";
+            //    btn += '<i class="fa fa-download"></i> Confirm Receive This PO</button></div>';
+            //    $("#SaveChange").before(btn);
+            //}
+            let POStatus = "@ViewBag.POStatus";
+
+            if (Status_ID == 60 || Status_ID == 90 || Status_ID == 91 || Status_ID == 92) {
+                if (POStatus == 0) {
+                    if (UrlEndPoint == "AuthorizePurchaseOrder") {
+                        let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(92);\" id=\"CheckVerify\" class=\"btn btn-primary\">";
+                        btn += '<i class="fa-duotone fa-check-to-slot"></i> CheckVerify This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                        btn += '<i class="fa-regular fa-ban"></i> Disapprove This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                        btn += '<i class="fa-regular fa-check-double"></i> Approve This PO</button></div>';
+                        $("#SaveChange").before(btn);
+
+                    } else {
+                        if (BillID == "" && StockInID == "" && StockInStatusID == "") {
+                            var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                            btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Bill</button></div>';
+                            $("#SaveChange").before(btn);
+                            var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                            btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Received</button></div>';
+                            $("#SaveChange").before(btn);
+                        }
+                    }
+                }
+                else if (POStatus == 90) {
+                    if (UrlEndPoint == "AuthorizePurchaseOrder") {
+                        let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                        btn += '<i class="fa-regular fa-ban"></i> Disapprove This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                    }
+                }
+                else if (POStatus == 91) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                    btn += '<i class="fa-regular fa-check-double"></i> Approve This PO</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+                else if (POStatus == 92) {
+                    if (UrlEndPoint == "AuthorizePurchaseOrder") {
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(91);\" id=\"DisapprovePO\" class=\"btn btn-danger\">";
+                        btn += '<i class="fa-regular fa-ban"></i> Disapprove This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"ApprovePO(90);\" id=\"ApprovePO\" class=\"btn btn-primary\">";
+                        btn += '<i class="fa-regular fa-check-double"></i> Approve This PO</button></div>';
+                        $("#SaveChange").before(btn);
+                    }
+                }
+            }
+            if (Status_ID == 90) {
+                if (UrlEndPoint == "PurchaseOrder" && BillID == "") {
+                    var btn = "<div class=\"\"><button type=\"button\" onclick=\"CloseCancelPO('cancel');\" id=\"CancelPO\" class=\"btn btn-warning text-white\">";
+                    btn += '<i class="fa-solid fa-xmark"></i> Cancel PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    var btn = "<div class=\"\"><button type=\"button\" onclick=\"CloseCancelPO('close');\" id=\"ClosePO\" class=\"btn btn-danger\">";
+                    btn += '<i class="fa-solid fa-xmark"></i> Close PO</button></div>';
+                    $("#SaveChange").before(btn);
+                    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                    btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Bill</button></div>';
+                    $("#SaveChange").before(btn);
+                    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                    btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Received</button></div>';
+                    $("#SaveChange").before(btn);
+                }
+            }
+            if (UrlEndPoint == "GoodsReceived" && BillID=="") {
+                var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBillFromReceived');\" id=\"ConvertToBill\" class=\"btn btn-info\">";
+                btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Bill</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+        //if (UrlEndPoint == "GoodsReceived" && BillID == "") {
+        //    var btn = "<div class=\"\"><button type=\"button\" onclick=\"ConfirmReceivingThisPO('ConvertToBill');\" id=\"ConvertToBill\" class=\"btn btn-danger\">";
+        //    btn += '<i class="fa fa-file-invoice-dollar"></i> Convert To Bill</button></div>';
+        //    $("#SaveChange").before(btn);
+        //}
+        if (Status_ID == 64 && Status_ID != "" && Status_ID != 10 && Status_ID != 60 && Status_ID != 65 && PaymentStatus != 10 && PaymentStatus != 14) {
+            if (UrlEndPoint == "EnterBill") {
+
+                $("#VendorPaymentsMade").remove();
+                var btn = "<div class=\"\"><button type=\"button\" onclick=\"VendorPaymentsMade(" + VendorID + ", '', '" + BillID + "');\" id=\"VendorPaymentsMade\" class=\"btn btn-danger\">";
+                btn += '<i class="fa fa-file-invoice-dollar"></i> Payments</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+
+        if (UrlEndPoint == "EnterBill") {
+            $("#ReceivedNote").show();
+            $("#VendorCreditNote").remove();
+            var btn = "<div class=\"\"><button type=\"button\" id=\"VendorCreditNote\" class=\"btn btn-info\">";
+            btn += '<i class="fa fa-add"></i> Convert To Credit Note</button></div>';
+            $("#SaveChange").before(btn);
+
+            $("#VendorCreditNote").click(function () {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + BillID + '&Type=EditBill&Clone=true&Status=ConvertToCreditNote';
+                ShowDialogBox("Credit Note", "Auto", 600, URL, BillID);
+            });
+        }
+        if (PaymentStatus == 10 || PaymentStatus == 15) {
+            $("#PaymentVoucher").show();
+        }
+        if (PurchaseOrderID == 0)
+            $("#ShowPO").hide();
+        if (PaymentStatus == 11) {
+            if (UrlEndPoint == "EnterBill") {
+                $("#VendorPaymentsMade").remove();
+                let btn = "<div class=\"\"><button type=\"button\" onclick=\"VendorPaymentsMade(" + VendorID + ", '', '" + BillID + "');\" id=\"VendorPaymentsMade\" class=\"btn btn-danger\">";
+                btn += '<i class="fa fa-file-invoice-dollar"></i> Payments</button></div>';
+                $("#SaveChange").before(btn);
+            }
+        }
+
+
+        GetInvoicePO();
+        if (Type == "PO") {
+            const res = CheckPOHasStockIN();
+            if (res.qty > 0) {
+                $("#CancelPO").hide();
+                $("#ClosePO").toggle(!res.IsClose);
+            } else {
+                $("#ClosePO").hide();
+                $("#CancelPO").toggle(!res.IsCancel);
+            }
+        }
+
+    });
+
+    function CloseCancelPO(status){
+        DoSaveChangeSweetCofirm("PurchaseOrder/CloseCancelPO", { POID: POID, Status: status }, function (result) {
+            if (result.Result == 2) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                $("#BtnSearchVendorPO").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", "");
+    }
+
+    function CheckPOHasStockIN() {
+        let res = 0;
+        LoadData("PurchaseOrder/CheckPOHasStockIN?POID=" + POID, function (response) {
+            res = JSON.parse(JSON.parse(response).data)[0];
+        });
+        return res;
+    }
+
+    function ConfirmReceivingThisPO(Status) {
+        if (BillID != "") {
+            //var URL = 'Bills/CreateBill?PrimaryFieldValue=' + BillID + '&Type=EditBill&Status=Stock In';
+            var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+            ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+        }
+        else {
+            Status = (typeof Status == 'undefined' ? 'Stock In' : Status);
+
+            if (Status == "ConvertToReceived") {
+                var URL = 'AddStockIn/StockIn?PrimaryFieldValue=0&BillID=' + BillID + "&PO_Number=" + encodeURIComponent(PONumber) + "&BillNumber=" + encodeURIComponent(BillNumber);
+                ShowDialogBox("Confirm Receive PO", "Auto", 600, URL, 0);
+            } else if (Status == "ConvertToBillFromReceived") {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + VendorID + '&Type=Bill&PO_Number=' + encodeURIComponent(PONumber) + '&Status=' + Status;
+                Title = "Convert To Bill";
+                ShowDialogBox(Title, "Auto", "600", URL, VendorID);
+            } else {
+                var URL = 'Bills/CreateBill?PrimaryFieldValue=' + VendorID + '&Type=Bill&PO_Number=' + encodeURIComponent(PONumber) + '&Status=' + Status;
+                var Title = "New Bill";
+                if (Status == "ConvertToBill") {
+                    Title = "Convert To Bill";
+                }
+                ShowDialogBox(Title, "Auto", "600", URL, VendorID);
+            }
+        }
+    }
+
+    function ShowBill(Type) {
+        $("#div_show_PO").hide();
+        $("#div_show_Bill").hide();
+        $("#div_show_info").hide();
+        $("#div_show_receivedNote").hide();
+        $("#div_show_PaymentVoucher").hide();
+        if (Type == 'PO') {
+            $("#div_show_PO").show();
+            if (div_show_PO == "") {
+                var url = "Profile/InvoiceEnterBill?VendorID=" + VendorID + "&POID=" + PurchaseOrderID + "&Type=PO&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_PO").html(responetext);
+                    div_show_PO = responetext;
+                });
+            }
+            else {
+                $("#div_show_PO").html(div_show_PO);
+            }
+        }
+        else if (Type == 'Bill') {
+            $("#div_show_Bill").show();
+            if (div_show_Bill == "") {
+                var url = "Profile/InvoiceEnterBill?VendorID=" + VendorID + "&POID=" + BillID + "&Type=Bill&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_Bill").html(responetext);
+                    div_show_Bill = responetext;
+                });
+            }
+            else {
+                $("#div_show_Bill").html(div_show_Bill);
+            }
+        }
+        else if (Type == 'ReceivedNote') {
+            $("#div_show_receivedNote").show();
+            if (div_show_receivedNote == "") {
+                var url = "Profile/InvoiceEnterBill?VendorID=" + VendorID + "&POID=" + BillID + "&Type=ReceivingNote&ReturnHtmlData=true";
+                LoadData(url, function (responetext) {
+                    responetext = JSON.parse(responetext).Data;
+                    $("#div_show_receivedNote").html(responetext);
+                    $("p#p_TermsConditions").remove();
+                    $("div#div_inv_footer").remove();
+                    setTimeout(function () {
+                        div_show_receivedNote = $("#div_show_receivedNote").html();
+                    }, 500);
+                });
+            }
+            else {
+                $("#div_show_receivedNote").html(div_show_receivedNote);
+            }
+        }
+        else if (Type == 'PaymentVoucher') {
+            $("#div_show_PaymentVoucher").show();
+            if (div_show_PaymentVoucher == "") {
+                var url = "Profile/BLPayment?VendorID=" + VendorID + "&OfficialReceipt=" + OfficialReceipt;
+                LoadData(url, function (responetext) {
+                    $("#div_show_PaymentVoucher").html(responetext);
+                    div_show_PaymentVoucher = responetext;
+                });
+            }
+            else {
+                $("#div_show_PaymentVoucher").html(div_show_PaymentVoucher);
+            }
+        }
+    }
+
+    function ApprovePO(POStatus) {
+        if (POStatus == 90 || POStatus == 92) {
+            DoSaveChangeSweetCofirm("PurchaseOrder/ApprovPO", { POID: POID, POStatus: POStatus }, function (result) {
+                if (result.Result == 2) {
+                    $("#CloseModal").click();
+                    $("#BunSearch").click();
+                    $("#BtnSearchVendorPO").click();
+                    LoadTableGrid(CurrentPage);
+                    //PostData("Profile/InvoiceTMP?VendorID=" + response.VendorID + "&POID=" + response.PurchaseOrderID + "&Type=PO&ReturnHtmlData=false&ReturnAllHtmlData=true", "", function (result) {
+                    //    result = JSON.parse(result);
+                    //    response["Data"] = result.Data;
+                    //    PostData("PurchaseOrder/SendNotificationToTelegram", response);
+                    //});
+                }
+            });
+        }
+        else if (POStatus == 91) {
+            DoSaveChangeSweetCofirm("PurchaseOrder/ApprovPO", { POID: POID, POStatus: POStatus, Comment: $("#txtComment").val() }, function (result) {
+                if (result.Result == 2) {
+                    $("#CloseModal").click();
+                    $("#BunSearch").click();
+                    $("#BtnSearchVendorPO").click();
+                    LoadTableGrid(CurrentPage);
+                    //PostData("Profile/InvoiceTMP?VendorID=" + response.VendorID + "&POID=" + response.PurchaseOrderID + "&Type=PO&ReturnHtmlData=false&ReturnAllHtmlData=true", "", function (result) {
+                    //    result = JSON.parse(result);
+                    //    response["Data"] = result.Data;
+                    //    PostData("PurchaseOrder/SendNotificationToTelegram", response);
+                    //});
+                }
+            }, "", "","Disapprove This PO");
+        }
+    }
+
+    function GetInvoicePO() {
+        PostData("PurchaseOrder/InvoicePO?VendorID=" + VendorID + "&POID=" + POID + "&PONumber=" +PONumber, "", function (result) {
+            $(".invoice-po").html(result);
+        });
+    }
+
+</script>
+
+
+<script>
+    $(function () {
+        var contentHeight = $("#divInvoiceEnterBill").height();
+        var a3Height = 1587; //1587; // A3 size in pixels (assuming 96 DPI)
+
+        // Adjust footer position
+        if (contentHeight >= a3Height) {
+            $(".footer").css("cssText", "position: static !important;width: 100%;");
+        }
+    });
+</script>

@@ -1,0 +1,143 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var systemID = "@ViewBag.SystemID";
+    var warehouseID = "@ViewBag.WarehouseID";
+    var primaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var statusID = "@ViewBag.StatusID";
+
+    $(function () {
+        const inputElement = `
+            textarea[name="ItemName"],
+            input[name="QTY"],
+            input[name="UnitPrice"],
+            input[name="EstimateAmount"]
+        `;
+        $(document).on('keyup change', `${inputElement}`, function () {
+            calcSubtotal();
+        });
+
+        setupEventHandler();
+
+        // Trigger the 'typeahead:select' event for any typeahead fields that
+        // have a pre-populated value on page load.
+        $('#PaymentMean, #Department, #NeedNextApprovalBy, #NeedToCheckBy')
+            .each(function () {
+                if ($(this).val().trim() !== '') {
+                    $(this).trigger('typeahead:select');
+                }
+            });
+    });
+
+    function setupEventHandler() {
+        $(document).on('typeahead:select', '#PaymentMean', function () {
+            const pm = $(this).val().trim();
+            $('#VendorName').parent()
+                .toggleClass('validate-input alert-validate', pm === 'COD');
+            $('#VendorName').parent().find('.input-addnew')
+                .toggleClass('d-none', pm !== 'COD')
+            $('#VendorName').prop('disabled', pm !== 'COD');
+            if (pm === 'Advance'){
+                $('#VendorName, #VendorName_VendorName, #VendorName_VendorID').val('');
+            }
+        });
+
+        $(document).on('typeahead:select', '#Department', function () {
+            const dp = $(this).val().trim();
+            const userId = 125;
+            const userName = '@@TSophanara';
+            const userFullName = 'Mr. Tom Sophanara';
+
+            if (dp === 'OSP') {
+                $('#NeedToCheckBy').val(userFullName);
+                $('#NeedToCheckBy_CheckedByUsername').val(userName);
+                $('#NeedToCheckBy_NeedToCheckUserID').val(userId);
+                $('#NeedToCheckBy').trigger('typeahead:select');
+            }
+        });
+
+        $(document).on('typeahead:select change', '#NeedNextApprovalBy, #NeedToCheckBy', function () {
+            const $el = $(this);
+            const id = $el.attr('id');
+            const val = $el.val().trim();
+
+            if (id === 'NeedNextApprovalBy') {
+                $('#NeedToCheckBy').val('')
+                    .prop('disabled', val !== '');
+            } else if (id === 'NeedToCheckBy') {
+                $('#NeedNextApprovalBy').val('')
+                    .prop('disabled', val !== '');
+            }
+        });
+    }
+
+    // function SaveChangeCallbackFunction(response) {
+    //     let data = JSON.parse(response.Data)[0];
+    //     const requestParam = {
+    //         RequestFormID: data.RequestFormID
+    //     }
+    //     PostData("RequestForm/SendNotificationToTelegram", requestParam);
+    // }
+    // chnage to
+        function SaveChangeCallbackFunction(response) {
+        let data = JSON.parse(response.Data)[0];
+        const requestParam = {
+            RequestFormID: data.RequestFormID
+        };
+
+        // If the user removed the image in the UI, clear it in the DB and delete the file from disk
+        if ($('.imageuploadify-container').length === 0 && data.RequestFormID > 0) {
+            PostData("RequestForm/DeleteRequestFormImage", { RequestFormID: data.RequestFormID }, function () {
+                PostData("RequestForm/SendNotificationToTelegram", requestParam);
+            });
+        } else {
+            PostData("RequestForm/SendNotificationToTelegram", requestParam);
+        }
+    }
+
+    // Calculate totals for a single row
+    function calculateRow(row) {
+        const qty = parseFloat(accounting.unformat(row.find('input[name="QTY"]').val())) || 0;
+        const unitPrice = parseFloat(accounting.unformat(row.find('input[name="UnitPrice"]').val())) || 0;
+        const estimatePrice = parseFloat(row.find('textarea[name = "ItemName"]').val() && accounting.unformat(row.find('input[name="EstimateAmount"]').val())) || 0;
+
+        const calc = new TotalCalculator({
+            qty,
+            unitPrice
+        });
+
+        const result = calc.calculate();
+        row.find('input[name="Amount"]').val(accounting.formatMoney(result.total, ''));
+        result["estimatePrice"] = estimatePrice * qty;
+        return result;
+    }
+
+    // Calculate subtotal and total discount for all rows
+    function calcSubtotal() {
+        setTimeout(function () {
+            let subtotal = 0;
+            let estAmount = 0;
+
+            $('table[name="TblItemInfo"] tbody tr').each(function () {
+                const rowResult = calculateRow($(this));
+                subtotal += parseFloat(accounting.toFixed(rowResult.total, 2));
+                estAmount += parseFloat(accounting.toFixed(rowResult.estimatePrice, 2));
+            });
+            $('label[name="SubTotal"]').text(accounting.formatMoney(subtotal, ''));
+            let $totalEstInput = $('label[name="TotalEstimate"]').first();
+            if ($totalEstInput.length) {
+                $totalEstInput.text(accounting.formatMoney(estAmount, ''));
+            } else {
+                $('label[name="SubTotal"]').parent().parent().after(
+                    `
+                        <tr><td colspan="4" align="right">
+                        <label class="col-form-label khmerFont1">សរុប / Total  Estimate:</label>
+                        </td><td align="center"><label class="col-form-label" name="TotalEstimate">${accounting.formatMoney(estAmount, '')}</label></td></tr>
+                    `
+                );
+            }
+        }, 10);
+	}
+</script>

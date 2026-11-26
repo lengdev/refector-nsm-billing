@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+    </head>
+    <body id="BoyMasterPage" class="khmerFont1" style="background-color:#fff!important">
+        <style>
+            .mytable th, .mytable td {
+                border: 1px solid #000000 !important;
+            }
+            
+            @media print {
+                .invoice {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    /*counter-reset: page;*/
+                }
+
+                body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+                thead, tfoot {
+                    display: table-row-group;
+                }
+
+                @page {
+                    size: A3 landscape !important;
+                    margin: 20px;
+                }
+
+                .footer {
+                    width: calc(100% - 20px);
+                    position: fixed;
+                    bottom: 0 !important;
+                }
+
+                .page-break {
+                    display: block;
+                    page-break-before: always;
+                }
+
+               /* .showPageNo::before {
+                    border: 1px solid blue !important;
+                    counter-increment: page;
+                    content: "Page " counter(page);
+                }*/
+                .showPageNo{
+                    display: block !important; 
+                }
+            }
+        </style>
+        <div class="wrapper" id="Div_Content">
+            <section class="invoice">
+                <table class="table table-bordered mytable">
+                    {TblHead}
+                    {TblBody}
+                </table>
+            </section>
+        </div>
+    </body>
+</html>

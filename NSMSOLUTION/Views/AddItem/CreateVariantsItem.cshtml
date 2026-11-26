@@ -1,0 +1,402 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var isAppendItemVariation = false;
+    var Variants = "";
+    var row = `<table class="table table-bordered khmerFont1 table-valign-middle" id="Tbl_Item_Variation" name="ItemVariation">
+<thead style="color: white !important; background-color: #F89C39; text-align:center !important">
+<tr>
+<th class="">No.</th>
+<th class="text-nowrap">Variants</th>
+<th class="">Barcode</th>
+<th class="">UM</th>
+<th class="">Multiplier</th>
+<th class="">Cost Price</th>
+<th class="">Selling Price</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>`;
+    function onAddedVariants(event, THIS) {
+        // event.item: contains the item
+        //let THIS = $("input[name=OptionValues]").parent($(this)).index();
+        let index = $(THIS).closest("tr").index();
+        if (!isAppendItemVariation) {
+            isAppendItemVariation = true;
+            $("#TableItemVariation").after(row);
+        }
+        let tr = `<tr name="TRNoIVs"><td name="TDNoIVs" class="" align="right">1</td>
+<td name="" class="" align="left">
+<div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="hidden" name="OptionName_Variants" />
+<label name="Variants" class="input2 CustInfo"></label>
+<span class="focus-input2"></span>
+</div></div>
+</td>
+<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="Barcode" id="" value="" placeholder="Enter Barcode" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td>
+<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="UM" id="" value="" placeholder="Enter UM" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td>
+<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="Multiplier" id="" value="" placeholder="Enter Multiplier" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td>
+<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="CostPrice" id="" value="" placeholder="Enter Cost Price" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td>
+<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="SellingPrice" id="" value="" placeholder="Enter Selling Price" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td></tr>`;
+        //let AllOptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //let data = [];
+        //let datas = [];
+        //let arr = [];
+        ////let arr3 = [];
+        //$.each(AllOptionValues, function (keys, values) {
+        //    let k = 1;
+        //    arr = [];
+        //    $("input[name=OptionName]").each(function (i) {
+        //        if ($(this).val() != "") {
+        //            if (i > 0) {
+        //                let OptionValues = $("input[name=OptionValues]").eq(i).tagsinput('items');
+        //                //let obj = {};
+        //                //obj = OptionValues;
+        //                //data.push(obj);
+        //                //arr = OptionValues;
+        //                //arr3 = OptionValues;
+        //                //if (i > 1) {
+        //                //console.log(arr[0]);
+        //                arr = $.merge(arr, OptionValues);
+        //                //}
+        //            }
+        //        }
+        //    });
+        //    let obj = {};
+        //    obj[values] = arr;
+        //    datas.push(obj);
+        //    data = [];
+        //});
+
+        //console.log(datas);
+        //$.each(datas, function (keys, vals) {
+        //    $.each(vals, function (key, val) {
+        //        $.each(val, function (k, v) {
+        //            console.log(key, v);
+        //        });
+        //    });
+        //});
+
+        $("input[name=OptionName]").each(function (i) {
+            if ($(this).val() != "") {
+                if (i == 0) {
+                    let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+                    $.each(_OptionValues, function (key, val) {
+                        let _OptionName_Variants = (typeof $("input[name=OptionName_Variants]").eq(key).val() == "undefined" ? "" : $("input[name=OptionName_Variants]").eq(key).val());
+                        if (val != _OptionName_Variants) {
+                            if ($("#Tbl_Item_Variation tbody tr:last").length == 0)
+                                $("#Tbl_Item_Variation tbody").append(tr);
+                            else
+                                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+                            $("label[name=Variants]").eq(key).html(val);
+                            $("input[name=OptionName_Variants]").eq(key).val(val);
+                        }
+                    });
+                }
+                else //if (i == 1) {
+                {
+                    let _OptionValues2 = $("input[name=OptionValues]").eq(i).tagsinput('items');
+                    $.each(_OptionValues2, function (k2, v2) {
+                        let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+                        if (i == 1) {
+                            if (k2 == 0) {
+                                $.each(_OptionValues, function (k, v) {
+                                    $("label[name=Variants]").eq(k).html(v + "-" + v2);
+                                });
+                            }
+                        }
+                        $.each(_OptionValues, function (k, v) {
+                            let lbl = false;
+                            $("label[name=Variants]").each(function (j) {
+                                if ($("label[name=Variants]").eq(j).html() == (v + "-" + v2)) {
+                                    lbl = true;
+                                }
+                            });
+                            if (!lbl) {
+                                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+                                let _index = $("#Tbl_Item_Variation tbody tr:last").index();
+                                $("label[name=Variants]").eq(_index).html(v + "-" + v2);
+                            }
+                        });
+                    });
+                }
+            }
+        });
+        
+        //$("input[name=OptionName]").each(function (i) {
+        //    if ($(this).val() != "") {
+        //        if (i == 0) {
+        //            let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //            $.each(_OptionValues, function (key, val) {
+        //                let _OptionName_Variants = (typeof $("input[name=OptionName_Variants]").eq(key).val() == "undefined" ? "" : $("input[name=OptionName_Variants]").eq(key).val());
+        //                if (val != _OptionName_Variants) {
+        //                    if ($("#Tbl_Item_Variation tbody tr:last").length == 0)
+        //                        $("#Tbl_Item_Variation tbody").append(tr);
+        //                    else
+        //                        $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //                    $("label[name=Variants]").eq(key).html(val);
+        //                    $("input[name=OptionName_Variants]").eq(key).val(val);
+        //                }
+        //            });
+        //        }
+        //        else //if (i == 1) {
+        //        {
+        //            let _OptionValues2 = $("input[name=OptionValues]").eq(i).tagsinput('items');
+        //            $.each(_OptionValues2, function (k2, v2) {
+        //                let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //                if (i == 1) {
+        //                    if (k2 == 0) {
+        //                        $.each(_OptionValues, function (k, v) {
+        //                            //$("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //                            //let _index = $("#Tbl_Item_Variation tbody tr:last").index();
+        //                            $("label[name=Variants]").eq(k).html(v + "-" + v2);
+        //                            //$("input[name=OptionName_Variants]").eq(k).val(v + "-" + v2);
+        //                        });
+        //                    }
+        //                }
+        //                //else {
+        //                    $.each(_OptionValues, function (k, v) {
+        //                        let lbl = false;
+        //                        $("label[name=Variants]").each(function (j) {
+        //                            if ($("label[name=Variants]").eq(j).html() == (v + "-" + v2)) {
+        //                                lbl = true;
+        //                            }
+        //                        });
+        //                        if (!lbl) {
+        //                            $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //                            let _index = $("#Tbl_Item_Variation tbody tr:last").index();
+        //                            $("label[name=Variants]").eq(_index).html(v + "-" + v2);
+        //                        }
+        //                    });
+        //                //}
+        //            });
+        //        }
+        //        //else {
+        //        //    let _OptionValues2 = $("input[name=OptionValues]").eq(i).tagsinput('items');
+        //        //    $.each(_OptionValues2, function (k2, v2) {
+        //        //        let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //        //        $.each(_OptionValues, function (k, v) {
+        //        //            let lbl = false;
+        //        //            $("label[name=Variants]").each(function (j) {
+        //        //                if ($("label[name=Variants]").eq(j).html() == (v + "-" + v2)) {
+        //        //                    lbl = true;
+        //        //                }
+        //        //            });
+        //        //            if (!lbl) {
+        //        //                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //        //                let _index = $("#Tbl_Item_Variation tbody tr:last").index();
+        //        //                $("label[name=Variants]").eq(_index).html(v + "-" + v2);
+        //        //            }
+        //        //        });
+        //        //    });
+        //        //}
+        //    }
+        //});
+
+
+        //let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //$.each(_OptionValues, function (key, val) {
+        //    let _OptionName_Variants = (typeof $("input[name=OptionName_Variants]").eq(key).val() == "undefined" ? "" : $("input[name=OptionName_Variants]").eq(key).val());
+        //    if (val != _OptionName_Variants) {
+        //        if ($("#Tbl_Item_Variation tbody tr:last").length == 0)
+        //            $("#Tbl_Item_Variation tbody").append(tr);
+        //        else
+        //            $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //        $("label[name=Variants]").eq(key).html(val);
+        //        $("input[name=OptionName_Variants]").eq(key).val(val);
+        //    }
+        //});
+        //let _OptionValues2 = $("input[name=OptionValues]").eq(index).tagsinput('items');
+        //$.each(_OptionValues2, function (k2, v2) {
+        //    $.each(_OptionValues, function (k, v) {
+
+        //    });
+        //});
+                    //if (i > 0) {
+                    //    let _OptionValues2 = $("input[name=OptionValues]").eq(index).tagsinput('items');
+                    //    $.each(_OptionValues2, function (k2, v2) {
+                    //        if (k2 == 0) {
+                    //            $.each(_OptionValues, function (k, v) {
+                    //                $("label[name=Variants]").eq(k).html(v + "-" + v2);
+                    //            });
+                    //        } else {
+                    //            $.each(_OptionValues, function (k, v) {
+                    //                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+                    //                let _index = $("#Tbl_Item_Variation tbody tr:last").index();
+                    //                console.log(_index);
+                    //                $("label[name=Variants]").eq(_index).html(v + "-" + v2);
+                    //                $("input[name=OptionName_Variants]").eq(_index).val(v + "-" + v2);
+                    //            });
+                    //        }
+                    //    });
+                    //}
+
+          //  }
+        //});
+
+        //if ($("input[name=OptionName_Variants]").eq(0).val()) {
+        //    let _OptionValues = $("input[name=OptionValues]").eq(0).tagsinput('items');
+        //    //if (index == 0) {
+        //        $.each(_OptionValues, function (key, val) {
+        //            let _OptionName_Variants = (typeof $("input[name=OptionName_Variants]").eq(key).val() == "undefined" ? "" : $("input[name=OptionName_Variants]").eq(key).val());
+        //            if (val != _OptionName_Variants) {
+        //                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //                $("label[name=Variants]").eq(key).html(val);
+        //                $("input[name=OptionName_Variants]").eq(key).val(val);
+        //            }
+        //        });
+        //    //}
+        //    //else {
+        //    //    let _OptionName_Variants = (typeof $("input[name=OptionName_Variants]").eq(key).val() == "undefined" ? "" : $("input[name=OptionName_Variants]").eq(key).val());
+        //    //    if (val != _OptionName_Variants) {
+        //    //        //$("input[name=OptionName]").each(function (i) {
+        //    //        //if ($(this).val() != "") {
+        //    //        let _OptionValues2 = $("input[name=OptionValues]").eq(index).tagsinput('items');
+        //    //        $.each(_OptionValues2, function (key, val) {
+        //    //            if (key == 0) {
+        //    //                $.each(_OptionValues, function (k, v) {
+        //    //                    $("label[name=Variants]").eq(k).html(v + "-" + val);
+        //    //                    //$("input[name=OptionName_Variants]").eq(k).val(v + "-" + val);
+        //    //                });
+        //    //            }
+        //    //            else {
+
+        //    //                $("#Tbl_Item_Variation tbody tr:last").after(tr);
+        //    //                $.each(_OptionValues, function (k, v) {
+        //    //                    console.log(k, v);
+
+        //    //                    //let _index = $("#Tbl_Item_Variation tbody tr:last").length;
+        //    //                    //$("label[name=Variants]").eq(_index).html(v + "-" + val);
+        //    //                    //$("input[name=OptionName_Variants]").eq(_index).val(v + "-" + val);
+        //    //                });
+        //    //            }
+        //    //        });
+        //    //        //}
+        //    //        //});
+        //    //    }
+        //    //}
+        //}
+        //else {
+        //    $("#Tbl_Item_Variation tbody").append(tr);
+        //    $("label[name=Variants]").eq(0).html(event.item);
+        //    $("input[name=OptionName_Variants]").eq(0).val(event.item)
+        //}
+
+        //console.log($('#Tbl_Item_Variation tbody tr:last').length);
+        //if ($('#Tbl_Item_Variation tbody tr').last().length == 0) {
+        //index = $('#Tbl_Item_Variation tbody tr:last').length;
+        //if (index == 0) {
+        //    let _itemname = event.item;
+        //    let _Variants = (typeof $("label[name=Variants]").eq(index).html()) == "undefined" ? "" : $("label[name=Variants]").eq(index).html();
+
+        //    //console.log(index, _Variants, _itemname);
+        //    if (_itemname != _Variants) {
+        //        tr = '<tr name="TRNoIVs">' + tr + '</tr>';
+        //        if ($('#Tbl_Item_Variation tbody tr').last().length == 0) {
+        //            if (event.item != "") {
+        //                console.log('1'+event.item);
+        //                $("#Tbl_Item_Variation tbody").append(tr);
+        //                $("label[name=Variants]").eq(0).html(event.item);
+        //            }
+        //        }
+        //        else {
+        //            index = $('#Tbl_Item_Variation tbody tr:last').length;
+        //            _Variants = (typeof $("label[name=Variants]").eq(index).html()) == "undefined" ? "" : $("label[name=Variants]").eq(index).html();
+        //            if (_itemname != _Variants && event.item != "") {
+        //                console.log('2' + event.item, _itemname, _Variants);
+        //                $("#Tbl_Item_Variation tbody tr:last").after(tr);                        
+        //                $("label[name=Variants]").eq(index).html(event.item);
+        //            }
+        //        }                
+        //    }
+        //}
+        //}
+        //else {
+
+        //}
+        //if ($("#Tbl_Item_Variation tbody tr").eq(index).html()) {
+        //    if (Variants == "")
+        //        Variants = event.item;
+        //    else
+        //        Variants += " - " + event.item;
+        //    $("label[name=Variants]").html(Variants);
+        //}
+        //else {
+        //    //Variants = event.item;
+        //    tr = '<tr name="TRNoIVs">' + tr + '</tr>';
+        //    $("#Tbl_Item_Variation tbody").append(tr);
+        //    $("label[name=Variants]").html(event.item);
+        //}
+        //let isHaveTR
+        //if ($("#Tbl_Item_Variation tbody tr").eq(index).html()) {
+        //    console.log(index,tr);
+        //    $("#Tbl_Item_Variation tbody tr").eq(index).html(tr);
+        //}
+        //else {
+        //    console.log(tr);
+        //    tr += '<tr name="TRNoIVs">' + tr + '</tr>';
+        //    $("#Tbl_Item_Variation tbody").append(tr);
+        //}
+
+
+        //        $("input[name=OptionName]").each(function (i) {
+        //            let tr = `<tr name="TRNoIVs"><td name="TDNoIVs" class="" align="right">1</td>
+        //<td name="" class="" align="left">
+        //<div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="Variants" id="" value="" placeholder="Enter Option Name" class="input2 CustInfo"><div class="input-delete" title="Delete Row" data-validate="Delete Service Plan Row" onclick="RemoveTableRow('TRNoIV', 'TDNoIV', this,'','OptionName');"></div>
+        //<span class="focus-input2"></span>
+        //</div></div>
+        //</td>
+        //<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="Barcode" id="" value="" placeholder="Enter Barcode" class="input2 CustInfo"><span class="focus-input2"></span>
+        //</div></div>
+        //</td>
+        //<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="UM" id="" value="" placeholder="Enter UM" class="input2 CustInfo"><span class="focus-input2"></span>
+        //</div></div>
+        //</td>
+        //<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="Multiplier" id="" value="" placeholder="Enter Multiplier" class="input2 CustInfo"><span class="focus-input2"></span>
+        //</div></div>
+        //</td>
+        //<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="CostPrice" id="" value="" placeholder="Enter Cost Price" class="input2 CustInfo"><span class="focus-input2"></span>
+        //</div></div>
+        //</td>
+        //<td name="" class="" align="left"><div class="col-sm align-text-bottom">
+        //<div class="wrap-input3 ">
+        //<input type="text" name="SellingPrice" id="" value="" placeholder="Enter Selling Price" class="input2 CustInfo"><span class="focus-input2"></span>
+        //</div></div>
+        //</td></tr>`;
+
+        //            $("#ItemVariation tbody").append(tr);
+        //        });
+    }
+</script>

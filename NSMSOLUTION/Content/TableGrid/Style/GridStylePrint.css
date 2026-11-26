@@ -1,0 +1,328 @@
+﻿@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.eot") /* EOT file for IE */
+}
+@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.ttf") /* TTF file for CSS3 browsers */
+}
+.barcodeFont { font-size:50px; }
+@media print {
+    a:link:after,
+    a:visited:after {
+        content: "" !important;
+    }
+}
+.LogoImg
+{
+    float:left;
+    position:absolute;
+    background-image:url("../../../Content/images/logo.jpg");
+    width:133px;
+    height:61px;
+    display:block;
+    display: list-item;
+    list-style-image: url("../../../Content/images/logo.jpg");
+    list-style-position: inside;
+}
+.Logo span
+{
+    font-family:"Khmer OS Muol Light", "Khmer OS Bokor";
+    font-weight:normal;
+    font-size:20px;
+}
+.Logo span.SubTitle
+{
+    font-family:"Khmer OS Bokor";
+    font-weight:normal;
+    font-size:16px;
+    line-height:25px;
+}
+.Logo span.SubTitleE
+{
+    font-family:Verdana;
+    font-weight:bold;
+    font-size:14px;
+    line-height:15px;
+}
+.Logo
+{
+    font-weight:bold;
+    font-size:22px;
+    margin-bottom:10px;
+    color:Blue;
+}
+table.TableGride
+{
+    font-family: Verdana, Geneva, sans-serif;   
+    border-collapse: collapse;
+    font-size: 12px;
+    border-top:#000 solid 1px;
+    border-right:#000 solid 1px;
+}
+.TableGride td
+{
+    border-left: #000 solid 1px;
+    border-bottom: #000 solid 1px;
+    border-right: #000 solid 1px;
+    padding:4px;
+}
+.TableGride .tr-Selected tr:Hover
+{
+    background-image: none;
+    background-color: #FCF9F1;
+    border-bottom: #000 solid 1px;
+}
+.TableGride .tr-Selected td
+{
+    border-right: #000 solid 1px;
+    border-bottom: #000 solid 1px;
+}
+.TableGride .header, .TableGride th
+{
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    background: #CCC;
+    border-right: #000 solid 1px;
+    border-top: #000 solid 1px;
+    border-bottom: #000 solid 1px;
+}
+.TableGride .header th, .TableGride th
+{
+    border-left: #000 solid 1px;
+}
+
+.TableGride td.Total
+{
+	color:Red;
+	font-weight:bold;
+}
+.TableGride tr.footer
+{
+	background: #EEE url(../Images/bg-header.jpg) repeat-x;
+	height:30px;
+}
+.TableGride tr.footer td
+{
+	border:#FFF solid 0;
+}
+
+#TblPaging
+{
+	border: #D8DCDF solid 1px;
+	border-collapse:collapse;
+	border-top:#FFF solid 0;
+}
+
+tfoot tr.tblfooter
+{
+	background:#EEE url(../Images/bg-header.jpg) repeat-x;
+	height:30px;
+}
+
+#TblPaging tr.tblfooter td
+{
+	border:#FFF solid 0;
+}
+
+ul#icons {margin: 0; padding: 0;}
+ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left; list-style: none;}
+ul#icons span.ui-icon {float: left; margin: 0 4px;}
+
+.TableGride tr.footer ul#icons {margin: 0; padding: 0;}
+.TableGride tr.footer ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left; list-style: none;}
+.TableGride tr.footer ul#icons span.ui-icon {float: left; margin: 0 4px;}
+			
+.question
+{
+    position: absolute;
+    display: inline;
+    text-align: center;
+    width: 174px;
+    height: 78px;
+    font-size: 13px;
+    line-height: 1.5em;
+    background: url(../Images/Icon/bubble.png) no-repeat left top;
+    padding: 10px 0 0 0;
+    text-shadow: 0px 1px 0px #fff;
+    margin-left: -7em;
+    margin-top: -6em;
+    opacity: 0;
+}
+    
+.yes, .cancel
+{
+    margin-top: .5em;
+    margin-right: .5em;
+    cursor: pointer;
+    display: inline-block;
+    width: 63px;
+    height: 21px;
+    color: #333;
+    text-shadow: 0px 1px 0px #000;
+    background: url(../Images/Icon/button.png) no-repeat left top;
+}
+
+#divloadingdata
+{
+	/*clear:both;
+	margin:0;
+	padding:0;
+	z-index:999;*/
+	margin-left:9px;
+	margin-top:35px;
+	background:url(../Images/loadinfo.gif) no-repeat center;
+	text-align:center;
+	vertical-align:middle;
+	position:absolute;
+}
+
+#divtbldata
+{
+	background-color:transparent;
+}
+
+#divbody
+{
+	 border: #D8DCDF solid 1px;
+	 margin:0;
+	 padding:0;
+}
+
+input#txtpaging
+{
+	color:#7cab0e;
+	border:#CCC solid 1px;
+	text-align:center;
+	width:20px;	
+	padding:0;
+	margin:0;
+	padding:3px;
+}
+
+select#cbopagesize
+{
+    clear:both;
+    padding:3px;
+	margin:0;
+	color:#7cab0e;
+	border:#CCC solid 1px;
+	text-align:center;
+	width:50px;
+	height:auto;
+}
+
+.TotalAllHeader
+{
+	border:#CCC solid 1px;
+}
+.TR-TotalAllHeader
+{
+	text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #7cab0e;
+	background: #EEE url(../Images/bg-header.jpg) repeat-x;
+	border-bottom: #DBDBDB solid 1px;    
+}
+.TR-TotalAllHeader td
+{
+	border-left: #EEE solid 1px;
+}
+.TotalAllHeader-Amount
+{
+	color:#666;
+}
+.TotalAllField
+{
+	font-weight:bold;
+	color:#666;
+}
+.TotalAllFieldValue
+{
+	font-weight:bold;
+	color:#F00;
+}
+.CurrentQTY
+{
+	font-weight:bold;
+}
+.Partial
+{
+	color:Red;
+}
+.QTYIN
+{
+	color:Highlight;
+}
+.QTYOUT
+{
+	color:Red;
+}
+.TotalField
+{
+	color:Blue;
+}
+.GroupByField
+{
+	color:#666;
+	font-weight:bold;
+}
+
+textarea
+{
+	padding:2px;
+	width:250px;
+	height:70px;
+	border:#CCC solid 1px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	-khtml-border-radius:5px;
+}
+
+.txt
+{
+    padding:2px;
+	width:100px;
+	height:23px;
+	border:#CCC solid 1px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	-khtml-border-radius:5px;
+}
+.TotalFooter, .TotalFooter tr, .TotalFooter td
+{
+    font-size:12px;
+    font-weight:bold;
+	border:none;
+	color:Blue;
+}
+
+/*.TableGride input[type=text]
+{
+    width:50px;
+    padding:0;
+}
+.TableGride textarea
+{
+    padding:0;
+    width:200px;
+    height:25px;
+}*/
+.GTotal
+{
+    border-right:1px solid #CCC;
+}
+.TableGride td.label
+{
+    color:black;
+    font-weight:bold;
+}
+.TableGride td.textlabel
+{
+    color:Red;
+    font-weight:bold;
+}

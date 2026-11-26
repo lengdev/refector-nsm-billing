@@ -1,0 +1,46 @@
+<template id="rp-txlog-dialog-template">
+  <div class="rp-txlog-backdrop" role="presentation">
+    <section class="rp-txlog-dialog" role="dialog" aria-modal="true" aria-labelledby="rp-txlog-title">
+      <header class="rp-txlog-header">
+        <span>Transaction Log</span>
+        <button type="button" class="rp-txlog-close" data-txlog-close aria-label="Close">&times;</button>
+      </header>
+      <main class="rp-txlog-body">
+        <h2 class="rp-txlog-title" id="rp-txlog-title">Audit Trail Transaction</h2>
+        <div class="rp-txlog-table-wrap">
+          <table class="rp-txlog-table">
+            <thead>
+              <tr>
+                <th>Tran Type</th>
+                <th>Create or Modify By</th>
+                <th>Tran Date</th>
+                <th>Create or Modify Date</th>
+                <th>Name</th>
+                <th>Memo</th>
+                <th>Item</th>
+                <th>Account</th>
+                <th class="rp-txlog-number">Debit</th>
+                <th class="rp-txlog-number">Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="10">Loading transaction data...</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="8">Total</td>
+                <td class="rp-txlog-number" data-txlog-debit>0.00</td>
+                <td class="rp-txlog-number" data-txlog-credit>0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </main>
+      <footer class="rp-txlog-footer">
+        <button type="button" class="rp-txlog-btn" data-txlog-export>Export to Excel</button>
+        <button type="button" class="rp-txlog-btn" data-txlog-print>Print</button>
+        <button type="button" class="rp-txlog-btn" data-txlog-close>Close</button>
+      </footer>
+    </section>
+  </div>
+</template>

@@ -1,0 +1,426 @@
+﻿
+
+@{ Layout = null;}
+
+<nav class="navbar sticky-top justify-content-end" id="nav">
+    <div class="btn-group flex-wrap panel-toolbar gap-8 px-3 py-2" role="group">
+        <button id="Edit" class="btn btn-sm btn-warning text-white" title="Edit">
+            <i class="ti ti-pencil-minus"></i> <span class="d-none d-md-inline">Edit</span>
+        </button>
+
+        <button id="EditPreview" class="btn btn-sm btn-info text-white" title="Edit & Preview">
+            <i class="ti ti-pencil-minus"></i> <span class="d-none d-md-inline">Edit & Preview</span>
+        </button>
+
+        <button id="TogglePriceAmt" class="btn btn-danger btn-sm text-white">
+            <i class="ti ti-switch-horizontal"></i>
+            <span class="d-none d-md-inline">Toggle Price/Amount</span>
+        </button>
+
+        <button id="ShowHideImages" class="btn btn-primary btn-sm text-white">
+            <i class="ti ti-eye"></i>
+            <span class="d-none d-md-inline">Show Logo</span>
+        </button>
+
+        <button class="btn btn-sm btn-secondary text-white" title="Clone SO">
+            <i class="ti ti-copy"></i>
+            <span id="CloneSO" class="d-none d-md-inline">Clone SO</span>
+        </button>
+
+        <button id="ToInovices" class="btn btn-sm btn-danger text-white d-none" title="To Invoices">
+            <i class="ti ti-copy"></i>
+            <span class="d-none d-md-inline">To Invoices</span>
+        </button>
+
+        <button id="CloneBill" class="btn btn-sm btn-secondary text-white d-none" title="Clone Bill">
+            <i class="ti ti-copy"></i>
+            <span class="d-none d-md-inline">Clone Bill</span>
+        </button>
+
+        <button id="ShowCompanyInfo" class="btn btn-sm btn-danger" title="Show Company Info">
+            <i class="ti ti-eye"></i>
+            <span class="d-none d-md-inline">Show Company Info</span>
+        </button>
+        <div class="btn-group d-none" role="group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle d-none" data-toggle="dropdown" aria-expanded="false">
+                <i class="ti ti-mail"></i> <span class="d-none d-md-inline">Send Email</span>
+                <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu" role="menu" style="">
+                <span name="forUnpaidInvoice">
+                    <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_created" onclick="sendEmail('mail_invoice_created');">Invoice Created</a>
+                    <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_reminder" onclick="sendEmail('mail_invoice_reminder');">Invoice Payment Reminder</a>
+                    <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_overdue" onclick="sendEmail('mail_invoice_overdue');">Invoice Overdue Notice</a>
+                </span>
+                <span name="forPaidInvoice" style="display:none">
+                    <a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_confirm" onclick="sendEmail('mail_invoice_confirm');">Invoice Payment Confirmation</a>
+                    @*<a class="dropdown-item" href="javascript:void(0);" id="mail_invoice_refund" onclick="sendEmail('mail_invoice_refund');">Invoice Refund Confirmation</a>*@
+                </span>
+            </div>
+        </div>
+        <div class="btn-group" id="pdf" role="group">
+            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <i class="ti ti-file-type-pdf"></i>
+                <span class="d-none d-md-inline">PDF</span>
+                <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu" role="menu">
+                <a id="ViewPDF" class="dropdown-item" href="javascript:void(0);">View PDF</a>
+                <a id="Download_PDF" class="dropdown-item" href="javascript:void(0);">Download PDF</a>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-primary" title="New SO">
+            <i class="ti ti-file-plus"></i>
+            <span id="NewSO" class="d-none d-md-inline">New SO</span>
+        </button>
+
+        <button id="Print" class="btn btn-default btn-sm">
+            <i class="ti ti-printer"></i>
+            <span class="d-none d-md-inline">Print</span>
+        </button>
+    </div>
+</nav>
+
+<div id="" class="bg-white p-2">
+    <div id="div_PO">
+        <div id="div_show_info">
+            @if (ViewBag.Type == "PO")
+            {
+                <div class="invoice-po"></div>
+            }
+            else
+            {
+                @Html.Raw(@ViewBag.Data)
+            }
+        </div>
+        <div id="div_show_PO" style="display:none"></div>
+        <div id="div_show_Bill" style="display:none"></div>
+        <div id="div_show_receivedNote" style="display:none"></div>
+        <div id="div_show_PaymentVoucher" style="display:none"></div>
+    </div>
+</div>
+<script>
+    var url = $(location).attr('href');
+    var UrlEndPoint = url.split("/")[4];
+    var StatusID = "@ViewBag.StatusID";
+    var Type = "@ViewBag.Type";
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var IsCheck = "@ViewBag.IsCheck";
+    var IsApprove = "@ViewBag.IsApprove";
+    var SalesID = "@ViewBag.SalesID";
+    var ClassID = "@ViewBag.ClassID";
+    var SONumber = "@ViewBag.SONumber";
+    var IsToInvoice = "@ViewBag.IsToInvoice";
+    var needCheckById = "@ViewBag.NeedCheckByID" || 0;
+    var needApproveById = "@ViewBag.NeedApproveByID" || 0;
+    var telegramUsername = "@ViewBag.TelegramUsername";
+
+    $(function () {
+        $('.sign').parent().click(function () {
+            $('.sign').toggle();
+        });
+
+        $("#TogglePriceAmt").on("click", function () {
+            $(".mytable .d-flex").each(function () {
+                let $divs = $(this).children("div");
+
+                // First div is the symbol ($ or ៛)
+                let symbol = $divs.eq(0).text().trim();
+
+                if (symbol === "$" || symbol === "៛" || symbol === "KHR") {
+                    // Toggle both symbol and amount
+                    $divs.toggle();
+                }
+            });
+        });
+
+        const urlList = [
+            "StockOut",
+            "SOReport",
+            "InvoicesReport",
+            "CMInvoicesReport",
+        ];
+        if (urlList.includes(UrlEndPoint)) {
+            $('#nav').hide()
+        }
+        $('#ShowHideImages').click(function () {
+            $('div.img>img').toggleClass("d-none");
+            if ($('div.img>img').is(':hidden')) {
+                $(this).html('<i class="ti ti-eye"></i> <span class="d-none d-md-inline">Show Logo</span>');
+            } else {
+                $(this).html('<i class="ti ti-eye-off"></i> <span class="d-none d-md-inline">Hide Logo</span>');
+            }
+        });
+
+        if (StatusID != 60 && StatusID != 91 && Type == "SalesOrder") {
+            $("#Edit").remove();
+        }
+
+        $("#CloneSO").show();
+
+        const endPoint = Type == "Invoices" ? "CreateInvoices" : (Type == "SalesOrder" ? "CreateSalesOrder" : (Type == "ConvertInvoices" ? "CreateConvertInvoices" : (Type == "DeliveryNote" ? "CreateDeliveryNote" : "CreateQuotation")));
+        const txtClone = Type == "Invoices" || Type == "ConvertInvoices" ? "Clone Invoices" : (Type == "SalesOrder" ? "Clone SO" : (Type == "DeliveryNote" ? "Clone DN" : "Clone Quote"));
+        const txtAddnew = Type == "Invoices" || Type == "ConvertInvoices" ? "New Invoices" : (Type == "SalesOrder" ? "New SO" : "New Quote");
+        const isShowSO = Type == "Invoices" ? false : true;
+        const type = Type == "Invoices" ? "Invoices" : (Type == "SalesOrder" ? "SO" : (Type == "ConvertInvoices" ? "CM Invoices" : "Quote"));
+
+        $('#CloneSO').html(txtClone);
+        $('#NewSO').html(txtAddnew).click(function () {
+            var URL = `Sales/${endPoint}?PrimaryFieldValue=0`;
+            ShowDialogBox(`Create New ${type}`, "Auto", 600, URL, 0);
+        });
+        if (isShowSO && IsApprove == "True" && IsToInvoice != "True") {
+            //$('#ToInovices').removeClass('d-none').on('click', function () {
+            //    var URL = `Sales/CreateInvoices?PrimaryFieldValue=0&SONumber=${SONumber}&SOID=${SalesID}`;
+            //    ShowDialogBox("Convert to Invoices", "Auto", 600, URL, 0);
+            //});
+        }
+
+        $("#Edit").click(function () {
+            var URL = `Sales/${endPoint}?PrimaryFieldValue=${PrimaryFieldValue}`;
+            ShowDialogBox(`Edit ${type}`, "Auto", 600, URL, PrimaryFieldValue);
+        });
+        
+        if (Type != "SalesOrder") {
+            $("#EditPreview").hide();
+            if (Type == "DeliveryNote") {
+                $("#ShowCompanyInfo").hide();
+                //$("#CloneSO").hide();
+                $("#NewSO").hide();
+                $("#pdf").hide();
+            }
+        } else {
+            $("#EditPreview").show();
+            if (StatusID == 60) {
+                $("#EditPreview").hide();
+            }
+        }
+        $("#EditPreview").click(function () {
+            var URL = `Sales/${endPoint}?PrimaryFieldValue=${PrimaryFieldValue}`;
+            ShowDialogBox(`Edit & Preview ${type}`, "Auto", 600, URL, PrimaryFieldValue, "", "", "", "", function () {
+                setTimeout(function () {
+                    // Target the div by name and disable specific elements
+                    $('div[name="SalesOrderInformation"]')
+                        .find('input, select')
+                        .prop('disabled', true);
+
+                    // Target table inputs and textareas and disable them
+                    $('div[name="SalesOrderInformation"] table tbody tr td')
+                        .find('input, textarea')
+                        .prop('disabled', true);
+                    $('.input-delete').hide();
+                    // Remove the last td in each row
+                    $('div[name="SalesOrderInformation"] table tbody').each(function () {
+                        $(this).find('tr:last').remove();
+                    });
+                }, 2000)
+            });
+        });
+        $("#CloneSO").click(function () {
+            var URL = `Sales/${endPoint}?PrimaryFieldValue=${PrimaryFieldValue}&Clone=true`;
+            ShowDialogBox(`Clone ${type}`, "Auto", 600, URL, PrimaryFieldValue);
+        });
+        if (Type == 'SalesOrder' || ClassID == "12") {
+            $("#ShowCompanyInfo").hide();
+        }
+        $("#ShowCompanyInfo").click(function () {
+            $('.company-info').toggleClass('d-none');
+            $('.invoice-title').toggleClass('mt-4');
+
+        });
+        //Crate button authorize
+        if (!urlList.includes(UrlEndPoint)) {
+            if (Type != "ConvertInvoices" && Type != "DeliveryNote") {
+                if (StatusID == 60) {
+                    if (needCheckById == 0) {
+                        let btn = "<div class=\"\"><button type=\"button\" onclick=\"approve();\" id=\"ApproveSO\" class=\"btn btn-primary\">";
+                        btn += `<i class="ti ti-circle-dashed-check"></i> Approve This ${type}</button></div>`;
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"disapprove();\" id=\"DisapproveSO\" class=\"btn btn-danger\">";
+                        btn += `<i class="ti ti-circle-dashed-x"></i> Disapprove This ${type}</button></div>`;
+                        $("#SaveChange").before(btn);
+                    } else {
+                        let btn = "<div class=\"\"><button type=\"button\" onclick=\"check();\" id=\"CheckVerify\" class=\"btn btn-success\">";
+                        btn += `<i class="ti ti-checkbox"></i> CheckVerify This ${type}</button></div>`;
+                        $("#SaveChange").before(btn);
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"discheck();\" id=\"DisapproveSO\" class=\"btn btn-danger\">";
+                        btn += `<i class="ti ti-circle-dashed-x"></i> Disapprove This ${type}</button></div>`;
+                        $("#SaveChange").before(btn);
+                    }
+                }
+                if (StatusID == 92) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"approve();\" id=\"ApproveSO\" class=\"btn btn-primary\">";
+                    btn += `<i class="ti ti-circle-dashed-check"></i> Approve This ${type}</button></div>`;
+                    $("#SaveChange").before(btn);
+                    btn = "<div class=\"\"><button type=\"button\" onclick=\"disapprove();\" id=\"DisapproveSO\" class=\"btn btn-danger\">";
+                    btn += `<i class="ti ti-circle-dashed-x"></i> Disapprove This ${type}</button></div>`;
+                    $("#SaveChange").before(btn);
+                }
+                
+                if (StatusID == 90) {
+                    let btn = "<div class=\"\"><button type=\"button\" onclick=\"cancelSale();\" id=\"CancelSO\" class=\"btn btn-danger\">";
+                    btn += `<i class="ti ti-circle-dashed-x"></i> Cancel This ${type}</button></div>`;
+                    $("#SaveChange").before(btn);
+                    if (IsToInvoice != 0 && Type == "SalesOrder") {
+                        btn = "<div class=\"\"><button type=\"button\" onclick=\"requestEdit();\" id=\"ReqeustEditSO\" class=\"btn btn-info\">";
+                        btn += `<i class="ti ti-send-2"></i> Request Edit ${type}</button></div>`;
+                        $("#SaveChange").before(btn);
+                    }
+                }
+            }
+        }
+
+        $("#Print").click(function () {
+            $("#div_PO").printThis();
+        });
+
+        var row = '<i class="ti ti-printer" aria-hidden="true"></i> Print';
+        $("#SaveChange").html(row);
+        $("#SaveChange").click(function () {
+            $("#div_PO").printThis();
+        });
+
+    });
+
+    function cancelSale() {
+        DoSaveChangeSweetCofirm("Sales/SendNotificationToTelegram", { SalesID: SalesID, isCancel: true }, function (result) {
+            if (result.Result == 2) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", "Save");
+    }
+
+    function approve() {
+        const param = {
+            SalesID: PrimaryFieldValue,
+            ActionCallBack: 'Approve',
+            ApprovalFrom: 'System',
+            StatusKey: 'ApproveSales',
+            UserName: telegramUsername
+        };
+
+        DoSaveChangeSweetCofirm("api/SalesApproval", param, function (result) {
+            if (result.success) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        });
+    }
+    function check() {
+        const param = {
+            SalesID: PrimaryFieldValue,
+            ActionCallBack: 'Check',
+            ApprovalFrom: 'System',
+            StatusKey: 'CheckSales',
+            UserName: telegramUsername
+        };
+
+        DoSaveChangeSweetCofirm("api/SalesApproval", param, function (result) {
+            if (result.success) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        });
+    }
+    function disapprove() {
+        let btnTitle = "Save";
+        const param = {
+            SalesID: PrimaryFieldValue,
+            ActionCallBack: 'Approve',
+            ApprovalFrom: 'System',
+            StatusKey: '',
+            UserName: telegramUsername,
+            Comment: $("#txtComment").val()
+        };
+      
+        DoSaveChangeSweetCofirm("api/SalesApproval", param, function (result) {
+            if (result.success) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", btnTitle);
+    }
+
+    function discheck() {
+        let btnTitle = "Save";
+        const param = {
+            SalesID: PrimaryFieldValue,
+            ActionCallBack: 'Check',
+            ApprovalFrom: 'System',
+            StatusKey: '',
+            UserName: telegramUsername,
+            Comment: $("#txtComment").val()
+        };
+      
+        DoSaveChangeSweetCofirm("api/SalesApproval", param, function (result) {
+            if (result.success) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", btnTitle);
+    }
+    function requestEdit() {
+        LoadData("Sales/LoadUserApproval", function (res) {
+            const data = JSON.parse(JSON.parse(res).data);
+            let select = `<label>Select Approval</label>
+                <div class="mb-3">
+                <select class="rounded-0 rounded-start form-select" id="SelectApproval" name="SelectApproval">
+                <option data-bind="Approve By" value="0">Please select approval</option>
+            `;
+            data.forEach((item) => {
+                select += `<option data-bind="${item.ApproveUsername}" value="${item.NeedApproveByID}">${item.NeedApproveBy}</option>`;
+            });
+            select += `
+                </select></div>
+                <textarea id="cmt" class="form-control" name="ReqEditComment" rows="2" placeholder="Add comment" required></textarea>
+            `;
+
+            DialogSweetCofirm(function () {
+                let dtselect = $("#SelectApproval").select2('data')[0];
+                let approveBy = dtselect.text;
+                let approveById = dtselect.id;
+                let approveUsername = $(dtselect.element).attr("data-bind");
+                let comment = $("#cmt").val();
+                if (approveById == 0) {
+                    DialogSweetAlert("error", "Please select an approval option.");
+                    return;
+                }
+                if (!comment) {
+                    DialogSweetAlert("error", "Please input comment.");
+                    return;
+                }
+                const param = {
+                    SalesID: SalesID,
+                    ReqApproveID: approveById,
+                    ReqApproveBy: approveBy,
+                    Username: approveUsername,
+                    Type: Type,
+                    ReqEditComment: comment,
+                };
+
+                PostData("Sales/SaveChangeRequestEdit",
+                    param,
+                    function () {
+                        PostData("Sales/SendNotificationToTelegram", { SalesID: SalesID, isReqEdit: true }, function (res) {
+                            var rst = JSON.parse(res);
+                            let alertType = rst.Result == 2 ? "success" : "error";
+                            DialogSweetAlert(alertType, rst.Result == 2 ? `Request edit ${Type} has been sent!` : rst.Message);
+                        });
+                    }
+                );
+            }, "", "Are you sure?", "Yes do it now.", "", select, function () {
+                $("#SelectApproval").select2({
+                    dropdownParent: $("#SelectApproval").parent(),
+                    theme: 'bootstrap4'
+                });
+            });
+        });
+    }
+</script>
+

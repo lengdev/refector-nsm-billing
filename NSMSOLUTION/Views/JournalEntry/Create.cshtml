@@ -1,0 +1,1525 @@
+@model NSMSOLUTION.ViewModels.JournalEntryVM
+@{
+    Layout = null;
+    var accounts = Model.AvailableAccounts ?? new List<NSMSOLUTION.ViewModels.AccountDropdownItem>();
+    var contacts = Model.AvailableContacts ?? new List<NSMSOLUTION.ViewModels.ContactDropdownItem>();
+    var classes = Model.AvailableClasses ?? new List<NSMSOLUTION.ViewModels.ClassDropdownItem>();
+    var users = Model.AvailableUsers ?? new List<NSMSOLUTION.ViewModels.UserDropdownItem>();
+    var custs = contacts.Where(c => c.ContactType == "Customer").ToList();
+    var vends = contacts.Where(c => c.ContactType == "Vendor").ToList();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Journal Entry</title>
+    <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+    <style>
+        :root {
+            --primary: #007bff;
+            --primary-dark: #0056b3;
+            --success: #28a745;
+            --info: #17a2b8;
+            --danger: #dc3545;
+            --secondary: #6c757d;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --border-color: #dee2e6;
+        }
+        body {
+            background-color: transparent;
+            color: var(--dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .jv-container {
+            background-color: #ffffff;
+            padding: 10px 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .jv-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #495057;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .jv-card {
+            background: #ffffff;
+            border: none;
+            padding: 0;
+            margin-bottom: 0;
+        }
+        .jv-form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .jv-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .jv-form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+        .jv-form-group label .req {
+            color: var(--danger);
+        }
+        .jv-input-group {
+            display: flex;
+            align-items: center;
+        }
+        .jv-input-group input, .jv-input-group select, .jv-input-group textarea {
+            border: 1px solid #ced4da;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #495057;
+            outline: none;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            width: 100%;
+            background-color: #fff;
+        }
+        .jv-input-group input:focus, .jv-input-group select:focus, .jv-input-group textarea:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .jv-input-icon-btn {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+            border-left: none;
+            padding: 6px 10px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color .15s ease-in-out, color .15s ease-in-out;
+        }
+        .jv-input-icon-btn:hover {
+            background: #e9ecef;
+            color: #343a40;
+        }
+        .jv-input-with-icon {
+            border-radius: 4px 0 0 4px !important;
+        }
+        .jv-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #495057;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        /* Select2 Dropdown Global Styling */
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ced4da !important;
+            height: 31px !important;
+            border-radius: 3px !important;
+            padding: 2px 4px !important;
+            font-size: 13px !important;
+            background-color: #fff !important;
+        }
+        /* Visual Field Validation Highlight (No spam alerts) */
+        .jv-input-error, input.jv-input-error, select.jv-input-error {
+            border: 1.5px solid #dc3545 !important;
+            background-color: #fff8f8 !important;
+            box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15) !important;
+        }
+        .select2-container.jv-input-error .select2-selection--single {
+            border: 1.5px solid #dc3545 !important;
+            background-color: #fff8f8 !important;
+            box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15) !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 29px !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+            z-index: 999999 !important;
+            background-color: #fff !important;
+        }
+        .select2-results__options {
+            max-height: 220px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 2px 0 !important;
+        }
+        .select2-results__option {
+            padding: 6px 10px !important;
+            font-size: 13px !important;
+            line-height: 1.3 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            cursor: pointer !important;
+        }
+        .select2-results__option--highlighted {
+            background-color: #007bff !important;
+            color: #ffffff !important;
+        }
+        .select2-results__option[aria-selected="true"] {
+            background-color: #e9ecef !important;
+            color: #0056b3 !important;
+            font-weight: 600 !important;
+        }
+        .jv-grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .jv-grid-table th {
+            background-color: #f4f6f9;
+            color: #495057;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .jv-grid-table td {
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+            background: #ffffff;
+        }
+        .jv-grid-table tr:nth-child(even) td {
+            background-color: #fbfcfd;
+        }
+        .jv-grid-table input, .jv-grid-table select {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            font-size: 13px;
+            color: #495057;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        .jv-grid-table input:focus, .jv-grid-table select:focus {
+            border-color: #80bdff;
+            outline: none;
+            box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25);
+        }
+        .jv-text-right {
+            text-align: right !important;
+        }
+        .jv-text-center {
+            text-align: center !important;
+        }
+        .jv-btn-row-action {
+            background: #fff;
+            border: 1px solid #f5c6cb;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .jv-btn-row-action:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+        .jv-btn-add-row {
+            background: #ffffff;
+            border: 1px dashed #6c757d;
+            color: #495057;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .jv-btn-add-row:hover {
+            background: #f8f9fa;
+            border-color: #343a40;
+            color: #212529;
+        }
+        .jv-footer-summary {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 25px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .jv-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .jv-btn-group-left, .jv-btn-group-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .jv-btn {
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid transparent;
+            transition: all 0.15s ease-in-out;
+        }
+        .jv-btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+        .jv-btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        .jv-btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: #ffffff;
+        }
+        .jv-btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .jv-btn-danger {
+            background-color: #ffffff;
+            color: var(--danger);
+            border-color: #f5c6cb;
+        }
+        .jv-btn-danger:hover {
+            background-color: #f8d7da;
+        }
+        .jv-status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        .jv-status-balanced {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .jv-status-unbalanced {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div class="jv-container" id="journalEntryApp">
+    <form id="frmJournalEntry" novalidate onsubmit="return false;">
+        @Html.HiddenFor(m => m.JournalEntryID)
+
+        <div class="jv-card">
+            <div class="jv-section-title">
+                <span><i class="fa fa-info-circle"></i> BASIC INFORMATION</span>
+                @if (Model.JournalEntryID > 0)
+                {
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+                        @if (Model.StatusID == 90)
+                        {
+                            <span class="badge badge-primary" style="font-size: 12px; padding: 4px 10px;">✔ Approved by @Model.ApprovedBy @(Model.ApprovalDate.HasValue ? "(" + Model.ApprovalDate.Value.ToString("dd/MM/yyyy") + ")" : "")</span>
+                        }
+                        else if (Model.StatusID == 91)
+                        {
+                            <span class="badge badge-danger" style="font-size: 12px; padding: 4px 10px;">✖ Disapproved @(Model.DisapprovedBy != null ? "by " + Model.DisapprovedBy : "")</span>
+                        }
+                        else if (Model.StatusID == 102)
+                        {
+                            <span class="badge badge-success" style="font-size: 12px; padding: 4px 10px;">✔ Verified by @Model.VerifiedBy @(Model.VerifiedDate.HasValue ? "(" + Model.VerifiedDate.Value.ToString("dd/MM/yyyy") + ")" : "")</span>
+                        }
+                        else if (Model.StatusID == 92)
+                        {
+                            <span class="badge badge-info" style="font-size: 12px; padding: 4px 10px;">✔ Checked by @Model.CheckedBy @(Model.CheckedDate.HasValue ? "(" + Model.CheckedDate.Value.ToString("dd/MM/yyyy") + ")" : "")</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning" style="font-size: 12px; padding: 4px 10px;">⏳ Draft / Pending</span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="jv-form-row">
+                <!-- Entry Date with Embedded Calendar Icon -->
+                <div class="jv-form-group" style="flex: 1; min-width: 170px;">
+                    <label>Date <span class="req">*</span></label>
+                    <div style="position: relative; width: 100%;">
+                        <input type="text" id="EntryDate" name="EntryDate" class="datepicker form-control" 
+                               value="@(Model.EntryDate.ToString("dd-MM-yyyy"))" 
+                               style="padding-right: 32px; background-color: #fff; cursor: pointer;" />
+                        <i class="fa fa-calendar-alt text-muted" id="btnDateTrigger" 
+                           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; font-size: 14px;" 
+                           title="Click to Pick Date"></i>
+                    </div>
+                </div>
+
+                <!-- Class Selection -->
+                <div class="jv-form-group" style="flex: 1; min-width: 180px;">
+                    <label>Class</label>
+                    <select id="HeaderClassID" name="HeaderClassID" class="form-control select2-searchable" onchange="onHeaderClassChange(this.value)">
+                        <option value="">-- Select Class --</option>
+                        @foreach (var c in classes)
+                        {
+                            <option value="@c.ClassID" @(c.ClassID == Model.ClassID ? "selected" : "")>@c.ClassName</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- JV Number -->
+                <div class="jv-form-group" style="flex: 1; min-width: 200px;">
+                    <label>Entry No <span class="req">*</span></label>
+                    <input type="text" id="JVNo" name="JVNo" class="form-control" value="@Model.JVNo" placeholder="Select a Class..." required />
+                    <label class="jv-checkbox-group">
+                        <input type="checkbox" id="IsAdjustment" name="IsAdjustment" value="true" @(Model.IsAdjustment ? "checked" : "") />
+                        <span>Adjustment</span>
+                    </label>
+                </div>
+
+                <!-- Header Memo -->
+                <div class="jv-form-group" style="flex: 2; min-width: 250px;">
+                    <label>Memo</label>
+                    <textarea id="Memo" name="Memo" class="form-control" rows="2" placeholder="Description for this journal entry...">@Model.Memo</textarea>
+                </div>
+            </div>
+
+            <!-- Approvers Assignment Row -->
+            <div class="jv-form-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed #e9ecef;">
+                <!-- Checked By -->
+                <div class="jv-form-group" style="flex: 1; min-width: 180px;">
+                    <label><i class="fa fa-user-check text-info"></i> Checked By</label>
+                    <select id="CheckedByUserID" name="CheckedByUserID" class="form-control select2-searchable">
+                        <option value="">-- Select Approver --</option>
+                        @foreach (var u in users)
+                        {
+                            <option value="@u.UserLoginID" data-name="@u.FullName" @(u.UserLoginID == Model.CheckedByUserID ? "selected" : "")>@u.FullName @(!string.IsNullOrEmpty(u.Job) ? "(" + u.Job + ")" : "")</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Verified By -->
+                <div class="jv-form-group" style="flex: 1; min-width: 180px;">
+                    <label><i class="fa fa-user-shield text-success"></i> Verified By</label>
+                    <select id="VerifiedByUserID" name="VerifiedByUserID" class="form-control select2-searchable">
+                        <option value="">-- Select Approver --</option>
+                        @foreach (var u in users)
+                        {
+                            <option value="@u.UserLoginID" data-name="@u.FullName" @(u.UserLoginID == Model.VerifiedByUserID ? "selected" : "")>@u.FullName @(!string.IsNullOrEmpty(u.Job) ? "(" + u.Job + ")" : "")</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Approved By -->
+                <div class="jv-form-group" style="flex: 1; min-width: 180px;">
+                    <label><i class="fa fa-user-tie text-primary"></i> Approved By</label>
+                    <select id="ApprovedByUserID" name="ApprovedByUserID" class="form-control select2-searchable">
+                        <option value="">-- Select Approver --</option>
+                        @foreach (var u in users)
+                        {
+                            <option value="@u.UserLoginID" data-name="@u.FullName" @(u.UserLoginID == Model.ApprovedByUserID ? "selected" : "")>@u.FullName @(!string.IsNullOrEmpty(u.Job) ? "(" + u.Job + ")" : "")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="jv-section-title" style="margin-top: 15px;">
+                <i class="fa fa-list"></i> JOURNAL INFORMATION
+            </div>
+
+            <!-- Grid Table -->
+            <table class="jv-grid-table" id="tblJournalGrid">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;" class="jv-text-center">#</th>
+                        <th style="width: 30%;">Account Name</th>
+                        <th style="width: 14%;" class="jv-text-right">Dr ($)</th>
+                        <th style="width: 14%;" class="jv-text-right">Cr ($)</th>
+                        <th style="width: 24%;">Memo</th>
+                        <th style="width: 18%;">Name (Optional)</th>
+                        <th style="width: 45px;" class="jv-text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="gridLinesBody">
+                    @if (Model.Lines != null && Model.Lines.Count > 0)
+                    {
+                        for (int i = 0; i < Model.Lines.Count; i++)
+                        {
+                            var line = Model.Lines[i];
+                            <tr class="grid-line-row">
+                                <td class="jv-text-center text-muted row-number">@(i + 1)</td>
+                                <td>
+                                    <select class="line-account select2-searchable">
+                                        <option value="0">-- Select Account --</option>
+                                        @foreach (var acc in accounts)
+                                        {
+                                            <option value="@acc.ChartOfAccountID" @(acc.ChartOfAccountID == line.ChartOfAccountID ? "selected" : "")>
+                                                @acc.DisplayName
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" class="line-debit jv-text-right" value="@(line.Debit > 0 ? line.Debit.ToString("0.00") : "")" placeholder="0.00" oninput="calculateBalance()" />
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" class="line-credit jv-text-right" value="@(line.Credit > 0 ? line.Credit.ToString("0.00") : "")" placeholder="0.00" oninput="calculateBalance()" />
+                                </td>
+                                <td>
+                                    <input type="text" class="line-memo" value="@line.LineMemo" placeholder="Line memo..." />
+                                </td>
+                                <td>
+                                    <select class="line-contact select2-searchable">
+                                        <option value="">-- None --</option>
+                                        @foreach (var contact in contacts)
+                                        {
+                                            <option value="@contact.ContactID" @(contact.ContactID == line.NameID ? "selected" : "")>
+                                                @contact.ContactName (@contact.ContactType)
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                                <td class="jv-text-center">
+                                    <button type="button" class="jv-btn-row-action" title="Delete row" onclick="removeRow(this)">
+                                        <i class="fa fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Default 2 Empty Rows -->
+                        <tr class="grid-line-row">
+                            <td class="jv-text-center text-muted row-number">1</td>
+                            <td>
+                                <select class="line-account select2-searchable">
+                                    <option value="0">-- Select Account --</option>
+                                    @foreach (var acc in accounts)
+                                    {
+                                        <option value="@acc.ChartOfAccountID">@acc.DisplayName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td><input type="number" step="0.01" class="line-debit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                            <td><input type="number" step="0.01" class="line-credit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                            <td><input type="text" class="line-memo" placeholder="Line memo..." /></td>
+                            <td>
+                                <select class="line-contact select2-searchable">
+                                    <option value="">-- None --</option>
+                                    @foreach (var contact in contacts)
+                                    {
+                                        <option value="@contact.ContactID">@contact.ContactName (@contact.ContactType)</option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="jv-text-center">
+                                <button type="button" class="jv-btn-row-action" title="Delete row" onclick="removeRow(this)">
+                                    <i class="fa fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="grid-line-row">
+                            <td class="jv-text-center text-muted row-number">2</td>
+                            <td>
+                                <select class="line-account select2-searchable">
+                                    <option value="0">-- Select Account --</option>
+                                    @foreach (var acc in accounts)
+                                    {
+                                        <option value="@acc.ChartOfAccountID">@acc.DisplayName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td><input type="number" step="0.01" class="line-debit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                            <td><input type="number" step="0.01" class="line-credit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                            <td><input type="text" class="line-memo" placeholder="Line memo..." /></td>
+                            <td>
+                                <select class="line-contact select2-searchable">
+                                    <option value="">-- None --</option>
+                                    @foreach (var contact in contacts)
+                                    {
+                                        <option value="@contact.ContactID">@contact.ContactName (@contact.ContactType)</option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="jv-text-center">
+                                <button type="button" class="jv-btn-row-action" title="Delete row" onclick="removeRow(this)">
+                                    <i class="fa fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div style="margin-top: 10px;">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addNewLine()" style="border-radius: 4px; font-weight: 500;">
+                    <i class="fa fa-plus"></i> Add New Line
+                </button>
+            </div>
+
+            <!-- Summary Totals Footer -->
+            <div class="jv-footer-summary">
+                <div>
+                    <span id="balanceBadge" class="jv-status-badge jv-status-unbalanced">Empty Entry</span>
+                </div>
+                <div>
+                    <span>Total Debit: </span>
+                    <strong id="lblTotalDebit" style="color: #28a745;">$0.00</strong>
+                </div>
+                <div>
+                    <span>Total Credit: </span>
+                    <strong id="lblTotalCredit" style="color: #28a745;">$0.00</strong>
+                </div>
+                <div>
+                    <span>Difference: </span>
+                    <strong id="lblDifference" style="color: #dc3545;">$0.00</strong>
+                </div>
+            </div>
+    </form>
+
+    <!-- Bottom Modal Footer Action Buttons Container -->
+    <div id="divFooterApprovalActions" style="display: none; align-items: center; gap: 8px;">
+        @if (Model.JournalEntryID > 0)
+        {
+            <button type="button" id="btnSendTelegram" class="btn btn-primary btn-sm" onclick="sendTelegram(@Model.JournalEntryID)" style="border-radius: 4px; font-weight: 500; padding: 6px 14px; background-color: #0088cc; border-color: #0088cc; color: white;">
+                <i class="fab fa-telegram-plane"></i> Send to Telegram
+            </button>
+
+            if (Model.StatusID == 60 && Model.CheckedByUserID.HasValue && Model.CheckedByUserID.Value > 0)
+            {
+                <button type="button" id="btnCheckAction" class="btn btn-info btn-sm" onclick="changeStatus(92, 'Check')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-check"></i> Check
+                </button>
+            }
+            else if (Model.StatusID == 92 && Model.VerifiedByUserID.HasValue && Model.VerifiedByUserID.Value > 0)
+            {
+                <button type="button" id="btnVerifyAction" class="btn btn-success btn-sm" onclick="changeStatus(102, 'Verify')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-check-double"></i> Verify
+                </button>
+                <button type="button" id="btnDisapproveAction" class="btn btn-danger btn-sm" onclick="changeStatus(91, 'Disapprove')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-times"></i> Disapprove
+                </button>
+            }
+            else if (Model.StatusID == 102 && Model.ApprovedByUserID.HasValue && Model.ApprovedByUserID.Value > 0)
+            {
+                <button type="button" id="btnApproveAction" class="btn btn-primary btn-sm" onclick="changeStatus(90, 'Approve')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-thumbs-up"></i> Approve
+                </button>
+                <button type="button" id="btnDisapproveAction" class="btn btn-danger btn-sm" onclick="changeStatus(91, 'Disapprove')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-times"></i> Disapprove
+                </button>
+            }
+            else if (Model.StatusID == 91)
+            {
+                <button type="button" id="btnResetDraftAction" class="btn btn-warning btn-sm" onclick="changeStatus(60, 'Reset to Draft')" style="border-radius: 4px; font-weight: 500; padding: 6px 14px;">
+                    <i class="fa fa-undo"></i> Reset to Draft
+                </button>
+            }
+            else if (Model.StatusID == 90)
+            {
+                <span class="badge badge-primary" style="font-size: 12px; padding: 6px 12px;">
+                    ✔ Approved by @Model.ApprovedBy
+                </span>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    var currentUserID = parseInt("@(ViewBag.CurrentUserID ?? "0")") || 0;
+    var currentUserFullName = "@Html.Raw(ViewBag.CurrentUserFullName ?? "")";
+
+    var accountOptionsHtml = `@foreach (var acc in accounts) { <option value="@acc.ChartOfAccountID">@acc.DisplayName</option> }`;
+    var contactOptionsHtml = `@foreach (var contact in contacts) { <option value="@contact.ContactID">@contact.ContactName (@contact.ContactType)</option> }`;
+
+    function calculateBalance() {
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        $('#gridLinesBody .grid-line-row').each(function () {
+            var debit = parseFloat($(this).find('.line-debit').val()) || 0;
+            var credit = parseFloat($(this).find('.line-credit').val()) || 0;
+            totalDebit += debit;
+            totalCredit += credit;
+        });
+
+        var diff = Math.abs(totalDebit - totalCredit);
+
+        $('#lblTotalDebit').text('$' + totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        $('#lblTotalCredit').text('$' + totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        $('#lblDifference').text('$' + diff.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+        if (diff < 0.001 && totalDebit > 0) {
+            $('#balanceBadge').removeClass('jv-status-unbalanced').addClass('jv-status-balanced').text('✔ Balanced');
+            $('#btnSaveClose, #btnSaveNew').prop('disabled', false);
+        } else {
+            $('#balanceBadge').removeClass('jv-status-balanced').addClass('jv-status-unbalanced').text(totalDebit === 0 ? 'Empty Entry' : '✖ Out of Balance');
+            $('#btnSaveClose, #btnSaveNew').prop('disabled', false);
+        }
+    }
+
+    function initSelect2(context) {
+        if ($.fn.select2) {
+            var $ctx = context ? $(context) : $(document);
+            $ctx.find('.select2-searchable').each(function () {
+                var $this = $(this);
+                if (!$this.hasClass("select2-hidden-accessible")) {
+                    $this.select2({
+                        width: '100%',
+                        placeholder: $this.find('option:first').text() || 'Search...',
+                        allowClear: false,
+                        dropdownParent: $('#modal-default').length ? $('#modal-default') : $(document.body),
+                        matcher: function (params, data) {
+                            if ($.trim(params.term) === '') {
+                                return data;
+                            }
+                            if (typeof data.text === 'undefined') {
+                                return null;
+                            }
+                            var term = params.term.toLowerCase();
+                            var text = data.text.toLowerCase();
+                            if (text.indexOf(term) > -1) {
+                                return data;
+                            }
+                            if (data.children && data.children.length > 0) {
+                                var matchChildren = [];
+                                data.children.forEach(function (c) {
+                                    if (c.text && c.text.toLowerCase().indexOf(term) > -1) {
+                                        matchChildren.push(c);
+                                    }
+                                });
+                                if (matchChildren.length > 0) {
+                                    var modifiedData = $.extend({}, data, true);
+                                    modifiedData.children = matchChildren;
+                                    return modifiedData;
+                                }
+                            }
+                            return null;
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function addNewLine() {
+        var headerMemo = $('#Memo').val() || '';
+        var nextNo = $('#gridLinesBody .grid-line-row').length + 1;
+        var rowHtml = `
+            <tr class="grid-line-row">
+                <td class="jv-text-center text-muted row-number">${nextNo}</td>
+                <td>
+                    <select class="line-account select2-searchable">
+                        <option value="0">-- Select Account --</option>
+                        ${accountOptionsHtml}
+                    </select>
+                </td>
+                <td><input type="number" step="0.01" class="line-debit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                <td><input type="number" step="0.01" class="line-credit jv-text-right" placeholder="0.00" oninput="calculateBalance()" /></td>
+                <td><input type="text" class="line-memo" value="${headerMemo}" placeholder="Line memo..." /></td>
+                <td>
+                    <select class="line-contact select2-searchable">
+                        ${contactOptionsHtml}
+                    </select>
+                </td>
+                <td class="jv-text-center">
+                    <button type="button" class="jv-btn-row-action" title="Delete row" onclick="removeRow(this)">
+                        <i class="fa fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        var $newRow = $(rowHtml);
+        $('#gridLinesBody').append($newRow);
+        initSelect2($newRow);
+        calculateBalance();
+    }
+
+    function removeRow(btn) {
+        var rowCount = $('#gridLinesBody .grid-line-row').length;
+        if (rowCount <= 2) {
+            alert('A Journal Entry must have at least 2 lines.');
+            return;
+        }
+        $(btn).closest('tr').remove();
+        reindexRows();
+        calculateBalance();
+    }
+
+    function reindexRows() {
+        $('#gridLinesBody .grid-line-row').each(function (index) {
+            $(this).find('.row-number').text(index + 1);
+        });
+    }
+
+    var saveUrl = '@Url.Action("SaveJournalEntry", "JournalEntry")';
+    var saveAndReverseUrl = '@Url.Action("SaveAndReverse", "JournalEntry")';
+    var updateStatusUrl = '@Url.Action("UpdateStatus", "JournalEntry")';
+    var getNextNoUrl = '@Url.Action("GetNextJVNumberByClass", "JournalEntry")';
+    var invoiceUrl = '@Url.Action("Invoice", "JournalEntry")';
+
+    var getUrlParam = function (name) {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get(name)) return parseInt(urlParams.get(name)) || null;
+        if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+            var hashParams = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+            if (hashParams.get(name)) return parseInt(hashParams.get(name)) || null;
+        }
+        if (window.parent && window.parent.location) {
+            var pUrlParams = new URLSearchParams(window.parent.location.search);
+            if (pUrlParams.get(name)) return parseInt(pUrlParams.get(name)) || null;
+            if (window.parent.location.hash && window.parent.location.hash.indexOf('?') !== -1) {
+                var pHashParams = new URLSearchParams(window.parent.location.hash.substring(window.parent.location.hash.indexOf('?')));
+                if (pHashParams.get(name)) return parseInt(pHashParams.get(name)) || null;
+            }
+        }
+        return null;
+    };
+
+    var currentSystemID = parseInt("@(ViewBag.SystemID ?? "0")") || getUrlParam('SystemID');
+    var currentWarehouseID = parseInt("@(ViewBag.WarehouseID ?? "0")") || getUrlParam('WarehouseID');
+
+    function onHeaderClassChange(classId) {
+        if (!classId || parseInt(classId) <= 0) {
+            $('#JVNo').val('');
+            return;
+        }
+        var currentDateVal = $('#EntryDate').val();
+        $.ajax({
+            url: getNextNoUrl,
+            type: 'GET',
+            data: { classId: classId, systemId: currentSystemID, warehouseId: currentWarehouseID, date: currentDateVal },
+            headers: { "Authorization": "Bearer " + (typeof access_Token !== 'undefined' ? access_Token : '') },
+            success: function (res) {
+                if (res && res.JVNo) {
+                    $('#JVNo').val(res.JVNo);
+                } else {
+                    $('#JVNo').val('');
+                }
+            }
+        });
+    }
+
+    function collectModel() {
+        var headerClassId = parseInt($('#HeaderClassID').val()) || null;
+        var lines = [];
+        var order = 1;
+
+        $('#gridLinesBody .grid-line-row').each(function () {
+            var accId = parseInt($(this).find('.line-account').val()) || 0;
+            var debit = parseFloat($(this).find('.line-debit').val()) || 0;
+            var credit = parseFloat($(this).find('.line-credit').val()) || 0;
+            var memo = $(this).find('.line-memo').val() || $('#Memo').val() || '';
+            var contactId = parseInt($(this).find('.line-contact').val()) || null;
+
+            if (accId > 0 || debit > 0 || credit > 0) {
+                lines.push({
+                    ChartOfAccountID: accId,
+                    Debit: debit,
+                    Credit: credit,
+                    ClassID: headerClassId,
+                    LineMemo: memo,
+                    NameID: contactId,
+                    LineOrder: order++
+                });
+            }
+        });
+
+        var checkedById = parseInt($('#CheckedByUserID').val()) || null;
+        var checkedByName = $('#CheckedByUserID option:selected').data('name') || null;
+        var verifiedById = parseInt($('#VerifiedByUserID').val()) || null;
+        var verifiedByName = $('#VerifiedByUserID option:selected').data('name') || null;
+        var approvedById = parseInt($('#ApprovedByUserID').val()) || null;
+        var approvedByName = $('#ApprovedByUserID option:selected').data('name') || null;
+
+        // Parse DD-MM-YYYY or DD/MM/YYYY into YYYY-MM-DD (ISO Format) so the C# binder parses it correctly
+        var entryDateVal = $.trim($('#EntryDate').val());
+        var entryDateIso = entryDateVal;
+        var dateParts = entryDateVal.split(/[-/]/);
+        if (dateParts.length === 3) {
+            // dateParts[0] is DD, dateParts[1] is MM, dateParts[2] is YYYY
+            entryDateIso = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+        }
+
+        return {
+            JournalEntryID: parseInt($('#JournalEntryID').val()) || 0,
+            JVNo: $('#JVNo').val(),
+            EntryDate: entryDateIso,
+            Memo: $('#Memo').val(),
+            IsAdjustment: $('#IsAdjustment').is(':checked'),
+            ClassID: headerClassId,
+            SystemID: currentSystemID,
+            WarehouseID: currentWarehouseID,
+            CheckedByUserID: checkedById,
+            CheckedBy: checkedByName,
+            VerifiedByUserID: verifiedById,
+            VerifiedBy: verifiedByName,
+            ApprovedByUserID: approvedById,
+            ApprovedBy: approvedByName,
+            Lines: lines
+        };
+    }
+
+    function highlightFieldError($el) {
+        if (!$el || $el.length === 0) return;
+        $el.addClass('jv-input-error');
+        if ($el.next('.select2-container').length > 0) {
+            $el.next('.select2-container').addClass('jv-input-error');
+        }
+    }
+
+    function clearAllFieldErrors() {
+        $('.jv-input-error').removeClass('jv-input-error');
+    }
+
+    function saveJournal(isReverse, isNew) {
+        clearAllFieldErrors();
+
+        var entryNo = $.trim($('#JVNo').val());
+        var entryDate = $.trim($('#EntryDate').val());
+        var hasError = false;
+        var $firstError = null;
+
+        if (!entryNo) {
+            highlightFieldError($('#HeaderClassID'));
+            highlightFieldError($('#JVNo'));
+            if (!$firstError) $firstError = $('#HeaderClassID');
+            hasError = true;
+        }
+
+        if (!entryDate) {
+            highlightFieldError($('#EntryDate'));
+            if (!$firstError) $firstError = $('#EntryDate');
+            hasError = true;
+        }
+
+        var lines = [];
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        var $rows = $('#gridLinesBody .grid-line-row');
+
+        $rows.each(function (idx) {
+            var rowNum = idx + 1;
+            var $row = $(this);
+            var $accountSelect = $row.find('.line-account');
+            var $debitInput = $row.find('.line-debit');
+            var $creditInput = $row.find('.line-credit');
+
+            var accountId = parseInt($accountSelect.val()) || 0;
+            var debit = parseFloat($debitInput.val()) || 0;
+            var credit = parseFloat($creditInput.val()) || 0;
+            var memo = $.trim($row.find('.line-memo').val()) || '';
+            var contactId = parseInt($row.find('.line-contact').val()) || null;
+
+            // Automatically skip completely empty rows
+            if (accountId <= 0 && debit === 0 && credit === 0) {
+                return;
+            }
+
+            if (accountId <= 0) {
+                highlightFieldError($accountSelect);
+                if (!$firstError) $firstError = $accountSelect;
+                hasError = true;
+            }
+
+            if (debit > 0 && credit > 0) {
+                highlightFieldError($debitInput);
+                highlightFieldError($creditInput);
+                if (!$firstError) $firstError = $debitInput;
+                hasError = true;
+            }
+
+            if (debit === 0 && credit === 0) {
+                highlightFieldError($debitInput);
+                highlightFieldError($creditInput);
+                if (!$firstError) $firstError = $debitInput;
+                hasError = true;
+            }
+
+            totalDebit += debit;
+            totalCredit += credit;
+
+            lines.push({
+                DetailID: 0,
+                JournalEntryID: parseInt($('#JournalEntryID').val()) || 0,
+                ChartOfAccountID: accountId,
+                Debit: debit,
+                Credit: credit,
+                LineMemo: memo,
+                NameID: contactId,
+                LineOrder: lines.length + 1
+            });
+        });
+
+        if (lines.length < 2 && !hasError) {
+            $rows.slice(0, 2).each(function () {
+                var $acc = $(this).find('.line-account');
+                var $dr = $(this).find('.line-debit');
+                var $cr = $(this).find('.line-credit');
+                if ((parseInt($acc.val()) || 0) <= 0) highlightFieldError($acc);
+                if ((parseFloat($dr.val()) || 0) === 0 && (parseFloat($cr.val()) || 0) === 0) {
+                    highlightFieldError($dr);
+                    highlightFieldError($cr);
+                }
+            });
+            if (!$firstError) $firstError = $('#tblJournalGrid');
+            hasError = true;
+        }
+
+        var diff = Math.abs(totalDebit - totalCredit);
+        if (diff > 0.001 || totalDebit <= 0 || totalCredit <= 0) {
+            $('#balanceBadge').removeClass('jv-status-balanced').addClass('jv-status-unbalanced').text('✖ Out of Balance');
+            hasError = true;
+        }
+
+        if (hasError) {
+            if ($firstError) {
+                if ($firstError.is('select') && $firstError.hasClass('select2-searchable')) {
+                    $firstError.select2('open');
+                } else {
+                    $firstError.focus();
+                }
+            }
+            return;
+        }
+
+        var model = collectModel();
+        model.Lines = lines; // Use only valid non-empty rows
+
+        var url = isReverse ? saveAndReverseUrl : saveUrl;
+
+        // Display Loading Spinner
+        var $saveBtn = $('#SaveChange');
+        var originalBtnText = $saveBtn.html();
+        $saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Saving...',
+                html: 'Please wait while we save your Journal Entry and send notifications.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            contentType: 'application/json',
+            headers: { "Authorization": "Bearer " + (typeof access_Token !== 'undefined' ? access_Token : '') },
+            data: JSON.stringify(model),
+            success: function (res) {
+                $saveBtn.prop('disabled', false).html(originalBtnText);
+                if (res.Result === 2 || res.success) {
+                    if (typeof toastr !== 'undefined') {
+                        if (typeof Swal !== 'undefined') Swal.close();
+                        toastr.success(res.Message || 'Journal Entry saved successfully!');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            position: 'top',
+                            icon: 'success',
+                            title: res.Message || 'Journal Entry saved successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        alert(res.Message || 'Saved successfully!');
+                    }
+
+                    if ($('#chkPrintAfterSave').is(':checked') && res.TransactionID) {
+                        window.open(invoiceUrl + '?id=' + res.TransactionID, '_blank');
+                    }
+
+                    refreshParentGrid();
+
+                    if (isNew) {
+                        window.location.reload();
+                    } else {
+                        setTimeout(function () {
+                            closeForm();
+                        }, 500);
+                    }
+                } else {
+                    if (typeof DialogSweetAlert === "function") {
+                        DialogSweetAlert('error', res.Message || 'Failed to save Journal Entry.');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Oops...', text: res.Message || 'Failed to save Journal Entry.' });
+                    } else {
+                        alert(res.Message || 'Failed to save Journal Entry.');
+                    }
+                }
+            },
+            error: function (xhr) {
+                $saveBtn.prop('disabled', false).html(originalBtnText);
+                if (typeof Swal !== 'undefined') Swal.close();
+                alert('Server error occurred while saving: ' + xhr.responseText);
+            }
+        });
+    }
+
+    function isCurrentUser(assignedId, assignedName) {
+        if (!assignedId || assignedId <= 0) return true;
+        if (currentUserID > 0 && currentUserID === assignedId) return true;
+        if (currentUserFullName && assignedName) {
+            var cName = currentUserFullName.toLowerCase().trim();
+            var aName = assignedName.toLowerCase().trim();
+            if (cName === aName || cName.indexOf(aName) >= 0 || aName.indexOf(cName) >= 0) return true;
+        }
+        return false;
+    }
+
+    function changeStatus(statusId, actionName) {
+        var id = parseInt($('#JournalEntryID').val()) || 0;
+        if (id <= 0) {
+            alert('Please save the entry first.');
+            return;
+        }
+
+        if (statusId == 92) { 
+            var assignedCheckedId = parseInt($('#CheckedByUserID').val()) || 0;
+            var assignedCheckedName = $('#CheckedByUserID option:selected').data('name') || '';
+            if (!isCurrentUser(assignedCheckedId, assignedCheckedName)) {
+                if (typeof DialogSweetAlert === "function") {
+                    DialogSweetAlert('error', 'Only the selected user (' + assignedCheckedName + ') can Check this entry.');
+                } else {
+                    alert('Only the selected user (' + assignedCheckedName + ') can Check this entry.');
+                }
+                return;
+            }
+        } else if (statusId == 102) { 
+            var assignedVerifiedId = parseInt($('#VerifiedByUserID').val()) || 0;
+            var assignedVerifiedName = $('#VerifiedByUserID option:selected').data('name') || '';
+            if (!isCurrentUser(assignedVerifiedId, assignedVerifiedName)) {
+                if (typeof DialogSweetAlert === "function") {
+                    DialogSweetAlert('error', 'Only the selected user (' + assignedVerifiedName + ') can Verify this entry.');
+                } else {
+                    alert('Only the selected user (' + assignedVerifiedName + ') can Verify this entry.');
+                }
+                return;
+            }
+        } else if (statusId == 90) { 
+            var assignedApprovedId = parseInt($('#ApprovedByUserID').val()) || 0;
+            var assignedApprovedName = $('#ApprovedByUserID option:selected').data('name') || '';
+            if (!isCurrentUser(assignedApprovedId, assignedApprovedName)) {
+                if (typeof DialogSweetAlert === "function") {
+                    DialogSweetAlert('error', 'Only the selected user (' + assignedApprovedName + ') can Approve this entry.');
+                } else {
+                    alert('Only the selected user (' + assignedApprovedName + ') can Approve this entry.');
+                }
+                return;
+            }
+        } else if (statusId == 91) { 
+            var currentEntryStatus = parseInt('@Model.StatusID') || 0;
+            var assignedDisapproveId = 0;
+            var assignedDisapproveName = '';
+
+            if (currentEntryStatus == 92) {
+                assignedDisapproveId = parseInt($('#VerifiedByUserID').val()) || parseInt($('#ApprovedByUserID').val()) || 0;
+                assignedDisapproveName = $('#VerifiedByUserID option:selected').data('name') || $('#ApprovedByUserID option:selected').data('name') || '';
+            } else if (currentEntryStatus == 102) {
+                assignedDisapproveId = parseInt($('#ApprovedByUserID').val()) || 0;
+                assignedDisapproveName = $('#ApprovedByUserID option:selected').data('name') || '';
+            } else {
+                assignedDisapproveId = parseInt($('#CheckedByUserID').val()) || parseInt($('#VerifiedByUserID').val()) || parseInt($('#ApprovedByUserID').val()) || 0;
+                assignedDisapproveName = $('#CheckedByUserID option:selected').data('name') || $('#VerifiedByUserID option:selected').data('name') || $('#ApprovedByUserID option:selected').data('name') || '';
+            }
+
+            if (!isCurrentUser(assignedDisapproveId, assignedDisapproveName)) {
+                if (typeof DialogSweetAlert === "function") {
+                    DialogSweetAlert('error', 'Only the assigned reviewer (' + assignedDisapproveName + ') can Disapprove this entry.');
+                } else {
+                    alert('Only the assigned reviewer (' + assignedDisapproveName + ') can Disapprove this entry.');
+                }
+                return;
+            }
+        }
+
+        var confirmMsg = 'Are you sure you want to ' + actionName + ' this Journal Entry?';
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: actionName + ' Entry?',
+                text: confirmMsg,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, ' + actionName,
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed || result.value) {
+                    performStatusUpdate(id, statusId);
+                }
+            });
+        } else {
+            if (confirm(confirmMsg)) {
+                performStatusUpdate(id, statusId);
+            }
+        }
+    }
+
+    function performStatusUpdate(id, statusId) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Processing...',
+                html: 'Please wait while we update the status and send notifications.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+
+        $.ajax({
+            url: updateStatusUrl,
+            type: 'POST',
+            data: { 
+                id: id, 
+                statusId: statusId,
+                clientUserFullName: currentUserFullName,
+                clientUserId: currentUserID
+            },
+            headers: { "Authorization": "Bearer " + (typeof access_Token !== 'undefined' ? access_Token : '') },
+            success: function (res) {
+                if (typeof Swal !== 'undefined') Swal.close();
+                if (res.Result === 2 || res.success) {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success(res.Message || 'Status updated successfully!');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            position: 'top',
+                            icon: 'success',
+                            title: res.Message || 'Status updated successfully!',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    } else {
+                        alert(res.Message || 'Status updated successfully!');
+                    }
+
+                    refreshParentGrid();
+                    setTimeout(function () {
+                        closeForm();
+                    }, 300);
+                } else {
+                    if (typeof DialogSweetAlert === "function") {
+                        DialogSweetAlert('error', res.Message || 'Failed to update status.');
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Oops...', text: res.Message || 'Failed to update status.' });
+                    } else {
+                        alert(res.Message || 'Failed to update status.');
+                    }
+                }
+            },
+            error: function (xhr) {
+                if (typeof Swal !== 'undefined') Swal.close();
+                alert('Error updating status: ' + xhr.responseText);
+            }
+        });
+    }
+
+    function sendTelegram(id) {
+        if (!id || id <= 0) {
+            alert('Please save the entry first.');
+            return;
+        }
+        
+        var sendUrl = '@Url.Action("SendJournalEntryTelegram", "JournalEntry")';
+        var $btn = $('#btnSendTelegram');
+        var originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sending...');
+        
+        $.ajax({
+            url: sendUrl,
+            type: 'POST',
+            data: { id: id },
+            headers: { "Authorization": "Bearer " + (typeof access_Token !== 'undefined' ? access_Token : '') },
+            success: function (res) {
+                $btn.prop('disabled', false).html(originalHtml);
+                if (res.success) {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success(res.message || 'Sent to Telegram successfully!');
+                    } else {
+                        alert(res.message || 'Sent to Telegram successfully!');
+                    }
+                } else {
+                    alert(res.message || 'Failed to send to Telegram: ' + res.message);
+                }
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html(originalHtml);
+                alert('Error sending to Telegram: ' + xhr.responseText);
+            }
+        });
+    }
+
+    function refreshParentGrid() {
+        try {
+            var $grid = $("#TableGride, [id*='TableGride'], .k-grid");
+            if ($grid.length > 0 && $grid.data("kendoGrid")) {
+                $grid.data("kendoGrid").dataSource.read();
+            }
+        } catch (e) { }
+
+        try {
+            if (window.parent && window.parent.$) {
+                var $pGrid = window.parent.$("#TableGride, [id*='TableGride'], .k-grid");
+                if ($pGrid.length > 0 && $pGrid.data("kendoGrid")) {
+                    $pGrid.data("kendoGrid").dataSource.read();
+                }
+            }
+        } catch (e) { }
+
+        if (typeof LoadTableGrid === "function") { 
+            LoadTableGrid(1); 
+        }
+        if (window.parent && typeof window.parent.LoadTableGrid === "function") { 
+            window.parent.LoadTableGrid(1); 
+        }
+    }
+
+    function printJournal() {
+        var id = $('#JournalEntryID').val();
+        if (id && parseInt(id) > 0) {
+            window.open(invoiceUrl + '?id=' + id, '_blank');
+        } else {
+            alert('Please save the entry before printing.');
+        }
+    }
+
+    function closeForm() {
+        // 1. Current window
+        try {
+            $('#modal-default, .modal').modal('hide');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var m = document.getElementById('modal-default') || document.querySelector('.modal.show');
+                if (m) {
+                    var inst = bootstrap.Modal.getInstance(m) || bootstrap.Modal.getOrCreateInstance(m);
+                    if (inst) inst.hide();
+                }
+            }
+        } catch (e) {}
+
+        // 2. Parent window (if in iframe)
+        try {
+            if (window.parent && window.parent.$) {
+                window.parent.$('#modal-default, .modal').modal('hide');
+                if (window.parent.bootstrap && window.parent.bootstrap.Modal) {
+                    var pm = window.parent.document.getElementById('modal-default') || window.parent.document.querySelector('.modal.show');
+                    if (pm) {
+                        var pinst = window.parent.bootstrap.Modal.getInstance(pm) || window.parent.bootstrap.Modal.getOrCreateInstance(pm);
+                        if (pinst) pinst.hide();
+                    }
+                }
+                if (window.parent.$('#dialog').data('kendoWindow')) {
+                    window.parent.$('#dialog').data('kendoWindow').close();
+                }
+            }
+        } catch (e) {}
+
+        // 3. Trigger close buttons
+        $('#CloseModal, .btnclose, .close').trigger('click');
+        if (window.parent && window.parent.$) {
+            window.parent.$('#CloseModal, .btnclose, .close').trigger('click');
+        }
+
+        // 4. Force remove backdrop & reset body classes
+        setTimeout(function () {
+            $('#modal-default, .modal').removeClass('show in').hide();
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': 'auto' });
+
+            if (window.parent && window.parent.$) {
+                window.parent.$('#modal-default, .modal').removeClass('show in').hide();
+                window.parent.$('.modal-backdrop').remove();
+                window.parent.$('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': 'auto' });
+            }
+        }, 100);
+    }
+
+    $(document).ready(function () {
+        calculateBalance();
+        initSelect2();
+
+        // Initialize Datepicker with Calendar Trigger and auto-update Entry No
+        if ($.fn.daterangepicker) {
+            $('#EntryDate').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                autoApply: true,
+                locale: { format: 'DD-MM-YYYY' }
+            }).on('apply.daterangepicker', function (ev, picker) {
+                var selectedDate = picker.startDate.format('DD-MM-YYYY');
+                $('#EntryDate').val(selectedDate);
+                var classId = $('#HeaderClassID').val();
+                if (classId && parseInt(classId) > 0) {
+                    onHeaderClassChange(classId);
+                }
+            });
+            $('#btnDateTrigger').on('click', function () {
+                $('#EntryDate').trigger('focus');
+            });
+        } else if ($.fn.datepicker) {
+            $('#EntryDate').datepicker({
+                format: 'dd-mm-yyyy',
+                autoclose: true,
+                todayHighlight: true
+            }).on('changeDate', function (e) {
+                var classId = $('#HeaderClassID').val();
+                if (classId && parseInt(classId) > 0) {
+                    onHeaderClassChange(classId);
+                }
+            });
+            $('#btnDateTrigger').on('click', function () {
+                $('#EntryDate').datepicker('show');
+            });
+        }
+
+        // Helper to parse manual date input (DD-MM-YYYY or DD/MM/YYYY)
+        function parseManualDate(val) {
+            var match = $.trim(val).match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
+            if (match) {
+                var d = parseInt(match[1], 10);
+                var m = parseInt(match[2], 10) - 1; // 0-indexed month
+                var y = parseInt(match[3], 10);
+                var date = new Date(y, m, d);
+                if (date.getFullYear() === y && date.getMonth() === m && date.getDate() === d) {
+                    return date;
+                }
+            }
+            return null;
+        }
+
+        // Real-time listener for manual text typing / edits
+        $('#EntryDate').on('input keyup change blur', function () {
+            var val = $(this).val();
+            var classId = $('#HeaderClassID').val();
+            if (classId && parseInt(classId) > 0) {
+                var validDate = parseManualDate(val);
+                if (validDate) {
+                    // Sync the datepicker widgets internally
+                    try {
+                        var picker = $('#EntryDate').data('daterangepicker');
+                        if (picker) {
+                            picker.setStartDate(validDate);
+                            picker.setEndDate(validDate);
+                        }
+                    } catch (e) {}
+                    try {
+                        var dp = $('#EntryDate').data('datepicker');
+                        if (dp) {
+                            dp.setDate(validDate);
+                        }
+                    } catch (e) {}
+
+                    // Refresh entry number prefix immediately
+                    onHeaderClassChange(classId);
+                }
+            }
+        });
+
+        $(document).off('click', '#SaveChange').on('click', '#SaveChange', function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+            saveJournal(false, false);
+            return false;
+        });
+
+        setTimeout(function () {
+            var $actions = $('#divFooterApprovalActions').detach();
+            var $footer = $('.modal-footer, .ui-dialog-buttonpane');
+            if ($footer.length > 0) {
+                var $saveBtn = $footer.find('#SaveChange, button:contains("Save Change"), input[value="Save Change"]');
+                if ($saveBtn.length > 0) {
+                    $saveBtn.before($actions);
+                } else {
+                    $footer.prepend($actions);
+                }
+                $actions.css({ 'display': 'inline-flex', 'margin-right': '10px' });
+            } else {
+                $('#divFooterApprovalActions').css({ 'display': 'flex', 'margin-top': '10px' });
+            }
+        }, 300);
+
+        // Real-time auto-sync from Header Memo to line items
+        var lastHeaderMemo = $('#Memo').val() || '';
+        $('#Memo').on('input', function () {
+            var newHeaderMemo = $(this).val();
+            $('#gridLinesBody .grid-line-row').each(function () {
+                var $lineMemo = $(this).find('.line-memo');
+                var currentVal = $lineMemo.val();
+                if (!currentVal || currentVal.trim() === '' || currentVal === lastHeaderMemo) {
+                    $lineMemo.val(newHeaderMemo);
+                }
+            });
+            lastHeaderMemo = newHeaderMemo;
+        });
+
+        // Auto-focus search field when any Select2 dropdown opens
+        $(document).on('select2:open', function () {
+            setTimeout(function () {
+                var searchField = document.querySelector('.select2-container--open .select2-search__field');
+                if (searchField) {
+                    searchField.focus();
+                }
+            }, 50);
+        });
+
+        // Auto-clear validation error highlight when user interacts with field
+        $(document).on('input change focus', 'input, select', function () {
+            $(this).removeClass('jv-input-error');
+            $(this).next('.select2-container').removeClass('jv-input-error');
+        });
+        $(document).on('select2:open select2:select', function (e) {
+            $(e.target).removeClass('jv-input-error');
+            $(e.target).next('.select2-container').removeClass('jv-input-error');
+        });
+    });
+</script>
+</body>
+</html>

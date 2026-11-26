@@ -1,0 +1,739 @@
+﻿@{ Layout = null;}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            @*<div class="col-md-3">
+                    <div class="card widget-chart widget-chart2 text-left card-btm-border card-shadow-warning border-warning">
+                        <div class="card-body box-profile">
+                            <div class="text-center">
+                                <div class="profile-pic-wrapper">
+                                    <div class="pic-holder">
+                                        <img id="profilePic" class="pic" src="~/Content/images/avatar/user.png">
+                                        <div id="newProfilePhoto" class="upload-file-block">
+                                            <div class="text-center">
+                                                <div class="mb-2">
+                                                    <i class="fa fa-camera fa-2x"></i>
+                                                </div>
+                                                <div class="text-uppercase">
+                                                    Update
+                                                    <br> Profile Photo
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="profile-username text-center" id="ProfileName" name="ProfileName"></h3>
+
+                            <p class="text-muted text-center" id="ProfileType" name="ProfileType"></p>
+
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>Phone</b> <a class="float-right" id="ProfilePhone"></a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a class="float-right" id="ProfileVAddress"></a>
+                                </li>
+                                <li class="list-group-item" id="ProfileVEmail">
+                                    <a class="float-right"></a>
+                                </li>
+                            </ul>
+
+                            <div class="row">
+                                <div class="col">
+                                    <a href="javascript:void(0);" id="NewPurchaseOrder" class="btn btn-primary btn-block text-nowrap"><b>New PO</b></a>
+                                </div>
+                                <div class="col">
+                                    <a href="javascript:void(0);" id="NewBill" class="btn btn-primary btn-block text-nowrap"><b>New Bill</b></a>
+                                </div>
+                            </div>
+                            <div class="row"><div class="col">&nbsp;</div></div>
+                            <div class="row">
+                                <div class="col">
+                                    <a href="javascript:void(0);" id="AddCreditNote" class="btn btn-info btn-block text-nowrap"><b><i class="fa fa-add"></i> Credit Note</b></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-warning">
+                        <div class="card-header text-white">
+                            <h3 class="card-title">About Me</h3>
+                            <a href="javascript:void(0);" id="EditVendor" class="float-right text-white"><i class="fa fa-pencil-alt"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <strong><i class="fas fa-contact-book mr-1"></i> Contact Information</strong>
+                            <p class="text-muted"></p>
+                            <p class="text-muted" id="ProfileContactName"></p>
+                            <p class="text-muted" id="ProfileContactPosition"></p>
+                            <p class="text-muted" id="ProfileContactPhone"></p>
+                            <p class="text-muted" id="ProfileBillingEmail"></p>
+                            <p class="text-muted" id="ProfileWebsite"></p>
+                            <hr>
+
+                            <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
+                            <p class="text-muted"></p>
+                            <p class="text-muted" id="ProfileAddress"></p>
+                            <p class="text-muted" id="ProfileMap"></p>
+                            <hr>
+
+                            <strong><i class="fas fa-building mr-1"></i> Company Infomation</strong>
+
+                            <p class="text-muted"></p>
+                            <p class="text-muted" id="ProfileComName"></p>
+                            <p class="text-muted" id="ProfileComNameKH"></p>
+                            <p class="text-muted" id="ProfileDeskPhone"></p>
+                            <p class="text-muted" id="ProfileHendPhone"></p>
+
+                            <hr>
+
+                            <strong><i class="fas fa-city mr-1"></i> Bank Infomation</strong>
+
+                            <p class="text-muted"></p>
+                            <p>Banker's Name:</p>
+                            <p class="text-muted" id="p_BankerName"></p>
+                            <p>Banker's Address:</p>
+                            <p class="text-muted" id="p_BankerAddress"></p>
+                            <p>Swift Code:</p>
+                            <p class="text-muted" id="p_SwiftCode"></p>
+                            <p>Account No:</p>
+                            <p class="text-muted" id="p_AccountNo"></p>
+                            <p>Account Name:</p>
+                            <p class="text-muted" id="p_AccountName"></p>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6 col-xl-3 card-body box-profile">
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-center">
+                                    <div class="profile-pic-wrapper">
+                                        <div class="pic-holder">
+                                            <img id="profilePic" class="pic" onerror="this.onerror=null;src='Content/images/avatar/user.png'">
+                                            <div id="newProfilePhoto" class="upload-file-block">
+                                                <div class="text-center">
+                                                    <div class="mb-2">
+                                                        <i class="fa fa-camera fa-2x"></i>
+                                                    </div>
+                                                    <div class="text-uppercase">
+                                                        Update
+                                                        <br> Profile Photo
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-center" id="ProfileName" name="ProfileName"></h6>
+                                    <small class="text-muted text-center" id="ProfileType" name="ProfileType"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-9">
+                        <div class="row">
+                            <div class="col-md-6 col-xl">
+                                <div class="card mb-3 shadow widget-chart-hover widget-chart widget-chart2 text-left card-btm-border card-shadow-info border-info">
+                                    <div class="widget-chat-wrapper-outer">
+                                        <div class="widget-chart-content pt-3 pl-3 pb-1">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    <div class="widget-chart-flex">
+                                                        <div>
+                                                            <h4>
+                                                                <span id="BillAmount">0.00</span>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 class="widget-subheading mb-0 opacity-5">Bill (<span id="TotalBill">0</span>)</h6>
+                                            <div class="widget-content p-0 mt-3">
+                                                <div class="widget-content-outer">
+                                                    <div class="widget-content-wrapper">
+                                                        <div class="widget-content-left">
+                                                            <div class="widget-numbers text-sm text-nowrap text-info" id="balanceP">100%</div>
+                                                        </div>
+                                                        <div class="widget-content-right w-100 p-1">
+                                                            <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                                                <div class="progress-bar bg-info" role="progressbar" id="balanceper" aria-valuenow="100" style="width:100%" aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl">
+                                <div id="div_PaidAmount" class="card mb-3 widget-chart widget-chart2 shadow widget-chart-hover text-left card-btm-border card-shadow-primary border-primary">
+                                    <div class="widget-chat-wrapper-outer">
+                                        <div class="widget-chart-content pt-3 pl-3 pb-1">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    <div class="widget-chart-flex">
+                                                        <div><h4><span id="PaidAmount">0.00</span></h4></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 class="widget-subheading mb-0 opacity-5">Paid (<span id="CountPaidBill">0</span>)</h6>
+
+                                            <div class="widget-content p-0 mt-3">
+                                                <div class="widget-content-outer">
+                                                    <div class="widget-content-wrapper">
+                                                        <div class="widget-content-left">
+                                                            <div class="widget-numbers text-sm text-nowrap text-primary" id="paidP"></div>
+                                                        </div>
+                                                        <div class="widget-content-right w-100 p-1">
+                                                            <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                                                <div class="progress-bar bg-primary" role="progressbar" id="paidper" aria-valuenow="54" aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl">
+                                <div id="div_UnpaidAmount" class="card mb-3 widget-chart widget-chart2 shadow widget-chart-hover text-left card-btm-border card-shadow-danger border-danger">
+                                    <div class="widget-chat-wrapper-outer">
+                                        <div class="widget-chart-content pt-3 pl-3 pb-1">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    <div class="widget-chart-flex">
+                                                        <div>
+                                                            <h4><span id="UnpaidAmount">0.00</span></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 class="widget-subheading mb-0 opacity-5">Unpaid (<span id="CountUnpaidBill">0</span>)</h6>
+                                            <div class="widget-content p-0 mt-3">
+                                                <div class="widget-content-outer">
+                                                    <div class="widget-content-wrapper">
+                                                        <div class="widget-content-left">
+                                                            <div class="widget-numbers text-sm text-nowrap text-danger" id="unpaidP"></div>
+                                                        </div>
+                                                        <div class="widget-content-right w-100 p-1">
+                                                            <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                                                <div class="progress-bar bg-danger" role="progressbar" id="unpaidper" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl">
+                                <div id="div_PartiallyPaid" class="card mb-3 shadow widget-chart-hover widget-chart widget-chart2 text-left card-btm-border card-shadow-warning border-warning">
+                                    <div class="widget-chat-wrapper-outer">
+                                        <div class="widget-chart-content pt-3 pl-3 pb-1">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    <div class="widget-chart-flex">
+                                                        <div>
+                                                            <h4>
+                                                                <span id="PartiallyPaid">0.00</span>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 class="widget-subheading mb-0 opacity-5">Partially Paid (<span id="CountPartiallyPaid">0</span>)</h6>
+                                            <div class="widget-content p-0 mt-3">
+                                                <div class="widget-content-outer">
+                                                    <div class="widget-content-wrapper">
+                                                        <div class="widget-content-left">
+                                                            <div class="widget-numbers text-sm text-nowrap text-warning" id="parpaidP"></div>
+                                                        </div>
+                                                        <div class="widget-content-right w-100 p-1">
+                                                            <div class="progress-bar-sm progress-bar-animated-alt progress">
+                                                                <div class="progress-bar bg-warning" role="progressbar" id="parpaidper" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
+                                        <a href="javascript:void(0);" id="NewPurchaseOrder" class="btn btn-sm btn-warning text-white btn-block text-nowrap"><i class="fa fa-file"></i> <b>New Purcahse Order</b></a>
+                                    </div>
+                                    <div class="col">
+                                        <a href="javascript:void(0);" id="NewBill" class="btn btn-sm btn-primary btn-block text-nowrap"><i class="fa fa-newspaper"></i> <b>New Bill</b></a>
+                                    </div>
+                                    <div class="col">
+                                        <a href="javascript:void(0);" id="AddCreditNote" class="btn btn-sm btn-info btn-block text-nowrap"><b><i class="fa fa-add"></i> Credit Note</b></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-primary card-outline">
+                    <div class="card-header p-2" id="profile_tap">
+                        <div class="scroller scroller-left float-left mt-2"><i class="fa fa-chevron-left"></i></div>
+                        <div class="scroller scroller-right float-right mt-2"><i class="fa fa-chevron-right"></i></div>
+                        <div class="wrapper-nav" id="divwrapperTap">
+                            <ul class="nav nav-pills list">
+                                <li class="nav-item"><a class="nav-link active" id="StockIn_Tap" href="#Dashboard" data-toggle="tab">Stock In</a></li>
+                                <li class="nav-item"><a class="nav-link" id="StockOut_Tap" href="#StockOut" data-toggle="tab">Stock Out</a></li>
+                                <li class="nav-item"><a class="nav-link" id="StockStatus_Tap" href="#StockStatus" data-toggle="tab">Stock Status</a></li>
+                                <li class="nav-item"><a class="nav-link" id="StockMaintain_Tap" href="#StockMaintain" data-toggle="tab">Stock Maintain</a></li>
+                                <li class="nav-item"><a class="nav-link" id="Products_Tap" href="#Products" data-toggle="tab">Products</a></li>
+                                <li class="nav-item"><a class="nav-link" id="PurchaseOrder_Tap" href="#PurchaseOrder" data-toggle="tab">Purchase Order</a></li>
+                                <li class="nav-item"><a class="nav-link" id="Bills_Tap" href="#Bills" data-toggle="tab">Bills</a></li>
+                                <li class="nav-item"><a class="nav-link" id="paymentsmade_Tap" href="#paymentsmade" data-toggle="tab">Payments Made</a></li>
+                                <li class="nav-item"><a class="nav-link" id="CreditNote_Tap" href="#CreditNote" data-toggle="tab">Credit Note</a></li>
+                                <li class="nav-item"><a class="nav-link" id="VendorInfo_Tap" onclick="showvendorinfo();" href="#VendorInfo" data-toggle="tab">Vendor Info</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="Dashboard">
+                                <div id="showStock"></div>
+                            </div>
+                            <div class="tab-pane" id="StockOut">
+                                <div id="showStockOut"></div>
+                            </div>
+                            <div class="tab-pane" id="StockStatus">
+                                <div id="showStockStatus"></div>
+                            </div>
+                            <div class="tab-pane" id="StockMaintain">
+                                <div id="showStockMaintain"></div>
+                            </div>
+                            <div class="tab-pane" id="Products">
+                                <div id="ShowVendorProduct" class="table-responsive"></div>
+                            </div>
+                            <div class="tab-pane" id="PurchaseOrder">
+                                <div id="ShowVendorPO" class="table-responsive"></div>
+                            </div>
+                            <div class="tab-pane" id="Bills">
+                                <div id="ShowVendorBills" class="table-responsive"></div>
+                            </div>
+                            <div class="tab-pane" id="paymentsmade">
+                                <div id="Showpaymentsmade" class="table-responsive"></div>
+                            </div>
+                            <div class="tab-pane" id="CreditNote">
+                                <div id="ShowCreditNote" class="table-responsive"></div>
+                            </div>
+                            <!-- /.tab-pane -->
+                        </div>
+                        <!-- /.tab-content -->
+                    </div><!-- /.card-body -->
+                </div>
+                    <!-- /.card -->
+                </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+
+<script>
+    var VendorName = "";
+    var Bill_Number = "";
+    var PO_Number = "";
+    var ID = "@ViewBag.ID";
+    var OfficalReceiptNo = "";
+    $(function () {
+        $("#profile_tap a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        LoadVendorInfo();
+        $("#NewPurchaseOrder").click(function () {
+            var _id = ID;
+            NewPurchaseOrder(_id);
+        });
+        $("#NewBill").click(function () {
+            var _id = ID;
+            NewBill(_id);
+        });
+        $("#AddCreditNote").click(function () {
+            NewBill(ID, 'Credit Note');
+        });
+        $("#EditVendor").click(function () {
+            var _id = ID;
+            AddNewVendor(_id);
+        });
+        $("#Bills_Tap").click(function () {
+            LoadBills(ID);
+        });
+        $("#CreditNote_Tap").click(function () {
+            LoadBills(ID, 'CreditNote');
+        });
+        $("#paymentsmade_Tap").click(function () {
+            //if (OfficalReceiptNo != "") {
+            //    $("#TxtPaymentsMade").val(OfficalReceiptNo);
+            //    $("#BtnSearchPaymentsMade").click();
+            //    OfficalReceiptNo = "";
+            //} else {
+            Load_Payments_Made(ID);
+            //}
+        });
+        $("#PurchaseOrder_Tap").click(function () {
+            LoadVendorPO(ID);
+        });
+        $("#Products_Tap").click(function () {
+            LoadVendorProduct(ID);
+        });
+        setTimeout(function () {
+            var loc = window.location.href;
+            var Type = getQueryStringValue(loc, 'Type');
+            OfficalReceiptNo = getQueryStringValue(loc, 'OfficalReceiptNo');
+            if (Type == "PaymentMade") {
+                $("#paymentsmade_Tap").click();
+            }
+            Bill_Number = getQueryStringValue(loc, 'BillNumber');
+            if (Bill_Number != "") {
+                $("#Bills_Tap").click();
+            }
+            PO_Number = getQueryStringValue(loc, 'PONumber');
+            if (PO_Number != "") {
+                $("#PurchaseOrder_Tap").click();
+            }
+        }, 300);
+        LoadPaymentsStatus();
+        LoadStock(ID);
+
+        $("[data-widget=pushmenu]").click();
+
+        $("#newProfilePhoto").click(function () {
+            var PrimaryFieldValue = {
+                URL: 'Profile/SaveChangePhotoProfile?VendorID=' + ID + '&VendorName=' + encodeURIComponent(VendorName)
+            };
+            ShowDialogBox2("Add Vendor Profile Picture", 700, 500, "UploadFileForm?AllowOnlyImage=true&ShowAvatar=true", PrimaryFieldValue, "DialogAddAttCustFile", function () {
+                $("#DialogAddAttCustFile").on('hide.bs.modal', function () {
+                    setTimeout(function () {
+                        LoadVendorInfo();
+                    }, 1600);
+                });
+            });
+        });
+
+        TapScroll();
+    });
+
+    $("#StockIn_Tap").click(function () {
+        LoadStock(ID);
+    });
+    $("#StockOut_Tap").click(function () {
+        LoadStockOut(ID);
+    });
+    $("#StockStatus_Tap").click(function () {
+        LoadStockStatus(ID);
+    });
+    $("#StockMaintain_Tap").click(function () {
+        LoadStockMaintain(ID);
+    });
+    function LoadStock(_ID) {
+        LoadData('Profile/LoadStock?ID=' + _ID, function (result) {
+            var data = JSON.parse(result).data;
+            $("#showStock").html(data);
+        });
+    }
+    function LoadStockOut(_ID) {
+        LoadData('Profile/LoadStockOut?ID=' + _ID, function (result) {
+            var data = JSON.parse(result).data;
+            $("#showStockOut").html(data);
+        });
+    }
+    function LoadStockStatus(_ID) {
+        LoadData('Profile/LoadStockStatus?ID=' + _ID, function (result) {
+            var data = JSON.parse(result).data;
+            $("#showStockStatus").html(data);
+
+            setTimeout(function () {
+                $("#txtStockStatusDate").data('daterangepicker').remove();
+
+                $('#txtStockStatusDate').daterangepicker({
+                    startDate: moment().startOf('month'),
+                    endDate: moment().endOf('month'),
+                    locale: {
+                        format: 'DD-MM-YYYY'
+                    },
+                    autoApply: true,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        //'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                        'This Year': [moment().startOf('year'), moment().endOf('year')],
+                        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+                    }
+                });
+            }, 200);
+        });
+    }
+    function LoadVendorProduct(_ID) {
+        LoadData('Profile/LoadVendorProduct?ID=' + _ID, function (result) {
+            var data = JSON.parse(result).data;
+            $("#ShowVendorProduct").html(data);
+        });
+    }
+    function LoadStockMaintain(_ID) {
+        LoadData('Profile/LoadStockMaintain?ID=' + _ID, function (result) {
+            $("#showStockMaintain").html(result);
+        });
+    }
+    function LoadVendorPO(_ID) {
+        LoadData('Profile/LoadPurchaseOrder?ID=' + _ID, function (result) {
+            var data = JSON.parse(result).data;
+            $("#ShowVendorPO").html(data);
+            if (PO_Number != "") {
+                setTimeout(function () {
+                    $("#TXTSearchPO").val(PO_Number);
+                    $("#BtnSearchVendorPO").click();
+                    PO_Number = "";
+                }, 200);
+            }
+        });
+    }
+    function LoadBills(ID, Type) {
+        Type = (typeof Type == "undefined" ? "Bill" : Type);
+        LoadPaymentsStatus(ID);
+        LoadData('Profile/LoadBills?ID=' + ID + '&Type=' + Type, function (result) {
+            var data = JSON.parse(result).data;
+            if (Type == "Bill") {
+                $("#ShowVendorBills").html(data);
+                if (Bill_Number != "") {
+                    setTimeout(function () {
+                        $("#txtBillNumberBill").val(Bill_Number);
+                        $("#BtnSearchVendorBills").click();
+                        Bill_Number = "";
+                    }, 200);
+                }
+            }
+            else {
+                $("#ShowCreditNote").html(data);
+            }
+        });
+    }
+    function LoadVendorInfo() {
+        LoadData('Profile/LoadVendorInfo?ID=' + ID, function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data)[0];
+            VendorName = data.VendorName;
+            $("#ProfileName").html(data.VendorName);
+            $("#ProfileType").html(data.VendorType);
+            $("#ProfileAddress").html(data.Address);
+            $("#ProfileMap").hide();
+            $("#ProfileBillingEmail").hide();
+            $("#ProfileWebsite").hide();
+            $("#ProfileComName").hide();
+            $("#ProfileComNameKH").hide();
+            $("#ProfileDeskPhone").hide();
+            $("#ProfileHendPhone").hide();
+            $("#ProfileVEmail").hide();
+            if (data.GoogleMap_FullAddress != "") {
+                $("#ProfileMap").show();
+                var row = "Google Map:<br>";
+                row += '<a target="_blank" href="https://www.google.com/maps/place/' + data.GoogleMap_Latitude + ',' + data.GoogleMap_Longitude + '/@@' + data.GoogleMap_Latitude + ',' + data.GoogleMap_Longitude + ',15z">';
+                row += data.GoogleMap_FullAddress;
+                row += '</a>';
+                $("#ProfileMap").html(row);
+            }
+            $("#ProfileContactName").html('Name: ' + data.ContactPersonName);
+            $("#ProfileContactPosition").html('Position: ' + data.Position);
+            $("#ProfileContactPhone").html('Phone: ' + data.ContactPhoneNumber);
+            if (data.BillingEmail != '') {
+                $("#ProfileBillingEmail").show();
+                $("#ProfileBillingEmail").html('Billing Email: <a href="mailto:' + data.BillingEmail + '">' + data.BillingEmail + '</a>');
+            }
+            if (data.Website != '') {
+                $("#ProfileWebsite").show();
+                $("#ProfileWebsite").html('Website: <a target="_blank" href="' + data.Website + '">' + data.Website + '</a>');
+            }
+            if (data.CompanyName != '') {
+                $("#ProfileComName").show();
+                $("#ProfileComName").html(data.CompanyName);
+            }
+            if (data.CompanyNameKH != '') {
+                $("#ProfileComNameKH").show();
+                $("#ProfileComNameKH").html(data.CompanyNameKH);
+            }
+            if (data.DeskPhone != '') {
+                $("#ProfileDeskPhone").show();
+                $("#ProfileDeskPhone").html('Desk Phone: ' + data.DeskPhone);
+            }
+            if (data.HendPhone != '') {
+                $("#ProfileHendPhone").show();
+                $("#ProfileHendPhone").html('H/P: '+ data.HendPhone);
+            }
+            $("#ProfilePhone").html(data.Phone);
+            $("#ProfileVAddress").html(data.VendorAddress);
+            if (data.Email != '') {
+                $("#ProfileVEmail").show();
+                $("#ProfileVEmail a").html(data.Email);
+            }
+            $("#p_BankerName").html(data.BankerName);
+            $("#p_BankerAddress").html(data.BankerAddress);
+            $("#p_SwiftCode").html(data.SwiftCode);
+            $("#p_AccountNo").html(data.AccountNo);
+            $("#p_AccountName").html(data.AccountName);
+            if (data.VendorPicture != "") {
+                $("#profilePic").attr("src", ServerRoot + "Uploads/VendorProfilePicture/" + VendorName + "/" + data.VendorPicture);
+            }
+        });
+    }
+    function onGridPOClick(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        var POID = $("#tblVendorPO tr:eq(" + index + ") td").eq(1).html();
+        var PONumber = $("#tblVendorPO tr:eq(" + index + ") td").eq(2).html();
+        var URL = "Profile/InvoiceTMP?VendorID=" + ID + "&POID=" + POID +"&Type=PO";
+        ShowDialogBox("Preview PO No.: " + PONumber, "Auto", "500", URL);
+    }
+    function showvendorinfo() {
+        let loc = window.location.href;
+        let ID = getQueryStringValue(loc, 'ID');
+        ShowDialogBox("Edit Vendor", "Auto", "500", "AddVendor/CreateVendor", ID);
+    }
+    function onGridBillClick(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        var BillID = $("#tblVendorBills tr:eq(" + index + ") td").eq(1).html();
+        var BillNumber = $("#tblVendorBills tr:eq(" + index + ") td").eq(3).html();
+        var URL = "Profile/InvoiceTMP?VendorID=" + ID + "&POID=" + BillID + "&Type=Bill";
+        ShowDialogBox("Preview Bill No.: " + BillNumber, "Auto", "500", URL);
+    }
+    function onGridPaymentsMadeClick(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        var VendorID = $("#tblPaymentsMade tr:eq(" + index + ") td").eq(1).html();
+        var OfficialReceipt = $("#tblPaymentsMade tr:eq(" + index + ") td").eq(2).html();
+        var url = "Profile/BLPayment?VendorID=" + VendorID + "&OfficialReceipt=" + OfficialReceipt;
+        ShowDialogBox("Receipt#: " + OfficialReceipt, "Auto", "500", url, 0, "", "", "", "", function () {
+            var row = '<i class="fa fa-print" aria-hidden="true"></i> Print';
+            $("#SaveChange").html(row);
+            $("#SaveChange").click(function () {
+                $("#div_Content_PaymentVoucher").printThis();
+            });
+        });
+
+    }
+    function Load_Payments_Made(ID) {
+        //var url = window.location.hash;
+        //var _ID = url.substring(url.indexOf('?'));
+        //_ID = _ID.substring(_ID.indexOf('=')).replace(/=/g, '');
+        LoadData('Profile/LoadPaymentsMade?ID=' + ID, function (result) {
+            LoadPaymentsStatus(ID);
+            var data = JSON.parse(result).data;
+            $("#Showpaymentsmade").html(data);
+            setTimeout(function () {
+                if (OfficalReceiptNo != "") {
+                    $("#TxtPaymentsMade").val(OfficalReceiptNo);
+                    $("#BtnSearchPaymentsMade").click();
+                    OfficalReceiptNo = "";
+                }
+            }, 200);
+        });
+    }
+    function LoadPaymentsStatus() {
+        LoadData("Profile/LoadPaymentsStatus?ID=" + ID, function (result) {
+            result = JSON.parse(JSON.parse(result).Data);
+            var TotalBill = 0;
+            var TotalBillAmount = 0;
+            var TotalAmountPaid = 0;
+            var TotalPartiallyPaid = 0;
+            var TotalUnpaidAmount = 0;
+            $.each(result, function (key, value) {
+                TotalBill += value.Bill;
+                TotalBillAmount += value.BillAmount;
+                if (value.StatusID == 10)
+                    TotalAmountPaid += value.AmountPaid;
+                else if (value.StatusID == 15)
+                    TotalPartiallyPaid += value.AmountPaid;
+                if (value.StatusID != 10)
+                    TotalUnpaidAmount += value.AmountDue;
+            });
+
+            var TotalPaid = (TotalAmountPaid * 100) / TotalBillAmount;
+            TotalPaid = Math.round(TotalPaid * 100) / 100;
+            $("#paidP").html(accounting.formatMoney(TotalPaid, { symbol: "%", format: "%v %s" }));
+            $("#paidper").attr("aria-valuenow", TotalPaid);
+            $("#paidper").css("width", TotalPaid + "%");
+
+            $("#TotalBill").html(accounting.formatNumber(TotalBill));
+            $("#BillAmount").html(accounting.formatMoney(TotalBillAmount));
+            $("#PaidAmount").html(accounting.formatMoney(TotalAmountPaid));
+            var CountPaidBill = result.filter(function (currentValue, index, arr) {
+                return currentValue.StatusID === 10;
+            })[0];
+            if (CountPaidBill) {
+                $("#CountPaidBill").html(accounting.formatNumber(CountPaidBill.Bill));
+
+            }
+            var UnpaidAmount = result.filter(function (currentValue, index, arr) {
+                return currentValue.StatusID === 11;
+            })[0];
+            var PartiallyPaid = result.filter(function (currentValue, index, arr) {
+                return currentValue.StatusID === 15;
+            })[0];
+            if (UnpaidAmount) {
+                $("#CountUnpaidBill").html(accounting.formatNumber(UnpaidAmount.Bill));
+                $("#UnpaidAmount").html(accounting.formatMoney(TotalUnpaidAmount));
+                UnpaidAmount = TotalUnpaidAmount;
+            }
+            else if (TotalUnpaidAmount > 0) {
+                var UnpaidAmount_Bill = 0;
+                if (PartiallyPaid) {
+                    UnpaidAmount_Bill = PartiallyPaid.Bill;
+                }
+                $("#CountUnpaidBill").html(accounting.formatNumber(UnpaidAmount_Bill));
+                $("#UnpaidAmount").html(accounting.formatMoney(TotalUnpaidAmount));
+                UnpaidAmount = TotalUnpaidAmount;
+            }
+            else {
+                UnpaidAmount = 0;
+                $("#CountUnpaidBill").html("0");
+                $("#UnpaidAmount").html("0.00");
+            }
+
+
+            if (PartiallyPaid) {
+                $("#PartiallyPaid").html(accounting.formatMoney(TotalPartiallyPaid));
+                $("#CountPartiallyPaid").html(accounting.formatNumber(PartiallyPaid.Bill));
+                PartiallyPaid = TotalPartiallyPaid;
+            }
+            else {
+                PartiallyPaid = 0;
+                $("#PartiallyPaid").html("0.00");
+                $("#CountPartiallyPaid").html("0");
+            }
+            var TotalUnPaid = (UnpaidAmount * 100) / TotalBillAmount;
+            TotalUnPaid = Math.round(TotalUnPaid * 100) / 100;
+            $("#unpaidP").html(accounting.formatMoney(TotalUnPaid, { symbol: "%", format: "%v %s" }));
+            $("#unpaidper").attr("aria-valuenow", TotalUnPaid);
+            $("#unpaidper").css("width", TotalUnPaid + "%");
+
+            var TotalPartiallyPaid = (PartiallyPaid * 100) / TotalBillAmount;
+            TotalPartiallyPaid = Math.round(TotalPartiallyPaid * 100) / 100;
+            $("#parpaidP").html(accounting.formatMoney(TotalPartiallyPaid, { symbol: "%", format: "%v %s" }));
+            $("#parpaidper").attr("aria-valuenow", TotalPartiallyPaid);
+            $("#parpaidper").css("width", TotalPartiallyPaid + "%");
+        });
+    }
+    function EditStock(THIS) {
+        var Data = $(THIS).attr('id');
+        var URL = ServerRoot + 'AddStockIn/StockIn';
+        ShowDialogBox("Edit Stock In", "Auto", 600, URL, Data);
+    }    
+</script>

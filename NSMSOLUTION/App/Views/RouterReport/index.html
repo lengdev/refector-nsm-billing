@@ -1,0 +1,252 @@
+﻿<!-- router index.html -->
+<!-- AngularJS 1.x partial view — sidebar + content layout, matching Bandwidth -->
+<div class="rw-page" ng-controller="RouterController as vm">
+    <link rel="stylesheet" href="App/Views/Router/style.css" />
+    <div class="rw-layout">
+
+        <!-- ===== Sidebar: router list ===== -->
+        <div class="rw-sidebar">
+            <div class="rw-sidebar-heading">
+                <i class="ti ti-router"></i>
+                Routers
+            </div>
+
+            <div class="rw-skeleton-row" ng-if="vm.loadingRouters">
+                <div class="rw-skeleton-chip" ng-repeat="n in [1,2,3,4,5]"></div>
+            </div>
+
+            <div class="rw-empty-state rw-empty-state-compact" ng-if="!vm.loadingRouters && !vm.routers.length">
+                <i class="ti ti-router-off"></i>
+                <p>No routers found.</p>
+            </div>
+
+            <div class="rw-nav" ng-if="!vm.loadingRouters && vm.routers.length">
+                <button type="button" class="rw-nav-item" ng-repeat="r in vm.routers track by $index"
+                    ng-class="{'rw-nav-item-active': vm.selectedRouterId === r.routerId}" ng-click="vm.selectRouter(r)">
+                    <i class="ti ti-router"></i>
+                    <span class="rw-nav-item-label">{{ r.routerName }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Content ===== -->
+        <div class="rw-content">
+
+            <div class="rw-content-topbar">
+                <div class="rw-breadcrumb">
+                    <span>Reports</span>
+                    <i class="ti ti-chevron-right"></i>
+                    <span class="rw-breadcrumb-current">Router</span>
+                </div>
+            </div>
+
+            <h1 class="rw-title">
+                Router Information
+                <span class="rw-title-accent" ng-if="vm.selectedRouterName">{{ vm.selectedRouterName }}</span>
+            </h1>
+            <p class="rw-subtitle">Live device sync status against the database</p>
+
+            <div class="rw-empty-state" ng-if="!vm.loadingRouters && !vm.selectedRouterId">
+                <i class="ti ti-hand-click"></i>
+                <p>Select a router on the left to see connection status.</p>
+            </div>
+
+            <div ng-if="vm.selectedRouterId">
+
+                <!-- ===== PPPoE / Static stat cards ===== -->
+                <div class="rw-stat-row">
+                    <div class="rw-skeleton-row" ng-if="vm.loadingInfo">
+                        <div class="rw-skeleton-chip" ng-repeat="n in [1,2]"></div>
+                    </div>
+
+                    <button type="button" class="rw-stat-card" ng-if="!vm.loadingInfo"
+                        ng-class="{'rw-stat-card-active': vm.activeType === 'PPPoE'}"
+                        ng-click="vm.selectConnectionType('PPPoE')">
+                        <div class="rw-stat-icon rw-stat-icon-blue"><i class="ti ti-plug-connected"></i></div>
+                        <div class="rw-stat-body">
+                            <div class="rw-stat-label">PPPoE</div>
+                            <div class="rw-stat-chips">
+                                <span class="rw-chip" title="User"><i class="ti ti-user"></i> {{ vm.data.PPPoE.count |
+                                    number:0 }}</span>
+                                <span class="rw-chip rw-chip-active" title="Active"><i class="ti ti-user-check"></i> {{
+                                    vm.data.PPPoE.active | number:0 }}</span>
+                                <span class="rw-chip rw-chip-danger" title="Inactive"><i class="ti ti-user-x"></i> {{
+                                    vm.data.PPPoE.inactive | number:0 }}</span>
+                                <span class="rw-chip rw-chip-indigo" title="Matches with database"><i
+                                        class="ti ti-user-plus"></i> {{ vm.data.PPPoE.matches | number:0 }}</span>
+                                <span class="rw-chip rw-chip-danger" title="Not matches with database"><i
+                                        class="ti ti-user-minus"></i> {{ vm.data.PPPoE.notMatches | number:0 }}</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="rw-stat-card" ng-if="!vm.loadingInfo"
+                        ng-class="{'rw-stat-card-active': vm.activeType === 'Static'}"
+                        ng-click="vm.selectConnectionType('Static')">
+                        <div class="rw-stat-icon rw-stat-icon-indigo"><i class="ti ti-link"></i></div>
+                        <div class="rw-stat-body">
+                            <div class="rw-stat-label">Static</div>
+                            <div class="rw-stat-chips">
+                                <span class="rw-chip" title="User"><i class="ti ti-user"></i> {{ vm.data.Static.count |
+                                    number:0 }}</span>
+                                <span class="rw-chip rw-chip-active" title="Active"><i class="ti ti-user-check"></i> {{
+                                    vm.data.Static.active | number:0 }}</span>
+                                <span class="rw-chip rw-chip-danger" title="Inactive"><i class="ti ti-user-x"></i> {{
+                                    vm.data.Static.inactive | number:0 }}</span>
+                                <span class="rw-chip rw-chip-indigo" title="Matches with database"><i
+                                        class="ti ti-user-plus"></i> {{ vm.data.Static.matches | number:0 }}</span>
+                                <span class="rw-chip rw-chip-danger" title="Not matches with database"><i
+                                        class="ti ti-user-minus"></i> {{ vm.data.Static.notMatches | number:0 }}</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- ===== Matched / Not Matched card ===== -->
+                <div class="rw-card" ng-if="!vm.loadingInfo">
+                    <div class="rw-card-header">
+                        <h3 class="rw-card-title">
+                            <i class="ti ti-list-check"></i>
+                            {{ vm.activeType }}
+                        </h3>
+
+                        <div class="rw-tabs">
+                            <button type="button" class="rw-tab"
+                                ng-class="{'rw-tab-active': vm.activeTab === 'matched'}"
+                                ng-click="vm.activeTab = 'matched'">
+                                <i class="ti ti-circle-check"></i>
+                                Matched
+                                <span class="rw-tab-count rw-tab-count-matched">{{ vm.currentData().matches }}</span>
+                            </button>
+                            <button type="button" class="rw-tab"
+                                ng-class="{'rw-tab-active': vm.activeTab === 'notmatched'}"
+                                ng-click="vm.activeTab = 'notmatched'">
+                                <i class="ti ti-alert-circle"></i>
+                                Not Matched
+                                <span class="rw-tab-count rw-tab-count-unmatched">{{ vm.currentData().notMatches
+                                    }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rw-card-body">
+
+                        <!-- Matched: legacy server-rendered HTML fragment -->
+                        <div ng-if="vm.activeTab === 'matched'">
+                            <div class="rw-skeleton-table" ng-if="vm.loadingMatched">
+                                <div class="rw-skeleton-line" ng-repeat="n in [1,2,3]"></div>
+                            </div>
+                            <div class="rw-empty-state" ng-if="!vm.loadingMatched && !vm.currentData().matches">
+                                <i class="ti ti-user-off"></i>
+                                <p>No matched customers for this connection type.</p>
+                            </div>
+                            <div ng-if="!vm.loadingMatched" ng-bind-html="vm.currentData().matchedHtml"></div>
+                        </div>
+
+                        <!-- Not matched: table -->
+                        <div ng-if="vm.activeTab === 'notmatched'">
+                            <div class="rw-empty-state" ng-if="!vm.currentData().notMatchedData.length">
+                                <i class="ti ti-user-off"></i>
+                                <p>Nothing to reconcile — every device on this router matches the database.</p>
+                            </div>
+
+                            <div ng-if="vm.currentData().notMatchedData.length">
+                                <div class="rw-search-row">
+                                    <i class="ti ti-search"></i>
+                                    <input type="text" class="rw-search-input" placeholder="Search..."
+                                        ng-model="vm.notMatchedSearch" />
+                                </div>
+
+                                <table class="rw-table" ng-if="vm.activeType === 'Static'">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Vlan Name</th>
+                                            <th>Status</th>
+                                            <th>Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="row in vm.currentData().notMatchedData | filter:vm.notMatchedSearch track by $index">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                {{ row.name }}<br>
+                                                <button type="button" class="rw-row-btn rw-row-btn-primary"
+                                                    ng-click="vm.addComment(row)">
+                                                    <i class="ti ti-message-plus"></i> Comment
+                                                </button>
+                                                <button type="button" class="rw-row-btn rw-row-btn-info"
+                                                    ng-click="vm.renameVlan(row)">
+                                                    <i class="ti ti-edit"></i> Rename
+                                                </button>
+                                                <button type="button" class="rw-row-btn rw-row-btn-danger"
+                                                    ng-click="vm.toggleStatus(row)">
+                                                    <i class="ti ti-power"></i> {{ row.isActive ? 'Disable' : 'Enable'
+                                                    }}
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <span class="rw-badge"
+                                                    ng-class="row.isActive ? 'rw-badge-active' : 'rw-badge-inactive'">
+                                                    {{ row.isActive ? 'Active' : 'Disabled' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span ng-repeat="line in row.commentLines">{{ line }}<br></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <table class="rw-table" ng-if="vm.activeType === 'PPPoE'">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>User Name</th>
+                                            <th>Status</th>
+                                            <th>Actual Profile</th>
+                                            <th>Last Seen</th>
+                                            <th>Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            ng-repeat="row in vm.currentData().notMatchedData | filter:vm.notMatchedSearch track by $index">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                {{ row.username }}<br>
+                                                <button type="button" class="rw-row-btn rw-row-btn-primary"
+                                                    ng-click="vm.addComment(row)">
+                                                    <i class="ti ti-message-plus"></i> Comment
+                                                </button>
+                                                <button type="button" class="rw-row-btn rw-row-btn-danger"
+                                                    ng-click="vm.toggleStatus(row)">
+                                                    <i class="ti ti-power"></i> {{ row.isActive ? 'Disable' : 'Enable'
+                                                    }}
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <span class="rw-badge"
+                                                    ng-class="row.isActive ? 'rw-badge-active' : 'rw-badge-inactive'">
+                                                    {{ row.isActive ? 'Active' : 'Disabled' }}
+                                                </span>
+                                            </td>
+                                            <td>{{ row.actualProfile }}</td>
+                                            <td>{{ row.lastSeen }}</td>
+                                            <td>
+                                                <span ng-repeat="line in row.commentLines">{{ line }}<br></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

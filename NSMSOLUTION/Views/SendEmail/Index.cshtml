@@ -1,0 +1,257 @@
+﻿@{
+    Layout = null;
+}
+<form name="FrmsendEmail">
+    <div class="row">
+        <div class="col">
+            <div class="card card-outline card-success">
+                @*<div class="card-header">
+                        <h3 class="card-title">Send Email</h3>
+                    </div>*@
+                <div class="card-body">
+                    <div class="mb-3 floating-label validate-input" data-validate="Mail to is required.">
+                            <input type="text" id="txtTo" name="txtTo" class="form-control" placeholder=" " />
+                            <label for="txtTo">To</label>
+                        </div>
+                        <div class="mb-3 floating-label">
+                            <input type="email" id="txtCC" class="form-control" placeholder=" " />
+                            <label for="txtCC">CC</label>
+                        </div>
+                        <div class="mb-3 floating-label">
+                            <input type="email" id="txtBCC" class="form-control" placeholder=" " />
+                            <label for="txtBCC">BCC</label>
+                        </div>
+                        <div class="mb-3 floating-label validate-input" data-validate="Subject is required.">
+                            <input type="text" id="txtSubject" name="txtSubject" class="form-control" placeholder=" " />
+                            <label for="txtSubject">Subject</label>
+                        </div>
+                        @*<div class="mb-3 floating-label"><label for="txtMessage">Message Body</label></div>*@
+                        <div class="mb-3 floating-label">
+                            <textarea id="txtMessage" placeholder="Message Body"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card card-outline card-success">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Attachment File</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <div class="gallery-container">
+                                                    <div class="img-gallery">
+                                                        <a class="lightbox" id="attachment_file_a">
+                                                            <img id="attachment_file" class="img-fluid" alt="Attachment File" />
+                                                            <div class="text-sm imgoverlay text-nowrap" id="invTitle">Invocie No</div>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    var Data = JSON.parse((`@Html.Raw(ViewBag.Data)`).slice(1, -1));
+    var NSM_LOGO = "";
+    var NSM_ISP_LOGO = "";
+    //var FilePath = Data.InvoiceFileName;
+    var PDF_FileName = Data.PDF_FileName;
+    var PNG_FileName = Data.PNG_FileName;
+    var FilePath = Data.FilePath;
+    var EmailType = Data.EmailType;
+    var InvoiceFileName = Data.InvoiceFileName;
+    var Cust_Code = Data.CustomerCode;
+
+    var subject = (Data.ServiceName != '' ? 'INVOICE #' + Data.InvoiceNo + ' for ' + Data.ServiceName : 'INVOICE #' + Data.InvoiceNo);
+
+    var row = 'Dear ' + Data.CustomerName + ',';
+    row += '<br /><br />Greeting from NSM SOLUTION CO., LTD.';
+    if (EmailType == "mail_invoice_created")
+        row += '<br /><br />This email serves as your official invoice.';
+    else if (EmailType == "mail_invoice_reminder") {
+        row += '<br /><br />This is a billing reminder that your invoice no. ' + Data.InvoiceNo + ' which was generated on ' + Data.InvoiceDate + ' is due on ' + Data.PaymentDueDate + '.';
+        subject = 'Payment Reminder ' + (Data.ServiceName != '' ? 'INVOICE #' + Data.InvoiceNo + ' for ' + Data.ServiceName : 'INVOICE #' + Data.InvoiceNo);
+    }
+    else if (EmailType == "mail_invoice_overdue") {
+        row += '<br /><br />This is the notice that your invoice no. ' + Data.InvoiceNo + ' which was generated on ' + Data.InvoiceDate + ' is now overdue.';
+        subject = 'Payment Overdue Notice ' + (Data.ServiceName != '' ? 'INVOICE #' + Data.InvoiceNo + ' for ' + Data.ServiceName : 'INVOICE #' + Data.InvoiceNo);
+    }
+    else if (EmailType == "mail_invoice_confirm") {
+        row += '<br /><br />This is a payment receipt for Invoice ' + Data.InvoiceNo + ' sent on ' + $.format.date(addMonths(new Date(), 0), 'dd-MMMM-yyyy') +'.';
+        subject = 'Invoice Payment Confirmation ' + (Data.ServiceName != '' ? 'INVOICE #' + Data.InvoiceNo + ' for ' + Data.ServiceName : 'INVOICE #' + Data.InvoiceNo);
+    }
+
+
+    row += '<br /><br />Please see attached the invoice number: <b class="text-primary">' + Data.InvoiceNo + '</b>';
+    row += ' with amount <b class="text-danger">' + accounting.formatNumber(Data.GrandTotal, 2) + '</b>';
+    row += (Data.ServiceName != "" ? ' for <b class="text-primary">' + Data.ServiceName + '</b>' : '');
+    row += '. The invoice is due by <b class="text-danger">' + $.format.date(new Date(Data.PaymentDueDate), 'dd-MMMM-yyyy') + '</b>.';
+    //row += decodeURIComponent(Data.TblInvoiceData);
+    row += "<br /><br />Please don't hesitate to get in touch if you have any questions or need clarifications.";
+    row += '<br /><br /><br /><br />';
+    //row += '<br />NSM Solution and Maintenance Co., LTD';
+    row += '<address>';
+    row += '<div class="row">';
+    row += '<div class="col">';
+    row += '<table class="table" border="0" style="border:none;" cellspacing="0" cellpadding="0" width="100%">';
+    row += '<tr><td style="width:300px;"><b>Thank you and best regards,</b></td>';
+    //var imgurl1 = ServerRoot + '/Content/CompanyLogo/NSM Logo_1784101994.png';
+    //imgToBase64(imgurl1, false, function (imgData) {
+    //    imgurl1 = imgData;
+    //    NSM_LOGO = imgData;
+    //    var imgurl2 = ServerRoot + '/Content/CompanyLogo/Logo NSM-ISP_519751247.png';
+    //    imgToBase64(imgurl2, false, function (imgData) {
+    //        imgurl2 = imgData;
+    //        NSM_ISP_LOGO = imgData;
+    //    });
+    //});
+    var imgurl1 = "https://db.nsmisp.com.kh/Content/CompanyLogo/NSM Logo_1784101994.png";
+    var imgurl2 = "https://db.nsmisp.com.kh/Content/CompanyLogo/Logo NSM-ISP_519751247.png";
+    row += '<td><img id="imgnsmlogo" src="' + imgurl1 + '" alt="NSM Solution Logo" style="width:160px" width="160" /></td>';
+    row += '<td style="width:40px">&nbsp;</td>';
+    row += '<td><img id="imgnsmisplogo" src="' + imgurl2 + '" alt="NSM ISP Logo" style="width:200px" width="200" /></td>';  //https://db.nsmisp.com.kh/Content/CompanyLogo/Logo NSM-ISP_519751247.png  
+    row += '</td></tr>';
+    row += '<tr><td colspan="4">';
+    row += '<div class="row">';
+    row += '<div class="col-auto"><i>NSM SOLUTION AND MAINTENANCE CO.,LTD</i></div>';
+    row += '<div class="col" style="bottom:3px"><hr style="height:2px; background-color:#F89C39"></div>';
+    row += '</div></td></tr>';
+    row += '</table></div></div>';
+    row += '<div class="row">';
+    row += '<div class="col-auto"><i class="fas fa-city"></i></div>';
+    row += '<div class="col">' + Data.CompanyAddress + '</div>';
+    row += '</div>';
+    row += '<div class="row">';
+    row += '<div class="col-auto"><i class="fas fa-globe"></i></div>';
+    row += '<div class="col"><a href="http://nsmsolution.com.kh">www.nsmsolution.com.kh</a> , <a href="http://nsmisp.com.kh">www.nsmisp.com.kh</a></div>';
+    row += '</div>';
+    row += '<div class="row">';
+    row += '<div class="col-auto"><i class="fas fa-envelope"></i></div>';
+    row += '<div class="col"><a href="mailto:billing@nsmsolution.com.kh">billing@nsmsolution.com.kh</a>, <a href="mailto:' + Data.CEmail + '">' + Data.CEmail + '</a></div>';
+    row += '</div>';
+    row += '<div class="row">';
+    row += '<div class="col-auto"><i class="fas fa-phone-square-alt"></i></div>';
+    row += '<div class="col">Customer Service: ' + Data.CPhone + '</div>';
+    row += '</div>';
+    row += '</address>';
+
+    $('#txtMessage').summernote('code', row);
+
+    
+    
+    var ToEmail = Data.Email;
+    //var imgData = ImgData_PDFData_SendMail["imgData"];
+    //var pdfData = ImgData_PDFData_SendMail["pdfData"];
+    ImgData_PDFData_SendMail = {};
+    $(function () {
+        //var imgurl = ServerRoot +'/Content/CompanyLogo/NSM Logo_1784101994.png';
+        //$("#imgnsmlogo").attr("src", imgurl);
+        //console.log(imgurl);
+        //imgToBase64(imgurl, function (imgData) {
+        //    $("#imgnsmlogo").attr("src", imgData);
+        //});
+        //imgurl = ServerRoot + '/Content/CompanyLogo/Logo NSM-ISP_519751247.png';
+        //$("#imgnsmisplogo").attr("src", imgurl);
+        //imgToBase64(imgurl, function (imgData) {
+        //    $("#imgnsmisplogo").attr("src", imgData);
+        //});        
+        var CustomerName = Data.CustomerName;
+        var InvoiceNo = Data.InvoiceNo;        
+        //var blobUrl = base64ToBlob(imgData);//base64ToBlob(Data.imgData);
+        var CustomerEmail = Data.CustomerEmail;
+        if (CustomerEmail != "" && CustomerEmail != ToEmail)
+            ToEmail = ToEmail + "; " + CustomerEmail;
+        $("#txtTo").val(CustomerEmail);
+        $("#txtSubject").val(subject);
+        $("#attachment_file").attr("src", PNG_FileName);
+        $("#invTitle").html("Invoice No.: " + Data.InvoiceNo);
+        //$("#attachment_file_a").attr("href", ServerRoot + FilePath + PNG_FileName);
+        //baguetteBox.run('.img-gallery', {
+        //    filter: /.*/i
+        //});
+        $("#attachment_file").click(function () {
+            window.open(PDF_FileName, '_blank');
+        });
+        $("#attachment_file").css("cursor", "pointer");
+
+        $('#txtMessage').summernote({
+            height: 300,
+            placeholder: 'Message Body',
+            codemirror: {
+                theme: 'monokai'
+            },
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                //['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                //['table', ['table']],
+                //['insert', ['link', 'picture', 'video']],
+                //['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        
+        $("#SaveChange").click(function () {
+            var check = validateInput("FrmsendEmail");
+            if (check) {                
+                var EmailTo = $("#txtTo").val();
+                var CC = $("#txtCC").val();
+                var BCC = $("#txtBCC").val();
+                var Subject = $("#txtSubject").val();
+                //var MessageBoy = encodeURIComponent($('#txtMessage').summernote('code'));
+                var MessageBoy = $('#txtMessage').summernote('code');
+                //var URL = "SendEmail/Send?EmailTo=" + EmailTo + "&CC=" + CC + "&BCC=" + BCC + "&Subject=" + Subject + "&MessageBody=" + MessageBoy + "&imgAttachmentFile=" + imgAttachmentFile;
+                DialogSweetAlert('load', "E-mail Sending Please wait...");
+                var DATA = {
+                    CustomerName: CustomerName, InvoiceNo: InvoiceNo,
+                    EmailTo: EmailTo, CC: CC, BCC: BCC, Subject: Subject,
+                    MessageBody: MessageBoy, CustomerCode: Cust_Code,
+                    InvoiceFileName: InvoiceFileName, PDF_FileName: PDF_FileName, PNG_FileName: PNG_FileName
+                    //, imgAttachmentFile: imgData,
+                    //pdfData: pdfData, NSM_LOGO: imgurl1, NSM_ISP_LOGO: imgurl2
+                };
+                SaveChageDialogAjaxForm("FrmsendEmail", "SendEmail/Send", DATA, "E-mail Sending Please wait...", function (response) {
+                    if (response.Result == 2) {
+                        DialogSweetAlert('loadsuccess', "E-mail sent successfully.");
+                        DialogSweetAlert("close");
+                        $("#CloseModal").click();
+                    }
+                    else {
+                        DialogSweetAlert('error');
+                        console.log(response.Message);
+                    }
+                }, "Get");
+            }
+            else
+                DialogSweetAlert('error', 'Please fill data required.');
+        });
+    });
+
+
+
+    //function b64toBlob(bytesBase64, contentType) {
+    //    contentType = (typeof contentType == "undefined" ? "image/png" : contentType);
+    //    return new Blob(bytesBase64, { type: contentType });
+    //    //fetch(bytesBase64)
+    //    //    .then(response => response.blob())
+    //    //    .then(blob => {
+    //    //         link = window.URL.createObjectURL(blob, { type: mimeType });
+    //    //        //var link = window.document.createElement("a");
+    //    //        //link.href = window.URL.createObjectURL(blob, { type: mimeType });
+    //    //        //link.download = fileName;
+    //    //        //document.body.appendChild(link);
+    //    //        //link.click();
+    //    //        //document.body.removeChild(link);                
+    //    //    });
+    //    //return link;
+    //}
+</script>
+
+

@@ -1,0 +1,152 @@
+@{
+    Layout = null;
+}
+
+<style>
+    /* Align Search Table to Left & Limit Input Width */
+    form[id*="Frm_Search"] table,
+    form[name="Frm_Search"] table,
+    .form-search table {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+        width: auto !important;
+    }
+    form[id*="Frm_Search"] table td,
+    form[name="Frm_Search"] table td,
+    .form-search table td {
+        text-align: left !important;
+        padding: 4px 6px !important;
+        vertical-align: middle !important;
+    }
+    form[id*="Frm_Search"] table td:first-child,
+    form[name="Frm_Search"] table td:first-child,
+    .form-search table td:first-child {
+        text-align: left !important;
+        width: 110px !important;
+        white-space: nowrap !important;
+    }
+    form[id*="Frm_Search"] table td label,
+    form[name="Frm_Search"] table td label,
+    .form-search table td label {
+        text-align: left !important;
+        font-weight: 600 !important;
+        margin-bottom: 0 !important;
+        white-space: nowrap !important;
+    }
+    form[id*="Frm_Search"] table td input,
+    form[name="Frm_Search"] table td input,
+    .form-search table td input {
+        width: 280px !important;
+        max-width: 280px !important;
+        min-width: 200px !important;
+    }
+    /* Ensure Button cell doesn't wrap onto 2 lines */
+    form[id*="Frm_Search"] table tr td:nth-child(3),
+    form[name="Frm_Search"] table tr td:nth-child(3),
+    form[id*="Frm_Search"] table tr td:last-child {
+        white-space: nowrap !important;
+        width: auto !important;
+        min-width: 260px !important;
+    }
+    /* Buttons displayed strictly horizontal */
+    form[id*="Frm_Search"] button,
+    form[name="Frm_Search"] button {
+        display: inline-block !important;
+        vertical-align: middle !important;
+        margin-right: 6px !important;
+        white-space: nowrap !important;
+    }
+    /* Radio options row aligned to left */
+    form[id*="Frm_Search"] table.TblOptionRadio,
+    form[id*="Frm_Search"] .RadioOption,
+    form[id*="Frm_Search"] table:not(:first-child) {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+    }
+</style>
+
+@if (ViewBag.DrawHTMLSearchForm != null)
+{
+    @Html.Raw(ViewBag.DrawHTMLSearchForm)
+}
+
+<script>
+    function showJournalForm(id, title) {
+        var getParam = function (key) {
+            var s = new URLSearchParams(window.location.search);
+            if (s.get(key)) return s.get(key);
+            if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                if (h.get(key)) return h.get(key);
+            }
+            return '';
+        };
+        var sysId = getParam('SystemID');
+        var whId = getParam('WarehouseID');
+        var url = '@Url.Action("Create", "JournalEntry")' + '?id=' + (id || 0) + (sysId ? '&systemId=' + sysId : '') + (whId ? '&warehouseId=' + whId : '');
+        var dialogTitle = id > 0 ? (title ? 'Journal Entry - ' + title : 'Edit Journal Entry') : 'New Journal Entry';
+        ShowDialogBox(dialogTitle, 'Auto', 'Auto', url);
+    }
+
+    function quickUpdateJournalStatus(id, statusId, actionName) {
+        if (!id || id <= 0) return;
+        var confirmMsg = 'Are you sure you want to ' + actionName + ' this Journal Entry?';
+        
+        var doCall = function () {
+            $.ajax({
+                url: '@Url.Action("UpdateStatus", "JournalEntry")',
+                type: 'POST',
+                data: { id: id, statusId: statusId },
+                headers: { "Authorization": "Bearer " + (typeof access_Token !== 'undefined' ? access_Token : '') },
+                success: function (res) {
+                    if (res.Result === 2 || res.success) {
+                        if (typeof DialogSweetAlert === "function") {
+                            DialogSweetAlert('success', res.Message || 'Status updated successfully!');
+                        } else {
+                            alert(res.Message || 'Status updated successfully!');
+                        }
+                        var $kGrid = $("#TableGride, [id*='TableGride'], .k-grid").data("kendoGrid");
+                        if ($kGrid) {
+                            $kGrid.dataSource.read();
+                        } else if (typeof LoadTableGrid === "function") {
+                            LoadTableGrid(1);
+                        }
+                    } else {
+                        alert(res.Message || 'Failed to update status.');
+                    }
+                },
+                error: function (xhr) {
+                    alert('Error: ' + xhr.responseText);
+                }
+            });
+        };
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: actionName + ' Journal Entry?',
+                text: confirmMsg,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, ' + actionName,
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed || result.value) {
+                    doCall();
+                }
+            });
+        } else {
+            if (confirm(confirmMsg)) {
+                doCall();
+            }
+        }
+    }
+
+    // Auto-apply default search filters immediately when page loads or refreshes
+    $(document).ready(function () {
+        setTimeout(function () {
+            if (typeof LoadTableGrid === "function") {
+                LoadTableGrid(1);
+            }
+        }, 100);
+    });
+</script>

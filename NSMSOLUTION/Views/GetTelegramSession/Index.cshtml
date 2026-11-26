@@ -1,0 +1,41 @@
+﻿@{ Layout = null;}
+<link href="~/Content/AdminLTE-3.2.0/dist/css/adminlte.min.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+<section>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col">
+                <form class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="inputPassword2" class="sr-only">Code: </label>
+                        <input type="text" class="form-control" id="Code" placeholder="Code" required />
+                    </div>
+                    <button id="btnSubmitCode" type="button" class="btn btn-primary mb-2">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var IsUserAuthorized = "@ViewBag.IsUserAuthorized";
+    $(function () {
+        console.log(IsUserAuthorized);
+        if (IsUserAuthorized != "False") {
+            $("#btnSubmitCode").attr("disabled", "disabled");
+        }
+        $("#btnSubmitCode").click(function () {
+            var Code = $("#Code").val();
+            if (Code == "") {
+                alert("Please enter code.");
+                $("#Code").focus();
+            }
+            else {
+                $.post("GetTelegramSession/Submit", { Code: Code } ,function (data) {
+                    alert("OK");
+                    $("#btnSubmitCode").attr("disabled", "disabled");
+                });
+            }
+        });
+    });
+
+</script>

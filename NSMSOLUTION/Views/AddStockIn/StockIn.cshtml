@@ -1,0 +1,249 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+@*@Html.Raw(ViewBag.AccountTypeGroup)*@
+<script>
+    var Status = "@ViewBag.Status";
+    var ItemDescriptionData = "";
+    var DataTblEdit = "";
+    var KVendorName = "@ViewBag.VendorName";
+    var Type = "@ViewBag.Type";
+    var PONumber = "@ViewBag.PONumber";
+    var BillID = "@ViewBag.BillID";
+    var StockInID = "@ViewBag.StockInID";
+    var isEdit = StockInID != 0;
+    $(function () {
+        if (StockInID == 0) {
+            if (PONumber != "") {
+                setTimeout(function () {
+                    $("#PONumber").val(PONumber).trigger("keydown");
+                }, 500);
+                setTimeout(function () {
+                    $("ul.ui-autocomplete li").first().trigger("click");
+                    $("#PONumber").blur();
+                }, 1000);
+            } else if (BillID != "" && BillID != "0") {
+                OnPONumberStockINChange();
+            }
+        }
+        setTimeout(function () {
+            TotalQty();
+            const remainQty = $("input[name=QTYRemain]");
+            remainQty.each((i, el) => {
+                $("input[name=qtyRemain]").eq(i).val($(el).val())
+            });
+        }, 1000);
+
+        $(document).on('change', 'input[name=QTY]', function () {
+            const ponum = $("#PONumber").val();
+            const lastQty = $(this).val();
+            const row = $(this).closest('tr');
+            const QTYRemain = row.find('input[name=QTYRemain]');
+            const qtyRemain = row.find('input[name=qtyRemain]').val();
+            const qtyOrder = row.find('input[name=OrderQTY]');
+
+            if (!ponum) return false;
+
+            if (parseFloat(lastQty) > parseFloat(qtyOrder.val())
+                || parseFloat(lastQty) > parseFloat(qtyRemain)) {
+                alert('Invalid QTY, Please check again!');
+                $(this).val(null);
+                QTYRemain.val(qtyRemain);
+                return false;
+            }
+
+            const totalQtyRemain = parseFloat(qtyRemain) - parseFloat(lastQty);
+            QTYRemain.val(totalQtyRemain);
+        });
+    });    
+
+    function TotalQty() {
+        var totalOrderQty = 0;
+        var totalReceivedQty = 0;
+            $("input[name=ItemName]").each(function (i) {
+                if ($("input[name=ItemName]").eq(i).val() != "") {
+                    var OrderQTY = $("input[name=OrderQTY]").eq(i).val();
+                    OrderQTY = (OrderQTY == "" ? 0 : accounting.unformat(OrderQTY));
+                    var ReceivedQTY = $("input[name=QTY]").eq(i).val();
+                    ReceivedQTY = (ReceivedQTY == "" ? 0 : accounting.unformat(ReceivedQTY));
+                    totalOrderQty += OrderQTY;
+                    totalReceivedQty += ReceivedQTY;
+                }
+            });
+            $("input[name=TotalOrderQty]").val(totalOrderQty);
+            $("input[name=TotalReceivedQty]").val(totalReceivedQty);
+    }
+    function TotalAll() {
+        var SubTotal = 0;
+        $("input[name=ItemName]").each(function (i) {
+            var QTY = $("input[name=QTY]").eq(i).val();
+            QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+            var UnitPrice = $("input[name=CostPrice]").eq(i).val();
+            UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+            var Amount = (QTY * UnitPrice);
+
+            var DisUSD = $("input[name=DisUSD]").eq(i).val();
+            DisUSD = (DisUSD == "" ? 0 : accounting.unformat(DisUSD));
+            Amount = Amount - DisUSD;
+
+            $("input[name=Amount]").eq(i).val(accounting.formatNumber(Amount, 2));
+            SubTotal += Amount;
+        });
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+        var Rate = $("#Tax_Rate").val();
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        //var VAT = //$("label[name=VAT]").html();
+        var Total = accounting.unformat(SubTotal);
+        if (Rate != 0) {
+            var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+            $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+            Total += accounting.unformat(VAT);
+        }
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+            var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+            GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+            $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+        }
+        else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+
+        var ReceiveDate = $("#ReceiveDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+        $("input[name=_StockInDate]").val(ReceiveDate);
+        TotalQty();
+
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        if (response.Data == "")
+            return;
+        response = JSON.parse(response.Data)[0];
+        var VendorID = response.VendorID;
+        var StockInID = response.StockInID;
+        var isOpen = false;
+        var Type = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Type';
+        })[0].value;
+        //var Qty = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'QTY';
+        //})[0].value;
+        PostData("AddStockIn/SendNotificationToTelegram", response);
+        var loc = window.location.href;
+        var ID = getQueryStringValue(loc, 'ID');
+        if (!isOpen && ID == "") {
+            var ReceiveNoteNumber = response.ReceiveNoteNumber;
+            setTimeout(function () {
+                $("#TXTReceiveNoteNumber").val(ReceiveNoteNumber);
+                $("#BtnSearchStock").click();
+            }, 200);
+        }
+        else {
+            Bill_Number = response.BillNumber;
+            $("#BunSearch").click();
+            $("#BtnSearchVendorPO").click();
+            $("#BtnSearchVendorBills").click();
+            $("#Bills_Tap").click();
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+        }
+        $("#modal-default").modal('hide');
+
+        var Data = SaveChangeResponse['Data'].IDENTITYValue.split("~");
+        var Datas = Data[0].split("|");
+        Datas = {
+            ItemID: Datas[1],
+        };
+
+        var data = {
+            StockInID: Datas.ItemID
+        }
+        PostData("AddStockIn/UpdateQtyCal", data);
+        LoadData(`AddStockIn/GetLastExpireDateItem?StockInID=${Datas.ItemID}`, function (response) {
+            var rst = JSON.parse(JSON.parse(response).data);
+            let objData = rst.map(item => ({
+                ...item,
+                Barcode: generateBarcode(11),
+            }));
+            //console.log(JSON.stringify(objData));
+            PostData("AddStockIn/SaveChangeItemExpireWithBarcode", { StockInID: Datas.ItemID, Data: JSON.stringify(objData), IsEdit: isEdit});
+        });
+    }
+
+    async function processArray(array) {
+        try {
+            let i = 0;
+            for (const item of array) {
+                await Reload_ItemName(i, item);
+                i++;
+            }
+        }
+        catch (e) {
+            console.log("Error:", e);
+        }
+    }
+    function Reload_ItemName(i, item) {
+        return new Promise(function(resolve) {
+            setTimeout(function () {
+                $("input[name=ItemName]").eq(i).val(item.ItemName);
+                $("input[name=ItemID]").eq(i).val(item.ItemID);
+                //$("input[name=AccountName]").eq(i).val(item.AccountName);
+                //$("input[name=ChartOfAccountID]").eq(i).val(item.ChartOfAccountID);
+                $("input[name=OrderQTY]").eq(i).val(item.OrderQTY);
+                $("input[name=QTY]").eq(i).val(item.QTY);
+                $("input[name=CostPrice]").eq(i).val(item.UnitPrice);
+                //$("input[name=DisP]").eq(i).val(item.DisP);
+                //$("input[name=DisP]").eq(i).val(item.DisUSD);
+                $("input[name=Amount]").eq(i).val(item.Amount);
+                $("input[name=UM]").eq(i).val(item.UM);
+                $("div[name=ItemName_Description]:eq(" + i + ")").summernote('code', item.ItemDescription);
+                $("input[name=ItemName]").eq(i).focus();
+                resolve();
+            }, 150);
+        });
+    }
+    function OnPONumberStockINChange() {
+        var PONumber = encodeURIComponent($("#PONumber").val());
+        if (PONumber != "") {
+            RemoveAllTableRow("TRNo", "ItemName");
+            LoadData('AddStockIn/LoadPO?PONumber=' + PONumber + '&BillID=' + BillID, function (response) {
+                var rst = JSON.parse(JSON.parse(response).data);
+                var TblData = rst;
+                rst = rst[0];
+                $("#Vendor_Name").val(rst.VendorName);
+                $("#Vendor_Name_VendorID").val(rst.VendorID);
+                $("#Vendor_Name_Reference_VendorName").val(rst.Vendor_Name_Reference_VendorName);
+
+                $("#Warehouse").val(rst.WarehouseName);
+                $("#Warehouse_WID").val(rst.WID);
+                $("#TxtContactName").val(rst.ContactName);
+                $("#TxtContactPhone").val(rst.ContactPhone);
+
+                $("#PurchaseOrderID").val(rst.PurchaseOrderID);
+                //$("#PODate").val(rst.PODate);
+                $("#BillID").val(rst.BillID);
+                $("#BillDate").val(rst.BillDate);
+                $("#BillNumber").val(rst.BillNumber);
+                
+                SetValueTableRow(TblData, 'ItemName', 'TableItemInformation', 'TRNo', rowData_TableItemInformation, 'TDNo', this, `CallSetAutoComplete_ItemName,ItemExpirationDate_ApplyDatePicker,Reload_Reason`, '', '', '', '', '', '', RowFields2_TableItemInformation);
+                //TotalQty();
+                handleQtyRemain(TblData);
+            });
+        }
+    }
+    function handleQtyRemain(TblData) {
+        for (let i = 0; i < TblData.length; i++) {
+            const row = TblData[i];
+            $("input[name='qtyRemain']").eq(i).val(row.QTYRemain);
+        }
+    }
+</script>
+
+

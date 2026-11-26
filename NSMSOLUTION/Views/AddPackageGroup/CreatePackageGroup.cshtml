@@ -1,0 +1,89 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+
+    $(function () {
+        appendTimeRow();
+        var EditData = `@Html.Raw(ViewBag.data)`;
+        if (EditData != '[]') {
+            EditData = JSON.parse(EditData)[0];
+            if (EditData.IsDoubleSpeedAtNight) {
+                $("#FromTime").data('daterangepicker').setStartDate(EditData.FromTime1);
+                $("#FromTime").data('daterangepicker').setEndDate(EditData.FromTime2);
+                $("#ToTime").data('daterangepicker').setStartDate(EditData.ToTime1);
+                $("#ToTime").data('daterangepicker').setEndDate(EditData.ToTime2);
+            }
+            else {
+                $("#IsDSpeed").click();
+            }
+        }
+    });
+    function appendTimeRow() {
+        if ($("#IsDSpeed").is(':checked')) {
+            var row = '<tr id="RTTime"><td valign="top" align="right"><label for="FromTime" class="col-form-label">From Time:</label></td>';
+            row += '<td><div class="form-group">';
+            row += '<input type="text" class="form-control float-right" id="FromTime" required="true">';
+            row += '</div></td>';
+            row += '<td valign="top" align="right"><label for="ToTime" class="col-form-label">To Time:</label></td>';
+            row += '<td><div class="form-group">';
+            row += '<input type="text" class="form-control float-right" id="ToTime" required="true">';
+            row += '</div></td>';
+            row += '</tr>';
+
+            //var td = '<td name="tdLimitationD" valign="top" align="right"><label class="col-form-label">Limitation Name:</label></td>';
+            //td += '<td name="tdLimitationD"><div class="form-group">';
+            //td += '<input type="text" class="form-control" id="LimitationName_DoubleSpeed" readonly="true" required="true">';
+            //td += '</div></td>';
+            //$("#IsDSpeed").parent().parent().parent().append(td);
+            $("#RTTime").remove();
+            $("#IsDSpeed").closest('tr').after(row);
+
+            $('#FromTime').daterangepicker({
+                timePicker: true,
+                //autoApply: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 1,
+                timePickerSeconds: true,
+                //autoUpdateInput: true,
+                parentEl: "#modal-default .modal-body",
+                locale: {
+                    format: 'HH:mm:ss'
+                }
+            }).on('show.daterangepicker', function (ev, picker) {
+                picker.container.find(".calendar-table").hide();
+            });
+            $('#ToTime').daterangepicker({
+                timePicker: true,
+                //autoApply: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 1,
+                timePickerSeconds: true,
+                //autoUpdateInput: true,
+                parentEl: "#modal-default .modal-body",
+                locale: {
+                    format: 'HH:mm:ss'
+                }
+            }).on('show.daterangepicker', function (ev, picker) {
+                picker.container.find(".calendar-table").hide();
+            });
+
+            $("#FromTime").data('daterangepicker').setStartDate('07:00:00');
+            $("#FromTime").data('daterangepicker').setEndDate('18:59:59');
+
+            $("#ToTime").data('daterangepicker').setStartDate('19:00:00');
+            $("#ToTime").data('daterangepicker').setEndDate('23:59:59');
+
+            //var limitationD = "Limitation_DS@9_" + $("#ProfileName").val();
+            //$("#LimitationName_DoubleSpeed").val(limitationD);
+        }
+        else {
+            //$("td[name=tdLimitationD]").remove();
+            $("#RTTime").hide();
+        }
+    }
+    $("#IsDSpeed").click(function () {
+        appendTimeRow();
+    });
+</script>
+

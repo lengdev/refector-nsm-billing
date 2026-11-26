@@ -1,0 +1,66 @@
+﻿@{
+    Layout = null;
+}
+@*<div id="progress"></div>*@
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    $(function () {
+        //document.addEventListener('click', function (e) {
+        //    if (e.target.name == "APreviewInv") {
+        //        e.preventDefault();
+        //    }
+        //});
+    });
+    function ShowPreviewCustInv(THIS) {
+        if ($(THIS).index() != 1) {
+            var index = $(THIS).parent().index();
+            if ($("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(1) a")[0])
+                $("#TableGride tr[name=TrRowNo]:eq(" + index + ") td:eq(1) a")[0].click();
+            return true;
+        }
+    }
+</script>
+
+@*<script>
+    //JUST AN EXAMPLE, PLEASE USE YOUR OWN PICTURE!
+    var imageAddr = "http://nsmisp.com.kh/Content/SlideShow/NSM-ISP-INTERNET-PACKGE-015.jpg";
+    var downloadSize = 4995374; //bytes
+
+    $(function () {
+        var oProgress = document.getElementById("progress");
+        oProgress.innerHTML = "Loading the image, please wait...";
+        window.setTimeout(MeasureConnectionSpeed, 1);
+    });
+
+    function MeasureConnectionSpeed() {
+        var oProgress = document.getElementById("progress");
+        var startTime, endTime;
+        var download = new Image();
+        download.onload = function () {
+            endTime = (new Date()).getTime();
+            showResults();
+        }
+
+        download.onerror = function (err, msg) {
+            oProgress.innerHTML = "Invalid image, or error downloading";
+        }
+
+        startTime = (new Date()).getTime();
+        var cacheBuster = "?nnn=" + startTime;
+        download.src = imageAddr + cacheBuster;
+
+        function showResults() {
+            var duration = (endTime - startTime) / 1000;
+            var bitsLoaded = downloadSize * 8;
+            var speedBps = (bitsLoaded / duration).toFixed(2);
+            var speedKbps = (speedBps / 1024).toFixed(2);
+            var speedMbps = (speedKbps / 1024).toFixed(2);
+            var a  = "Your connection speed is: <br />" +
+                speedBps + " bps<br />" +
+                speedKbps + " kbps<br />" +
+                speedMbps + " Mbps<br />";
+            oProgress.innerHTML = a;
+            console.log(a);
+        }
+    }
+</script>*@

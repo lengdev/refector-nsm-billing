@@ -1,0 +1,182 @@
+﻿@{ Layout = null; }
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div id="chartCustConnectivity"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var Customer = `@Html.Raw(ViewBag.Customer)`;
+    $(function () {
+        if (Customer != "") {
+            Customer = JSON.parse(Customer);
+            var Table = Customer.Table;
+            var labels = Table.map(function (item) {
+                return item.Day;
+            });
+            var Activated = Table.map(function (item) {
+                return item.Activated;
+            });
+            var Locked = Table.map(function (item) {
+                return item.Locked;
+            });
+            var Terminated = Table.map(function (item) {
+                return item.Terminated;
+            });
+
+            //var options = {
+            //    series: [{
+            //        name: 'Activated',
+            //        type: 'line',
+            //        data: Activated
+            //    }, {
+            //        name: 'Locked',
+            //        type: 'line',
+            //        data: Locked
+            //        }, {
+            //        name: 'Terminated',
+            //            type: 'line',
+            //        data: Terminated
+            //        }],
+            //    chart: {
+            //        height: 350,
+            //        type: 'line',
+            //    },
+            //    stroke: {
+            //        curve: 'smooth'
+            //    },
+            //    colors: ["#007BFF", "#F89C39", "#DC3545"],
+            //    fill: {
+            //        type: 'solid',
+            //        opacity: [0.35, 1],
+            //    },
+            //    labels: labels,
+            //    markers: {
+            //        size: 0
+            //    },
+            //    //yaxis: [
+            //    //    {
+            //    //        title: {
+            //    //            text: 'Series A',
+            //    //        },
+            //    //    },
+            //    //    {
+            //    //        opposite: true,
+            //    //        title: {
+            //    //            text: 'Series B',
+            //    //        },
+            //    //    },
+            //    //],
+            //    tooltip: {
+            //        shared: true,
+            //        intersect: false,
+            //        y: {
+            //            formatter: function (y) {
+            //                if (typeof y !== "undefined") {
+            //                    return y.toFixed(0);// + " points";
+            //                }
+            //                return y;
+            //            }
+            //        }
+            //    }
+            //};
+            var CountActivated = Activated.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var CountLocked = Locked.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var CountTerminated = Terminated.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+            var options = {
+                series: [{
+                    name: 'Activated ' + CountActivated,
+                    data: Activated,
+                }, {
+                    name: 'Locked ' + CountLocked,
+                    data: Locked,
+                    }, {
+                    name: 'Terminated ' + CountTerminated,
+                        data: Terminated,
+                    }],
+                chart: {
+                    type: "bar",
+                    height: 350,
+                },
+                plotOptions: {
+                    bar: {
+                        endingShape: 'rounded',
+                        horizontal: false,
+                        columnWidth: "55%",
+                        borderRadius: 6,
+                        dataLabels: {
+                            position: 'top', // top, center, bottom
+                        },
+                    },
+                },
+                dataLabels: {
+                    enabled: true,
+                    offsetY: -20,
+                    style: {
+                        fontSize: '12px',
+                        colors: ["#304758"]
+                    },
+                    formatter: function (val, opt) {
+                        return val;
+                    },
+                    dropShadow: {
+                        enabled: false
+                    }
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                xaxis: {
+                    position: 'top',
+                    categories: labels, //['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    },
+                    crosshairs: {
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                colorFrom: '#D8E3F0',
+                                colorTo: '#BED1E6',
+                                stops: [0, 100],
+                                opacityFrom: 0.4,
+                                opacityTo: 0.5,
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                    }
+                },
+                //colors: ["var(--bs-info)", "var(--bs-primary)"],
+                colors: ["#007BFF", "#F89C39", "#DC3545"],
+                fill: {
+                    opacity: 1,
+                    colors: ["#007BFF", "#F89C39", "#DC3545"],
+                },
+                tooltip: {
+                    x: {
+                        show: false
+                    },
+                    y: {
+                        title: {
+                            formatter: function (val) {
+                                return ''
+                            }
+                        }
+                    }
+                },
+            };
+            var chart = new ApexCharts(document.querySelector("#chartCustConnectivity"), options);
+            chart.render();
+        }
+    });
+</script>

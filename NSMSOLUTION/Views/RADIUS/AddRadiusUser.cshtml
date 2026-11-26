@@ -1,0 +1,122 @@
+﻿@{ Layout = null;}
+<form id="frm_getpackagename">
+    <div class="form-group row">
+        <label for="RouterIP" class="col-sm-2 col-form-label">Router IP:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="RouterIP" placeholder="Enter Router IP" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Port" class="col-sm-2 col-form-label">Port:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="Port" placeholder="Enter Port" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Routerusername" class="col-sm-2 col-form-label">Router User Name:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="Routerusername" placeholder="Enter Router User Name" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="RouterPassword" class="col-sm-2 col-form-label">Router Password:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="RouterPassword" placeholder="Enter Router Password" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">&nbsp;</label>
+        <div class="col-auto">
+            <button type="submit" id="getpackage" class="btn btn-primary">Get Package</button>
+        </div>
+    </div>
+    </form>
+<form id="frm_CreatePPPoEUser">
+    <div class="form-group row">
+        <label for="PackageName" class="col-sm-2 col-form-label">Package Name:</label>
+        <div class="col-auto" id="div_packagename">
+            <input type="text" class="form-control" id="PackageName" placeholder="Enter PPPoE User Name">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="pppoeusername" class="col-sm-2 col-form-label">PPPoE User Name:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="pppoeusername" placeholder="Enter PPPoE User Name" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Password" class="col-sm-2 col-form-label">Password:</label>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="Password" placeholder="Enter PPPoE Password" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="StartNumber" class="col-sm-2 col-form-label">Start Number:</label>
+        <div class="col-auto">
+            <input type="number" class="form-control" value="1" id="StartNumber" placeholder="Enter Start Number" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="EndNumber" class="col-sm-2 col-form-label">End Number:</label>
+        <div class="col-auto">
+            <input type="number" class="form-control" value="10" id="EndNumber" placeholder="Enter End Number" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">&nbsp;</label>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Create PPPoE User</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(function () {
+        $("#frm_getpackagename").submit(function (event) {
+            event.preventDefault();
+            let RouterIP = $("#RouterIP").val();
+            let Port = $("#Port").val();
+            let Routerusername = $("#Routerusername").val();
+            let RouterPassword = $("#RouterPassword").val();
+            PostData("RADIUS/GetPackageName", {
+                RouterIP: RouterIP, Port: Port, Routerusername: Routerusername,
+                RouterPassword: RouterPassword
+            }, function (response) {
+                response = JSON.parse(response);
+                if (response.Result == 1) {
+                    DialogSweetAlert("error", response.Message);
+                }
+                else {
+                    $("#div_packagename").html(response.Data);
+                }
+            });
+        });
+        $("#frm_CreatePPPoEUser").submit(function (event) {
+            event.preventDefault();
+            let RouterIP = $("#RouterIP").val();
+            let Port = $("#Port").val();
+            let Routerusername = $("#Routerusername").val();
+            let RouterPassword = $("#RouterPassword").val();
+            let packagename = $("#CboProfileName").val();
+            let pppoeusername = $("#pppoeusername").val();
+            let pppoeuserpassword = $("#Password").val();
+            let StartNumber = $("#StartNumber").val();
+            let EndNumber = $("#EndNumber").val();
+            PostData("RADIUS/CreatePPPoEUser", {
+                RouterIP: RouterIP, Port: Port, Routerusername: Routerusername,
+                RouterPassword: RouterPassword, pppoeusername: pppoeusername,
+                pppoeuserpassword: pppoeuserpassword, packagename: packagename,
+                StartNumber: StartNumber, EndNumber: EndNumber
+            }, function (response) {
+                response = JSON.parse(response);
+                if (response.Result == 1) {
+                    DialogSweetAlert("error", response.Message);
+                }
+                else {
+                    DialogSweetAlert("success", "Create Successfully.");
+                }
+            });
+        });
+    });
+</script>

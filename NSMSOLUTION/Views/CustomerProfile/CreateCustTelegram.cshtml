@@ -1,0 +1,26 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    function saveChangeCustTelegram() {
+        var CustomerID = getQueryStringValue(window.location.hash, "ID");
+        var FirstName = $("#TxtFirstName").val();
+        var LastName = $("#TxtLastName").val();
+        var Phone = $("#TxtCustomerPhone").val();
+        var Memo = $("#TxtMemo").val();
+        DoSaveChangeData("CustomerProfile/AddCustomerTelegram", {
+            PrimaryFieldValue: PrimaryFieldValue,
+            CustomerID: CustomerID,
+            CustomerPhone: Phone,
+            FirstName: FirstName,
+            LastName: LastName,
+            Memo: Memo
+        }, function (response) {
+            $("form[name=CreateCustTelegram]")[0].reset();
+            $("#TxtFirstName").focus();
+            if (PrimaryFieldValue != 0) {
+                $("#CloseModal").click();
+            }
+        });
+    }
+</script>

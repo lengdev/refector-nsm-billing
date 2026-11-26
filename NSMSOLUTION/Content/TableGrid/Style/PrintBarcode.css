@@ -1,0 +1,724 @@
+﻿@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.eot") /* EOT file for IE */
+}
+@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.ttf") /* TTF file for CSS3 browsers */
+}
+
+.LogoImg
+{
+    background-image:url("../../../Content/images/mk_logo.jpg");
+    width:100%;
+    height:50px;
+    list-style-image: url("../../../Content/images/mk_logo.jpg");
+    list-style-position:inside;
+    background-repeat:no-repeat;
+    background-position:center;
+    display:list-item;
+    text-align:center;
+    border-image-repeat:stretch;    
+}
+.Logo span
+{
+    font-family:"Khmer OS Muol Light", "Khmer OS Bokor";
+    font-weight:normal;
+    font-size:20px;
+}
+.Logo span.SubTitle
+{
+    font-family:"Khmer OS Bokor";
+    font-weight:normal;
+    font-size:16px;
+    line-height:25px;
+}
+.Logo span.SubTitleE
+{
+    font-family:Verdana;
+    font-weight:bold;
+    font-size:14px;
+    line-height:15px;
+}
+.Logo
+{
+    font-weight:bold;
+    font-size:22px;
+    margin-bottom:10px;
+    color:Blue;
+    margin-left:50px;
+}
+html {
+    font-family: Verdana, Geneva, sans-serif;
+}
+ul,
+ol {
+    padding: 0;
+    margin: 0 0 10px 25px;
+}
+
+    ul ul,
+    ul ol,
+    ol ol,
+    ol ul {
+        margin-bottom: 0;
+    }
+
+li {
+    line-height: 20px;
+}
+
+ul.unstyled,
+ol.unstyled {
+    margin-left: 0;
+    list-style: none;
+}
+
+ul.inline,
+ol.inline {
+    margin-left: 0;
+    list-style: none;
+}
+
+    ul.inline > li,
+    ol.inline > li {
+        display: inline-block;
+        *display: inline;
+        padding-right: 5px;
+        padding-left: 5px;
+        *zoom: 1;
+    }
+table.TableGride
+{
+    font-family: Verdana, Geneva, sans-serif;   
+    border-collapse: collapse;
+    /*font-size: 9px;*/
+    border:#EEE solid 1px;
+}
+.TableGride td
+{
+    border-left: #EEE solid 1px;
+    border-bottom: #EEE solid 1px;
+}
+table.TableGridePrint {
+    font-family: "Khmer OS System", Verdana, Geneva, sans-serif;
+    /*font-weight: normal;*/
+    font-size: 9px;
+    border-collapse: collapse;
+    border-top: #000 solid 1px;
+    border-right: #000 solid 1px;
+}
+table.TableGridePrintCustom {
+    font-family: "Khmer OS System", Verdana, Geneva, sans-serif;
+    /*font-weight: normal;*/
+    font-size: 12px;
+    border-collapse: collapse;
+    border-top: #000 solid 1px;
+    border-right: #000 solid 1px;
+}
+    table.TableGridePrint td, table.TableGridePrintCustom td {
+        border-left: #000 solid 1px;
+        border-bottom: #000 solid 1px;
+    }
+.TableGridePrint .header, .TableGridePrint th, .TableGridePrintCustom .header, .TableGridePrintCustom th {
+    text-align: center;
+    background: #CCC;
+    border-bottom: #000 solid 1px;
+}
+    .TableGridePrint .header th, .TableGridePrint th, .TableGridePrintCustom .header th, .TableGridePrintCustom th {
+        border-left: #000 solid 1px;
+    }
+
+
+table.TableGrideFooter
+{
+    color:#7cab0e;
+}
+.tr-Hover
+{
+    color: #7cab0e;
+    background: url(../Images/bg-header.jpg) repeat-x bottom;
+}
+.tr-Hover td
+{
+    border-bottom: #CCC solid 1px;
+}
+.TableGride .tr-Hover td:Active
+{
+    border-bottom: #FCD3A1 solid 1px;
+}
+.TableGride .tr-Selected
+{
+    background-image: none;
+    background-color: #FCF9F1;
+    border-bottom: #FCD3A1 solid 1px;
+}
+.TableGride .tr-Selected2
+{
+    background-image: none;
+    border-bottom: #FCD3A1 solid 1px;
+	color:#666;
+}
+.TableGride .tr-Selected tr:Hover
+{
+    background-image: none;
+    background-color: #FCF9F1;
+    border-bottom: #FCD3A1 solid 1px;
+}
+.TableGride .tr-Selected td
+{
+    border-right: #FCD3A1 solid 1px;
+    border-bottom: #FCD3A1 solid 1px;
+}
+.TableGride .header, .TableGride th
+{
+    text-align: center;
+    /*font-size: 9px;*/
+    font-weight: bold;
+    background: #EEE url(../Images/bg-header.jpg) repeat-x;
+    color: #7cab0e;
+    border-bottom: #DBDBDB solid 1px;
+}
+.TableGride .header th, .TableGride th
+{
+    border-left: #EEE solid 1px;
+}
+
+.TableGride td.Total
+{
+	color:Red;
+	font-weight:bold;
+}
+.TableGride tr.footer
+{
+	background: #EEE url(../Images/bg-header.jpg) repeat-x;
+	height:30px;
+}
+.TableGride tr.footer td
+{
+	border:#FFF solid 0;
+}
+
+#TblPaging
+{
+	border: #D8DCDF solid 1px;
+	border-collapse:collapse;
+	border-top:#FFF solid 0;
+}
+
+tfoot tr.tblfooter
+{
+	background:#EEE url(../Images/bg-header.jpg) repeat-x;
+	height:30px;
+}
+
+#TblPaging tr.tblfooter td
+{
+	border:#FFF solid 0;
+}
+
+ul#icons {margin: 0; padding: 0;}
+ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left; list-style: none;}
+ul#icons span.ui-icon {float: left; margin: 0 4px;}
+
+.TableGride tr.footer ul#icons {margin: 0; padding: 0;}
+.TableGride tr.footer ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left; list-style: none;}
+.TableGride tr.footer ul#icons span.ui-icon {float: left; margin: 0 4px;}
+			
+.question
+{
+    position: absolute;
+    display: inline;
+    text-align: center;
+    width: 174px;
+    height: 78px;
+    font-size: 13px;
+    line-height: 1.5em;
+    background: url(../Images/Icon/bubble.png) no-repeat left top;
+    padding: 10px 0 0 0;
+    text-shadow: 0px 1px 0px #fff;
+    margin-left: -7em;
+    margin-top: -6em;
+    opacity: 0;
+}
+    
+.yes, .cancel
+{
+    margin-top: .5em;
+    margin-right: .5em;
+    cursor: pointer;
+    display: inline-block;
+    width: 63px;
+    height: 21px;
+    color: #333;
+    text-shadow: 0px 1px 0px #000;
+    background: url(../Images/Icon/button.png) no-repeat left top;
+}
+
+#divloadingdata
+{
+	/*clear:both;
+	margin:0;
+	padding:0;
+	z-index:999;*/
+	margin-left:9px;
+	margin-top:35px;
+	background:url(../Images/loadinfo.gif) no-repeat center;
+	text-align:center;
+	vertical-align:middle;
+	position:absolute;
+}
+
+#divtbldata
+{
+	background-color:transparent;
+}
+
+#divbody
+{
+	 border: #D8DCDF solid 1px;
+	 margin:0;
+	 padding:0;
+}
+
+input#txtpaging
+{
+	color:#7cab0e;
+	border:#CCC solid 1px;
+	text-align:center;
+	width:20px;	
+	padding:0;
+	margin:0;
+	padding:3px;
+}
+
+select.cbopagesize
+{
+    clear:both;
+    padding:3px;
+	margin:0;
+	color:#7cab0e;
+	border:#CCC solid 1px;
+	text-align:center;
+	width:50px;
+	height:auto;
+}
+
+.TotalAllHeader
+{
+	border:#CCC solid 1px;
+}
+.TR-TotalAllHeader
+{
+	text-align: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: #7cab0e;
+	background: #EEE url(../Images/bg-header.jpg) repeat-x;
+	border-bottom: #DBDBDB solid 1px;    
+}
+.TR-TotalAllHeader td
+{
+	border-left: #EEE solid 1px;
+}
+.TotalAllHeader-Amount
+{
+	color:#666;
+}
+.TotalAllField
+{
+	font-weight:bold;
+	color:#666;
+}
+.TotalAllFieldValue
+{
+	font-weight:bold;
+	color:#F00;
+}
+.CurrentQTY
+{
+	font-weight:bold;
+}
+.Partial
+{
+	color:Red;
+}
+.QTYIN
+{
+	color:Highlight;
+}
+.QTYOUT
+{
+	color:Red;
+}
+.TotalField
+{
+	color:Blue;
+}
+.GroupByField
+{
+	color:#666;
+	font-weight:bold;
+}
+
+textarea
+{
+	padding:2px;
+	width:250px;
+	height:70px;
+	border:#CCC solid 1px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	-khtml-border-radius:5px;
+}
+
+.txt
+{
+    padding:2px;
+	width:100px;
+	height:23px;
+	border:#CCC solid 1px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	-khtml-border-radius:5px;
+}
+.TotalFooter, .TotalFooter tr, .TotalFooter td
+{
+    font-size:12px;
+    font-weight:bold;
+	border:none;
+	color:Blue;
+}
+
+/*.TableGride input[type=text]
+{
+    width:50px;
+    padding:0;
+}
+.TableGride textarea
+{
+    padding:0;
+    width:200px;
+    height:25px;
+}*/
+.GTotal
+{
+    border-right:1px solid #CCC;
+}
+.TableGride td.label
+{
+    color:black;
+    font-weight:bold;
+}
+.TableGride td.textlabel
+{
+    color:Red;
+    font-weight:bold;
+}
+
+.TblInvTop {
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+.TblInvTop tr td {
+    padding:5px;
+    border:1px solid #000;
+}
+.Invheader {
+    font-size: 9px;
+}
+.InvKhmerHeader {
+    font-family: "Khmer OS Muol Light";
+    font-weight: normal;
+    font-size: 16px;
+}
+.InvKhmerSubHeader {
+    font-family: "Khmer OS System";
+    font-weight: normal;
+    font-size: 16px;
+}
+.InvKhmerBody {
+    font-family: "Khmer OS System";
+    font-weight: normal;
+    font-size: 12px;
+}
+.InvKhmerBodyItem {
+    font-family: "Khmer OS System";
+    font-weight: normal;
+    font-size: 12px;
+}
+.InvNum
+{
+    font-size:13px;
+    color:red;
+}
+.tblnolog {
+    font-size:10px;
+}
+
+.printItemBarcodeaeon {
+    border: 3px solid #a2026e;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodyaeon {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+
+.logoaeon {
+    height: 20px;
+    width: 204px;
+    background-image: url(../../ItemPhoto/aeon.png);
+    list-style-image: url(../../ItemPhoto/aeon.png);
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #a2026e !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);
+}
+
+.brtileKH {
+    width: 80px;
+    white-space: normal;
+    transform: scale(1.4) translate(55px, -10px);
+}
+
+.brtileEng {
+    width: 110px;
+    white-space: normal;
+    transform: scale(1.4) translate(60px, 0px);
+}
+
+.Price {
+    transform: scale(1.8) translate(80px, 20px);
+}
+
+.Barcode {
+    transform: scale(1.2) translate(85px, 45px);
+}
+
+.barcodeFont {
+    font-size: 16px;
+    transform: scale(1.2) translate(68px, 40px);
+}
+
+.divprintbarcode {
+}
+
+/* print styles */
+@media print {
+    body {
+        margin-top: 33px;
+        margin-top: 23px;
+        margin-bottom: 25px;
+        margin-left: 20px;
+        margin-right: 25px;
+        -webkit-print-color-adjust: exact !important; /*Chrome, Safari */
+        color-adjust: exact !important; /*Firefox*/
+    }
+}
+
+@page {
+    margin-top: 33px;
+    margin-bottom: 23px;
+    margin-left: 20px;
+    margin-right: 25px;
+    -webkit-print-color-adjust: exact !important; /*Chrome, Safari */
+    color-adjust: exact !important; /*Firefox*/
+}
+
+.printItemBarcodekivi {
+    border: 3px solid #8ec547;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodykivi {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+
+.logokivi {
+    height: 20px;
+    width: 204px;
+    background-image: url(../../ItemPhoto/kivi.jpg);
+    list-style-image: url(../../ItemPhoto/kivi.jpg);
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #8ec547 !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);
+}
+
+.printItemBarcodek {
+    border: 3px solid #d5170b;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodyk {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+
+.logok {
+    height: 20px;
+    width: 204px;
+    background-image: url(../../ItemPhoto/Circle_K.jpg);
+    list-style-image: url(../../ItemPhoto/Circle_K.jpg);
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #d5170b !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);
+}
+
+.printItemBarcodeS {
+    border: 3px solid red;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodyS {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+
+.logS {
+    height: 20px;
+    width: 204px;
+    background-image: url(../../ItemPhoto/Shanghai.jpg);
+    list-style-image: url(../../ItemPhoto/Shanghai.jpg);
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: red !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);
+}
+
+.printItemBarcodef {
+    border: 3px solid #f36e20;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodyf {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+
+.logf {
+    height: 20px;
+    width: 204px;
+    background-image: url(../../ItemPhoto/FairPlus.jpg);
+    list-style-image: url(../../ItemPhoto/FairPlus.jpg);
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: red !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);
+}
+.printItemBarcodeNologo {
+    border: 3px solid #f36e20;
+    width: 240px;
+    margin: 2px;
+}
+
+.printItemBarcodeBodyNologo {
+    font-size: 9px;
+    -moz-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -webkit-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -o-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    -ms-transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    transform: scale(1) rotate(90deg) translate(-32px, -35px);
+    /*white-space: nowrap;*/
+    padding: 5px;
+}
+.nolog {
+    height: 20px;
+    width: 204px;
+    /*background-image: url(../../ItemPhoto/FairPlus.jpg);
+    list-style-image: url(../../ItemPhoto/FairPlus.jpg);*/
+    /*list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: red !important;
+    display: list-item;
+    text-align: center;
+    border-image-repeat: stretch;
+    -moz-transform: scale(0.8) translate(1px, -60px);
+    -webkit-transform: scale(0.8) translate(1px, -60px);
+    -o-transform: scale(0.8) translate(1px, -60px);
+    -ms-transform: scale(0.8) translate(1px, -60px);
+    transform: scale(0.8) translate(40px, -27px);*/
+}

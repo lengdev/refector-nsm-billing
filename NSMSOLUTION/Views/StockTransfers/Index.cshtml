@@ -1,0 +1,12 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showFormTransfer(transferNo, stockId) {
+        ShowDialogBox2("Tansfer No.: " + transferNo, "auto", "500", "StockTransfers/InvoiceStockTransfer?ID=" + stockId, 0, "", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#DivPrintStockTransfer").printThis();
+            });
+        });
+    }
+</script>

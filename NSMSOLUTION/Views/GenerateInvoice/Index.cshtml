@@ -1,0 +1,140 @@
+﻿@{
+    Layout = null;
+}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="ion ion-clipboard mr-1"></i>
+            Generate Auto Invoices & Bills
+        </h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="generateinvoice-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Create Invoices Manually</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Auto Invoices & Bills</a>
+                    </li>
+
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="custom-tabs-four-tabContent">
+                    <div class="tab-pane fade active show" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="Div_CustName">@Html.Raw(ViewBag.DrawHTMLSearchForm)</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div id="CustInfoResult"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="divAutoInvoice">
+                                    @Html.Raw(ViewBag.AutoInvoice)
+                                </div>
+                            </div>
+                        </div><br />
+                        <div class="row">
+                            <div class="col">
+                                <div class="card card-primary card-outline card-outline-tabs">
+                                    <div class="card-header p-0 border-bottom-0">
+                                        <ul class="nav nav-tabs" id="Showgeneratedinvoice-tab" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="ShowInvWillGenerate-tab" data-toggle="pill" href="#ShowInvWillGenerate" role="tab" aria-controls="ShowInvWillGenerate" aria-selected="true">Invoice Will Generate</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="ShowInvGeneratedInv-tab" data-toggle="pill" href="#ShowInvGeneratedInv" role="tab" aria-controls="ShowInvGeneratedInv" aria-selected="false">Generated Invoice</a>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="tab-content" id="ShowInvWillGenerate-tabContent">
+                                            <div class="tab-pane fade active show" id="ShowInvWillGenerate" role="tabpanel" aria-labelledby="ShowInvWillGenerate-tab">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div id="divShowInvWillGenerate"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="ShowInvGeneratedInv" role="tabpanel" aria-labelledby="ShowInvGeneratedInv-tab">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div id="divShowGeneratedInv"></div>
+                                                    </div>
+                                                </div>                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+</div>
+<!-- /.card-body -->
+@*<div class="card-footer clearfix">
+        <button type="button" class="btn btn-primary float-right"><i class="fas fa-plus"></i> Generate Now</button>
+    </div>*@
+
+<script>
+    $(function () {        
+        $("#generateinvoice-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#Showgeneratedinvoice-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        var row = '<td>';
+        row += '<div class="">';
+        row += '<button type="button" id="Bun_Search" class="btn btn-success"><i class="fa fa-search"></i> Search</button>';
+        row += '</div></td>';
+        row += '<td>';
+        row += '<div class="">';
+        row += '<button type="button" id="Btn_GenerateNow" class="btn btn-success"><i class="fa fa-plus"></i> Generate Invoice Now</button>';
+        row += '</div></td>';
+        $("#TxtGenerateDate").parent().parent().parent().append(row);
+
+        $("#TxtGenerateDate").on('change', function (event) {
+            var inv_Date = $("#TxtGenerateDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            $("#TxtInvoiceDate").data('daterangepicker').setStartDate(moment(inv_Date));
+        });
+
+        $("#Bun_Search").click(function () {
+            var GenerateInvoiceDate = StringToDate($("#TxtGenerateDate").val());
+            LoadData("GenerateInvoice/ShowInvoiceWillGenerate/?GenerateInvoiceDate=" + GenerateInvoiceDate, function (response) {
+                $("#divShowInvWillGenerate").html(JSON.parse(response.replace(/&quot;/ig, '"')).data);
+                $("#divShowGeneratedInv").html(JSON.parse(response.replace(/&quot;/ig, '"')).InvGenerated);
+            });
+        });
+        $("#Btn_GenerateNow").click(function () {
+            var InvoiceDate = StringToDate($("#TxtInvoiceDate").val());
+            var GenerateInvoiceDate = StringToDate($("#TxtGenerateDate").val());
+            var obj = {};
+            obj["Data"] = JSON.stringify({ InvoiceDate: InvoiceDate, GenerateInvoiceDate: GenerateInvoiceDate });
+            var Data = [];
+            Data.push(obj);
+            DoSaveChangeData("GenerateInvoice/GenerateInvoice", Data[0], function (respone) {
+                $("#Bun_Search").click();
+                $("#ShowInvGeneratedInv-tab").click();
+            });
+        });
+        $("#Bun_Search").click();
+    });
+</script>

@@ -1,0 +1,383 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var SpecificMember = [];
+    var MemberExcept = [];
+    var AssigneeID = "@ViewBag.AssigneeID";
+    var AssigneeName = "@Html.Raw(ViewBag.AssigneeName)";
+    var CoWorkerID = "@ViewBag.CoWorkerID";
+    var CoWorkerName = "@ViewBag.CoWorkerName";
+    var ConnectionID = "@ViewBag.ConnectionID";
+
+    //$("#CustomerName").change(function () {
+    //    var CustomerID = $("#CustomerID").val();
+    //    LoadData("OpenTicket/LoadCustDetails?CustomerID=" + CustomerID, function (response) {
+    //        response = JSON.parse(response).Data;
+    //        $("#divTblCustomerDetail").html(response);
+    //    });
+    //});
+
+    $(function () {
+        if (ConnectionID != "") {
+            setTimeout(function () {
+                $("#ConnectionID").val(ConnectionID).change();
+            }, 1000);
+        }
+    });
+
+    function onSupportProjectChange() {
+        var ID = $("#ProjectName_SupportProjectID").val();
+        //var Deadline = '<div class="col-sm-auto">' + $("#Assignee").parent().parent().parent().children('div').eq(4).html() + "</div>";
+        //Deadline += '<div class="col-sm-auto align-text-bottom">'+$("#Assignee").parent().parent().parent().children('div').eq(5).html()+"</div>";
+        LoadData("OpenTicket/LoadAssignee?SupportProjectID=" + ID, function (response) {
+            response = JSON.parse(response).Data;
+            //$("#Assignee").parent().parent().parent().html(response);
+            if (AssigneeID != "") {
+                setTimeout(function () {
+                    $("#Assignee_AssigneeID").val(AssigneeID);
+                    $("#Assignee").val(AssigneeName);
+                }, 100);
+            }
+            //LoadData("OpenTicket/LoadCoWorker?SupportProjectID=" + ID, function (response) {
+            //    response = JSON.parse(response).Data;
+            //    $("#Assignee").parent().parent().after(response);
+            //    $("#PostAudience").typeahead('val', 'Public');
+            //    $("#PostAudience_PostAudienceID").val(20);
+            //    if (AssigneeID != "") {
+            //        setTimeout(function () {
+            //            //$("#Assignee_AssigneeID").val(AssigneeID);
+            //            //$("#Assignee").val(AssigneeName);
+            //            //$("#CoWorker").val(CoWorkerID);
+            //            var arrayArea = CoWorkerID.split(',');
+            //            $("#CoWorker").val(arrayArea).trigger('change');
+            //            //$("#Assignee").val(AssigneeName);
+            //        }, 400);
+            //    }
+            //    //setTimeout(function () {
+            //    //    $("#CoWorker").parent().parent().parent().after(Deadline);//.after(Deadline2)
+            //    //}, 30);
+            //});
+        });
+    }
+
+    $(document).on('typeahead:select', '#SID', function () {
+        var SID = $(this).val();
+        if (SID != "") {
+            LoadData("OpenTicket/LoadCustInfo?SID=" + SID, function (response) {
+                var data = JSON.parse(JSON.parse(response).Data)[0];
+
+                if (data) {
+                    var start = moment(data.StartDate, moment.ISO_8601);
+                    var end = moment(data.EndDate, moment.ISO_8601);
+
+                    $("#ServiceName_ServiceID").val(data.ServiceID);
+                    $("#CustomerID").val(data.CustomerID);
+                    $("#PackageDetailID").val(data.PackageDetailID);
+                    $("#ConnectionID").val(data.ConnectionID);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#Phone").val(data.CompanyContactMobileNumber);
+                    $("#ServiceName").val(data.ServiceName);
+                    $("#PackageName").val(data.PackageName);
+                    $("#Address").val(data.InstallAddress);
+                    $("#Commune").val(data.InstallCommune);
+                    $("#District").val(data.InstallDistrict);
+                    $("#ProvinceCity").val(data.InstallProvinceCity);
+                    loadDate(start, end);
+                }
+                else {
+                    $("#ServiceName_ServiceID").val('');
+                    $("#CustomerID").val('');
+                    $("#PackageDetailID").val('');
+                    $("#ConnectionID").val('');
+                    $("#CustomerName").val('');
+                    $("#Phone").val('');
+                    $("#ServiceName").val('');
+                    $("#PackageName").val('');
+                    $("#StartDate").val('');
+                    $("#EndDate").val('');
+                    $("#Address").val('');
+                    $("#Commune").val('');
+                    $("#District").val('');
+                    $("#ProvinceCity").val('');
+                }
+            });
+        }
+    });
+    $(document).on('typeahead:select', '#ConnectionID', function () {
+        var ConnectionID = $(this).val();
+        if (ConnectionID != "") {
+            LoadData("OpenTicket/LoadCustInfo?ConnectionID=" + ConnectionID, function (response) {
+                var data = JSON.parse(JSON.parse(response).Data)[0];
+
+                if (data) {
+                    var start = moment(data.StartDate, moment.ISO_8601);
+                    var end = moment(data.EndDate, moment.ISO_8601);
+
+                    $("#SID").val(data.SID);
+                    $("#ServiceName_ServiceID").val(data.ServiceID);
+                    $("#CustomerID").val(data.CustomerID);
+                    $("#PackageDetailID").val(data.PackageDetailID);
+                    $("#ConnectionID").val(data.ConnectionID);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#Phone").val(data.CompanyContactMobileNumber);
+                    $("#ServiceName").val(data.ServiceName);
+                    $("#PackageName").val(data.PackageName);
+                    $("#Address").val(data.InstallAddress);
+                    $("#Commune").val(data.InstallCommune);
+                    $("#District").val(data.InstallDistrict);
+                    $("#ProvinceCity").val(data.InstallProvinceCity);
+                    loadDate(start, end);
+                }
+                else {
+                    $("#ServiceName_ServiceID").val('');
+                    $("#CustomerID").val('');
+                    $("#PackageDetailID").val('');
+                    $("#SID").val('');
+                    $("#CustomerName").val('');
+                    $("#Phone").val('');
+                    $("#ServiceName").val('');
+                    $("#PackageName").val('');
+                    $("#StartDate").val('');
+                    $("#EndDate").val('');
+                    $("#Address").val('');
+                    $("#Commune").val('');
+                    $("#District").val('');
+                    $("#ProvinceCity").val('');
+                }
+            });
+        }
+    });
+    $("#CustomerName").change(function () {
+        var CustomerID = $("#CustomerID").val();
+        if ($("#CustomerName").val() != "") {
+            LoadData("OpenTicket/LoadCustInfo?CustomerID=" + CustomerID, function (response) {
+                var data = JSON.parse(JSON.parse(response).Data)[0];
+                if (data) {
+                    $("#SID").val(data.SID);
+                    $("#ServiceName_ServiceID").val(data.ServiceID);
+                    $("#CustomerID").val(data.CustomerID);
+                    $("#PackageDetailID").val(data.PackageDetailID);
+                    $("#ConnectionID").val(data.ConnectionID);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#Phone").val(data.CompanyContactMobileNumber);
+                    $("#ServiceName").val(data.ServiceName);
+                    $("#PackageName").val(data.PackageName);
+                    $("#StartDate").data('daterangepicker').setStartDate(moment(data.StartDate).format('DD/MM/YYYY'));
+                    $("#EndDate").data('daterangepicker').setStartDate(moment(data.EndDate).format('DD/MM/YYYY'));
+                    $("#Address").val(data.InstallAddress);
+                    $("#Commune").val(data.InstallCommune);
+                    $("#District").val(data.InstallDistrict);
+                    $("#ProvinceCity").val(data.InstallProvinceCity);
+                }
+                else {
+                    $("#ServiceName_ServiceID").val('');
+                    $("#CustomerID").val('');
+                    $("#PackageDetailID").val('');
+                    $("#ConnectionID").val('');
+                    $("#SID").val('');
+                    $("#Phone").val('');
+                    $("#ServiceName").val('');
+                    $("#PackageName").val('');
+                    $("#StartDate").val('');
+                    $("#EndDate").val('');
+                    $("#Address").val('');
+                    $("#Commune").val('');
+                    $("#District").val('');
+                    $("#ProvinceCity").val('');
+                }
+            });
+        }
+    });
+    $("#Phone").change(function () {
+        var Phone = $("#Phone").val();
+        if (Phone != "") {
+            LoadData("OpenTicket/LoadCustInfo?Phone=" + Phone, function (response) {
+                var data = JSON.parse(JSON.parse(response).Data)[0];
+                if (data) {
+                    $("#SID").val(data.SID);
+                    $("#ServiceName_ServiceID").val(data.ServiceID);
+                    $("#CustomerID").val(data.CustomerID);
+                    $("#PackageDetailID").val(data.PackageDetailID);
+                    $("#ConnectionID").val(data.ConnectionID);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#Phone").val(data.CompanyContactMobileNumber);
+                    $("#ServiceName").val(data.ServiceName);
+                    $("#PackageName").val(data.PackageName);
+                    $("#StartDate").data('daterangepicker').setStartDate(moment(data.StartDate).format('DD/MM/YYYY'));
+                    $("#EndDate").data('daterangepicker').setStartDate(moment(data.EndDate).format('DD/MM/YYYY'));
+                    $("#Address").val(data.InstallAddress);
+                    $("#Commune").val(data.InstallCommune);
+                    $("#District").val(data.InstallDistrict);
+                    $("#ProvinceCity").val(data.InstallProvinceCity);
+                }
+                else {
+                    $("#ServiceName_ServiceID").val('');
+                    $("#CustomerID").val('');
+                    $("#PackageDetailID").val('');
+                    $("#ConnectionID").val('');
+                    $("#CustomerName").val('');
+                    $("#SID").val('');
+                    $("#ServiceName").val('');
+                    $("#PackageName").val('');
+                    $("#StartDate").val('');
+                    $("#EndDate").val('');
+                    $("#Address").val('');
+                    $("#Commune").val('');
+                    $("#District").val('');
+                    $("#ProvinceCity").val('');
+                }
+            });
+        }
+    });
+
+    function loadDate(start, end) {
+        $("#StartDate").data('daterangepicker').setStartDate(start);
+        $("#StartDate").data('daterangepicker').setEndDate(start);
+        $("#StartDate").val(start.format('DD/MM/YYYY'));
+
+        $("#EndDate").data('daterangepicker').setStartDate(end);
+        $("#EndDate").data('daterangepicker').setEndDate(end);
+        $("#EndDate").val(end.format('DD/MM/YYYY'));
+    }
+
+    function onPostAudienceChange() {
+        var PostAudienceStatusID = $("#PostAudience_PostAudienceID").val();
+        var SupportProjectID = $("#ProjectName_SupportProjectID").val();
+        if (SupportProjectID == "") {
+            DialogSweetAlert("error", "Please choose Project Name.");
+        }
+        else if (PostAudienceStatusID == 21) {
+            Member(PostAudienceStatusID, SupportProjectID, 'Specific Member');
+        }
+        else if (PostAudienceStatusID == 22) {
+            Member(PostAudienceStatusID, SupportProjectID, 'Member Except');
+        }
+        else {
+            MemberExcept = [];
+            SpecificMember = [];
+            $("#PostAudienceUserLoginID").val('');
+        }
+    }
+
+    function Member(PostAudienceStatusID, SupportProjectID, Title) {
+        ShowDialogBox2(Title, "800", "500", "OpenTicket/LoadUser?SupportProjectID=" + SupportProjectID, 0, "dialogAddUser", function (result) {
+            $("#SaveChange2").click(function () {
+                var UserLoginID = $("input[name=UserLoginID]:checked");
+                SpecificMember = [];
+                MemberExcept = [];
+                var Member = "";
+                $.each(UserLoginID, function (key, value) {
+                    var obj = {};
+                    obj = {
+                        SupportProjectID: SupportProjectID,
+                        UserLoginID: $(value).val()
+                    };
+                    if (PostAudienceStatusID == 21)
+                        SpecificMember.push(obj);
+                    else if (PostAudienceStatusID == 22)
+                        MemberExcept.push(obj);
+                    if (Member == "")
+                        Member = $(value).val();
+                    else
+                        Member += "," + $(value).val();
+                });
+
+                if (PostAudienceStatusID == 21) {
+                    if (Member == "")
+                        DialogSweetAlert("error", "Please choose Specific Member.");
+                    else {
+                        $("#dialogAddUser").modal('hide');
+                        $("#PostAudienceUserLoginID").val(Member);
+                    }
+                }
+                else if (PostAudienceStatusID == 22) {
+                    if (Member == "")
+                        DialogSweetAlert("error", "Please choose Member Except.");
+                    else {
+                        $("#dialogAddUser").modal('hide');
+                        $("#PostAudienceUserLoginID").val(Member);
+                    }
+                }
+            });
+
+            $("#dialogAddUser").on('hide.bs.modal', function () {
+                if (SpecificMember.length == 0 && PostAudienceStatusID == 21) {
+                    $("#PostAudience").typeahead('val', 'Public');
+                    $("#PostAudience_PostAudienceID").val(20);
+                    SpecificMember = [];
+                    MemberExcept = [];
+                    $("#PostAudienceUserLoginID").val('');
+                }
+                else if (MemberExcept.length == 0 && PostAudienceStatusID == 22) {
+                    $("#PostAudience").typeahead('val', 'Public');
+                    $("#PostAudience_PostAudienceID").val(20);
+                    MemberExcept = [];
+                    SpecificMember = [];
+                    $("#PostAudienceUserLoginID").val('');
+                }
+            });
+
+            setTimeout(function () {
+                if (SpecificMember.length > 0 && PostAudienceStatusID == 21) {
+                    $("input[name=UserLoginID]").each(function (key, value) {
+                        var SMember = SpecificMember.filter(function (data) {
+                            return data.UserLoginID == $(value).val();
+                        })[0];
+                        if (SMember) {
+                            if (SMember.UserLoginID == $(value).val()) {
+                                $(this).attr('checked', 'checked');
+                            }
+                        }
+                    });
+                }
+                else if (MemberExcept.length > 0 && PostAudienceStatusID == 22) {
+                    $("input[name=UserLoginID]").each(function (key, value) {
+                        var SMember = MemberExcept.filter(function (data) {
+                            return data.UserLoginID == $(value).val();
+                        })[0];
+                        if (SMember) {
+                            if (SMember.UserLoginID == $(value).val()) {
+                                $(this).attr('checked', 'checked');
+                            }
+                        }
+                    });
+                }
+            }, 300);
+        });
+    }
+
+    function MyTicket(response) {
+        response = JSON.parse(response.Data)[0];
+        var OpenTicketID = response.OpenTicketID;
+        var projectName = response.ProjectName;
+        var TicketNumber = response.TicketNumber;
+        var Description = response.Description;
+        var SupportProjectID = response.SupportProjectID;
+        var loc = window.location.href;
+        var Tickets = getQueryStringValue(loc, 'ID');
+        //if (Tickets == "") {
+        //    var url = '#!/Tickets?ID=' + OpenTicketID;
+        //    OpenNewTap(url);
+        //}
+        //else {
+
+                
+        //ShowTicket('AllTickets');
+        //}
+        $.connection.hub.start().done(function () {
+            chatHub.server.sendMessage(User_Full_Name, UserProfilePicture, "", projectName, Description, OpenTicketID, TicketNumber, SupportProjectID, System_ID, Warehouse_ID);
+        });
+
+        if (typeof CountAssignedMe === "function") {
+            CountAssignedMe();
+            $("#AssignedMe_Tap").click();
+            //return fn();
+        }
+        else
+            $("#Customer-Ticket-tab").click();
+        //PostData("OpenTicket/SendEmail?OpenTiketID=" + ID, "", function (result) {
+        //    console.log(result);
+        //});
+    }
+
+</script>

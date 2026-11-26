@@ -1,0 +1,13 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+
+    function SaveChangeCallbackFunction(SalesID) {
+        PostData("Sales/SaveChangeCustomerBalance", { SalesID: SalesID }, function () {
+            $("#BunSearch").click();
+            LoadTableGrid(CurrentPage);
+        });
+    }
+</script>

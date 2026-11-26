@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+<script>
+    $(function () {
+        $('#TxtCustomerType').closest('td')
+            .css('vertical-align', 'top');
+    });
+</script>

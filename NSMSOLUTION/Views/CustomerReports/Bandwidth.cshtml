@@ -1,0 +1,49 @@
+﻿@{ Layout = null; }
+<div class="row mb-3 text-primary">
+    <div class="col"><h4><i class="fa-solid fa-router"></i> Bandwidth</h4></div>
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLForm)
+    </div>
+</div>
+<div class="row">
+    <div class="col" id="ShowBandwidthData"></div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title" id="bandwidthdetail"></h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <!-- /.card-tools -->
+            </div>
+            <div class="card-body">
+                <div id="ShowCusotmerByBandwidth"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>    
+    $(function () {
+        //SearchByDate();
+        $("#DateSearch").unbind("keypress");
+    });
+    function SearchByDate() {
+        var startDate = moment(new Date(StringToDate($("#DateSearch").val()))).format('YYMMDD');//.data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = moment(new Date(StringToDate($("#DateSearch").val()))).format('YYMMDD');//.data('daterangepicker').endDate.format('YYMMDD');
+        LoadData("CustomerReports/ShowBandwidth?startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            $("#ShowBandwidthData").html(response);
+        });
+    }
+    function ShowCusotmerByBandwidth(Bandwidth) {
+        $("#bandwidthdetail").html('Bandwidth: ' + accounting.formatNumber(Bandwidth, 0) + ' Mbps');
+        var startDate = moment(new Date(StringToDate($("#DateSearch").val()))).format('YYMMDD');//.data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = moment(new Date(StringToDate($("#DateSearch").val()))).format('YYMMDD');//.data('daterangepicker').endDate.format('YYMMDD');
+        LoadData("CustomerReports/ShowCustomer?startDate=" + startDate + "&endDate=" + endDate + "&Bandwidth=" + Bandwidth, function (response) {
+            $("#ShowCusotmerByBandwidth").html(response);
+        });
+    }
+</script>

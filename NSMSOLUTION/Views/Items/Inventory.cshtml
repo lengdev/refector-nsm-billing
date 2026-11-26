@@ -1,0 +1,114 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<div class="card card-outline card-info mt-5">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-6 col-12">
+                <div class="d-none">
+                    @Html.Raw(ViewBag.DateStockIn)
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="divShowStockIn"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-12">
+                <div class="d-none">
+                    @Html.Raw(ViewBag.DateStockOut)
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="divShowStockOut"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        SearchStockIn();
+        SearchStockOut();
+    });
+    var ItemID = "@ViewBag.ItemID";
+    function SearchStockIn() {
+        var startDate = $("#DateStockIn").data('daterangepicker').startDate.format('YYYY/MM/DD');
+        var endDate = $("#DateStockIn").data('daterangepicker').endDate.format('YYYY/MM/DD');
+        if ($("#DateStockIn").val() == "") {
+            startDate = "";
+            endDate = "";
+        }
+        LoadData("Items/StockIn?ID=" + ItemID + "&startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            setTimeout(function () {
+                $("#divShowStockIn").html(response);
+            }, 500);
+            //var row = '<tfoot><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tfoot>';
+            //setTimeout(function () {
+            //    $("#TblStockIn tbody").after(row);
+            //    $('#TblStockIn').DataTable({
+            //        dom: "<'row'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            //        buttons: ['pageLength',
+            //            { extend: 'colvis', text: 'Column visibility', exportOptions: { columns: ':visible' } },
+            //            {
+            //                extend: 'excelHtml5',
+            //                text: '<i class="fa-regular fa-file-excel"></i> <span class="d-none d-md-inline">Excel</span>',
+            //                titleAttr: 'Generate Excel',
+            //                className: 'btn btn-primary btn-sm'
+            //            },
+            //            {
+            //                extend: 'csvHtml5',
+            //                text: '<i class="fa-solid fa-file-csv"></i> <span class="d-none d-md-inline">CSV</span>',
+            //                titleAttr: 'Generate CSV',
+            //                className: 'btn btn-info btn-sm'
+            //            },
+            //            {
+            //                extend: 'copyHtml5',
+            //                text: '<i class="fa fa-copy"></i> <span class="d-none d-md-inline">Copy</span>',
+            //                titleAttr: 'Copy to clipboard',
+            //                className: 'btn btn-primary btn-sm'
+            //            },
+            //            {
+            //                extend: 'print',
+            //                exportOptions: { columns: ':visible' },
+            //                text: '<i class="fa fa-print"></i><span class="d-none d-md-inline">Print</span>',
+            //                titleAttr: 'Print Table',
+            //                className: 'btn btn-default btn-sm'
+            //            }],
+            //        "footerCallback": function (tfoot, data, start, end, display) {
+            //            var api = this.api();
+            //            $(api.column(3).footer()).html(
+            //                api.column(3).data().reduce(function (a, b) {
+            //                    var x = accounting.unformat(a);
+            //                    var y = accounting.unformat(b);
+            //                    return x + y;
+            //                }, 0)
+            //            );
+            //            $(api.column(4).footer()).html(
+            //                api.column(4).data().reduce(function (a, b) {
+            //                    var x = accounting.unformat(a);
+            //                    var y = accounting.unformat(b);
+            //                    return x + y;
+            //                }, 0)
+            //            );
+            //        }
+            //    });
+            //}, 500);
+        });
+    }
+
+    function SearchStockOut() {
+        var startDate = $("#DateStockOut").data('daterangepicker').startDate.format('YYYY/MM/DD');
+        var endDate = $("#DateStockOut").data('daterangepicker').endDate.format('YYYY/MM/DD');
+        if ($("#DateStockOut").val() == "") {
+            startDate = "";
+            endDate = "";
+        }
+        LoadData("Items/StockOut?ID=" + ItemID + "&startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            setTimeout(function () {
+                $("#divShowStockOut").html(response);
+            }, 300);
+        });
+    }
+</script>

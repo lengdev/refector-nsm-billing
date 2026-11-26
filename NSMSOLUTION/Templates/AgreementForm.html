@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSM ISP – Internet Service Form / Agreement</title>
+<link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Moul&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Kantumruy Pro', 'Battambang', 'Roboto', sans-serif;
+    font-size: 11px;
+    color: #000;
+    background: #fff;
+    line-height: 1.5;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 16mm 12mm 16mm;
+    margin: 0 auto;
+    background: #fff;
+    position: relative;
+    page-break-after: always;
+  }
+  .page:last-child {
+    page-break-after: avoid;
+  }
+
+  /* Header */
+  .hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .hdr-logo img {
+    height: 48px;
+    object-fit: contain;
+  }
+  .hdr-right {
+    text-align: right;
+    font-size: 11px;
+    line-height: 1.8;
+    font-weight: 600;
+  }
+
+  /* Title */
+  .title-block {
+    text-align: center;
+    margin: 4px 0 10px 0;
+  }
+  .title-kh {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .title-en {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* Section 1 & 2 Checkbox Grid Table */
+  .tbl-sec-grid {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .tbl-sec-grid td {
+    padding: 2px 0;
+    vertical-align: middle;
+  }
+
+  .square-box {
+    width: 13px;
+    height: 13px;
+    border: 1px solid #000;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 11px;
+    font-size: 10.5px;
+    font-weight: bold;
+    margin-right: 3px;
+  }
+
+  /* Dotted Form Fields */
+  .field-line {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 7px;
+    font-size: 10.5px;
+    width: 100%;
+  }
+  .field-lbl {
+    white-space: nowrap;
+    padding-right: 4px;
+    flex-shrink: 0;
+  }
+  .field-fill {
+    flex: 1;
+    border-bottom: 1px dotted #222;
+    min-height: 18px;
+    padding: 0 4px 1px 4px;
+    font-weight: 400;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* Table */
+  .tbl-content {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  .tbl-content th {
+    background-color: #000;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 8px;
+    text-align: center;
+    border: 1px solid #000;
+  }
+  .tbl-content td {
+    border: 1px solid #000;
+    padding: 5px 8px;
+    font-size: 11px;
+    height: 25px;
+    vertical-align: middle;
+  }
+  .tbl-content td.td-label {
+    font-weight: 600;
+    width: 32%;
+  }
+  .tbl-content td.td-val {
+    width: 38%;
+    font-weight: 400;
+  }
+  .tbl-content td.td-map {
+    width: 30%;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 10.5px;
+    word-break: break-all;
+  }
+
+  /* Yellow VAT Box */
+  .vat-box {
+    background-color: #FFC000;
+    border-radius: 18px;
+    padding: 8px 16px;
+    text-align: center;
+    margin: 10px auto 0 auto;
+    width: 85%;
+    font-weight: 700;
+    color: #000;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  /* Signatures */
+  .sig-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+    padding: 0 10px;
+  }
+  .sig-col {
+    width: 30%;
+    text-align: center;
+  }
+  .sig-title {
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 65px;
+  }
+  .sig-line {
+    font-size: 11px;
+    text-align: left;
+    margin-top: 4px;
+  }
+
+  /* Orange Footer Banner on Page 2 */
+  .footer-orange-banner {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .footer-shape {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 55px;
+    background: linear-gradient(135deg, #E85D22 0%, #F06529 100%);
+    clip-path: polygon(0 40%, 45% 15%, 100% 0, 100% 100%, 0 100%);
+  }
+  .footer-hotline {
+    position: absolute;
+    bottom: 12px;
+    right: 25mm;
+    text-align: right;
+    color: #000;
+    z-index: 2;
+  }
+  .footer-hotline .kh-lbl {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .footer-hotline .phone-lbl {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  @media print {
+    body { padding: 0; background: #fff; }
+    .page { width: 100%; margin: 0; padding: 10mm 12mm; border: none; box-shadow: none; }
+    @page { size: A4 portrait; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ PAGE 1 ════════════════ -->
+<div class="page">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-logo">
+      <img src="{{logoUrl}}" alt="NSM ISP Logo" onerror="this.style.display='none'; document.getElementById('logo-alt').style.display='block';" />
+      <div id="logo-alt" style="display:none; font-size:26px; font-weight:900; color:#E85D22;">NSM<span style="color:#000">ISP</span></div>
+    </div>
+    <div class="hdr-right">
+      <div>Nº: ........................................</div>
+      <div>Date Sign Contract: ........................................</div>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="title-kh">ពាក្យសុំចុះឈ្មោះប្រើប្រាស់សេវាកម្មអ៊ីនធឺណិត/កិច្ចព្រមព្រៀង</div>
+    <div class="title-en">Agreement Form</div>
+  </div>
+
+  <!-- Required Documents & Customer Info Checkbox Grid -->
+  <table class="tbl-sec-grid">
+    <tr>
+      <td style="font-weight:700; width:38%;">1. ឯកសារយោង/Required Document:</td>
+      <td style="width:20%;"><span class="square-box">{{isGPON}}</span> GPON</td>
+      <td style="width:22%;"><span class="square-box">{{isFTTH}}</span> FTTH</td>
+      <td style="width:20%;"><span class="square-box"></span> ផ្សេងៗ/Other</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="2"><span class="square-box"></span> អត្តសញ្ញាណប័ណ្ណថតចម្លង/Copy of ID Card</td>
+      <td><span class="square-box"></span> លិខិតឆ្លងដែនថតចម្លង/Copy of Passport</td>
+    </tr>
+    <tr>
+      <td style="font-weight:700;">2. ព័ត៌មានរបស់អតិថិជន Customer Information</td>
+      <td colspan="2"><span class="square-box"></span> អាជ្ញាប័ណ្ណអាជីវកម្មថតចម្លង /Copy of Business License</td>
+      <td><span class="square-box"></span> ផ្សេងៗ/Other</td>
+    </tr>
+  </table>
+
+  <!-- Form Fields Page 1 -->
+  <div style="margin-top: 6px;">
+    <div class="field-line">
+      <span class="field-lbl">ឈ្មោះបុគ្គល/Individual/Organization Name (Write in CAPITAL):</span>
+      <span class="field-fill">{{customerName}}</span>
+      <span class="field-lbl" style="padding-left:10px;">ភេទ/Sex:</span>
+      <span class="field-fill" style="flex:0 0 90px;">{{gender}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">តំណាងអង្គភាព/Representative of Organization:</span>
+      <span class="field-fill">{{companyContactName}}</span>
+      <span class="field-lbl" style="padding-left:10px;">មុខងារ/Position:</span>
+      <span class="field-fill" style="flex:0 0 160px;">{{companyContactPosition}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">លេខអត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន/ID/Passport Nº:</span>
+      <span class="field-fill">{{identification}}</span>
+      <span class="field-lbl" style="padding-left:10px;">កាលបរិច្ឆេទផ្តល់/Date of Issue:</span>
+      <span class="field-fill" style="flex:0 0 150px;"></span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ទីកន្លែងផ្តល់/Place of Issue:</span>
+      <span class="field-fill"></span>
+      <span class="field-lbl" style="padding-left:10px;">កាលបរិច្ឆេទប្រកបអាជីវកម្ម/ថ្ងៃខែឆ្នាំកំណើត/Date of Foundation/Date of Birth:</span>
+      <span class="field-fill" style="flex:0 0 120px;"></span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">អាជ្ញាប័ណ្ណអាជីវកម្មលេខ/Business License No:</span>
+      <span class="field-fill"></span>
+      <span class="field-lbl" style="padding-left:10px;">កាលបរិច្ឆេទផ្តល់/Date of Issue:</span>
+      <span class="field-fill" style="flex:0 0 180px;"></span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ទីកន្លែងផ្តល់/Place of Issue:</span>
+      <span class="field-fill"></span>
+      <span class="field-lbl" style="padding-left:10px;">លេខកូដពន្ធ/Tax Code:</span>
+      <span class="field-fill" style="flex:0 0 200px;">{{vatNumber}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">អាសយដ្ឋានអចិន្ត្រៃយ៍/Permanent Address:</span>
+      <span class="field-fill" style="min-width:130px;">{{permAddr}}</span>
+      <span class="field-lbl" style="padding-left:6px;">ផ្លូវ/Street:</span>
+      <span class="field-fill" style="flex:0 0 90px;"></span>
+      <span class="field-lbl" style="padding-left:6px;">ឃុំ/សង្កាត់/Commune:</span>
+      <span class="field-fill" style="flex:0 0 130px;">{{permCommune}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ស្រុក/ខណ្ឌ/District:</span>
+      <span class="field-fill">{{permDistrict}}</span>
+      <span class="field-lbl" style="padding-left:10px;">ខេត្ត/ក្រុង/Province:</span>
+      <span class="field-fill">{{permProv}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">អាសយដ្ឋានប្រគល់វិក្កយបត្រ/Billing Address Nº:</span>
+      <span class="field-fill" style="min-width:130px;">{{billAddr}}</span>
+      <span class="field-lbl" style="padding-left:6px;">ផ្លូវ/Street:</span>
+      <span class="field-fill" style="flex:0 0 90px;"></span>
+      <span class="field-lbl" style="padding-left:6px;">ឃុំ/សង្កាត់/Commune:</span>
+      <span class="field-fill" style="flex:0 0 130px;">{{billCommune}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ស្រុក/ខណ្ឌ/District:</span>
+      <span class="field-fill">{{billDistrict}}</span>
+      <span class="field-lbl" style="padding-left:10px;">ខេត្ត/ក្រុង/Province:</span>
+      <span class="field-fill">{{billProv}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ទូរស័ព្ទ/Mobile:</span>
+      <span class="field-fill">{{customerMobile}}</span>
+      <span class="field-lbl" style="padding-left:10px;">ទូរស័ព្ទ/Mobile:</span>
+      <span class="field-fill">{{companyPhone}}</span>
+    </div>
+
+    <div class="field-line">
+      <span class="field-lbl">ទូរស័ព្ទ/Mobile:</span>
+      <span class="field-fill">{{companyContactMobile}}</span>
+      <span class="field-lbl" style="padding-left:10px;">អ៊ីម៉ែល/Email:</span>
+      <span class="field-fill">{{email}}</span>
+    </div>
+  </div>
+
+  <!-- Content Table -->
+  <table class="tbl-content">
+    <thead>
+      <tr>
+        <th>មាតិកា Content</th>
+        <th>លម្អិត/Detail</th>
+        <th>ផែនទី/Map/Lat-Long</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">ប្រភេទសេវាកម្ម/Package</td>
+        <td class="td-val">{{packageName}}</td>
+        <td class="td-map" rowspan="7">{{mapLatLng}}</td>
+      </tr>
+      <tr>
+        <td class="td-label">ថ្លៃដំឡើង/Installation fee</td>
+        <td class="td-val"></td>
+      </tr>
+      <tr>
+        <td class="td-label">ថ្លៃបរិក្ខារ/Equipment</td>
+        <td class="td-val"></td>
+      </tr>
+      <tr>
+        <td class="td-label">ប្រាក់កក់/Deposit</td>
+        <td class="td-val">{{deposit}}</td>
+      </tr>
+      <tr>
+        <td class="td-label">សេវាប្រចាំខែ/Monthly Charge</td>
+        <td class="td-val">{{monthlyCharge}}</td>
+      </tr>
+      <tr>
+        <td class="td-label">បញ្ចុះតម្លៃ/Discount</td>
+        <td class="td-val"></td>
+      </tr>
+      <tr>
+        <td class="td-label">សរុប/Total Pay</td>
+        <td class="td-val"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Yellow VAT Box -->
+  <div class="vat-box">
+    <div>All prices and charges in this service form include VAT (10%)</div>
+    <div>តម្លៃ និងថ្លៃសេវាទាំងអស់ដែលមានក្នុងកិច្ចព្រមព្រៀងនេះ ត្រូវបានគិតបញ្ចូលពន្ធលើតម្លៃបន្ថែម (VAT) ១០%</div>
+  </div>
+</div>
+
+
+<!-- ════════════════ PAGE 2 ════════════════ -->
+<div class="page">
+  <!-- Section 3 -->
+  <div style="font-weight:700; margin-top:10px; margin-bottom:8px;">
+    3. អាសយដ្ឋានតភ្ជាប់បណ្តាញ(សម្រាប់ប្រព័ន្ធអ៊ីនធឺណិត/Registered Installation/Using Address (For GPON &amp; FTTH):
+  </div>
+
+  <div class="field-line">
+    <span class="field-lbl">ផ្ទះលេខ/Address Nº:</span>
+    <span class="field-fill" style="min-width:130px;">{{instAddr}}</span>
+    <span class="field-lbl" style="padding-left:6px;">ផ្លូវ/Street:</span>
+    <span class="field-fill" style="flex:0 0 90px;"></span>
+    <span class="field-lbl" style="padding-left:6px;">ឃុំ/សង្កាត់/Commune:</span>
+    <span class="field-fill" style="flex:0 0 130px;">{{instCommune}}</span>
+  </div>
+
+  <div class="field-line">
+    <span class="field-lbl">ស្រុក/ខណ្ឌ/District:</span>
+    <span class="field-fill">{{instDistrict}}</span>
+    <span class="field-lbl" style="padding-left:8px;">ខេត្ត/ក្រុង/Province:</span>
+    <span class="field-fill">{{instProv}}</span>
+    <span class="field-lbl" style="padding-left:8px; font-size:10px;">ប្រអប់ FDB................DN............SN............</span>
+  </div>
+
+  <!-- Section 4 -->
+  <div style="font-weight:700; margin-top:14px; margin-bottom:8px;">
+    4. សម្រាប់សេវាកម្មបង់ប្រាក់ប្រចាំខែ/For Pre-paid-Service:
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <span style="font-weight:600;">វិធីសាស្ត្រក្នុងការទទួលព័ត៌មានថ្លៃសេវាកម្ម/Notification:</span>
+    <span class="check-item" style="margin-left:10px;"><span class="square-box"></span> តាមរយៈសារ/SMS</span>
+    <span class="check-item" style="margin-left:10px;"><span class="square-box"></span> តាមរយៈ Hotline</span>
+    <span class="check-item" style="margin-left:10px;"><span class="square-box"></span> បុគ្គលិកចែកផ្ទាល់/Direct</span>
+    <span class="check-item" style="margin-left:10px;"><span class="square-box"></span> សារអេឡិចត្រូនិក/Email</span>
+  </div>
+
+  <div style="margin-bottom:12px;">
+    <span style="font-weight:600;">វិធីសាស្ត្រទូទាត់/Payment Method</span>
+    <span class="check-item" style="margin-left:15px;"><span class="square-box"></span> នៅក្រុមហ៊ុន/at NSM</span>
+    <span class="check-item" style="margin-left:15px;"><span class="square-box"></span> តាមរយៈ Web Login Fall</span>
+    <span class="check-item" style="margin-left:15px;"><span class="square-box"></span> តាមរយៈ ................................................</span>
+  </div>
+
+  <!-- Signatures Section -->
+  <div class="sig-section">
+    <div class="sig-col">
+      <div class="sig-title">ហត្ថលេខា</div>
+      <div class="sig-line">ឈ្មោះអតិថិជន: ....................</div>
+      <div class="sig-line">កាលបរិច្ឆេទ/Date: ....................</div>
+    </div>
+    <div class="sig-col">
+      <div class="sig-title">ហត្ថលេខា</div>
+      <div class="sig-line">ឈ្មោះបុគ្គលិកផ្ទាល់: ....................</div>
+      <div class="sig-line">កាលបរិច្ឆេទ/Date: ....................</div>
+    </div>
+    <div class="sig-col">
+      <div class="sig-title">ហត្ថលេខា</div>
+      <div class="sig-line">ឈ្មោះតំណាងអ្នកផ្តល់សេវាកម្ម ....................</div>
+      <div class="sig-line">កាលបរិច្ឆេទ/Date: ....................</div>
+    </div>
+  </div>
+
+  <!-- Footer Orange Design Banner -->
+  <div class="footer-orange-banner">
+    <div class="footer-shape"></div>
+    <div class="footer-hotline">
+      <div class="kh-lbl">លេខទំនាក់ទំនងពេលមានបញ្ហា</div>
+      <div class="phone-lbl">Hotline: 061 876 777</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.onload = function() {
+    setTimeout(function() { window.print(); }, 400);
+  };
+</script>
+</body>
+</html>

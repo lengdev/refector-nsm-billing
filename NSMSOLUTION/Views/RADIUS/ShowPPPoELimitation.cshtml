@@ -1,0 +1,174 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.CboRouterID)
+    </div>
+</div>
+<div class="row p-3">
+    <div class="col">
+        <div id="packagelist"></div>
+    </div>
+</div>
+<script>
+    $("#CboRouterID").select2().on("change", function (e) {
+        let id = $(this).val();
+        getLimitation(id);
+    });
+
+    function getLimitation(id) {
+        PostData("RADIUS/GetLimitation", {
+            RouterIP: id
+        }, function (response) {
+            var Version = JSON.parse(response).Version;
+            if (JSON.parse(response).Data != "") {
+                response = JSON.parse(JSON.parse(response).Data);
+                var row = `<table id="tblShowPPPoEPackageList" class="table table-bordered table-head-fixed text-nowrap" width="100%" cellspacing="0" cellpadding="5" border="0">
+<thead>
+<tr class="header"><th>#</th><th>Limitation Name</th><th>IP Pool</th><th>MIN-RX</th><th>MIN-TX</th><th>TX</th><th>RX</th><th>Action</th></tr></thead><tbody>`;
+                $.each(response, function (key, val) {
+                    row += "<tr>";
+                    row += "<td align=\"right\">" + (key + 1) + "</td><td>" + val.Words.name + "</td>";
+                    row += "<td>" + (typeof val.Words["ip-pool"] == "undefined" ? "" : val.Words["ip-pool"]) + "</td>";
+                    row += "<td>" + formatBytes(val.Words["rate-limit-min-rx"]) + "</td>";
+                    row += "<td>" + formatBytes(val.Words["rate-limit-min-tx"]) + "</td>";
+                    row += "<td>" + formatBytes(val.Words["rate-limit-rx"]) + "</td>";
+                    row += "<td>" + formatBytes(val.Words["rate-limit-tx"]) + "</td>";
+                    row += `<td align="center"><a onclick="editProfile(` + id + `,'` + val.Words[".id"] + `', this, '` + val.Words.name + `','` + val.Words["rate-limit-min-rx"] + `','` + val.Words["rate-limit-min-tx"] + `','` + val.Words["rate-limit-rx"] + `','` + val.Words["rate-limit-tx"] + `','` + (typeof val.Words["ip-pool"] == "undefined" ? "" : val.Words["ip-pool"]) + `');" name="Edit" class="btn btn-primary btn-sm" href="javascript:void(0);" title="Edit" alt="Edit"><i class="fa fa-edit"></i></a><a onclick="deleteProfile(` + id + `,'` + val.Words[".id"] + `', this);" name="Delete" class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete" alt="Delete"><i class="fa fa-trash"></i></a></td>`;
+                    row += "</tr>";
+                });
+                row += "</tbody></table>";
+                $("#packagelist").html(row);
+
+                var MyDataTable = $("#tblShowPPPoEPackageList").DataTable({ "responsive": false, lengthMenu: [[30, 50, 100, -1], ['30', '50', '100', 'Show all']], "lengthChange": true, "paging": true, "language": { "emptyTable": "No items to display.", "info": "Showing _START_ to _END_ of _TOTAL_ entries", "infoEmpty": "Showing 0 to 0 of 0 entries", searchPlaceholder: "Search" }, dom: "<'row'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>", buttons: ['pageLength', { extend: 'colvis', text: 'Column visibility', exportOptions: { columns: ':visible' } }, { extend: 'excelHtml5', text: '<i class="fa-regular fa-file-excel"></i> <span class="d-none d-md-inline">Excel</span>', titleAttr: 'Generate Excel', className: 'btn btn-primary btn-sm' }, { extend: 'print', exportOptions: { columns: ':visible' }, text: '<i class="fa fa-print"></i><span class="d-none d-md-inline">Print</span>', titleAttr: 'Print Table', className: 'btn btn-default btn-sm' }] })
+                row = '<div class="card-header pl-0 mb-3">'; row += '</div>'; row = ''; row += '<div class="form-group"><div class="input-group">'
+                row += '<div class="input-group-prepend"><label for="myInputSearch" class="input-group-text"><i class="fas fa-search"></i></label></div>'
+                row += '<input id="myInputSearch" type="search" class="form-control" placeholder="Search" />'; row += '</div></div>'
+                $("#TableGride_filter").html(row); $("#TableGride_filter").removeClass("dataTables_filter"); $('#myInputSearch').on('keyup', function () { MyDataTable.search(this.value).draw(); }); $("div.dt-buttons").addClass('btn-group flex-wrap'); $("div.btn-group").removeClass('dt-buttons');
+            }
+            else {
+                $("#packagelist").html('');
+            }
+        });
+    }
+
+    function deleteProfile(RouterID,id, THIS) {
+        DoSaveChangeSweetCofirm("RADIUS/DeleteLimitation", { RouterID: RouterID, ProfileID: id }, function (response) {
+            $(THIS).closest("tr").remove();
+        });
+    }
+    function editProfile(RouterID, id, THIS, LimitationName, ratelimitminrx, ratelimitmintx, ratelimitrx, ratelimittx, ippool) {
+        var row = '<div class="row"><div class="col text-nowrap text-right mb-3"><label class="form-label" for="rate-limit-min-rx">Rate-Limit-Min-RX (MB):</label></div><div class="col"><input value="' + accounting.unformat(formatBytes(ratelimitminrx)) + '" class="form-control" type="number" id="rate-limit-min-rx" name="rate-limit-min-rx" required /></div></div>';
+        row += '<div class="row"><div class="col text-nowrap mb-3 text-right"><label class="form-label" for="rate-limit-min-tx">Rate-Limit-Min-TX (MB):</label></div><div class="col"><input value="' + accounting.unformat(formatBytes(ratelimitmintx)) + '" class="form-control" type="number" id="rate-limit-min-tx" name="rate-limit-min-tx" required /></div></div>';
+        row += '<div class="row"><div class="col text-nowrap mb-3 text-right"><label class="form-label" for="rate-limit-rx">Rate-Limit-RX (MB):</label></div><div class="col"><input value="' + accounting.unformat(formatBytes(ratelimitrx)) + '" class="form-control" type="number" id="rate-limit-rx" name="rate-limit-rx" required /></div></div>';
+        row += '<div class="row"><div class="col text-nowrap mb-3 text-right"><label class="form-label" for="rate-limit-tx">Rate-Limit-TX (MB):</label></div><div class="col"><input value="' + accounting.unformat(formatBytes(ratelimittx)) + '" class="form-control" type="number" id="rate-limit-tx" name="rate-limit-tx" required /></div></div>';
+        row += '<div class="row"><div class="col text-nowrap mb-3 text-right"><label class="form-label" for="ippool">IP POOl:</label></div><div class="col"><input value="' + ippool + '" class="form-control" type="text" id="ippool" name="ippool" required /></div></div>';
+        
+        DialogSweetCofirm(function () {
+            var Bytes = 1048576;
+            var minrx = $("#rate-limit-min-rx").val();
+            var mintx = $("#rate-limit-min-tx").val();
+            var rx = $("#rate-limit-rx").val();
+            var tx = $("#rate-limit-tx").val();
+            var IPPOOL = $("#ippool").val();
+            //if (minrx == "") {
+            //    isValid = false;
+            //    //DialogSweetAlert("error", "Please enter rate-limit-min-rx.", function () {
+            //    //    $("#rate-limit-min-rx").focus();
+            //    //});
+            //}
+            minrx = (minrx * Bytes);
+            mintx = (mintx * Bytes);
+            rx = (rx * Bytes);
+            tx = (tx * Bytes);
+            var DATA = {
+                RouterID: RouterID,
+                LimitationName: LimitationName,
+                minrx: minrx,
+                mintx: mintx,
+                rx: rx,
+                tx: tx,
+                IPPOOL: IPPOOL
+            }
+            PostData("RADIUS/UpdateLimitation", DATA, function (response) {
+                response = JSON.parse(response);
+                if (response.Result == 2) {
+                    DialogSweetAlert("loadsuccess", response.Message);
+                    getLimitation(RouterID);
+                }
+                else {
+                    DialogSweetAlert("error", response.Message);
+                }
+            });
+        }, "", 'Are you sure?<br>Edit: <span class="text-red">' + LimitationName + '</span>', "Save Change", "", row, function () {
+            //console.log('done');
+        }, false);
+        //DoSaveChangeSweetCofirm("RADIUS/DeleteLimitation", { RouterID: RouterID, ProfileID: id }, function (response) {
+          //  $(THIS).closest("tr").remove();
+        //});
+    }
+    
+</script>
+
+@*<script>
+    var ClearTimeOutFrm_TableGride_22 = ""; var TDFrm_TableGride_22 = ''; var FieldWithValueFrm_TableGride_22 = ""; $(document).ready(function () {
+        var TR = '<ul class="breadcrumb">'
+        TR += '<li><a href="http://localhost/">Home</a> <span class="divider">/</span></li>'
+        TR += '<li class="active"></li></ul>'
+        $("#BottomBannerContent").html(TR);
+    }); function SearchBy_ChangeTableGride_22() {
+        $("input:radio[name='RD']").each(function (Index) {
+            var RadioLabel = $("input:radio[name='RD']:eq(" + Index + ")").attr('alt'); if (this.checked) {
+                $("#LblSearchTextTableGride_22").html(RadioLabel + ":"); if (RadioLabel == "Invoice No") { $("#DivShowSearchTextTableGride_22").html('<input type = "text" name="CboSearchText" id="CboSearchText" class="form-control" />'); var SQL = "3TtlkwE/oimH/PjLA8FOWymhpjc8tF6dGcfmsHfiPd4bJGhc3ydKXqMpHDQk7+675gZJkhO9FQIruKOzUcWqFI/yLEmNx02bCRgIwmuL3TF4+Pcv1xwpsDWJX21qfMDS4wr3oZ2XLyp5X/pqQWuyOdoAKaTyFldtGkOibRBA6X8cbnj9tcMddq3/WwmsYZbDOLyEWzD6mt2cQdBhEhAHkgad7679s8kaLpg/Y85Paz1rzvzYqzhsGz9FfHHCchPXyTFAomNywBlOJBqDB33ZuDknzUw+znb1CwHNVerjItVlJSbHdszmow3Ca7pYSDzlap0d7FfX+8A7NjEwZ+Cai1QM1WXSQCy6BkdDje7sjpMusr+9R/S1HopM0B7a/DWKpK5kgdMVwpZm1JzBxqn4DwQ225MNTsYRCkk63qVx4s/7RIPEKKyacYU2+z3USEc313J0nVWjCQ+qw0fjgm2BZIfxPFO/mcpV7AJ5MeGqzI4="; SetAutoComplete("CboSearchText", SQL, "", "", "", "", "False", "", ""); $("#CboSearchText").focus(); }
+                $("#CboSearchText").keypress(function (event) { if (event.which == 13) { LoadTableGrid(1); event.preventDefault(); } }); return true;
+            }
+        });
+    }
+    function LoadTableGrid(Page, Status, Title) {
+        Status = (typeof Status == "undefined" ? "" : Status); Title = (typeof Title == "undefined" ? "Print Data" : Title); var AddCustomFields = ""; var txtClassName = $("#txtClassName").val(); AddCustomFields = "V5dbCWioSccWbuih5NOeyA==|" + txtClassName; $("button").attr("disabled", "disabled"); FieldWithValueFrm_TableGride_22 = ""; var WithDate = ""; var FromDate = ""; var ToDate = ""; var FromDate = ""; var ToDate = ""; if ($("#TxtFromDate").val()) { FromDate = $("#TxtFromDate").data('daterangepicker').startDate.format('YYYY/MM/DD'); ToDate = $("#TxtFromDate").data('daterangepicker').endDate.format('YYYY/MM/DD'); }; if (FromDate != '') { WithDate = "7CbQ/EIwkWk/M8OP2Nj00Q== | format(cb.InvoiceDate,'yyyy/MM/dd') between '" + FromDate + "' and '" + ToDate + "'"; }; CurrentPage = Page; if (!$("input:radio[name='RD']:checked").val()) { return false; }
+        $("button").attr('disabled', true); var GridDataFrm_TableGride_22 = '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'; var TextSearch = ""; if ($("#CboSearchText").val()) { TextSearch = $("#CboSearchText").val(); }
+        var FieldName = ""; var ArrRadioValues = ""
+        FieldName = (typeof $("input:radio[name='RD']:checked").val() == 'undefined') ? "" : $("input:radio[name='RD']:checked").val(); if (FieldName != "") {
+            ArrRadioValues = FieldName.split(','); if (ArrRadioValues.length > 1) {
+                for (i = 0; i < ArrRadioValues.length; i++) {
+                    if (FieldWithValueFrm_TableGride_22 == "") {
+                        if ($('input:radio[name=RD]:eq(' + i + ')').is(':checked')) { FieldWithValueFrm_TableGride_22 = ArrRadioValues[i].trim() + "|" + TextSearch; }
+                        else { FieldWithValueFrm_TableGride_22 = ArrRadioValues[i].trim() + "|"; }
+                    }
+                    else {
+                        if ($('input:radio[name=RD]:eq(' + i + ')').is(':checked')) { FieldWithValueFrm_TableGride_22 += "^" + ArrRadioValues[i].trim() + "|" + TextSearch; }
+                        else { FieldWithValueFrm_TableGride_22 += "^" + ArrRadioValues[i].trim() + "|"; }
+                    }
+                }
+            }
+            else {
+                if (FieldWithValueFrm_TableGride_22 == "")
+                    FieldWithValueFrm_TableGride_22 = ArrRadioValues[0].trim() + "|" + TextSearch; else
+                    FieldWithValueFrm_TableGride_22 += "^" + ArrRadioValues[0].trim() + "|" + TextSearch;
+            }
+            if (WithDate != "") { FieldWithValueFrm_TableGride_22 += "^" + WithDate; }
+            AddCustomFields = (typeof AddCustomFields == 'undefined') ? "" : AddCustomFields; if (AddCustomFields != "") { FieldWithValueFrm_TableGride_22 += "^" + AddCustomFields; }
+        }
+        let Show_Paging = (Status == "" ? 'False' : 'False'); let ShowPrintOnTopTable = (Status == "" ? 'False' : 'False'); let Edit_URL = (Status == "" ? 'http://localhost/' : ''); $.ajax({
+            url: "http://localhost/DoActionData/LoadTableGrid", data: { SQL: "uWfbusV2LzzVh/vwnn5nqElI35/pYPyiet+WkjC5pqq+/yWCt7QqjcLX9fj5qhfZsxbk+MeVtY4jB5fdtoI5Xcp3RB76EcIDZgwSx/of0+VtP9MPAtmxMsusqDPuKSa9YSS4mWaxelXR47XJq4yEMFta3pZpfAmhCjUTo0qE2/0FhALih2Sj2EKX165O03r7eGuj9794aQqf5/2fhu02IcyjodZBvNnj1PRvcecykXhSxscO50pP0/a91z6/EzNUL3aWGjrRWdxTVsPcpHhphszy5l0GWlo+cMSUaF0i+nn/J2fP6ZJiSn+uimTeSV8gv85R+tzS12HNcSv0CjXtdbD4asPBanHt9RhFHHM1GBgWikko/1+fjLKSCeU4pAHinVMjHhRyn5q/rxqbY0q5gyn3WpGhlmAQZsSu476QxkmmHtBjIT0ylymp2o+Xdnp0YvnxSnj83XKecRHTu8fDFAXfwFusr/dXMCcAiHflBrT1FarHYdc1y1RmbuBZnapaB4LNkOJrgJMWwNPS1k0S7mYOSNTS2byZRVIRheO5LIATs3k9Cx5WPsqHcWXnSqj0oA4uhUSczay2ltv3IARZ6RZ43CvggtvlGEq3vEDi5OQapMrkbnLtYOxVWWcf/cUsrZyQ8E2Fc94fHny+hy8z/9keVwndDvk0Sk6SAX8SfaCddVyQ074YKWXeciRA+/6tey6Qk1RCAWqonVbURkmlbFfJhHuH16sGpaRkMIs7MZP7WgxEQderO4V6IOd3hzXn24EutQWEScF8ehfdgqT3rEp6OsoHIFuC3lWPxJ+jrvIJ1vWRmEC+FRpxCFxyK1TDTgtjjw5l6yWqyxNfz1Dj3ilJMztDN18dh2UByd58nw6NXgtRn3wRs33T6JcFhNnr9ViyPyQBLCr3IyEkk/+wveox628hJlXqQtYqXdMS1/8whnrhmOvXfrPQUdah5103Nn7U5apC5+tl5j1ZVox1joKliV4f+EL3oQwBYGpDYQuglNfydGZtavsPQPQ8y0iJAsDbTRpGJYoYm8mUIkilh8U6ispU9yuqiBddSivwZm3QwA5U6NQSHvVWWGmakqmRXGfQ8odSc1qwBr2QFLzrnQjw6QEvfKFhZRp8axjxZck838uzN6/PVyPTcgt8XXGtHMF+ZNWE/YT7bE9gqInIzbkaAZbOdOcGFTuEzCgAqovfUsF1814N1FbumZ0GyzcNJQAIdW+CAFSr82SkNpGuq65LqU0PRVOdZF+8+5wA0Xk=", GridProcedureName: "", LoadGridFunction: "LoadTableGrid", Status: Status, ISPrintOut: (Status == "" ? 'False' : 'True'), PageSize: (Status == "" ? PageSize : 0), Page: (Status == "" ? Page : 0), AllowAdd: "False", AllowEdit: "False", AllowDelete: "False", UserID: "112", SystemID: "13", WarehouseID: "16", ShowPrintOnTopTable: ShowPrintOnTopTable, Title: Title, ReportTitle: "", rnd: "22", GData: GridDataFrm_TableGride_22, GridHeight: "", OrderBy: "cb.InvoiceNo", IsUseHavingCondition: "False", IsHaveWhereCondition: "True", TableName: "/fYgetfM3g3Wd9BkrLBDlw==", PrimaryField: "/fYgetfM3g3Wd9BkrLBDlw==", ModifyField: "/fYgetfM3g3Wd9BkrLBDlw==", FieldWithValue: FieldWithValueFrm_TableGride_22, EditTitle: "", EditURL: Edit_URL, DialogBoxWidth: "", DialogBoxHeight: "0", FormID: "Frm_TableGride_22", RowSeleted: RowSeleted, dataTableNumber: "0", isfixedTableHeader: "False", TableClassName: "table table-bordered table-head-fixed text-nowrap", TblID: "TableGride", ShowPaging: Show_Paging, NotShowWithNoRecord: "False", DrawTotalHeaderTbl: "False", DrawTotalAllHeader: "False", DrawTotalAllFooter: "False", DrawTotalAllHeaderDataTableNumber: "0", DrawTotalAllFooterDataTableNumber: "0", GridUseConnection2: "False", FooterSummaryDataTable: "0", LinkSummaryField: "", LinkSummaryColumn: "", ClearByDates: Date() }, headers: { "Authorization": "Bearer " + access_Token }, dataType: "html", async: false, type: "POST", error: function (XMLHttpRequest, callStatus, errorThrown) { $("button").attr('disabled', false); DialogSweetAlert('error'); }, beforeSend: function (xhr) { xhr.setRequestHeader('x-custom-header', JSON.stringify(headerPara)); $('button').attr('disabled', true); }, success: function (responetext) {
+                Swal.close(); setTimeout(function () {
+                    var MyDataTable = $("#TableGride").DataTable({ "responsive": true, lengthMenu: [[30, 50, 100, -1], ['30', '50', '100', 'Show all']], "lengthChange": true, "paging": true, "language": { "emptyTable": "No items to display.", "info": "Showing _START_ to _END_ of _TOTAL_ entries", "infoEmpty": "Showing 0 to 0 of 0 entries", searchPlaceholder: "Search" }, dom: "<'row'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>", buttons: ['pageLength', { extend: 'colvis', text: 'Column visibility', exportOptions: { columns: ':visible' } }, { extend: 'excelHtml5', text: '<i class="fa-regular fa-file-excel"></i> <span class="d-none d-md-inline">Excel</span>', titleAttr: 'Generate Excel', className: 'btn btn-primary btn-sm' }, { extend: 'print', exportOptions: { columns: ':visible' }, text: '<i class="fa fa-print"></i><span class="d-none d-md-inline">Print</span>', titleAttr: 'Print Table', className: 'btn btn-default btn-sm' }] })
+                    var row = '<div class="card-header pl-0 mb-3">'; row += '</div>'; row = ''; row += '<div class="form-group"><div class="input-group">'
+                    row += '<div class="input-group-prepend"><label for="myInputSearch" class="input-group-text"><i class="fas fa-search"></i></label></div>'
+                    row += '<input id="myInputSearch" type="search" class="form-control" placeholder="Search" />'; row += '</div></div>'
+                    $("#TableGride_filter").html(row); $("#TableGride_filter").removeClass("dataTables_filter"); $('#myInputSearch').on('keyup', function () { MyDataTable.search(this.value).draw(); }); $("div.dt-buttons").addClass('btn-group flex-wrap'); $("div.btn-group").removeClass('dt-buttons');
+                }, 100); $("button").removeAttr("disabled"); if (Status == 'Print') { downloadInnerHtml(responetext); }
+                else if (Status == 'Excel') { ExportToExcel(responetext); }
+                else if (Status == 'ViewPDF') { OpenNewTap(responetext); }
+                else if (Status == 'Download') { var link = document.createElement('a'); link.href = responetext; link.download = Title + ".pdf"; link.click(); link.remove(); }
+                else {
+                    $("#TableGride_Frm_TableGride_22").html(responetext); if (PageSize == 0) { $('.divbody').removeAttr('style'); }
+                    window.clearTimeout(ClearTimeOutFrm_TableGride_22);
+                }
+                clickAndDrag(".table-responsive");
+            }
+        });
+    }
+    $(function () {
+        SearchBy_ChangeTableGride_22(); $("input[name='RD']").click(function () { SearchBy_ChangeTableGride_22(); }); $("#BunSearch").click(function () { $(this).blur(); LoadTableGrid(1); })
+        LoadTableGrid(1); var PrintURL = ""; var SendEmailURL = ""; $("#PrintButton").click(function () { ShowPrintDialogOption_22(); $(this).blur(); });
+    });</script>*@

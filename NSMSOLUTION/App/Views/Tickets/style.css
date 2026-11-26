@@ -1,0 +1,1226 @@
+/* Tickets page styles — built on global design tokens from custom.css */
+.tickets-page {
+    padding: 1rem;
+    font-family: inherit;
+}
+
+.tickets-flow-overview {
+    margin: 0 auto;
+}
+
+/* ============================================================
+   Card — matches .card / .modal-content pattern
+   ============================================================ */
+.tickets-flow-card {
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+
+.tickets-flow-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--blue-light);
+}
+
+.tickets-flow-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+    color: var(--blue);
+    font-size: 0.85rem;
+    font-weight: var(--font-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tickets-flow-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #1f2a44;
+}
+
+.tickets-flow-copy {
+    margin: 0.5rem 0 0;
+    color: #555f7a;
+    max-width: 760px;
+}
+
+/* ============================================================
+   Buttons — same solid-fill + hover-lift pattern as global .btn
+   ============================================================ */
+.tickets-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: #fff;
+    padding: 0.75rem 1.2rem;
+    font-weight: var(--font-semibold);
+    font-size: 13.5px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        transform var(--transition-base),
+        filter var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.tickets-btn i {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.tickets-btn:hover {
+    filter: brightness(1.04) saturate(1.06);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.tickets-btn:active {
+    transform: translateY(0);
+}
+
+.tickets-btn-ghost {
+    background: var(--gray-light);
+    color: var(--gray);
+    border: 1px solid var(--gray-border);
+}
+
+/* legacy alias so old markup keeps working */
+.tickets-refresh-btn {
+    composes: tickets-btn;
+}
+
+.tickets-flow-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.tickets-flow-step {
+    background: var(--blue-light);
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    min-height: 140px;
+}
+
+.tickets-flow-step strong {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.75rem;
+    color: #1f2a44;
+    font-size: 1rem;
+}
+
+.tickets-flow-step strong i {
+    font-size: 16px;
+    color: var(--blue);
+}
+
+.tickets-flow-step span {
+    color: #5f6d8a;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.tickets-status-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background: var(--gray-light);
+}
+
+/* ============================================================
+   Status badges — same light-tint pattern as .badge-primary etc.
+   Each status maps to a design-token color pair.
+   ============================================================ */
+.ticket-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.5rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+.ticket-status-badge i {
+    font-size: 13px;
+}
+
+.ticket-status-badge.open {
+    background: var(--orange-light);
+    color: var(--orange);
+    border-color: var(--orange-border);
+}
+.ticket-status-badge.assigned {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-color: var(--blue-border);
+}
+.ticket-status-badge.in-progress {
+    background: var(--green-light);
+    color: var(--green);
+    border-color: var(--green-border);
+}
+.ticket-status-badge.waiting-customer {
+    background: var(--purple-light);
+    color: var(--purple);
+    border-color: var(--purple-border);
+}
+.ticket-status-badge.scheduled {
+    background: var(--cyan-light);
+    color: var(--cyan);
+    border-color: var(--cyan-border);
+}
+.ticket-status-badge.resolved {
+    background: var(--indigo-light);
+    color: var(--indigo);
+    border-color: var(--indigo-light);
+}
+.ticket-status-badge.closed {
+    background: var(--gray-light);
+    color: var(--gray);
+    border-color: var(--gray-border);
+}
+.ticket-status-badge.reopened {
+    background: var(--maroon-light);
+    color: var(--maroon);
+    border-color: var(--maroon-border);
+}
+.ticket-status-badge.cancelled {
+    background: var(--red-light);
+    color: var(--red);
+    border-color: var(--red-border);
+}
+
+/* ============================================================
+   Toolbar (search + filters + new ticket)
+   ============================================================ */
+.tickets-toolbar-section {
+    margin: 1.5rem 0;
+}
+
+.tickets-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.tickets-search-wrap {
+    position: relative;
+    flex: 1 1 260px;
+}
+
+.tickets-search-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.tickets-search-input,
+.tickets-filter-select,
+.tickets-input {
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.92rem;
+    font-family: inherit;
+    background: #fff;
+    color: #1f2a44;
+    transition:
+        border-color var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.tickets-search-input {
+    width: 100%;
+    padding-left: 2.3rem;
+}
+
+.tickets-search-input:focus,
+.tickets-filter-select:focus,
+.tickets-input:focus {
+    outline: none;
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3.5px rgba(102, 126, 234, 0.12);
+}
+
+.tickets-filter-select {
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.tickets-page-size-select {
+    min-width: 160px;
+}
+
+.tickets-export-btn {
+    margin-left: auto;
+}
+
+.tickets-new-btn {
+    margin-left: 0;
+}
+
+/* ============================================================
+   New ticket form
+   ============================================================ */
+.tickets-new-form {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius-lg);
+    background: var(--blue-light);
+}
+
+.tickets-new-form h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 1rem;
+    color: #1f2a44;
+}
+
+.tickets-new-form h3 i {
+    color: var(--blue);
+}
+
+.tickets-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.tickets-textarea {
+    grid-column: 1 / -1;
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* ============================================================
+   Ticket table
+   ============================================================ */
+.tickets-list-section {
+    margin: 1.5rem 0;
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.tickets-table thead {
+    background: var(--blue-light);
+}
+
+.tickets-table th {
+    text-align: left;
+    padding: 0.9rem 1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5f6d8a;
+    font-weight: var(--font-semibold);
+}
+
+.tickets-table td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.92rem;
+    color: #1f2a44;
+}
+
+.tickets-id-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: var(--font-bold);
+    color: var(--blue);
+}
+
+.tickets-id-cell i {
+    font-size: 14px;
+}
+
+.tickets-row {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.tickets-row:hover {
+    background: var(--blue-light);
+}
+
+.tickets-priority-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: var(--font-bold);
+}
+
+.tickets-priority-pill i {
+    font-size: 12px;
+}
+
+.priority-high {
+    background: var(--red-light);
+    color: var(--red);
+}
+.priority-medium {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+.priority-low {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.tickets-empty,
+.tickets-empty-comments {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: #8a93ab;
+    background: var(--gray-light);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--gray-border);
+}
+
+.tickets-empty i,
+.tickets-empty-comments i {
+    font-size: 26px;
+    color: #c7cdd8;
+}
+
+.tickets-comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tickets-comments-toggle {
+    font-size: 0.85rem;
+    padding: 0.55rem 0.9rem;
+}
+
+.tickets-comments-summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #5f6d8a;
+    font-size: 0.9rem;
+    background: rgba(96, 104, 255, 0.06);
+    border-radius: var(--radius);
+}
+
+.tickets-link {
+    border: none;
+    background: transparent;
+    color: var(--blue);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.tickets-accordion {
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #fff;
+}
+
+.tickets-accordion-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 1rem;
+    border: none;
+    background: #f8fafc;
+    color: #1f2a44;
+    cursor: pointer;
+    font-weight: var(--font-semibold);
+}
+
+.tickets-accordion-toggle:hover {
+    background: #eef2ff;
+}
+
+.tickets-accordion-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4f46e5;
+}
+
+.tickets-accordion-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition:
+        max-height 0.25s ease,
+        padding 0.25s ease;
+    padding: 0 1rem;
+}
+
+.tickets-accordion-panel.open {
+    max-height: 300px;
+    overflow: auto;
+    padding: 1rem 1rem 1.25rem;
+}
+
+.tickets-accordion-panel.open .tickets-comment {
+    margin-bottom: 0.75rem;
+}
+
+.tickets-table-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.tickets-pagination-info {
+    color: #5f6d8a;
+    font-size: 0.92rem;
+}
+
+.tickets-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.tickets-page-btn {
+    border: 1px solid var(--gray-border);
+    background: #fff;
+    color: #1f2a44;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition:
+        background var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.tickets-page-btn:hover {
+    background: var(--gray-light);
+}
+
+.tickets-page-btn.active {
+    background: var(--blue);
+    color: #fff;
+    border-color: var(--blue);
+}
+
+/* ============================================================
+   Detail overlay / panel — matches .modal-content
+   ============================================================ */
+.tickets-detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1rem;
+    z-index: 1070;
+    overflow-y: auto;
+}
+
+.tickets-detail-panel {
+    background: #fff;
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    padding: 2rem;
+    max-width: 820px;
+    width: 100%;
+    position: relative;
+    animation: ticketsPanelShow var(--transition-spring);
+}
+
+@keyframes ticketsPanelShow {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.tickets-detail-close {
+    position: absolute;
+    top: 1.1rem;
+    right: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: all var(--transition-fast);
+}
+
+.tickets-detail-close:hover {
+    color: var(--red);
+    background: var(--red-light);
+}
+
+.tickets-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-right: 2rem;
+}
+
+.tickets-detail-head h3 {
+    margin: 0;
+    color: #1f2a44;
+    font-size: 1.2rem;
+}
+
+.tickets-detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 0.4rem 0;
+    color: #5f6d8a;
+    font-size: 0.9rem;
+}
+
+.tickets-detail-meta i {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.tickets-detail-desc {
+    margin: 1rem 0;
+    color: #1f2a44;
+    line-height: 1.6;
+}
+
+.tickets-detail-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 1.25rem 0;
+    padding: 1rem;
+    background: var(--gray-light);
+    border-radius: var(--radius);
+}
+
+.tickets-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.tickets-control-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    font-weight: var(--font-semibold);
+    color: #5f6d8a;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tickets-control-group label i {
+    font-size: 13px;
+    color: var(--indigo);
+}
+
+.tickets-control-group select {
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.8rem;
+    font-family: inherit;
+}
+
+/* ============================================================
+   Activity / comments — shadcn-style accordion, flat & minimal
+   ============================================================ */
+.tickets-comments {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tickets-accordion {
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: transparent;
+}
+
+.tickets-accordion-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: none;
+    background: transparent;
+    color: #1f2a44;
+    cursor: pointer;
+    font-weight: var(--font-medium);
+    font-size: 0.9rem;
+    transition: background-color var(--transition-fast);
+}
+
+.tickets-accordion-toggle:hover {
+    background: var(--gray-light);
+}
+
+.tickets-accordion-toggle > span:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tickets-accordion-toggle > span:first-child i {
+    font-size: 15px;
+    color: #6b7280;
+}
+
+.tickets-accordion-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--gray-light);
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: var(--font-semibold);
+}
+
+.tickets-accordion-state {
+    display: inline-flex;
+    align-items: center;
+    color: #6b7280;
+}
+
+.tickets-accordion-state i {
+    font-size: 15px;
+    transition: transform var(--transition-base);
+}
+
+.tickets-accordion-toggle[aria-expanded="true"] .tickets-accordion-state i,
+.tickets-accordion-state i.is-open {
+    transform: rotate(180deg);
+}
+
+.tickets-accordion-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-base);
+    border-top: 1px solid transparent;
+}
+
+.tickets-accordion-panel.open {
+    max-height: 1000px;
+    border-top-color: var(--gray-border);
+}
+
+.tickets-accordion-panel.open .tickets-comment-list {
+    padding: 0.25rem 1rem;
+}
+
+/* Comment rows — avatar + content, divided list, no boxes */
+.tickets-comment-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.tickets-comment {
+    display: flex;
+    gap: 0.7rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tickets-comment:last-child {
+    border-bottom: none;
+}
+
+.tickets-comment-avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--indigo-light);
+    color: var(--indigo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: var(--font-bold);
+}
+
+.tickets-comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.tickets-comment-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tickets-comment strong {
+    color: #1f2a44;
+    font-size: 0.86rem;
+    font-weight: var(--font-semibold);
+}
+
+.tickets-comment-time {
+    color: #9ca3af;
+    font-size: 0.76rem;
+}
+
+.tickets-comment p {
+    margin: 0.2rem 0 0;
+    color: #4b5563;
+    font-size: 0.87rem;
+    line-height: 1.5;
+}
+
+.tickets-comments-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 1rem 0.9rem;
+    color: #6b7280;
+    font-size: 0.82rem;
+}
+
+.tickets-link {
+    border: none;
+    background: transparent;
+    color: var(--indigo);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.tickets-link:hover {
+    text-decoration: underline;
+}
+
+.tickets-empty-comments {
+    padding: 1.75rem 1rem;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+.tickets-empty-comments i {
+    font-size: 22px;
+}
+
+/* Comment composer — shadcn textarea + button pattern */
+.tickets-comment-form {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.tickets-comment-form textarea {
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 0.65rem 0.85rem;
+    font-family: inherit;
+    font-size: 0.87rem;
+    min-height: 64px;
+    resize: vertical;
+    background: transparent;
+    transition:
+        border-color var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.tickets-comment-form textarea::placeholder {
+    color: #9ca3af;
+}
+
+.tickets-comment-form textarea:focus {
+    outline: none;
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.tickets-comment-form .tickets-btn {
+    align-self: flex-end;
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+}
+
+/* ============================================================
+   Page header — title + action buttons, one clean row
+   ============================================================ */
+.tickets-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.tickets-page-header-text .tickets-flow-tag {
+    margin-bottom: 0.25rem;
+}
+
+.tickets-page-header-text h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #1f2a44;
+}
+
+.tickets-header-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   Compact status strip — always visible, replaces the big key
+   ============================================================ */
+.tickets-status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+}
+
+.tickets-status-strip .ticket-status-badge {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.7rem;
+}
+
+/* ============================================================
+   Collapsible lifecycle guide
+   ============================================================ */
+.tickets-flow-overview {
+    margin: 0 0 1rem;
+    animation: ticketsGuideOpen var(--transition-spring);
+}
+
+@keyframes ticketsGuideOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tickets-flow-card .tickets-flow-header {
+    align-items: flex-start;
+}
+
+.tickets-flow-card .tickets-detail-close {
+    position: static;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   Dark mode — uses the *-dark tokens already defined globally
+   ============================================================ */
+body.dark-mode .tickets-flow-card {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border-light);
+    box-shadow: none;
+}
+
+body.dark-mode .tickets-flow-header {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .tickets-flow-header h2,
+body.dark-mode .tickets-flow-tag,
+body.dark-mode .tickets-flow-step strong,
+body.dark-mode .tickets-detail-head h3,
+body.dark-mode .tickets-comments h4,
+body.dark-mode .tickets-comment strong,
+body.dark-mode .tickets-new-form h3 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-flow-copy,
+body.dark-mode .tickets-flow-step span,
+body.dark-mode .tickets-detail-meta,
+body.dark-mode .tickets-detail-desc,
+body.dark-mode .tickets-comment p {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .tickets-flow-step {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-status-key {
+    background: rgba(255, 255, 255, 0.02);
+    border-top-color: var(--dark-border-light);
+}
+
+body.dark-mode .ticket-status-badge.open {
+    background: var(--orange-light-dark);
+    color: var(--orange-dark);
+    border-color: var(--orange-border-dark);
+}
+body.dark-mode .ticket-status-badge.assigned {
+    background: var(--blue-light-dark);
+    color: var(--blue-dark);
+    border-color: var(--blue-border-dark);
+}
+body.dark-mode .ticket-status-badge.in-progress {
+    background: var(--green-light-dark);
+    color: var(--green-dark);
+    border-color: var(--green-border-dark);
+}
+body.dark-mode .ticket-status-badge.waiting-customer {
+    background: var(--purple-light-dark);
+    color: var(--purple-dark);
+    border-color: var(--purple-border-dark);
+}
+body.dark-mode .ticket-status-badge.scheduled {
+    background: var(--cyan-light-dark);
+    color: var(--cyan-dark);
+    border-color: var(--cyan-border-dark);
+}
+body.dark-mode .ticket-status-badge.resolved {
+    background: var(--indigo-light-dark);
+    color: var(--indigo-dark);
+    border-color: var(--indigo-border-dark);
+}
+body.dark-mode .ticket-status-badge.closed {
+    background: var(--dark-bg-quaternary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border-medium);
+}
+body.dark-mode .ticket-status-badge.reopened {
+    background: var(--maroon-light-dark);
+    color: var(--maroon-dark);
+    border-color: var(--maroon-border-dark);
+}
+body.dark-mode .ticket-status-badge.cancelled {
+    background: var(--red-light-dark);
+    color: var(--red-dark);
+    border-color: var(--red-border-dark);
+}
+
+body.dark-mode .tickets-search-input,
+body.dark-mode .tickets-filter-select,
+body.dark-mode .tickets-input,
+body.dark-mode .tickets-control-group select,
+body.dark-mode .tickets-comment-form textarea {
+    background: var(--dark-bg-tertiary);
+    border-color: var(--dark-border-medium);
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-search-wrap i {
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .tickets-new-form {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-table {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-table thead {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .tickets-table th {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .tickets-table td {
+    color: var(--dark-text-primary);
+    border-top-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .tickets-empty,
+body.dark-mode .tickets-empty-comments {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--dark-border-medium);
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .tickets-detail-panel {
+    background: var(--dark-bg-secondary);
+}
+
+body.dark-mode .tickets-detail-controls {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .tickets-comments {
+    border-top-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-accordion {
+    border-color: var(--dark-border-medium);
+}
+
+body.dark-mode .tickets-accordion-toggle {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-accordion-toggle:hover {
+    background: var(--dark-bg-quaternary);
+}
+
+body.dark-mode .tickets-accordion-toggle > span:first-child i,
+body.dark-mode .tickets-accordion-state,
+body.dark-mode .tickets-comments-summary {
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .tickets-accordion-count {
+    background: var(--dark-bg-quaternary);
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .tickets-accordion-panel.open {
+    border-top-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-comment {
+    border-bottom-color: var(--dark-border-light);
+}
+
+body.dark-mode .tickets-comment-avatar {
+    background: var(--indigo-light-dark);
+    color: var(--indigo-dark);
+}
+
+body.dark-mode .tickets-comment strong {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-comment-time {
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .tickets-comment p {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .tickets-comment-form textarea {
+    border-color: var(--dark-border-medium);
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-comment-form textarea::placeholder {
+    color: var(--dark-text-muted);
+}
+
+body.dark-mode .tickets-detail-close {
+    color: var(--dark-text-muted);
+}
+body.dark-mode .tickets-detail-close:hover {
+    color: var(--red-dark);
+    background: var(--red-light-dark);
+}
+
+body.dark-mode .tickets-btn-ghost {
+    background: var(--dark-bg-quaternary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border-medium);
+}
+
+body.dark-mode .tickets-page-header-text h2 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode .tickets-status-strip {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border-light);
+}

@@ -1,0 +1,32 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+
+<script>
+    var pp = PrimaryFieldValue;
+    $(function () {
+        $("#CboRoleName").change(function () {
+            var p = PrimaryFieldValue;
+            var UserLoginID = $("#TxtUserLoginID").val();
+            var SystemID = ($("#CboSystemName").val() == null ? "" : $("#CboSystemName").val());
+            var WarehouseID = ($("#CboWarehouse").val() == null ? "" : $("#CboWarehouse").val());
+            var UserRoleID = ($("#CboRoleName").val() == null ? "" : $("#CboRoleName").val());
+            if (SystemID != "" && WarehouseID != "" && UserRoleID != "")                
+                LoadURL("DivIDGroupCheckBoxTab", "Administrator/GetSetUserPermission", true, { UserLoginID: UserLoginID, SystemID: SystemID, WarehouseID: WarehouseID, UserRoleID: UserRoleID }, function () {
+                    // $("#DivIDGroupCheckBoxTab").hide();\
+                    if (pp == 0) {
+                        $("#DivIDGroupCheckBoxTab input[type=checkbox]").prop('checked', 'checked');
+                    }
+                });
+        });
+        setTimeout(function () {
+            if (PrimaryFieldValue != 0)
+                $("#CboRoleName").change();
+        }, 1000);
+    });
+</script>
+
+
+
+

@@ -1,0 +1,282 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+<script>
+    var ItemName = "@ViewBag.ItemName";
+    var ItemID = "@ViewBag.ItemID";
+    var Clone = "@ViewBag.Clone";
+    var Type = "@ViewBag.Type";
+    var KVendorName = "@ViewBag.VendorName";
+
+    function onChangeDisP(THIS) {
+        let Index = $(THIS).closest("tr").index();
+        let QTY = $("input[name=QTY]").eq(Index).val();
+        QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+        let UnitPrice = $("input[name=UnitPrice]").eq(Index).val();
+        UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+        let Amount = (QTY * UnitPrice);
+        let DisP = ($(THIS).val() == "" ? 0 : accounting.unformat($(THIS).val()));
+        let DiscountUSD = ((Amount * DisP) / 100);
+        $("input[name=DisUSD]").eq(Index).val(accounting.formatMoney(DiscountUSD, ''));
+        TotalAll();
+    }
+    function onChangeDisUSD(THIS) {
+        let DiscountUSD = ($(THIS).val() == "" ? 0 : accounting.unformat($(THIS).val()));
+        let Index = $(THIS).closest("tr").index();
+        let QTY = $("input[name=QTY]").eq(Index).val();
+        QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+        let UnitPrice = $("input[name=UnitPrice]").eq(Index).val();
+        UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+        let Amount = (QTY * UnitPrice);
+        let DiscountP = ((DiscountUSD / Amount) * 100);
+        $("input[name=DisP]").eq(Index).val(accounting.formatMoney(DiscountP, ''));
+        TotalAll();
+    }
+    $(function () {
+        $("#Tax, #Tax_Rate").change(function () {
+            if ($(this).val() != "") {
+                $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / ' + $("#Tax").val());
+            }
+            else {
+                $("#Tax_Rate").val(0);
+                $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT 10%:');
+                $("label[name=VAT]").html('0.00');
+            }
+            TotalAll();
+        });
+
+        $("input[name=TxtDisP], input[name=TxtDisUSD], input[name=TxtDeposit], input[name=TxtBalance]").autoNumeric({ vMin: '0.00' });
+
+        $("input[name=TxtDisP], input[name=TxtDisUSD], input[name=TxtDeposit], input[name=TxtBalance]").on('focus', function () { $(this).select() });
+
+        $("input[name=TxtDisP]").keyup(function () {
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DisP = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var DiscountUSD = ((Amount * DisP) / 100);
+            $("input[name=TxtDisUSD]").val(accounting.formatMoney(DiscountUSD, ''));
+            TotalAll();
+        });
+        $("input[name=TxtDisUSD]").keyup(function () {
+            var DiscountUSD = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DiscountP = ((DiscountUSD / Amount) * 100);
+            $("input[name=TxtDisP]").val(accounting.formatMoney(DiscountP, ''));
+            TotalAll();
+        });
+        $("input[name=TxtDeposit]").keyup(function () {
+            TotalAll();
+        });
+
+        $("#PaymentTerms_NumberofDays").bind("change", function (e) {
+            var currentValue = $(this).val();
+            var ApplyDueDate = '';
+            if (currentValue != "Due on Receipt") {
+                ApplyDueDate = moment(new Date()).add(currentValue, 'day');
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            }
+            else {
+                ApplyDueDate = moment(new Date());
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            }
+        });
+
+        $("#TxtStatusID").val("@ViewBag.StatusID");
+        if ("@ViewBag.StatusID" == "60")
+            $("#POStatus").val("0");
+
+        if (Type == "NewPO") {
+            if (ItemName != "" && ItemID != "") {
+                setTimeout(function () {
+                    $("input[name=ItemName]").val(ItemName).trigger("keydown");
+                }, 500);
+                setTimeout(function () {
+                    $("ul.ui-autocomplete li").first().trigger("click");
+                    $("input[name=ItemName]").blur();
+                }, 1000);
+            }
+        }
+        if (PRNumber != "") {
+            setTimeout(function () {
+                $("#PRNumber").val(PRNumber).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("#PRNumber").blur();
+            }, 1000);
+        } 
+    });
+    function AmountKeyup(THIS) {
+        var SubTotal = 0;// $(THIS).val();
+        $("input[name=ItemName]").each(function (i) {
+            if ($("input[name=ItemName]").eq(i).val() != "" && $("input[name=Amount]").eq(i).val() != "") {
+                SubTotal += accounting.unformat($("input[name=Amount]").eq(i).val());
+            }
+        });
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+        var Rate = ($("#Tax_Rate").val() == "" ? 0 : $("#Tax_Rate").val());
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        //var VAT = //$("label[name=VAT]").html();
+        var Total = accounting.unformat(SubTotal);
+        //if (Rate != 0) {
+        var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+        $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+        Total += accounting.unformat(VAT);
+        //console.log(Total);
+        //}
+        Total = accounting.unformat($("label[name=SubTotal]").html()) + accounting.unformat($("label[name=VAT]").html());
+
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        let Deposit = accounting.unformat($("input[name=TxtDeposit]").val());
+        let Balance = GrandTotal - Deposit;
+        $("input[name=TxtBalance]").val(accounting.formatNumber(Balance, 2));
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+            var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+            GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+            $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+        }
+        else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+    }
+
+    function TotalAll() {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                var SubTotal = 0;
+                $("input[name=ItemName]").each(function (i) {
+                    var QTY = $("input[name=QTY]").eq(i).val();
+                    QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+                    var UnitPrice = $("input[name=UnitPrice]").eq(i).val();
+                    UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+                    var Amount = (QTY * UnitPrice);
+                    var DisUSD = $("input[name=DisUSD]").eq(i).val();
+                    DisUSD = (DisUSD == "" ? 0 : accounting.unformat(DisUSD));
+                    Amount = Amount - DisUSD;
+                    $("input[name=Amount]").eq(i).val(accounting.toFixed(Amount, 2));
+
+                    SubTotal += Amount;
+                });
+
+                $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+                var Rate = ($("#Tax_Rate").val() == "" ? 0 : $("#Tax_Rate").val());
+                Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+                //var VAT = //$("label[name=VAT]").html();
+                var Total = accounting.unformat(SubTotal);
+                //if (Rate != 0) {
+                var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+                $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+                Total += accounting.unformat(VAT);
+                Total = accounting.unformat($("label[name=SubTotal]").html()) + accounting.unformat($("label[name=VAT]").html());
+                //}
+                $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+                var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+                TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+                var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+                $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+                let Deposit = accounting.unformat($("input[name=TxtDeposit]").val());
+                let Balance = GrandTotal - Deposit;
+                $("input[name=TxtBalance]").val(accounting.formatNumber(Balance, 2));
+
+                var cutext = $("#Currency").val();
+                var ex = $("#TxtExchangeRate").val();
+                if (ex != "" && cutext != "") {
+                    $("tr[name=TRTotalAS]").show();
+                    $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+                    var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+                    GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+                    $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+                }
+                else {
+                    $("tr[name=TRTotalAS]").hide();
+                }
+                resolve();
+            }, 10);
+        });
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        let responses = JSON.parse(response.Data)[0];
+        let VendorName = responses.VendorName;
+        PostData("Profile/InvoiceTMP?VendorID=" + responses.VendorID + "&POID=" + responses.PurchaseOrderID + "&Type=PO&ReturnHtmlData=false&ReturnAllHtmlData=true", "", function (result) {
+            responses["Data"] = JSON.parse(result).Data;
+            responses["VendorName"] = VendorName;
+            responses["ReturnHtmlData"] = "true";
+            PostData("PurchaseOrder/SendNotificationToTelegram", responses);
+        });
+        if (Type != "NewPO" && Type != "EditPO") {
+            var url = '#!/Profile?ID=' + responses.VendorID + '&PONumber=' + responses.PONumber;
+            setTimeout(function () {
+                $("#CboSearchText").val(responses.PONumber);
+                $("#BunSearch").click();
+            }, 500);
+            //let data = {VendorID:" + VendorID + " & POID=" + PurchaseOrderID + " & Type=PO & ReturnHtmlData=true
+            OpenNewTap(url);
+        }
+        else if (KVendorName != "") {
+            if (KVendorName != VendorName) {
+                var url = '#!/Profile?ID=' + responses.VendorID + '&PONumber=' + responses.PONumber;
+                OpenNewTap(url);
+            }
+            else {
+                PO_Number = responses.PONumber;
+                $("#BunSearch").click();
+                $("#PurchaseOrder_Tap").click();
+                $("#BtnSearchVendorPO").click();
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+            }
+        }
+        else if (Type == "EditPO") {
+            PO_Number = responses.PONumber;
+            $("#BunSearch").click();
+            $("#PurchaseOrder_Tap").click();
+            $("#BtnSearchVendorPO").click();
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+        }
+        $("#modal-default").modal('hide');
+    }
+    function getDateEdit(response) {
+        //response = JSON.parse(response);
+        //DataTblEdit = response;
+        TotalAll();
+    }
+
+    function OnPRNumberChange() {
+        LoadData('Purchase/LoadPO?PRNumber=' + PRNumber + '&BillID=' + BillID, function (response) {
+            var rst = JSON.parse(JSON.parse(response).data);
+            var TblData = rst;
+            //console.log(TblData)
+            rst = rst[0];
+            $("#Vendor_Name").val(rst.VendorName);
+            $("#Vendor_Name_VendorID").val(rst.VendorID);
+            $("#Vendor_Name_Reference_VendorName").val(rst.Vendor_Name_Reference_VendorName);
+            $("#DeliverTo").val(rst.WarehouseName);
+            $("#TxtContactName_WarehouseName").val(rst.WarehouseName);
+            $("#DeliverTo_WID").val(rst.WID);
+            $("#Warehouse_WID").val(rst.WID);
+            $("#TxtContactName").val(rst.ContactName);
+            $("#TxtContactPhone").val(rst.ContactPhone);
+            $("#ClassName").val(rst.ClassName);
+            $("#ClassName_ClassID").val(rst.ClassID);
+            $("#PurchaseOrderID").val(rst.PurchaseOrderID);
+            $("#RefID").val(rst.PurchaseOrderID);
+            $("#Tax").val(rst.Tax);
+            $("#Tax_Rate").val(rst.Rate);
+            TotalAll();
+            SetValueTableRow(TblData, 'ItemName', 'TableItemInformation', 'TRNo', rowData_TableItemInformation, 'TDNo', this, `CallSetAutoComplete_ItemName`, '', '', '', '', '', '', RowFields2_TableItemInformation);
+        });
+    }
+
+</script>

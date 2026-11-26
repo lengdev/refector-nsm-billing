@@ -1,0 +1,14 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    $(function () {
+        document.addEventListener('click', function (e) {
+            if (e.target.name == "APreviewInv") {
+                e.preventDefault();
+            }
+        });
+    });
+</script>

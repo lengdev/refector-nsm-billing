@@ -1,0 +1,18 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function onGridClick(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        if ($(THIS).index() != 10 && $(THIS).index() != 7 && $(THIS).index() != 8) {
+            var VendorID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+            var url = '#!/Profile?ID=' + VendorID;
+            OpenNewTap(url);
+        }
+    }
+    function showVendorInfo(vendorId) {
+        var url = '#!/Profile?ID=' + vendorId;
+        OpenNewTap(url);
+    }
+</script>

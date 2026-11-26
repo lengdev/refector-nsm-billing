@@ -1,0 +1,306 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+@*<table id="example" width="100%" border="0" cellspacing="0" cellpadding="5" class="table table-bordered table-head-fixed text-nowrap dataTable no-footer dtr-inline" aria-describedby="TableGride_info" style="width: 100%;">
+    <thead>
+        <tr class="header" style="height:auto !important;">
+            <th class="sorting sorting_asc" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 11.1667px;" aria-sort="ascending" aria-label="#: activate to sort column descending">#</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 147.167px;" aria-label="Invoice#: activate to sort column ascending">Invoice#</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 117.167px;" aria-label="Sale​​: activate to sort column ascending">Sale​​</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 44.1667px;" aria-label="Class: activate to sort column ascending">Class</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 91.1667px;" aria-label="CID: activate to sort column ascending">CID</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 395.167px;" aria-label="Customer Name: activate to sort column ascending">Customer Name</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 67.1667px;" aria-label="Inv. Date: activate to sort column ascending">Inv. Date</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 72.1667px;" aria-label="Due Date: activate to sort column ascending">Due Date</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 88.1667px;" aria-label="Grand Total: activate to sort column ascending">Grand Total</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 266.167px;" aria-label="Memo: activate to sort column ascending">Memo</th>
+            <th class="sorting" tabindex="0" aria-controls="TableGride" rowspan="1" colspan="1" style="width: 309.167px;" aria-label="Remark: activate to sort column ascending">Remark</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr name="TrRowNo" class="odd">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">1</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1148,'210904_4','0','10','',false,this);">210904_4</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1148');">UBL20-075</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1148" target="_blank" style="target-new: tab;">Unit B0907</a>
+            </td>
+            <td class="">04-09-21</td>
+            <td class="">11-09-21</td>
+            <td class="text-danger" align="right">720.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="even">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">2</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1155,'211115_10','0','10','',false,this);">211115_10</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1155');">UBL20-087</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1155" target="_blank" style="target-new: tab;">Unit B805</a>
+            </td>
+            <td class="">15-11-21</td>
+            <td class="">22-11-21</td>
+            <td class="text-danger" align="right">240.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="odd">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">3</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1154,'211115_9','0','10','',false,this);">211115_9</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1154');">UBL20-086</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1154" target="_blank" style="target-new: tab;">Unit B1903A</a>
+            </td>
+            <td class="">15-11-21</td>
+            <td class="">22-11-21</td>
+            <td class="text-danger" align="right">240.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="even">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">4</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1157,'211122_12','0','10','',false,this);">211122_12</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1157');">UBL20-089</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1157" target="_blank" style="target-new: tab;">Unit A1502</a>
+            </td>
+            <td class="">22-11-21</td>
+            <td class="">29-11-21</td>
+            <td class="text-danger" align="right">420.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="odd">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">5</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1165,'211222_16','0','10','',false,this);">211222_16</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1165');">UBL20-099</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1165" target="_blank" style="target-new: tab;">Unint B803A</a>
+            </td>
+            <td class="">22-12-21</td>
+            <td class="">29-12-21</td>
+            <td class="text-danger" align="right">240.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="even">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">6</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(174,'220223_171','0','10','',false,this);">220223_171</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=174');">UBL20-054</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=174" target="_blank" style="target-new: tab;">Urban Loft Level 5A</a>
+            </td>
+            <td class="">23-02-22</td>
+            <td class="">02-03-22</td>
+            <td class="text-danger" align="right">360.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="odd">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">7</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1178,'220304_199','0','10','',false,this);">220304_199</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1178');">UBL20-117</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1178" target="_blank" style="target-new: tab;">Unit A1308</a>
+            </td>
+            <td class="">04-03-22</td>
+            <td class="">11-03-22</td>
+            <td class="text-danger" align="right">170.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="even">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">8</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1179,'220304_200','0','10','',false,this);">220304_200</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1179');">UBL20-118</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1179" target="_blank" style="target-new: tab;">Unit B1303</a>
+            </td>
+            <td class="">04-03-22</td>
+            <td class="">11-03-22</td>
+            <td class="text-danger" align="right">260.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="odd">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">9</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(138,'220305_138','0','10','',false,this);">220305_138</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=138');">UBL-001</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=138" target="_blank" style="target-new: tab;">Management Room (Free)</a>
+            </td>
+            <td class="">01-01-23</td>
+            <td class="">01-01-23</td>
+            <td class="text-danger" align="right">0.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+        <tr name="TrRowNo" class="even">
+            <td class="dtr-control sorting_1" align="right" tabindex="0">10</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="PrintInvoice(1180,'220316_201','0','10','',false,this);">220316_201</a>
+            </td>
+            <td class="">Nara</td>
+            <td class="">NSM ISP</td>
+            <td class="">
+                <a href="javascript:void(0);" onclick="OpenNewTap('#!/CustomerProfile?ID=1180');">UBL20-119</a>
+            </td>
+            <td class="">
+                <a href="#!/CustomerProfile?ID=1180" target="_blank" style="target-new: tab;">Shop House</a>
+            </td>
+            <td class="">16-03-22</td>
+            <td class="">23-03-22</td>
+            <td class="text-danger" align="right">420.00</td>
+            <td class=""></td>
+            <td class=""></td>
+        </tr>
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        var table = $('#example').DataTable({
+            dom: `<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>`,
+            //lengthMenu: [
+            //    [10, 25, 50, -1],
+            //    ['10 rows', '25 rows', '50 rows', 'Show all']
+            //],
+            //buttons: [
+            //    'pageLength'
+            //],
+            buttons: ['pageLength',{
+                            extend: 'excelHtml5', text: '<i class="fa fa-file-excel-o"></i> <span class="d-none d-md-inline">Excel</span>',
+                            titleAttr: 'Generate Excel',
+                            className: 'btn btn-primary btn-sm'
+                        }, {
+                            extend: 'csvHtml5',
+                            text: '<i class="fa-solid fa-file-csv"></i> <span class="d-none d-md-inline">CSV</span>',
+                            titleAttr: 'Generate CSV',
+                            className: 'btn btn-info btn-sm'
+                        }, {
+                            extend: 'copyHtml5',
+                            text: '<i class="fa fa-copy"></i> <span class="d-none d-md-inline">Copy</span>',
+                            titleAttr: 'Copy to clipboard',
+                            className: 'btn btn-primary btn-sm'
+                            }, {
+                            extend: 'print',
+                            text: '<i class="fa fa-print"></i><span class="d-none d-md-inline">Print</span>',
+                            titleAttr: 'Print Table',
+                            className: 'btn btn-default btn-sm'
+                            }]
+        });  
+//        var MyDataTable = new $("#example").DataTable({
+//            "responsive": true,
+//            lengthMenu: [
+//                [5, 25, 50, -1],
+//                [5, 25, 50, 'All']
+//            ],
+//            "lengthChange": true, "paging": true,
+//            "language":
+//            {
+//                //"emptyTable": "No items to display.",
+//                //"info": "Showing _START_ to _END_ of _TOTAL_ entries",
+//                //"infoEmpty": "Showing 0 to 0 of 0 entries",
+//                searchPlaceholder: "Search"
+//            },
+//            dom:`"<'row'<'small-6 columns'l><'small-6 columns'f>r>"+
+//"t"+
+//"<'row'<'small-6 columns'i><'small-6 columns'p>>"`,
+//            //dom: "<'row mb-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'f><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'lB>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+//            //dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+//            //    "<'row'<'col-sm-12'tr>>" +
+//            //    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+//            buttons: [{
+//                extend: 'excelHtml5', text: '<i class="fa fa-file-excel-o"></i> <span class="d-none d-md-inline">Excel</span>',
+//                titleAttr: 'Generate Excel',
+//                className: 'btn btn-primary btn-sm'
+//            }, {
+//                extend: 'csvHtml5',
+//                text: '<i class="fa-solid fa-file-csv"></i> <span class="d-none d-md-inline">CSV</span>',
+//                titleAttr: 'Generate CSV',
+//                className: 'btn btn-info btn-sm'
+//            }, {
+//                extend: 'copyHtml5',
+//                text: '<i class="fa fa-copy"></i> <span class="d-none d-md-inline">Copy</span>',
+//                titleAttr: 'Copy to clipboard',
+//                className: 'btn btn-primary btn-sm'
+//                }, {
+//                extend: 'print',
+//                text: '<i class="fa fa-print"></i><span class="d-none d-md-inline">Print</span>',
+//                titleAttr: 'Print Table',
+//                className: 'btn btn-default btn-sm'
+//                }]
+//        });
+        //$('#example').DataTable({
+        //    dom: 'Bfrtip',
+        //    language: {
+        //        buttons: {
+        //            pageLength: {
+        //                _: "Afficher %d éléments",
+        //                '-1': "Tout afficher"
+        //            }
+        //        }
+        //    },
+        //    lengthMenu: [
+        //        [5, 25, 50, -1],
+        //        ['5 rows', '25 rows', '50 rows', 'Show all']
+        //    ],
+        //    buttons: [
+        //        'pageLength'
+        //    ]
+        //});
+    });
+</script>*@

@@ -1,0 +1,22 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function ApproveInvoiceToDMC(CustomerID, InvoiceNo, Status) {
+        var DATA = {
+            CustomerID: CustomerID,
+            InvoiceNo: InvoiceNo,
+            From: "",
+            Status: Status
+        };
+        DoSaveChangeSweetCofirm("CustomerReports/ApprovalInvoiceToDMCTAX", DATA, function (response) {
+            var invno = response.InvoiceNo;
+            $("input[name=RD]").eq(0).click();
+            $("#CboSearchText").val(invno);
+            $("#BunSearch").click();
+        }, "", "", (Status == "Disapprove" ? "Disapprove" : ""));
+        //PostData("CustomerReports/ApprovalInvoiceToDMCTAX", DATA, function (response) {
+        //    console.log(response);
+        //});
+    }
+</script>

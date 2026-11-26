@@ -1,0 +1,721 @@
+@{
+    Layout = null;
+}
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    .search-panel {
+        margin-bottom: 15px;
+    }
+
+    .table-responsive-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+    }
+
+    .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        min-width: 1000px;
+    }
+
+        .ledger-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .ledger-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #0f172a;
+        }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .opening-balance-row {
+        font-weight: bold;
+        background-color: #f8fafc;
+    }
+
+    .total-row {
+        font-weight: bold;
+        background-color: #fafafa;
+    }
+
+    .report-header-print {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+        @* .report-header-print .metadata-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+            border-bottom: 1.5px solid #475569;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        } *@
+</style>
+
+
+<div class="search-panel">
+    <div class="row">
+        <div class="col-md-2">
+            <label>From Date</label>
+            <input id="FromDate" style="width: 100%;" />
+        </div>
+
+        <div class="col-md-2">
+            <label>To Date</label>
+            <input id="ToDate" style="width: 100%;" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Account No</label>
+            <select id="txtAccount" class="form-control" style="width: 100%;">
+                <option value="">-- Select Account --</option>
+                @if (ViewBag.Accounts != null)
+                {
+                    foreach (System.Data.DataRow row in ViewBag.Accounts.Rows)
+                    {
+                        <option value="@row["AccountNo"]">@row["AccountName"]</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label>Class (Header)</label>
+            <select id="taHeaderClass" class="form-control" style="width: 100%;">
+                <option value="">--- System Company ---</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <br />
+            <button class="btn btn-primary" onclick="SearchTA();">
+                <i class="fa fa-search"></i> Search
+            </button>
+            <button class="btn btn-danger" onclick="PrintReport();">
+                <i class="fa fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn btn-success" onclick="ExportExcel();">
+                <i class="fa fa-file-excel"></i> Excel
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="pl-report-header" id="taReportHeader" style="margin-top: 20px; margin-bottom: 20px;">
+    <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+    <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "")</div>
+    <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "")</div>
+    <div class="bs-company-divider">
+        ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+    </div>
+    <h3 id="lblReportTitle">Transaction Account Report</h3>
+    <div class="tb-date-range-bar" id="lblDateRangeBar">
+        <span id="lblTaFrom">All</span> - <span id="lblTaTo">All</span>
+    </div>
+</div>
+
+<div id="reportContainer"></div>
+
+<script>var ReportData = { Data: [], OpeningBalance: 0, NormalSide: 'DR' };
+    var taSystemCompanyHeader = null;
+    var taSelectedCompanyHeader = null;
+    var taCompanyHeaderRequest = 0;
+
+    $(document).ready(function () {
+        getTransactionAccountHeader();
+        loadTransactionAccountClasses();
+
+        $("#taHeaderClass").on("change", function () {
+            var classId = $(this).val();
+            var requestId = ++taCompanyHeaderRequest;
+            if (!classId) {
+                taSelectedCompanyHeader = null;
+                getTransactionAccountHeader();
+                return;
+            }
+
+            var $selectedClass = $(this).find("option:selected");
+            $.ajax({
+                url: '/ExpenseDetailReport/GetCompanyHeader',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    classId: classId,
+                    className: $selectedClass.text(),
+                    SystemID: getTransactionAccountRequestParam('SystemID')
+                },
+                success: function (res) {
+                    if (requestId !== taCompanyHeaderRequest) return;
+                    if (!res || !res.success) {
+                        taSelectedCompanyHeader = null;
+                        getTransactionAccountHeader();
+                        alert((res && res.message) || 'Could not load the selected class company header.');
+                        return;
+                    }
+                    taSelectedCompanyHeader = {
+                        kh: res.companyNameKh || '',
+                        en: res.companyNameEn || ''
+                    };
+                    getTransactionAccountHeader();
+                },
+                error: function () {
+                    if (requestId !== taCompanyHeaderRequest) return;
+                    taSelectedCompanyHeader = null;
+                    getTransactionAccountHeader();
+                    alert('Error loading the selected class company header.');
+                }
+            });
+        });
+
+        $("#FromDate").kendoDatePicker({
+            format: "dd/MM/yyyy"
+        });
+
+        function getTransactionAccountRequestParam(key) {
+            var search = new URLSearchParams(window.location.search);
+            if (search.get(key)) return search.get(key);
+            if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                var hashSearch = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                if (hashSearch.get(key)) return hashSearch.get(key);
+            }
+            return localStorage.getItem(key) || '';
+        }
+
+        function loadTransactionAccountClasses() {
+            $.ajax({
+                url: '/ExpenseDetailReport/GetFilterOptions',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    SystemID: getTransactionAccountRequestParam('SystemID'),
+                    WarehouseID: getTransactionAccountRequestParam('WarehouseID')
+                },
+                success: function (res) {
+                    if (!res || !res.success) {
+                        alert((res && res.message) || 'Could not load Transaction Account classes.');
+                        return;
+                    }
+                    var classes = res.classes || [];
+                    $.each(classes, function (_, classInfo) {
+                        $("<option></option>")
+                            .val(classInfo.ClassID)
+                            .text(classInfo.ClassName || classInfo.ClassID)
+                            .appendTo("#taHeaderClass");
+                    });
+
+                    if (classes.length) {
+                        var systemId = String(getTransactionAccountRequestParam('SystemID') || '');
+                        var defaultClassBySystem = {
+                            '13': '5',
+                            '28': '14',
+                            '25': '10',
+                            '27': '12'
+                        };
+                        var defaultClassId = defaultClassBySystem[systemId];
+                        var defaultClass = classes.filter(function (classInfo) {
+                            return String(classInfo.ClassID) === String(defaultClassId);
+                        })[0] || classes[0];
+
+                        $("#taHeaderClass").val(String(defaultClass.ClassID)).trigger("change");
+                    }
+                },
+                error: function () {
+                    alert('Error loading Transaction Account classes.');
+                }
+            });
+        }
+
+        $("#ToDate").kendoDatePicker({
+            format: "dd/MM/yyyy"
+        });
+
+        // Initialize Select2 on the native HTML select dropdown to provide search + stable scroll UX
+        $("#txtAccount").select2({
+            placeholder: "-- Select Account --",
+            width: '100%',
+            allowClear: true
+        });
+        
+        // Parse query params from AngularJS hash
+        var hash = window.location.hash;
+        var accountVal = '';
+        var fromDateVal = '';
+        var toDateVal = '';
+        if (hash.indexOf('?') !== -1) {
+            var searchParams = new URLSearchParams(hash.split('?')[1]);
+            accountVal = searchParams.get('TxtAccount') || searchParams.get('account') || '';
+            fromDateVal = searchParams.get('fromDate') || '';
+            toDateVal = searchParams.get('toDate') || '';
+        }
+
+        // Prefill parameters if present
+        if (accountVal) {
+            $("#txtAccount").val(accountVal).trigger('change');
+        }
+
+        // Robust date parsing check - falls back to defaults if parsing returns null/invalid
+        var parsedFromDate = (fromDateVal && fromDateVal !== 'null' && fromDateVal !== 'undefined') ? kendo.parseDate(fromDateVal, "dd/MM/yyyy") : null;
+        if (parsedFromDate) {
+            $("#FromDate").data("kendoDatePicker").value(parsedFromDate);
+        } else {
+            // Default to start of current month
+            var startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            $("#FromDate").data("kendoDatePicker").value(startOfMonth);
+        }
+
+        var parsedToDate = (toDateVal && toDateVal !== 'null' && toDateVal !== 'undefined') ? kendo.parseDate(toDateVal, "dd/MM/yyyy") : null;
+        if (parsedToDate) {
+            $("#ToDate").data("kendoDatePicker").value(parsedToDate);
+        } else {
+            $("#ToDate").data("kendoDatePicker").value(new Date());
+        }
+
+        // Only auto-search if an account was passed via the URL
+        if ($("#txtAccount").val() && $("#txtAccount").val().trim() !== "") {
+            SearchTA();
+        }
+    });
+
+    function SearchTA() {
+        var fromDate = $("#FromDate").data("kendoDatePicker").value();
+        var toDate = $("#ToDate").data("kendoDatePicker").value();
+        var accountNo = $("#txtAccount").val() ? $("#txtAccount").val().trim() : '';
+
+        if (!accountNo) {
+            $("#reportContainer").html('<div class="alert alert-warning">Please enter an Account Number.</div>');
+            return;
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var sysId = urlParams.get('SystemID') || '';
+        var whId = urlParams.get('WarehouseID') || '';
+
+        $.ajax({
+            url: '/TransactionAccount/Read',
+            type: 'POST',
+            headers: { "Authorization": "Bearer " + (typeof access_Token !== "undefined" ? access_Token : "") },
+            data: {
+                fromDate: fromDate ? kendo.toString(fromDate, "yyyy-MM-dd") : "",
+                toDate: toDate ? kendo.toString(toDate, "yyyy-MM-dd") : "",
+                account: accountNo,
+                SystemID: sysId,
+                WarehouseID: whId
+            },
+            success: function (res) {
+                if (!res.Success) {
+                    alert(res.Message);
+                    return;
+                }
+                ReportData = res;
+                BuildReport(res);
+            },
+            error: function (xhr) {
+                alert(xhr.responseText);
+            }
+        });
+    }
+
+    function getTransactionAccountHeader() {
+        var companyEn = taSystemCompanyHeader
+            ? taSystemCompanyHeader.en
+            : $.trim($("#taReportHeader #lblCompanyNameEn").text());
+        var companyKh = taSystemCompanyHeader
+            ? taSystemCompanyHeader.kh
+            : $.trim($("#taReportHeader #lblCompanyNameKh").text());
+        if (!taSystemCompanyHeader) {
+            taSystemCompanyHeader = { kh: companyKh, en: companyEn };
+        }
+        if (taSelectedCompanyHeader) {
+            companyEn = taSelectedCompanyHeader.en || companyEn;
+            companyKh = taSelectedCompanyHeader.kh || companyKh;
+        }
+
+        if (companyEn) $("#taReportHeader #lblCompanyNameEn").text(companyEn);
+        if (companyKh) $("#taReportHeader #lblCompanyNameKh").text(companyKh);
+
+        return {
+            companyEn: companyEn,
+            companyKh: companyKh,
+            title: $.trim($("#taReportHeader #lblReportTitle").text()) || 'Transaction Account Report'
+        };
+    }
+
+    function BuildReport(res) {
+        var fromStr = $("#FromDate").val() || 'All';
+        var toStr = $("#ToDate").val() || 'All';
+        $("#taReportHeader #lblDateRangeBar").text(fromStr + ' - ' + toStr);
+        getTransactionAccountHeader();
+
+        var html = '';
+        var data = res.Data;
+        var openingBalance = Number(res.OpeningBalance || 0);
+        var runningBalance = openingBalance;
+        var normalSide = res.NormalSide || 'DR';
+
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        html += `
+            <div class="table-responsive-wrapper">
+                <table class="ledger-table" id="TableGride">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Reference Nº</th>
+                            <th>Name</th>
+                            <th>Account Name</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        // 1. Render Opening Balance Row
+        var displayAccount = (res.AccountNo && res.AccountName) ? (res.AccountNo + " - " + res.AccountName) : $("#txtAccount").val();
+        html += `
+            <tr class="opening-balance-row">
+                <td colspan="6">${displayAccount}</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+                <td class="text-right">${kendo.toString(openingBalance, 'n2')}</td>
+            </tr>
+        `;
+
+        // 2. Render Transaction Lines
+        var rowNo = 1;
+        $.each(data, function (i, row) {
+            // Calculate running balance
+            var debit = Number(row.Debit || 0);
+            var credit = Number(row.Credit || 0);
+
+            if (normalSide === 'DR') {
+                runningBalance = runningBalance + debit - credit;
+            } else {
+                runningBalance = runningBalance + credit - debit;
+            }
+
+            totalDebit += debit;
+            totalCredit += credit;
+
+            // Format date
+            var dateStr = '';
+            if (row.TransactionDate) {
+                var d = new Date(row.TransactionDate);
+                dateStr = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+            }
+
+            // Build links
+            var refLink = row.ReferenceNo || '';
+            var isTransfer = (row.Type === 'Transfer' || row.Type === 'Fund Transfer');
+            var isExpense = (!isTransfer && (row.Type === 'Expense' || row.IsPosted === 1));
+
+            if (isTransfer && row.FundTransferID) {
+                refLink = `<a href="#!/FundTransfer?id=${row.FundTransferID}" target="_blank">${row.ReferenceNo}</a>`;
+            } else if (isExpense) {
+                refLink = `<a href="javascript:void(0);" onclick="showPaymentVoucher(${row.ExpenseID}, '${row.ExpenseNo || ''}', 'Checked')">${row.ReferenceNo}</a>`;
+            } else {
+                refLink = `<a href="javascript:void(0);" onclick="PrintInvoice(${row.CustomerID || 0}, '${row.ReferenceNo || ''}', 0, 10, '', false, this);">${row.ReferenceNo}</a>`;
+            }
+
+            var nameLink = row.Name || '';
+            if (row.Name) {
+                if (isExpense && row.VendorID) {
+                    nameLink = `<a href="#!/VendorCenter?id=${row.VendorID}" target="_blank">${row.Name}</a>`;
+                } else if (row.CustomerID) {
+                    nameLink = `<a href="#!/CustomerProfile?ID=${row.CustomerID}" target="_blank">${row.Name}</a>`;
+                }
+            }
+
+            html += `
+                <tr>
+                    <td class="text-center">${rowNo < 10 ? "0" + rowNo++ : rowNo++}</td>
+                    <td>${row.Type}</td>
+                    <td class="text-center">${dateStr}</td>
+                    <td class="text-center">${refLink}</td>
+                    <td>${nameLink}</td>
+                    <td>${row.AccountName || ''}</td>
+                    <td class="text-right">${debit === 0 ? '-' : kendo.toString(debit, 'n2')}</td>
+                    <td class="text-right">${credit === 0 ? '-' : kendo.toString(credit, 'n2')}</td>
+                    <td class="text-right">${kendo.toString(runningBalance, 'n2')}</td>
+                </tr>
+            `;
+        });
+
+        // 3. Render Totals Row
+        html += `
+            <tr class="total-row">
+                <td colspan="6" class="text-right">Total ${displayAccount}</td>
+                <td class="text-right">${kendo.toString(totalDebit, 'n2')}</td>
+                <td class="text-right">${kendo.toString(totalCredit, 'n2')}</td>
+                <td class="text-right">${kendo.toString(runningBalance, 'n2')}</td>
+            </tr>
+        `;
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        $("#reportContainer").html(html);
+    }
+
+    function PrintReport() {
+        var header = getTransactionAccountHeader();
+        var content = document.getElementById("reportContainer").innerHTML;
+        var win = window.open('', '', 'width=1200,height=900');
+        if (!win) {
+            alert("The PDF preview window was blocked by the browser.");
+            return;
+        }
+
+        var fromDateStr = $("#FromDate").val() || 'All';
+        var toDateStr = $("#ToDate").val() || 'All';
+        var now = new Date();
+        var printDateStr = ("0" + now.getDate()).slice(-2) + "-" +
+                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][now.getMonth()] + "-" +
+                           now.getFullYear() + " " +
+                           ("0" + now.getHours()).slice(-2) + ":" +
+                           ("0" + now.getMinutes()).slice(-2);
+
+        win.document.write(`
+            <html>
+            <head>
+                <title>${escapeTransactionAccountHtml(header.title)}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; font-size:12px; margin: 20px; }
+                    table { width:100%; border-collapse:collapse; margin-top:15px; }
+                    th, td { border:1px solid #cbd5e1; padding:8px 12px; }
+                    th { background:#f1f5f9; font-weight:bold; }
+                    .text-right { text-align:right; }
+                    .text-center { text-align:center; }
+                    .opening-balance-row { font-weight:bold; background-color: #f8fafc; }
+                    .total-row { font-weight:bold; background:#fafafa; }
+                    .report-header { text-align:center; margin: 0 0 20px; position:relative; }
+                    .company-kh { font-family:'Moul','Khmer OS Muol Light',serif; font-size:20px; line-height:1.6; margin-bottom:4px; }
+                    .company-en { font-family:'Times New Roman',serif; font-size:16px; font-weight:900; margin-bottom:6px; }
+                    .company-divider { font-size:10px; letter-spacing:2px; margin-bottom:12px; }
+                    .report-title { font-family:'Kantumruy Pro',Arial,sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; margin-bottom:8px; }
+                    .report-meta { display:flex; justify-content:space-between; font-size:12px; font-weight:600; }
+                    @@media print { body { margin: 12mm; } }
+                </style>
+            </head>
+            <body>
+                <div class="report-header">
+                    <div class="company-kh">${escapeTransactionAccountHtml(header.companyKh)}</div>
+                    <div class="company-en">${escapeTransactionAccountHtml(header.companyEn)}</div>
+                    <div class="company-divider">~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~</div>
+                    <div class="report-title">${escapeTransactionAccountHtml(header.title)}</div>
+                    <div class="report-meta">
+                        <span>${escapeTransactionAccountHtml(fromDateStr)} - ${escapeTransactionAccountHtml(toDateStr)}</span>
+                        <span>Print Date: ${escapeTransactionAccountHtml(printDateStr)}</span>
+                    </div>
+                </div>
+                ${content}
+            </body>
+            </html>
+        `);
+
+        win.document.close();
+        setTimeout(function () {
+            win.print();
+        }, 500);
+    }
+
+    function escapeTransactionAccountHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (character) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[character];
+        });
+    }
+
+    function ExportExcel() {
+        if (!ReportData || !ReportData.Data || ReportData.Data.length == 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        var header = getTransactionAccountHeader();
+        var runningBalance = Number(ReportData.OpeningBalance || 0);
+        var normalSide = ReportData.NormalSide || 'DR';
+        var displayAccount = (ReportData.AccountNo && ReportData.AccountName) ? (ReportData.AccountNo + " - " + ReportData.AccountName) : $("#txtAccount").val();
+
+        var rows = [];
+
+        // Opening Balance Row
+        rows.push({
+            "No": "",
+            "Type": "",
+            "Date": "",
+            "Reference No": "",
+            "Name": displayAccount,
+            "Account Name": "",
+            "Debit": "",
+            "Credit": "",
+            "Balance": runningBalance
+        });
+
+        // Detail Rows
+        var rowNo = 1;
+        $.each(ReportData.Data, function (i, row) {
+            var debit = Number(row.Debit || 0);
+            var credit = Number(row.Credit || 0);
+
+            if (normalSide === 'DR') {
+                runningBalance = runningBalance + debit - credit;
+            } else {
+                runningBalance = runningBalance + credit - debit;
+            }
+
+            var d = new Date(row.TransactionDate);
+            var dateStr = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+
+            rows.push({
+                "No": rowNo < 10 ? "0" + rowNo++ : rowNo++,
+                "Type": row.Type,
+                "Date": dateStr,
+                "Reference No": row.ReferenceNo,
+                "Name": row.Name,
+                "Account Name": row.AccountName,
+                "Debit": debit === 0 ? 0 : debit,
+                "Credit": credit === 0 ? 0 : credit,
+                "Balance": runningBalance
+            });
+        });
+
+        var columns = ["No", "Type", "Date", "Reference No", "Name", "Account Name", "Debit", "Credit", "Balance"];
+        var worksheetRows = [
+            [header.companyKh],
+            [header.companyEn],
+            [header.title],
+            [($("#FromDate").val() || 'All') + ' - ' + ($("#ToDate").val() || 'All')],
+            ["Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm")],
+            columns
+        ];
+        $.each(rows, function (_, row) {
+            worksheetRows.push(columns.map(function (column) {
+                return row[column] === undefined ? "" : row[column];
+            }));
+        });
+
+        var ws = XLSX.utils.aoa_to_sheet(worksheetRows);
+        ws["!merges"] = [0, 1, 2, 3, 4].map(function (rowIndex) {
+            return { s: { r: rowIndex, c: 0 }, e: { r: rowIndex, c: columns.length - 1 } };
+        });
+        [
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Khmer OS Muol Light", sz: 16, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Times New Roman", sz: 14, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 12, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } }
+        ].forEach(function (style, rowIndex) {
+            var cell = ws[XLSX.utils.encode_cell({ r: rowIndex, c: 0 })];
+            if (cell) cell.s = style;
+        });
+        ws["!rows"] = [{ hpt: 30 }, { hpt: 24 }, { hpt: 22 }, { hpt: 20 }, { hpt: 20 }];
+        ws["!cols"] = columns.map(function (_, columnIndex) {
+            return { wch: columnIndex === 4 || columnIndex === 5 ? 30 : 18 };
+        });
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Transaction Account");
+        var filePrefix = header.companyEn
+            ? header.companyEn.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') + '_'
+            : '';
+        XLSX.writeFile(wb, filePrefix + "TransactionAccountReport.xlsx");
+    }</script>

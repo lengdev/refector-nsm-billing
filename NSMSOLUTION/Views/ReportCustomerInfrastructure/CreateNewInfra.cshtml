@@ -1,0 +1,36 @@
+﻿
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    var id = @ViewBag.PrimaryFieldValue;
+
+    var saveChange = () => {
+        const dataArray = $('[name="Frm"]').serializeArray();
+        const obj = Object.fromEntries(dataArray.map(x => [x.name, x.value]));
+        const newData = {
+            ...obj,
+            CID: obj.CustomerCode,
+            CustomerInfraID: id
+        }
+        
+        PostData('ReportCustomerInfrastructure/SaveChange', newData, function (res) {
+            if (res.success) {
+                $('#CloseModal').click();
+                DialogSweetAlert('success', res.message);
+                $('[data-tab-index="customer-infra-list"]').trigger('click');
+            }
+        }, true, true, 'json');
+    }
+
+    $(function () {
+        setTimeout(function () {
+            console.log(id)
+            if (id == 0) {
+                $('#CustomerCode, #SID, #ConnectionID').val("");
+            }
+        }, 300);
+    });
+</script>

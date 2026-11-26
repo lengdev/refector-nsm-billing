@@ -1,0 +1,106 @@
+﻿.ui-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+    .ui-autocomplete > li > div {
+        display: block;
+        padding: 6px;
+        clear: both;
+        font-weight: normal;
+        line-height: 1.42857143;
+        white-space: nowrap;
+    }
+
+.ui-state-hover,
+.ui-state-active,
+.ui-state-focus {
+    text-decoration: none;
+    color: white;
+    background-color: royalblue;
+    cursor: pointer;
+}
+
+.ui-helper-hidden-accessible {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+.typeahead-head {
+    /*background-color:dodgerblue;
+            color: #FFFFFF;*/
+    font-weight: 900;
+}
+
+.typeahead {
+    position: relative;
+    display: inline-block;
+}
+/*.tt-input{
+            width:100% !important;
+        }*/
+.tt-query {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+
+.tt-hint {
+    color: #999999;
+}
+
+.tt-menu {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    /*position: absolute;*/
+    /*z-index: 999999 !important;*/
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #FFFFFF;
+    /*border: 1px solid rgba(0, 0, 0, 0.2);*/
+    border: 1px solid #ABCAEB;
+    border-radius: 5px;
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.tt-cursor {
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+}
+
+.tt-suggestion {
+    padding: 3px;
+}
+
+    .tt-suggestion:hover, .tt-suggestion:hover a {
+        cursor: pointer;
+        background-color: #0097CF;
+        color: #FFFFFF;
+    }
+
+    .tt-suggestion p {
+        margin: 0;
+    }

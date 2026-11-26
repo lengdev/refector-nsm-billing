@@ -1,0 +1,13 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+<script>
+    $(function () {
+        var btn = "<div class=\"mr-auto\"><button type=\"button\" onclick=\"AddAttachmentFile('Add Attachment File to Supplier');\" id=\"AddAttachmentFile\" class=\"btn btn-info\">";
+        btn += '<i class="fas fa-paperclip"></i> Add Attachment File</button></div>';
+        $("#CloseModal").before(btn);
+        var row = '<div style="display:none"><input type="file" name="CustomerAttFiles" class="d-print-none" style="display: none; user-select: none; visibility: hidden;" /></div>';
+        $("form[name=CreateSupplierForm]").append(row);
+    });
+</script>

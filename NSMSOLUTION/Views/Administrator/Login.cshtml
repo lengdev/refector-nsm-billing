@@ -1,0 +1,656 @@
+﻿@{
+Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" ng-app="appInventory">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="~/Content/favicon.png" />
+    <link rel="icon" type="image/x-icon" href="~/Content/nsm.ico" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Administrator Login — NSM ISP</title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <link href="~/Content/AdminTemplate/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="~/Content/sweetalert/dist/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/Content/loading-bar.min.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+    <style>
+        :root {
+            --navy-deepest: #020e1a;
+            --navy-deep: #042C53;
+            --navy-mid: #0C447C;
+            --navy-light: #185FA5;
+            --blue-bright: #378ADD;
+            --blue-pale: #85B7EB;
+            --blue-frost: #B5D4F4;
+            --blue-mist: #E6F1FB;
+            --teal-active: #1D9E75;
+            --teal-soft: #5DCAA5;
+            --teal-pale: #9FE1CB;
+            --accent: #378ADD;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font-body);
+            background: var(--navy-deepest);
+            overflow: hidden;
+        }
+
+        /* ── Background canvas ── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            background: var(--navy-mid);
+            z-index: 0;
+        }
+
+        .grid-lines {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--navy-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--navy-light) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.25;
+        }
+
+        .network-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* pulse rings on nodes */
+        @@keyframes pulse-ring {
+            0% {
+                r: 6;
+                opacity: 0.8;
+            }
+
+            100% {
+                r: 18;
+                opacity: 0;
+            }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2.4s ease-out infinite;
+        }
+
+        .pulse-ring-delay {
+            animation: pulse-ring 2.4s ease-out infinite 1.2s;
+        }
+
+        /* data-packet travelling along a path */
+        @@keyframes packet-travel {
+            0% {
+                offset-distance: 0%;
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                offset-distance: 100%;
+                opacity: 0;
+            }
+        }
+
+        .packet {
+            offset-path: path('M 60 120 L 200 60 L 500 120 L 630 60');
+            animation: packet-travel 4s linear infinite;
+        }
+
+        .packet2 {
+            offset-path: path('M 60 480 L 200 540 L 500 480 L 630 540');
+            animation: packet-travel 4s linear infinite 2s;
+        }
+
+        /* floating stat tags */
+        @@keyframes float-tag {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .stat-tag {
+            animation: float-tag 4s ease-in-out infinite;
+        }
+
+        .stat-tag-delay {
+            animation: float-tag 4s ease-in-out infinite 2s;
+        }
+
+        /* ── Page centering ── */
+        .page {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* ── Login card ── */
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(4, 44, 83, 0.92);
+            border: 1px solid var(--navy-light);
+            border-radius: 16px;
+            padding: 2.25rem 2rem 2rem;
+            backdrop-filter: blur(12px);
+            position: relative;
+            animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @@keyframes card-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* top-left corner accent */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 60px;
+            height: 60px;
+            border-top: 2px solid var(--teal-active);
+            border-left: 2px solid var(--teal-active);
+            border-radius: 16px 0 0 0;
+        }
+
+        /* bottom-right corner accent */
+        .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 60px;
+            height: 60px;
+            border-bottom: 2px solid var(--blue-bright);
+            border-right: 2px solid var(--blue-bright);
+            border-radius: 0 0 16px 0;
+        }
+
+        /* ── Brand row ── */
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: var(--navy-mid);
+            border: 1px solid var(--navy-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-icon i {
+            font-size: 22px;
+            color: var(--blue-frost);
+        }
+
+        .brand-name {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--blue-frost);
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .brand-tagline {
+            font-size: 11px;
+            color: var(--blue-bright);
+            letter-spacing: 0.03em;
+            margin-top: 2px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--navy-light);
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Heading ── */
+        .login-heading {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--blue-mist);
+            letter-spacing: 0.03em;
+            margin-bottom: 3px;
+        }
+
+        .login-sub {
+            font-size: 12px;
+            color: var(--blue-bright);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Fields ── */
+        .field-group {
+            margin-bottom: 1rem;
+        }
+
+        .field-label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--blue-bright);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-wrap .f-icon {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--navy-light);
+            pointer-events: none;
+        }
+
+        .field-wrap .f-toggle {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--blue-bright);
+            cursor: pointer;
+            pointer-events: all;
+            transition: color 0.15s;
+        }
+
+        .field-wrap .f-toggle:hover {
+            color: var(--blue-frost);
+        }
+
+        .field-wrap input {
+            width: 100%;
+            height: 42px;
+            background: var(--navy-mid) !important;
+            border: 1px solid var(--navy-light) !important;
+            border-radius: 8px;
+            padding: 0 38px !important;
+            font-family: var(--font-body);
+            font-size: 13px;
+            color: var(--blue-mist) !important;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+        .field-wrap input::placeholder {
+            color: var(--navy-light);
+            font-size: 13px;
+        }
+
+        .field-wrap input:focus {
+            border-color: var(--blue-bright) !important;
+            box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.15);
+        }
+
+        /* ── Status row ── */
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 1.25rem;
+            padding: 8px 12px;
+            background: rgba(29, 158, 117, 0.08);
+            border: 1px solid rgba(29, 158, 117, 0.2);
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--teal-active);
+            flex-shrink: 0;
+            box-shadow: 0 0 6px var(--teal-active);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @@keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .status-text {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--teal-soft);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Submit button ── */
+        .btn-login {
+            width: 100%;
+            height: 44px;
+            background: var(--navy-light);
+            border: 1px solid var(--blue-bright);
+            border-radius: 8px;
+            color: var(--blue-mist);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s, border-color 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-login:hover {
+            background: var(--blue-bright);
+            border-color: var(--blue-pale);
+        }
+
+        .btn-login:active {
+            transform: scale(0.99);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Footer badges ── */
+        .footer-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--navy-mid);
+            border: 1px solid var(--navy-light);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--blue-pale);
+            letter-spacing: 0.04em;
+        }
+
+        .badge i {
+            font-size: 12px;
+            color: var(--blue-bright);
+        }
+
+        /* ── Responsive ── */
+        @@media (max-width: 480px) {
+            .login-card {
+                padding: 1.75rem 1.25rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="bg-canvas">
+        <div class="grid-lines"></div>
+        <svg class="network-svg" viewBox="0 0 680 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+            <!-- Topology lines -->
+            <g stroke="#185FA5" stroke-width="1" fill="none" opacity="0.5">
+                <line x1="60" y1="120" x2="200" y2="60" />
+                <line x1="200" y1="60" x2="500" y2="120" />
+                <line x1="500" y1="120" x2="630" y2="60" />
+                <line x1="60" y1="480" x2="200" y2="540" />
+                <line x1="200" y1="540" x2="500" y2="480" />
+                <line x1="500" y1="480" x2="630" y2="540" />
+                <line x1="60" y1="120" x2="60" y2="480" />
+                <line x1="630" y1="60" x2="630" y2="540" />
+                <line x1="200" y1="60" x2="200" y2="540" />
+                <line x1="500" y1="120" x2="500" y2="480" />
+            </g>
+
+            <!-- Pulse rings on nodes -->
+            <circle class="pulse-ring" cx="60" cy="120" fill="none" stroke="#1D9E75" stroke-width="1" />
+            <circle class="pulse-ring-delay" cx="500" cy="120" fill="none" stroke="#1D9E75" stroke-width="1" />
+            <circle class="pulse-ring" cx="60" cy="480" fill="none" stroke="#378ADD" stroke-width="1" />
+            <circle class="pulse-ring-delay" cx="500" cy="480" fill="none" stroke="#378ADD" stroke-width="1" />
+
+            <!-- Node squares -->
+            <g fill="#185FA5" opacity="0.5">
+                <rect x="46" y="106" width="28" height="28" rx="5" />
+                <rect x="186" y="46" width="28" height="28" rx="5" />
+                <rect x="486" y="106" width="28" height="28" rx="5" />
+                <rect x="616" y="46" width="28" height="28" rx="5" />
+                <rect x="46" y="466" width="28" height="28" rx="5" />
+                <rect x="186" y="526" width="28" height="28" rx="5" />
+                <rect x="486" y="466" width="28" height="28" rx="5" />
+                <rect x="616" y="526" width="28" height="28" rx="5" />
+            </g>
+
+            <!-- Active node dots -->
+            <g fill="#1D9E75">
+                <circle cx="60" cy="120" r="4" />
+                <circle cx="500" cy="120" r="4" />
+            </g>
+            <g fill="#378ADD">
+                <circle cx="60" cy="480" r="4" />
+                <circle cx="500" cy="480" r="4" />
+            </g>
+            <g fill="#85B7EB">
+                <circle cx="200" cy="60" r="3" />
+                <circle cx="630" cy="60" r="3" />
+                <circle cx="200" cy="540" r="3" />
+                <circle cx="630" cy="540" r="3" />
+            </g>
+
+            <!-- Floating stat tags -->
+            <g class="stat-tag">
+                <rect x="22" y="50" width="90" height="20" rx="4" fill="#042C53" stroke="#185FA5" stroke-width="0.5" />
+                <text x="67" y="64" text-anchor="middle" fill="#5DCAA5" font-size="9"
+                    font-family="monospace">192.168.1.1</text>
+            </g>
+            <g class="stat-tag-delay">
+                <rect x="548" y="50" width="90" height="20" rx="4" fill="#042C53" stroke="#185FA5" stroke-width="0.5" />
+                <text x="593" y="64" text-anchor="middle" fill="#85B7EB" font-size="9"
+                    font-family="monospace">10.0.0.254</text>
+            </g>
+            <g class="stat-tag">
+                <rect x="22" y="510" width="90" height="20" rx="4" fill="#042C53" stroke="#185FA5" stroke-width="0.5" />
+                <text x="67" y="524" text-anchor="middle" fill="#85B7EB" font-size="9"
+                    font-family="monospace">172.16.0.1</text>
+            </g>
+            <g class="stat-tag-delay">
+                <rect x="548" y="510" width="90" height="20" rx="4" fill="#042C53" stroke="#185FA5"
+                    stroke-width="0.5" />
+                <text x="593" y="524" text-anchor="middle" fill="#5DCAA5" font-size="9"
+                    font-family="monospace">10.10.1.0</text>
+            </g>
+
+            <!-- Moving data packets -->
+            <circle class="packet" r="4" fill="#1D9E75" opacity="0.9" />
+            <circle class="packet2" r="4" fill="#378ADD" opacity="0.9" />
+
+            <!-- Backbone labels -->
+            <text x="16" y="310" fill="#185FA5" font-size="9" font-family="monospace" opacity="0.4"
+                transform="rotate(-90,16,310)">FIBER BACKBONE</text>
+            <text x="658" y="310" fill="#185FA5" font-size="9" font-family="monospace" opacity="0.4"
+                transform="rotate(90,658,310)">FIBER BACKBONE</text>
+        </svg>
+    </div>
+
+    <!-- Login form -->
+    <div class="page" ng-controller="LoginController">
+        <div class="login-card">
+
+            <div class="brand-row">
+                <div class="brand-icon">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div>
+                    <p class="brand-name">NSM ISP</p>
+                    <p class="brand-tagline">ISP Billing &amp; Network Management</p>
+                </div>
+            </div>
+
+            <hr class="divider" />
+
+            <p class="login-heading">Administrator Login</p>
+            <p class="login-sub">Restricted access — authorized personnel only</p>
+
+            <form name="UserLogin" ng-submit="Login();" novalidate>
+
+                <div class="field-group">
+                    <label class="field-label" for="username">Username</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-user f-icon"></i>
+                        <input autofocus id="username" type="text" placeholder="Enter username" required
+                            data-ng-model="LoginData.UserName" />
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="password">Password</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-lock f-icon"></i>
+                        <input id="password" class="pass" type="password" placeholder="Enter password"
+                            spellcheck="false" required data-ng-model="LoginData.Password" />
+                        <i class="fas fa-eye-slash f-toggle toggle" id="eyeToggle"></i>
+                    </div>
+                </div>
+
+                <div class="status-row">
+                    <div class="status-dot"></div>
+                    <span class="status-text">All systems operational &middot; Uptime 99.98%</span>
+                </div>
+
+                <button class="btn-login" type="submit" id="Login">
+                    Sign In
+                </button>
+
+            </form>
+
+            <div class="footer-badges" style="display: none;">
+                <div class="badge"><i class="fas fa-shield-alt"></i> SSL Secured</div>
+                <div class="badge"><i class="fas fa-receipt"></i> Billing v2.0.1</div>
+                <div class="badge"><i class="fas fa-wifi"></i> ISP Core</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const toggle = document.getElementById('eyeToggle');
+        const passInput = document.querySelector('.pass');
+        toggle.addEventListener('click', function () {
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggle.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                passInput.type = 'password';
+                toggle.classList.replace('fa-eye', 'fa-eye-slash');
+            }
+        });
+    </script>
+
+    <script src="~/Content/AdminLTE-3.2.0/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/Scripts/JScript_Function.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-sanitize.min.js"></script>
+    <script src="~/Scripts/angular-route.min.js"></script>
+    <script src="~/Scripts/angular-cookies.min.js"></script>
+    <script src="~/Scripts/ngStorage.min.js"></script>
+    <script src="~/Scripts/ng-table.js"></script>
+    <script src="~/Scripts/restangular.min.js"></script>
+    <script src="~/Scripts/underscore-min.js"></script>
+    <script src="~/Scripts/loading-bar.min.js"></script>
+    <script src="~/Scripts/angular-local-storage.min.js"></script>
+    <script src="~/Scripts/angular-animate.min.js"></script>
+    <script src="~/Scripts/angular-filter.min.js"></script>
+    <script src="~/Scripts/angular-underscore.min.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/web-notification.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/angular-web-notification.js"></script>
+    <script src="~/App/JScriptForm.js"></script>
+    <script src="~/Scripts/ngHtmlCompile.js"></script>
+    <script src="~/Scripts/LocalStorage.js"></script>
+    <script src="~/App/app.js"></script>
+    <script src="~/App/Services/AuthData.js"></script>
+    <script src="~/App/Services/AuthenticationService.js"></script>
+    <script src="~/App/Services/LoginService.js"></script>
+    <script src="~/App/Controllers/Administrator/LoginController.js"></script>
+
+</body>
+
+</html>

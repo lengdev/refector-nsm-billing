@@ -1,0 +1,349 @@
+﻿@using System.Data
+@{
+    Layout = null;
+
+    // ---- Data ---------------------------------------------------------------
+    DataRow vendor = ViewBag.Data[1].Rows[0];
+    DataRow po = ViewBag.Data[2].Rows[0];
+    DataRowCollection lines = ViewBag.Data[3].Rows;
+    DataRowCollection attachments = ViewBag.Data[4].Rows;
+
+    string systemId = ViewBag.systemID.ToString();
+    string className = po["ClassName"].ToString();
+    bool isNsm = className == "NSM";
+    bool isNsmNoVat = className == "NSM no VAT";
+    bool isBs = className == "BS" || className == "BS Co.,Ltd";
+    bool showTax = isNsm || className == "BS Co.,Ltd";
+    bool overlayTitle = isNsmNoVat || isBs;      // title sits on the same row as the logo
+    bool isDraft = po["StatusID"].ToString() == "91";
+
+    string checkUserId = po["NeedToCheckUserID"].ToString();
+    bool showChecker = !string.IsNullOrEmpty(checkUserId) && checkUserId != "0";
+
+    string createSig = ViewBag.CreateBySignature as string;
+    string checkSig = ViewBag.CheckBySignature as string;
+    string approveSig = ViewBag.ApproveBySignature as string;
+
+    // ---- Table header colors ------------------------------------------------
+    string headBg = "#ffccff";
+    string headFg = "#000";
+    if (className == "BS") { headBg = "#ffde16"; headFg = "#000"; }
+    else if (className == "BS Co.,Ltd") { headBg = "#ffccff"; headFg = "#000"; }
+    else if (systemId == "13") { headBg = "#f89c39"; headFg = "#fff"; }
+    else if (systemId == "25") { headBg = "#c5d9f1"; headFg = "#000"; }
+
+    // user id 38 is displayed as "Boss"
+    Func<string, string, string> displayName = (name, userId) => userId == "38" ? "Boss" : name;
+}
+
+<style>
+    :root {
+        --thead-bg: @headBg;
+        --thead-fg: @headFg;
+        --page-min-height: 410mm; /* A3 (420mm) minus top margin; lower it if a blank 2nd page appears */
+    }
+
+    .fnt-kh-moul {
+        font-family: "Moul", serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    #divInvoicePO { line-height: 1.35 !important; }
+
+    /* header info tables */
+    .mytable-head tr td { padding-bottom: 0 !important; }
+    .mytable-head tr td:first-child { font-weight: bold; }
+
+    /* items table */
+    .mytable thead { background: var(--thead-bg) !important; color: var(--thead-fg) !important; }
+    .mytable th, .mytable td { border: 1px solid #000 !important; }
+
+    /* title that overlays the logo row (BS / NSM no VAT) */
+    .po-header { position: relative; }
+    .po-title--overlay {
+        position: absolute;
+        left: 0; right: 0; top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    .po-title h4 { font-size: 20px; }
+    .po-title h4.en { font-family: "Times New Roman", Times, serif; }
+
+    /* signatures: normal flow, never fixed */
+    .po-footer { margin-top: 40px; margin-bottom: 50px; }
+    .po-sign-img { height: 90px; }
+    .po-sign-line { height: 2px; width: 100%; border-width: 0; color: #000; background-color: #000; }
+
+    @@media print {
+        @@page {
+            size: A3;
+            margin: 20px 20px 0 50px;
+        }
+
+        /* Wrapper is at least one page tall and grows when content is longer.
+           Footer uses margin-top:auto:
+             - 1 page  -> pinned to the bottom of the page
+             - 2+ pages -> follows the content on the last page (no overlap) */
+        #divInvoicePO {
+            display: flex;
+            flex-direction: column;
+            min-height: var(--page-min-height);
+        }
+
+        #divInvoicePO .po-footer {
+            position: static !important;
+            margin-top: auto;
+            padding-top: 40px;          /* keeps a gap when it follows long content */
+            margin-bottom: 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .mytable thead {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .deposit { border: none; outline: none; }
+        .deposit::placeholder { color: transparent; }
+        .status span { outline: none !important; border: none !important; }
+    }
+</style>
+
+<div class="wrapper" id="divInvoicePO">
+
+    @* ===== Header: logo + print date (+ title when overlaid) ===== *@
+    <div class="row justify-content-between align-items-start po-header">
+        <div class="col-6 mt-4 mb-4">
+            @if (isNsm)
+            {
+                <h3>NSM Solution and Maintenance Co.,Ltd</h3>
+            }
+            else if (isBs)
+            {
+                <img src="../Uploads/ClassLogo/@ViewBag.ClassLogo" width="240" height="120" class="object-cover" />
+            }
+            else
+            {
+                <img src="../Uploads/ClassLogo/@ViewBag.ClassLogo" width="200" />
+            }
+        </div>
+        <div class="col-6 mt-4 mb-4 text-right">
+            <small class="text text-sm">Print Date: @ViewBag.PrintDate</small>
+        </div>
+
+        @if (overlayTitle)
+        {
+            <div class="po-title po-title--overlay text-center">
+                <h4 class="page-header mb-2 fnt-kh-moul">ការបញ្ជាទិញ</h4>
+                <h4 class="page-header text-uppercase en">Purchase Order</h4>
+            </div>
+        }
+    </div>
+
+    @if (!overlayTitle)
+    {
+        <div class="row">
+            <div class="col-12 mb-4 mt-2 po-title text-center">
+                <h4 class="page-header mb-2 fnt-kh-moul">ការបញ្ជាទិញ</h4>
+                <h4 class="page-header text-uppercase en">Purchase Order</h4>
+            </div>
+        </div>
+    }
+
+    @* ===== Vendor / PO info ===== *@
+    <div class="row justify-content-between">
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border:0 !important; width:100%;">
+                <tr><td width="30%">Vendor Name:</td><td>@vendor["VendorName"]</td></tr>
+                <tr><td>Address:</td><td>@vendor["Address"]</td></tr>
+                <tr><td>Phone:</td><td>@vendor["ContactPhoneNumber"]</td></tr>
+                <tr><td>ATTN:</td><td>@vendor["ContactPersonName"]</td></tr>
+                <tr><td>Email:</td><td>@vendor["BillingEmail"]</td></tr>
+            </table>
+        </div>
+        <div class="col-6">
+            <table class="table table-borderless mytable-head" style="border:0 !important; width:100%;">
+                <tr><td width="60%" class="text-right">Order Number#:</td><td>@po["PONumber"]</td></tr>
+                <tr><td class="text-right">PO Date:</td><td>@po["PODate"]</td></tr>
+                <tr><td class="text-right">Payment Term:</td><td>@po["PaymentTerms"]</td></tr>
+                <tr><td class="text-right">Payment Due:</td><td style="color:#007bff;">@po["PaymentDueDate"]</td></tr>
+                <tr><td class="text-right">Requested By:</td><td>@po["RequestBy"]</td></tr>
+                <tr><td class="text-right">Need To Deposit:</td><td style="color:#dc3545;">@po["NeedToDeposit"]</td></tr>
+                <tr>
+                    <td class="text-right">Status:</td>
+                    <td class="status">@Html.Raw(HttpUtility.HtmlDecode(po["Status"].ToString()))</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    @* ===== Items table ===== *@
+    <table class="table table-bordered mytable">
+        <thead>
+            <tr class="text-center">
+                <th width="5%">#</th>
+                <th width="40%">@(isBs ? "Description" : "Items")</th>
+                <th>QTY</th>
+                <th>UOM</th>
+                <th>Unit Price</th>
+                <th>Sale Price</th>
+                <th>Discount$</th>
+                <th width="10%">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int no = 0; }
+            @foreach (DataRow dr in lines)
+            {
+                no++;
+                string itemName = dr["ItemName"].ToString();
+                string itemDesc = HttpUtility.HtmlDecode(dr["ItemDescription"].ToString());
+                <tr>
+                    <td class="text-right">@no</td>
+                    <td>
+                        @if (systemId != "27")
+                        {
+                            @itemName
+                            if (!string.IsNullOrEmpty(itemName))
+                            {
+                                <br />
+                                <p class="text-nowrap-pre text-muted">@Html.Raw(itemDesc)</p>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-nowrap-pre">@Html.Raw(itemDesc)</p>
+                        }
+                    </td>
+                    <td class="text-center">@dr["QTY"]</td>
+                    <td class="text-center">@dr["UM"]</td>
+                    <td class="text-center">$@float.Parse(dr["UnitPrice"].ToString()).ToString("#,#0.00")</td>
+                    <td class="text-center">$@dr["SalePrice"]</td>
+                    <td class="text-center">$@dr["DisUSD"]</td>
+                    <td class="text-center">$@dr["Amount"]</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td rowspan="@(showTax ? 4 : 3)" colspan="5">
+                    <div class="img">
+                        @foreach (DataRow dr in attachments)
+                        {
+                            string fileName = dr["FileName"].ToString();
+                            if (fileName != "" && fileName != "AttachmentFile")
+                            {
+                                <img height="120" style="margin:10px 10px 0 0;" src="../@dr["DestinationFolder"]/@fileName" />
+                            }
+                        }
+                    </div>
+                </td>
+                <th class="text-right" colspan="2">Subtotal:</th>
+                <td class="text-center">$@po["SubTotal"]</td>
+            </tr>
+            <tr>
+                <th class="text-right" colspan="2">Discount $:</th>
+                <td class="text-center">$@po["DiscountUSD"]</td>
+            </tr>
+            @if (showTax)
+            {
+                <tr>
+                    <th class="text-right" colspan="2">Tax @po["Tax"]:</th>
+                    <td class="text-center">$@po["VAT"]</td>
+                </tr>
+            }
+            <tr>
+                <th class="text-right" colspan="2">Grand Total:</th>
+                <td class="text-center">$@po["GrandTotal"]</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    @* ===== Remark / Terms / Bank ===== *@
+    <div class="row">
+        <div class="col-12">
+            @if (po["CustomerNotes"].ToString() != "")
+            {
+                <strong>Remark</strong>
+                <p id="p_CustomerNotes" class="text-nowrap-pre well well-sm shadow-none">@Html.Raw(HttpUtility.HtmlDecode(po["CustomerNotes"].ToString()))</p>
+            }
+            @if (po["TermsConditions"].ToString() != "")
+            {
+                <strong>Terms &amp; Conditions</strong>
+                <p id="TermCondition" class="text-nowrap-pre well well-sm shadow-none">@Html.Raw(HttpUtility.HtmlDecode(po["TermsConditions"].ToString()))</p>
+            }
+            @if (po["BankInformation"].ToString() != "")
+            {
+                <strong>Bank Information</strong>
+                <p id="BankInformation" class="text-nowrap-pre well well-sm shadow-none" style="margin-top:10px; color:#007bff;">@Html.Raw(HttpUtility.HtmlDecode(po["BankInformation"].ToString()))</p>
+            }
+        </div>
+    </div>
+
+    @* ===== Signatures (flows after content; pinned to page bottom in print when it fits) ===== *@
+    <div class="po-footer">
+        <div class="row justify-content-between">
+
+            @* Issued by *@
+            <div class="col-4">
+                <div class="text-center po-sign-img">
+                    @if (!string.IsNullOrEmpty(createSig))
+                    {
+                        <img height="90" src="../Uploads/Users/@createSig" />
+                    }
+                </div>
+                <hr class="po-sign-line" />
+                <div class="text-center"><label class="col-form-label text-uppercase text-nowrap">Issued By</label></div>
+                <div>
+                    <label class="col-form-label text-nowrap">Name: @po["IssuedBy"]</label><br />
+                    <label class="col-form-label">Position: @po["IssuedByPosition"]</label><br />
+                    <label class="col-form-label text-nowrap">Date: @po["CreateDate"]</label>
+                </div>
+            </div>
+
+            @* Checked by (optional) *@
+            @if (showChecker)
+            {
+                <div class="col-4">
+                    <div class="text-center po-sign-img">
+                        @if (!string.IsNullOrEmpty(checkSig))
+                        {
+                            <img height="90" src="../Uploads/Users/@checkSig" />
+                        }
+                    </div>
+                    <hr class="po-sign-line" />
+                    <div class="text-center"><label class="col-form-label text-uppercase text-nowrap">Checked By</label></div>
+                    <div>
+                        <label class="col-form-label text-nowrap">
+                            Name: @displayName(po["CheckVerifyBy"].ToString(), po["CheckVerifyByUserID"].ToString())
+                        </label><br />
+                        <label class="col-form-label">Position: @po["CheckVerifyByPosition"]</label><br />
+                        <label class="col-form-label text-nowrap">Date: @po["CheckVerifyDate"]</label>
+                    </div>
+                </div>
+            }
+
+            @* Approved by (blank while status = 91 / draft) *@
+            <div class="col-4">
+                <div class="text-center po-sign-img">
+                    @if (!string.IsNullOrEmpty(approveSig))
+                    {
+                        <img height="90" src="../Uploads/Users/@approveSig" />
+                    }
+                </div>
+                <hr class="po-sign-line" />
+                <div class="text-center"><label class="col-form-label text-uppercase text-nowrap">Approved By</label></div>
+                <div>
+                    <label class="col-form-label text-nowrap">
+                        Name: @(isDraft ? "" : displayName(po["ApproveBy"].ToString(), po["ApproveByUserID"].ToString()))
+                    </label><br />
+                    <label class="col-form-label">Position: @(isDraft ? "" : po["ApprovedByPosition"].ToString())</label><br />
+                    <label class="col-form-label text-nowrap">Date: @(isDraft ? "" : po["ApprovalDate"].ToString())</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

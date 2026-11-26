@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowPRInvoice(VendorID, PRID, PRNumber) {
+        var URL = "Profile/InvoiceTMPR?VendorID=" + VendorID + "&PRID=" + PRID + "&Type=PR";
+        ShowDialogBox("Preview PR No.: " + PRNumber, "Auto", "500", URL);
+    }
+</script>

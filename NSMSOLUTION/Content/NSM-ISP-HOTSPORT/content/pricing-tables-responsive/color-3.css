@@ -1,0 +1,67 @@
+/*Color CSS File 
+	===================
+	Item Name: Sava - Creative pricing tables
+	Author: Ashish Maraviya
+	Version: 2.0
+	Copyright 2019
+===================*/
+/* Switcher general css start */
+.Sava-switcher .Sava-switch{
+	background: linear-gradient(to right, #ff9f0e, #ff4a10);
+    border: 1px solid #fff;
+}
+/* Switcher general css end */
+/* Start Pricing plan style 1 */
+.plan-style-1 .plan-header{
+	background: linear-gradient(to right, #ff9f0e, #ff4a10);
+}
+.plan-style-1 .plan-button{
+	background-image: linear-gradient(to right, #ff9f0e, #ff4a10, #ff4a10, #ff9f0e);
+}
+.plan-style-1 .plan-list li i{
+	color: #ff9f0e;
+}
+/* End Pricing plan style 1 */
+/* Start Pricing plan style 2 */
+.plan-style-2:hover .price, .plan-style-2 .plan-button:hover{
+	color: #ff4a10;
+}
+.plan-style-2 .plan-header, .plan-style-2 .plan-bottom{
+	background: linear-gradient(to right, #ff9f0e, #ff4a10);
+}
+/* End Pricing plan style 2 */
+/* Start Pricing plan style 3 */
+.plan-style-3 .plan-header, .plan-style-3 .plan-bottom{
+	background: linear-gradient(to right, #ff9f0e, #ff4a10);
+}
+.plan-style-3 .plan-list li .fa-check-circle, .plan-style-3 .plan-button:hover{
+    color: #ff4a10;
+}
+/* End Pricing plan style 3 */
+/* Start Pricing plan style 4 */
+.plan-style-4 .plan-header{
+	border-bottom: 5px solid #ff4a10;
+}
+.plan-style-4 .plan-header .plan-label, .plan-style-4 .plan-header .plan-icon, .plan-style-4 .plan-price{    
+	background: linear-gradient(to right, #ff9f0e, #ff4a10);
+}
+.plan-style-4:hover .plan-title{
+	color: #ff4a10;
+}
+.plan-style-4 .plan-button{
+	background-image: linear-gradient(to right, #ff9f0e, #ff4a10, #ff4a10, #ff9f0e);
+}
+/* End Pricing plan style 4 */
+/* Start Pricing plan style 5 */
+.plan-style-5 .plan-header .lable, .plan-style-5 .plan-header .plan-icon, .plan-style-5 .plan-price{
+    background: linear-gradient(to right, #ff9f0e, #ff4a10);
+}
+.plan-style-5:hover .plan-title, .plan-style-5 .plan-button{
+	color: #ff4a10;
+}
+.plan-style-5 .plan-list li i.far.fa-check-circle{
+	color: #ff9f0e;
+}
+.plan-style-5 .plan-button{
+	border: 2px solid #ff4a10;
+}

@@ -1,0 +1,24 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    $(function () {
+        var loc = window.location.href;
+        var StatusID = getQueryStringValue(loc, 'StatusID');        
+        if (StatusID != "") {
+            setTimeout(function () {
+                $("#txtStatus").val(StatusID).trigger('change');
+                //$("#txtStatus").select2("val", StatusID);
+                //$('#txtStatus').select2('data', { id: '43', text: 'Inactive' });
+            }, 800);
+        }
+        var PackageName = getQueryStringValue(loc, 'PackageName');
+        if (PackageName != "") {
+            PackageName = decodeURIComponent(PackageName);
+            setTimeout(function () {
+                $("#txtPackageName").val(PackageName).trigger('change');
+            }, 500);
+        }
+    });
+</script>

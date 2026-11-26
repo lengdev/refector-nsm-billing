@@ -1,0 +1,99 @@
+﻿@{
+    Layout = null;
+}
+
+<nav class="navbar sticky-top justify-content-end p-2">
+    <div class="btn-group flex-wrap panel-toolbar gap-8 px-3 py-2" role="group">
+        <button id="Edit" class="btn btn-info btn-sm">
+            <i class="ti ti-pencil-minus"></i>
+            <span class="d-none d-md-inline">Edit</span>
+        </button>
+        <button id="Clone" class="btn btn-warning btn-sm">
+            <i class="ti ti-copy"></i>
+            <span class="d-none d-md-inline">Duplicate</span>
+        </button>
+        <button id="Print" class="btn btn-primary btn-sm">
+            <i class="ti ti-printer"></i>
+            <span class="d-none d-md-inline">Print</span>
+        </button>
+    </div>
+</nav>
+
+<div id="div_CustInvoice" class="bg-white p-2">
+    @*<p id="bg-text">UNPAID</p>*@
+    <div id="divshowCustInvoice">
+        @Html.Raw(@ViewBag.TMPData)
+    </div>
+    <div id="divshowCustContract" style="display:none"></div>
+    <div id="divshowCustReceipt" style="display:none"></div>
+    @*<div style="padding:50px">&nbsp;</div>*@
+</div>
+
+<script>
+    $(function () {
+        const advStatus = "@ViewBag.AdvStatus";
+        const advID = "@ViewBag.AdvExpenseID"
+
+        $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+        $("#SaveChange2").click(function () {
+            $("#div_CustInvoice").printThis();
+        });
+        var PVNo = "@ViewBag.AdvNo";
+        Invoice_Type = "Invoice";
+        $("#PrintInv").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response, "", true);
+            });
+        });
+        $("#View_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response);
+            });
+        });
+        $("#Download_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                let file_name = Invoice_Type + "-" + response.substring(response.lastIndexOf('/') + 1);
+                let link = document.createElement('a');
+                link.href = response;
+                link.download = file_name;
+                link.click();
+                link.remove();
+            });
+        });
+        $("#Download_Excel_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            ExportToExcel(HTMLData);
+        });
+        console.log("AdvStatus: " + advStatus, advID);
+        //Add button cancel
+        if (advStatus == "Approved") {
+            let btn = `<div class=\"\"><button type=\"button\" onclick=\"cancelAdv(${advID});\" id=\"cancel\" class=\"btn btn-danger\">`;
+            btn += '<i class="fa-regular fa-ban"></i> Cancel</button></div>';
+            $("#SaveChange2").before(btn);
+        }
+
+        $("#Clone").click(function () {
+            var URL = 'Expenses/AddAdvanceExpenses?PrimaryFieldValue=' + advID + '&IsClone=true';
+            ShowDialogBox("Duplicate Advance Expense", "Auto", 600, URL, advID, "", "", "", "", function () {
+              
+            });
+        });
+    });
+
+
+    function cancelAdv(id) {
+        DoSaveChangeSweetCofirm("Expenses/CancelAdv", { AdvExpenseID: id, Comment: $("#txtComment").val() }, function (result) {
+            if (result.Result == 2) {
+                $("#CloseModal2").click();
+                $("#BunSearch").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", "Cancel");
+    }
+</script>

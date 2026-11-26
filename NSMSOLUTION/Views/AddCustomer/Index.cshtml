@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+<script>
+    function onGridClick(THIS) {       
+        if ($(THIS).index() != 9) {
+            var index = ($(THIS).parent().index() + 1);
+            var CustID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+            var url = '#!/CustomerProfile?ID=' + CustID;
+            OpenNewTap(url);
+        }
+    }
+    $(function () {
+        var url = window.location.hash;
+        var FormStatus = url.substring(url.indexOf('?'));
+        FormStatus = FormStatus.substring(FormStatus.indexOf('=')).replace(/=/g, '');
+        return;
+        if (FormStatus.toLowerCase() == "register") {
+            AddQuotation(0, 'Register New Customer');
+        }
+        else {
+            var Data = 1;
+            var btn = '&nbsp;&nbsp;<button type="button" id="btnAddQuotation" class="btn btn-success" onclick="AddQuotation(';
+            btn += Data + ');">';
+            btn += '<i class="far fa-address-book"></i> <span class="d-none d-md-inline">Quotation to Customer</span></button>';
+            $("#BunRegisterNewCustomer").after(btn);
+        }
+    });    
+</script>

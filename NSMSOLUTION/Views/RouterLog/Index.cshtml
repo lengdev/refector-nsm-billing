@@ -1,0 +1,254 @@
+@{ Layout = null; }
+
+<style>
+    /* Hide Kendo Grid's native circle loading spinner */
+    .k-loading-mask, .k-loading-image, .k-loading-color {
+        display: none !important;
+    }
+</style>
+
+<div class="row mb-3">
+
+    <div class="col-md-3">
+        <input type="text" class="form-control" id="searchInput" placeholder="Search (router, protocol)..." />
+    </div>
+
+    <div class="col-md-2">
+        <input type="text" class="form-control" id="sourceIpInput" placeholder="Source IP..." />
+    </div>
+
+    <div class="col-md-2">
+        <input type="number" class="form-control" id="sourcePortInput" placeholder="Source Port..." min="1" max="65535" />
+    </div>
+
+    <div class="col-md-3">
+        <input type="text" class="form-control" id="dateRange" placeholder="Select Date & Time Range" />
+    </div>
+
+    <div class="col-md-1">
+        <button class="btn btn-primary w-100" id="searchButton">
+            🔍 Search
+        </button>
+    </div>
+
+    <div class="col-md-1">
+        <button class="btn btn-secondary w-100" id="resetButton">
+            Reset
+        </button>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col">
+        <div id="firewallGrid"></div>
+    </div>
+</div>
+
+<script>
+
+    var grid;
+    var rowNumber = 0;
+    var loading = false;
+
+    var startDateTime = moment().startOf('day');
+    var endDateTime = moment().endOf('day');
+
+    $(document).ready(function () {
+
+        initDateRange();
+        initGrid();
+        bindEvents();
+
+    });
+
+    function initDateRange() {
+
+        $('#dateRange').daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerSeconds: true,
+            showDropdowns: true,
+            autoUpdateInput: true,
+            startDate: startDateTime,
+            endDate: endDateTime,
+            locale: {
+                format: 'YYYY-MM-DD HH:mm:ss'
+            }
+        });
+
+        $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
+
+            startDateTime = picker.startDate;
+            endDateTime = picker.endDate;
+
+            refreshGrid();
+
+        });
+
+    }
+
+    function bindEvents() {
+
+        $('#searchButton').click(refreshGrid);
+
+        $('#resetButton').click(function () {
+
+            $('#searchInput').val("");
+            $('#sourceIpInput').val("");
+            $('#sourcePortInput').val("");
+
+            startDateTime = moment().startOf('day');
+            endDateTime = moment().endOf('day');
+
+            $('#dateRange').data('daterangepicker').setStartDate(startDateTime);
+            $('#dateRange').data('daterangepicker').setEndDate(endDateTime);
+
+            refreshGrid();
+
+        });
+
+        // Enter key search
+        $('#searchInput, #sourceIpInput, #sourcePortInput').keypress(function (e) {
+
+            if (e.which === 13) {
+                refreshGrid();
+            }
+
+        });
+
+        // Debounce search
+        let timer;
+
+        $('#searchInput, #sourceIpInput, #sourcePortInput').keyup(function () {
+
+            clearTimeout(timer);
+
+            timer = setTimeout(function () {
+
+                refreshGrid();
+
+            }, 500);
+
+        });
+
+    }
+
+    function initGrid() {
+
+        grid = $("#firewallGrid").kendoGrid({
+
+            autoBind: true,
+
+            height: 650,
+
+            dataSource: {
+
+                transport: {
+
+                    read: {
+
+                        url: ServerRoot + "RouterLog/GetLogs",
+                        type: "GET",
+                        dataType: "json",
+
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", "Bearer " + access_Token);
+                        },
+
+                        data: function () {
+
+                            return {
+
+                                searchTerm: $('#searchInput').val(),
+                                sourceIp: $('#sourceIpInput').val(),
+                                sourcePort: $('#sourcePortInput').val() || null,
+
+                                startDate: startDateTime
+                                    ? startDateTime.format("YYYY-MM-DD HH:mm:ss")
+                                    : null,
+
+                                endDate: endDateTime
+                                    ? endDateTime.format("YYYY-MM-DD HH:mm:ss")
+                                    : null
+
+                            };
+
+                        }
+
+                    }
+
+                },
+
+                schema: {
+
+                    parse: function (response) {
+
+                        if (response.error) {
+                            Swal.fire("Error", response.error, "error");
+                            return { data: [], total: 0 };
+                        }
+
+                        return {
+                            data: $.parseJSON(response.data),
+                            total: response.total
+                        };
+
+                    },
+
+                    data: "data",
+                    total: "total"
+
+                },
+
+                pageSize: 100,
+                serverPaging: true,
+
+                requestStart: function (e) {
+                    Swal.fire({
+                        title: "Loading Logs...",
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                },
+
+                requestEnd: function (e) {
+                    Swal.close();
+                },
+
+                error: function (e) {
+                    Swal.close();
+                }
+
+            },
+
+            pageable: {
+                refresh: true,
+                pageSizes: [10, 20, 50, 100],
+                buttonCount: 5
+            },
+
+            sortable: true,
+            resizable: true,
+
+            columns: [
+
+                { field: "Timestamp", title: "Time", width: 180 },
+                { field: "SrcIP", title: "Source IP", width: 150 },
+                { field: "SrcPort", title: "Src Port", width: 100 },
+                { field: "DstIP", title: "Destination IP", width: 150 },
+                { field: "DstPort", title: "Dst Port", width: 100 },
+                { field: "Router", title: "Router", width: 180 },
+                { field: "Protocol", title: "Protocol", width: 110 }
+
+            ]
+
+        }).data("kendoGrid");
+
+    }
+
+    function refreshGrid() {
+        grid.dataSource.query({ page: 1, pageSize: grid.dataSource.pageSize() });
+    }
+
+</script>

@@ -1,0 +1,135 @@
+﻿@{
+    Layout = null;
+}
+<script src="~/Scripts/Map/locationpicker.jquery.js" crossorigin="anonymous"></script>
+<style>
+    .pac-container, .pac-item {
+        z-index: 2147483647 !important;
+    }
+</style>
+<div class="row">
+    <div class="col-6 mb-3 floating-label">
+        <input type="text" id="Location" class="form-control" placeholder=" ">
+        <label for="Location">Location</label>
+    </div>
+    <div class="col-6 mb-3">
+        <div class="row">
+            <div class="col-6 floating-label">
+                <input type="text" id="us3-lat" class="form-control" placeholder=" ">
+                <label for="us3-lat">Lat.:</label>
+            </div>
+            <div class="col-6 floating-label">
+                <input type="text" id="us3-lon" class="form-control" placeholder=" ">
+                <label for="us3-lon">Lng.:</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-group" style="display:none">
+    <label class="col-sm-2 control-label">Radius:</label>
+
+    <div class="col-sm-5">
+        <input type="text" class="form-control" id="us3-radius" />
+    </div>
+</div>
+<div class="row justify-content-end">
+    <div class="col">
+        <div id="us3" class="text-center" style="width: 100%; height: 100%;">
+            <img src="~/Scripts/Map/icons/icons8-location.gif" class="img-fluid" style="height:120px" />
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        const GoogleMap = window.GoogleMap || {
+            IsSaved: false,
+            GoogleMap_FullAddress: '',
+            GoogleMap_Latitude: 0,
+            GoogleMap_Longitude: 0
+        };
+        const $map = $('#us3');
+        const $location = $('#Location');
+        const $lat = $('#us3-lat');
+        const $lng = $('#us3-lon');
+        const $radius = $('#us3-radius');
+
+        const latFromServer = parseFloat('@ViewBag.Latitude') || 0;
+        const lngFromServer = parseFloat('@ViewBag.Longitude') || 0;
+
+        function initMap(lat, lng) {
+            $map.locationpicker({
+                location: { latitude: lat, longitude: lng },
+                radius: 10,
+                scrollwheel: true,
+                markerIcon: "Scripts/Map/icons/NSM-ISP.png",
+                markerDraggable: true,
+                draggable: true,
+                markerVisible: true,
+                enableReverseGeocode: true,
+                enableAutocomplete: true,
+                inputBinding: {
+                    latitudeInput: $lat,
+                    longitudeInput: $lng,
+                    radiusInput: $radius,
+                    locationNameInput: $location
+                },
+                onchanged: function (currentLocation) {
+                    const formatted = $(this).locationpicker('map').location.formattedAddress;
+
+                    GoogleMap.GoogleMap_FullAddress = formatted;
+                    GoogleMap.GoogleMap_Latitude = currentLocation.latitude;
+                    GoogleMap.GoogleMap_Longitude = currentLocation.longitude;
+                },
+                oninitialized: function (component) {
+                    const loc = $(component).locationpicker('map').location;
+
+                    if (!GoogleMap.GoogleMap_FullAddress) {
+                        GoogleMap.GoogleMap_FullAddress = loc.formattedAddress;
+                        GoogleMap.GoogleMap_Latitude = loc.latitude;
+                        GoogleMap.GoogleMap_Longitude = loc.longitude;
+                        $location.val(loc.formattedAddress);
+                    }
+                }
+            });
+        }
+
+        // 🔒 SaveChange2 logic unchanged
+        $("#SaveChange2").on("click", function () {
+            if ($location.val()) {
+                GoogleMap.IsSaved = true;
+                GoogleMap.GoogleMap_FullAddress = $location.val();
+                $("#CloseModal2").click();
+            } else {
+                DialogSweetAlert("error", "Please select location.");
+            }
+        });
+
+        // Resize map
+        const h = $("#DialogGoogleMap").height() - 200;
+        $map.css("height", h);
+
+        // ---- Improved load priority ----
+        if (latFromServer && lngFromServer) {
+            // 1. From parent eye click
+            initMap(latFromServer, lngFromServer);
+        }
+        else if (GoogleMap.GoogleMap_Latitude && GoogleMap.GoogleMap_Longitude) {
+            // 2. Existing global values
+            initMap(GoogleMap.GoogleMap_Latitude, GoogleMap.GoogleMap_Longitude);
+        }
+        else if (navigator.geolocation) {
+            // 3. Browser location
+            navigator.geolocation.getCurrentPosition(
+                pos => initMap(pos.coords.latitude, pos.coords.longitude),
+                () => initMap(11.5179, 104.9341)
+            );
+        }
+        else {
+            // 4. Fallback
+            initMap(11.5179, 104.9341);
+        }
+
+    });
+</script>
+

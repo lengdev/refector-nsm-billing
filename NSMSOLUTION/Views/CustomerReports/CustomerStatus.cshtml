@@ -1,0 +1,35 @@
+﻿@{
+    Layout = null;
+}
+<div class="row mb-3 text-primary">
+    <div class="col"><h4><i class="fa-duotone fa-users"></i> Customer Status</h4></div>
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLForm)
+    </div>
+</div>
+<div class="row">
+    <div class="col" id="ShowSearchData">
+
+    </div>
+</div>
+<script>
+    $(function () {
+        SearchByDate();
+        $("#DateSearch").unbind("keypress");
+        $("#DateSearch").on('keypress', function (e) {
+            e.preventDefault();
+            //if (e.which == 13) {               
+                //SearchByDate();
+            //}
+        });
+    });
+    function SearchByDate() {
+        var startDate = $("#DateSearch").data('daterangepicker').startDate.format('YYMMDD');
+        var endDate = $("#DateSearch").data('daterangepicker').endDate.format('YYMMDD');
+        var Data = StringToDate($("#DateSearch").val());
+        Data = moment(new Date(Data)).format('YYMMDD');//yyMMdd
+        LoadData("CustomerReports/GetCustomerStatus?startDate=" + startDate + "&endDate=" + endDate, function (response) {
+            $("#ShowSearchData").html(response);
+        });
+    }
+</script>

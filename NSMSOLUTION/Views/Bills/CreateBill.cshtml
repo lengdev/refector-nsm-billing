@@ -1,0 +1,369 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+<script>
+    var PrimaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var Status = "@ViewBag.Status";
+    var ItemDescriptionData = "";
+    var DataTblEdit = "";
+    var KVendorName = "@ViewBag.VendorName";
+    var Type = "@ViewBag.Type";
+    var PONumber = "@ViewBag.PONumber";
+    async function processArray(array) {
+        try {
+            let i = 0;
+            for (const item of array) {
+                await Reload_ItemName(i, item);
+                i++;
+            }            
+        }
+        catch (e) {
+            console.log("Error:", e);
+        }
+    }
+
+    async function Reload_ItemName(i, item) {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                $("input[name=ItemName]").eq(i).val(item.ItemName);
+                $("input[name=ItemID]").eq(i).val(item.ItemID);
+                $("input[name=AccountName]").eq(i).val(item.AccountName);
+                $("input[name=ChartOfAccountID]").eq(i).val(item.ChartOfAccountID);
+                $("input[name=QTY]").eq(i).val(item.QTY);
+                $("input[name=UM]").eq(i).val(item.UM);
+                $("input[name=UnitPrice]").eq(i).val(item.UnitPrice);
+                $("input[name=SalePrice]").eq(i).val(item.SalePrice);
+                $("input[name=DisP]").eq(i).val(item.DisP);
+                $("input[name=DisUSD]").eq(i).val(item.DisUSD);
+                $("input[name=Amount]").eq(i).val(item.Amount);
+                $("div[name=ItemName_Description]:eq(" + i + ")").summernote('code', item.ItemDescription);
+                $("input[name=ItemName]").eq(i).focus();
+                $("input[name=TxtDeposit]").val(item.Deposit);
+                $("input[name=TxtBalance]").val(item.Balance);
+                resolve();
+            }, 1);            
+        });
+    }   
+
+    $(function () {
+        $("input[name=TxtDisUSD], input[name=TxtDeposit]").autoNumeric({ vMin: '0.00' });
+
+        $("input[name=TxtDisUSD], input[name=TxtDeposit]").on('focus', function () { $(this).select() });
+        $("input[name=TxtDisUSD]").keyup(function () {
+            var DiscountUSD = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DiscountP = ((DiscountUSD / Amount) * 100);
+            $("input[name=TxtDisP]").val(accounting.formatMoney(DiscountP, ''));
+            TotalAll();
+        });
+        $("input[name=TxtDeposit]").keyup(function () {
+            TotalAll();
+        });
+        $("#Tax, #Tax_Rate").change(function () {
+            if ($("#Tax").val() != "")// && ($("#Tax_Rate").val() != "" || $("#Tax_Rate").val() != "0"))
+            {
+                setTimeout(function () {
+                    $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / ' + $("#Tax").val());
+                    TotalAll();
+                }, 50);
+            }
+            else {
+                setTimeout(function () {
+                    $("#Tax_Rate").val(0).trigger("chagne");
+                    $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT 10%:');
+                    $("label[name=VAT]").html('0.00');
+                    TotalAll();
+                }, 50);
+            }
+        });
+        if (PONumber != "" && (Status == 'ConvertToBill' || Status == 'ConvertToBillFromReceived')) {
+            setTimeout(function () {
+                $("#PONumber").val(PONumber).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("#PONumber").blur();
+            }, 1000);
+        }
+        $("#PaymentTerms_NumberofDays").bind("change", function (e) {
+            var currentValue = $(this).val();
+            var ApplyDueDate = '';
+            if (currentValue != "Due on Receipt") {
+                ApplyDueDate = moment(new Date()).add(currentValue, 'day');
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            }
+            else {
+                ApplyDueDate = moment(new Date());
+                $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+            }
+        });
+
+        if (Type == "Credit Note" && PrimaryFieldValue != "") {
+            $("#Type").val(Type);
+        }
+    });
+
+    function onVendorChange() {
+        $("#PONumber").val("");
+    }
+    function AmountKeyup(THIS) {
+        var SubTotal = 0;// $(THIS).val();
+        $("input[name=ItemName]").each(function (i) {
+            if ($("input[name=ItemName]").eq(i).val() != "" && $("input[name=Amount]").eq(i).val() != "") {
+                SubTotal += accounting.unformat($("input[name=Amount]").eq(i).val());
+            }
+        });
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+        var Rate = ($("#Tax_Rate").val() == "" ? 0 : $("#Tax_Rate").val());
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        //var VAT = //$("label[name=VAT]").html();
+        var Total = accounting.unformat(SubTotal);
+        //if (Rate != 0) {
+        var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+        $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+        Total += accounting.unformat(VAT);
+        //}
+        Total = accounting.unformat($("label[name=SubTotal]").html()) + accounting.unformat($("label[name=VAT]").html());
+
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        let Deposit = accounting.unformat($("input[name=TxtDeposit]").val());
+        let Balance = GrandTotal - Deposit;
+        $("input[name=TxtBalance]").val(accounting.formatNumber(Balance, 2));
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+            var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+            GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+            $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+        }
+        else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+    }
+    function TotalAll() {
+        var SubTotal = 0;
+        $("input[name=ItemName]").each(function (i) {
+            var QTY = $("input[name=QTY]").eq(i).val();
+            QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+            var UnitPrice = $("input[name=UnitPrice]").eq(i).val();
+            UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+            var Amount = (QTY * UnitPrice);
+
+            var DisUSD = $("input[name=DisUSD]").eq(i).val();
+            DisUSD = (DisUSD == "" ? 0 : accounting.unformat(DisUSD));
+            Amount = Amount - DisUSD;
+
+            $("input[name=Amount]").eq(i).val(accounting.formatNumber(Amount, 2));
+            SubTotal += Amount;
+        });
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+        var Rate = $("#Tax_Rate").val();
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        //var VAT = //$("label[name=VAT]").html();
+        var Total = accounting.unformat(SubTotal);
+        //if (Rate != 0) {
+        var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+        $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+        Total += accounting.unformat(VAT);
+        Total = accounting.unformat($("label[name=SubTotal]").html()) + accounting.unformat($("label[name=VAT]").html());
+        //}
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        let Deposit = accounting.unformat($("input[name=TxtDeposit]").val());
+        let Balance = GrandTotal - Deposit;
+        $("input[name=TxtBalance]").val(accounting.formatNumber(Balance, 2));
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+            var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+            GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+            $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+        }
+        else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+    }
+    function SaveChangeCallbackFunction(response) {
+        response = JSON.parse(response.Data)[0];
+        var isOpen = false;
+        if (Type != "Bill" && Type != "EditBill" && Type != "Credit Note") {
+            isOpen = true;
+            var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+            OpenNewTap(url);
+        }
+        else if (KVendorName != "") {
+            if (KVendorName != $("#Vendor_Name").val()) {
+                isOpen = true;
+                var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+                OpenNewTap(url);
+            }
+            else {
+                if (Status == 'ConvertToCreditNote' || Status == 'Credit Note') {
+                    Bill_Number = response.BillNumber;
+                    $("#BunSearch").click();
+                    $("#CreditNote_Tap").click();
+                    $("#txtBillNumberCreditNote").val(Bill_Number);
+                    $("#BtnSearchVendorBillsCreditNote").click();
+                }
+                else {
+                    Bill_Number = response.BillNumber;
+                    $("#BunSearch").click();
+                    $("#BtnSearchVendorPO").click();
+                    $("#BtnSearchVendorBills").click();
+                    $("#Bills_Tap").click();
+                    $("#txtBillNumberBill").val(Bill_Number);
+                }
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+            }
+        } else if (Type == "EditBill") {
+                Bill_Number = response.BillNumber;
+                $("#BunSearch").click();
+                $("#PurchaseOrder_Tap").click();
+                $("#BtnSearchVendorPO").click();
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+        }
+
+        var loc = window.location.href;
+        var ID = getQueryStringValue(loc, 'ID');
+        if (!isOpen && ID == "") {
+            var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+            OpenNewTap(url);
+        }
+        $("#modal-default").modal('hide');
+    }
+
+    function OnPONumberChange() {
+        $("tr[name=TRNo]").not(":last").remove();
+        var PONumber = "";
+        if (Type != "Credit Note")
+            PONumber = encodeURIComponent($("#PONumber").val());
+        else if (Type == "Credit Note")
+            PONumber = encodeURIComponent($("#BillNumber").val());
+        LoadData('Bills/LoadPO?PONumber=' + PONumber + '&Type=' + Type, function (result) {
+            var Itemdata = JSON.parse(result).data;
+            Itemdata = JSON.parse(Itemdata);
+            if (Itemdata[0]) {
+                var DeliverTo = Itemdata[0].DeliverTo;
+                var Tax = Itemdata[0].Tax;
+                var VendorName = Itemdata[0].VendorName;
+                var PurchaseOrderID = Itemdata[0].PurchaseOrderID;
+                $("#VendorID").val(Itemdata[0].VendorID);
+                $("#PurchaseOrderID").val(PurchaseOrderID);
+                $("#Vendor_Name").val(VendorName);
+                $("#PaymentTerms").val(Itemdata[0].PaymentTerms);
+                $("#PaymentDueDate").val(Itemdata[0].PaymentDueDate);
+                $("#PaymentTerms_NumberofDays").val(Itemdata[0].NumberofDays);
+                $("#Warehouse_WID").val(Itemdata[0].WID);
+                $("#Warehouse").val(DeliverTo);
+                $("#Tax_Rate").val(Itemdata[0].Rate).trigger('change');
+                $("#Tax").val(Tax);
+                $("#TxtContactName").val(Itemdata[0].ContactName);
+                $("#TxtContactPhone").val(Itemdata[0].ContactPhone);
+                $("#ClassName_ClassID").val(Itemdata[0].ClassID);
+                $("#ClassName").val(Itemdata[0].ClassName);
+                $("#PODate").val(Itemdata[0].PODate);
+                //processArray(Itemdata).then(function () {
+                //    TotalAll(); Reload_AccountName();
+                //});
+                SetValueTableRow(Itemdata, 'ItemName', 'TableItemInformation', 'TRNo', rowData_TableItemInformation, 'TDNo', this, `CallSetAutoComplete_ItemName`, '', '', '', '', '', '', RowFields2_TableItemInformation);
+            }
+            else {
+                $("#VendorID").val('');
+                $("#PurchaseOrderID").val('');
+                $("#Vendor_Name").val('');
+                $("#Warehouse_WID").val('');
+                $("#Warehouse").val('');
+                $("#Tax_Rate").val('');
+                $("#Tax").typeahead('val', '').trigger('change');
+                $("#TxtContactName").val('');
+                $("#TxtContactPhone").val('');
+                $("#ClassName_ClassID").val('');
+                $("#ClassName").val('');
+                $("#PODate").val('');
+            }
+            //$.each(Itemdata, function (key, value) {
+            //    Reload_ItemName(key, value);
+            //});
+            //setTimeout(function () {
+            //    $.each(Itemdata, function (Index, EditData) {
+            //        LoadData('PurchaseOrder/LoadItemDetail?ItemID=' + EditData.ItemID, function (result) {
+            //            var data = JSON.parse(result).data;
+            //            data = JSON.parse(data)[0];
+            //            $("input[name=_ItemID]").eq(Index).val(EditData.ItemID);
+            //            $("textarea[name=ItemDescription]").eq(Index).summernote('destroy');
+            //            $("div[name=div_ItemExpirationDate]").eq(Index).remove();
+            //            $("textarea[name=ItemDescription]").eq(Index).remove();
+            //            var rowData = '<div name="div_ItemExpirationDate" class="col-sm align-text-bottom p-2">';
+            //            rowData += '<div class="wrap-input2">';
+            //            rowData += '<input type="text" name="ItemExpirationDate" value="" placeholder="Add Item Expiration Date" class="input2 CustInfo"><span class="focus-input2"></span>';
+            //            rowData += '</div></div>';
+            //            $("input[name=ItemName]").eq(Index).parent().after(rowData);
+
+            //            var rowData = '<textarea class="text-nowrap-pre text-sm p-2 border border-1 col-12" style="height: auto; resize: none;" name="ItemDescription" tabindex="80" placeholder="Add description to your item"></textarea>';
+            //            $("div[name=div_ItemExpirationDate]").eq(Index).parent().after(rowData);
+
+            //            $("input[name=ItemExpirationDate]").eq(Index).daterangepicker({
+            //                singleDatePicker: true,
+            //                autoUpdateInput: false,
+            //                locale: {
+            //                    format: 'DD/MM/YYYY'
+            //                }
+            //            }).on("apply.daterangepicker", function (e, picker) {
+            //                picker.element.val(picker.startDate.format(picker.locale.format));
+            //            });
+
+            //            var UM = '<p name="OrderUM" class="text-center">' + data.UM + '</p>';
+            //            $("p[name=OrderUM]").eq(Index).remove();
+            //            $("input[name=OrderQTY]").eq(Index).parent().after(UM);
+
+            //            var UM = '<p name="UM" class="text-center">' + data.UM + '</p>';
+            //            $("p[name=UM]").eq(Index).remove();
+            //            $("input[name=QTY]").eq(Index).parent().after(UM);
+
+            //            $("input[name=UnitPrice]").eq(Index).val(data.CostPrice);
+            //            $("input[name=_ChartOfAccountID]").eq(Index).val(data.ChartOfAccountID);
+            //            $("input[name=AccountName]").eq(Index).typeahead('val', data.AccountName);
+            //            //$("textarea[name=ItemDescription]").eq(Index).html(data.ItemDescription);
+
+            //            $("input[name=ItemName]:eq(" + Index + ")").typeahead('val', EditData.ItemName);
+            //            $("input[name=_ChartOfAccountID]").eq(Index).val(EditData.ChartOfAccountID);
+            //            $("input[name=AccountName]").eq(Index).typeahead('val', EditData.AccountName);
+            //            $("textarea[name=ItemDescription]").eq(Index).html(EditData.ItemDescription);
+            //            $("input[name=OrderQTY]").eq(Index).val(EditData.QTY);
+            //            $("input[name=QTY]").eq(Index).val(EditData.QTY);
+            //            $("input[name=UnitPrice]").eq(Index).val(EditData.UnitPrice);
+            //            $("input[name=DisP]").eq(Index).val(EditData.DisP);
+            //            $("input[name=DisP]").eq(Index).val(EditData.DisUSD);
+            //            $("input[name=Amount]").eq(Index).val(EditData.Amount);
+            //            $("textarea[name=ItemDescription]").eq(Index).summernote({
+            //                toolbar: false, placeholder: "Add description to your item",
+            //                disableResizeEditor: true,
+            //                codemirror: { theme: "monokai" },
+            //            });
+            //            $('.note-statusbar').hide();
+            //            TotalAll();
+            //        });
+            //    });
+            //}, 100);
+            //setTimeout(function () {
+            //    $("input[name=ItemName]").typeahead('close');
+            //}, 1000);
+        });
+    }
+</script>
+

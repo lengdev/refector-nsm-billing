@@ -1,0 +1,2358 @@
+@using System
+@using System.Data
+@using MVC
+@{
+    Layout = null;
+    var html = new HTML();
+    string sessionSys = (Session != null && Session["SystemID"] != null) ? Session["SystemID"].ToString() : null;
+    string initialSystemID = Request["SystemID"] ?? html.SystemID ?? sessionSys ?? "13";
+    string defaultWarehouseID = "16";
+    if (initialSystemID == "28")
+    {
+        defaultWarehouseID = "26";
+    }
+    else if (initialSystemID == "25")
+    {
+        defaultWarehouseID = "23";
+    }
+    else if (initialSystemID == "27")
+    {
+        defaultWarehouseID = "25";
+    }
+
+    string sessionWh = (Session != null && Session["WarehouseID"] != null) ? Session["WarehouseID"].ToString() : null;
+    string initialWarehouseID = Request["WarehouseID"] ?? html.WarehouseID ?? sessionWh ?? defaultWarehouseID;
+    if (initialWarehouseID == "16" && initialSystemID != "13")
+    {
+        initialWarehouseID = defaultWarehouseID;
+    }
+
+    // Dynamic System Theme Colors:
+    // System 13: #F89C39
+    // System 28: #007bff
+    // System 27: #ffc107
+    // System 25: #d81b60
+    string sysPrimary = "#F89C39";
+    string sysHover = "#e07d15";
+    string sysText = "#ffffff";
+    string sysLight = "#fff8f0";
+    string sysBorder = "#fed7aa";
+    string sysRgb = "248, 156, 57";
+
+    if (initialSystemID == "28")
+    {
+        sysPrimary = "#007bff";
+        sysHover = "#0069d9";
+        sysText = "#ffffff";
+        sysLight = "#eff6ff";
+        sysBorder = "#bfdbfe";
+        sysRgb = "0, 123, 255";
+    }
+    else if (initialSystemID == "27")
+    {
+        sysPrimary = "#ffc107";
+        sysHover = "#e0a800";
+        sysText = "#212529";
+        sysLight = "#fffdf0";
+        sysBorder = "#fef08a";
+        sysRgb = "255, 193, 7";
+    }
+    else if (initialSystemID == "25")
+    {
+        sysPrimary = "#d81b60";
+        sysHover = "#c2185b";
+        sysText = "#ffffff";
+        sysLight = "#fdf2f8";
+        sysBorder = "#fbcfe8";
+        sysRgb = "216, 27, 96";
+    }
+
+    string initCompKH = (ViewBag.CompanyKH as string) ?? "";
+    string initCompEN = (ViewBag.CompanyEN as string) ?? "";
+    string initCompLogo = (ViewBag.CompanyLogo as string) ?? "";
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Official Receipt) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap');
+
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Muol Light';
+        src: local('Khmer OS Muol Light'), local('Khmer OS Muol');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    /* ── Dynamic System Color Variables ── */
+    :root {
+        --sys-primary: @sysPrimary;
+        --sys-primary-hover: @sysHover;
+        --sys-primary-text: @sysText;
+        --sys-primary-light: @sysLight;
+        --sys-primary-border: @sysBorder;
+        --sys-primary-rgb: @sysRgb;
+        --bs-dark-slate: #1e293b;
+        --bs-slate-border: #e2e8f0;
+    }
+
+    #balance-sheet-view-wrapper {
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #1e293b;
+    }
+
+    /* ── Unified Search & Action Toolbar ── */
+    .bs-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        background: #ffffff;
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        margin-bottom: 15px;
+    }
+    .bs-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .bs-toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .bs-toolbar-label {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 14px;
+        white-space: nowrap;
+        margin: 0;
+    }
+
+    .bs-date-input {
+        width: 250px !important;
+        height: 38px !important;
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+        text-align: center;
+        cursor: pointer;
+    }
+    .bs-date-input:focus {
+        border-color: var(--sys-primary) !important;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--sys-primary-rgb), 0.15) !important;
+    }
+
+    .btn-bs-search {
+        height: 38px;
+        padding: 0 20px;
+        background-color: var(--sys-primary);
+        color: var(--sys-primary-text);
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 1px 2px rgba(var(--sys-primary-rgb), 0.25);
+    }
+    .btn-bs-search:hover {
+        background-color: var(--sys-primary-hover);
+        color: var(--sys-primary-text);
+    }
+
+    /* ══════════════════════════════════════════════════════════ */
+    /* CUSTOM DATERANGEPICKER UI (Matches Modern Card Design)    */
+    /* ══════════════════════════════════════════════════════════ */
+    .daterangepicker {
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.10), 0 4px 8px -4px rgba(0, 0, 0, 0.04) !important;
+        padding: 10px 12px 8px 12px !important;
+        margin-top: 6px !important;
+        z-index: 99999 !important;
+    }
+    .daterangepicker:before,
+    .daterangepicker:after {
+        display: none !important;
+    }
+
+    /* Left Sidebar: Preset Ranges */
+    .daterangepicker .ranges {
+        float: left !important;
+        margin: 0 !important;
+        padding: 2px 10px 2px 0 !important;
+        border-right: 1px solid #f1f5f9 !important;
+        text-align: left !important;
+    }
+    .daterangepicker .ranges ul {
+        width: 120px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        list-style: none !important;
+    }
+    .daterangepicker .ranges li {
+        font-size: 11.5px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+        padding: 5px 10px !important;
+        margin-bottom: 2px !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease-in-out !important;
+        background: transparent !important;
+    }
+    .daterangepicker .ranges li:hover {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+    .daterangepicker .ranges li.active {
+        background-color: var(--sys-primary, #3b82f6) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 6px rgba(var(--sys-primary-rgb, 59, 130, 246), 0.3) !important;
+    }
+
+    /* Calendar Panes */
+    .daterangepicker.show-ranges .drp-calendar.left {
+        border-left: none !important;
+        padding: 0 8px 0 10px !important;
+    }
+    .daterangepicker.show-ranges .drp-calendar.right {
+        padding: 0 2px 0 8px !important;
+    }
+    .daterangepicker .drp-calendar {
+        max-width: none !important;
+    }
+    .daterangepicker .calendar-table {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+    .daterangepicker .calendar-table table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+
+    /* Calendar Header & Month/Year Selects */
+    .daterangepicker .calendar-table th {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        height: 26px !important;
+        line-height: 26px !important;
+        min-width: 26px !important;
+        text-align: center !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    .daterangepicker th.month {
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        color: #0f172a !important;
+        padding-bottom: 4px !important;
+    }
+    .daterangepicker select.monthselect,
+    .daterangepicker select.yearselect {
+        height: 24px !important;
+        padding: 1px 16px 1px 6px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
+        background-color: #f8fafc !important;
+        cursor: pointer !important;
+        margin: 0 2px !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748b' d='M0 0l5 5 5-5z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 5px center !important;
+    }
+    .daterangepicker select.monthselect:focus,
+    .daterangepicker select.yearselect:focus {
+        border-color: var(--sys-primary, #3b82f6) !important;
+        outline: none !important;
+    }
+
+    /* Prev / Next Chevrons */
+    .daterangepicker .calendar-table th.prev,
+    .daterangepicker .calendar-table th.next {
+        border-radius: 6px !important;
+        background: #f8fafc !important;
+        transition: background 0.15s ease !important;
+        cursor: pointer !important;
+        width: 26px !important;
+        height: 26px !important;
+        vertical-align: middle !important;
+    }
+    .daterangepicker .calendar-table th.prev:hover,
+    .daterangepicker .calendar-table th.next:hover {
+        background: #f1f5f9 !important;
+    }
+    .daterangepicker .calendar-table th.prev span,
+    .daterangepicker .calendar-table th.next span {
+        border: solid #64748b !important;
+        border-width: 0 1.5px 1.5px 0 !important;
+        display: inline-block !important;
+        padding: 2.5px !important;
+        vertical-align: middle !important;
+    }
+    .daterangepicker .calendar-table th.prev span {
+        transform: rotate(135deg) !important;
+        -webkit-transform: rotate(135deg) !important;
+        margin-left: 2px !important;
+    }
+    .daterangepicker .calendar-table th.next span {
+        transform: rotate(-45deg) !important;
+        -webkit-transform: rotate(-45deg) !important;
+        margin-right: 2px !important;
+    }
+
+    /* Week Numbers Column (W) */
+    .daterangepicker th.week,
+    .daterangepicker td.week {
+        color: #94a3b8 !important;
+        font-size: 10px !important;
+        font-weight: 500 !important;
+        text-align: center !important;
+        width: 20px !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
+    /* Day Cells */
+    .daterangepicker .calendar-table td {
+        width: 24px !important;
+        height: 24px !important;
+        line-height: 24px !important;
+        text-align: center !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        color: #1e293b !important;
+        border-radius: 5px !important;
+        border: none !important;
+        padding: 0 !important;
+        transition: background-color 0.15s ease, color 0.15s ease !important;
+    }
+    .daterangepicker td.available:hover {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border-radius: 8px !important;
+    }
+
+    /* Range Selection: Start Date & End Date */
+    .daterangepicker td.active,
+    .daterangepicker td.active:hover,
+    .daterangepicker td.start-date,
+    .daterangepicker td.end-date {
+        background-color: var(--sys-primary, #3b82f6) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(var(--sys-primary-rgb, 59, 130, 246), 0.3) !important;
+    }
+
+    /* In-Range Middle Dates */
+    .daterangepicker td.in-range:not(.start-date):not(.end-date) {
+        background-color: #dbeafe !important;
+        color: #1d4ed8 !important;
+        border-radius: 0 !important;
+        font-weight: 500 !important;
+    }
+
+    /* Off-month / Disabled Dates */
+    .daterangepicker td.off,
+    .daterangepicker td.off.in-range,
+    .daterangepicker td.off.start-date,
+    .daterangepicker td.off.end-date {
+        color: #cbd5e1 !important;
+        background-color: transparent !important;
+    }
+
+    /* Bottom Action Bar */
+    .daterangepicker .drp-buttons {
+        border-top: 1px solid #f1f5f9 !important;
+        padding-top: 8px !important;
+        margin-top: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 6px !important;
+        clear: both !important;
+    }
+    .daterangepicker .drp-selected {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+        margin-right: auto !important;
+        padding-left: 2px !important;
+    }
+    .daterangepicker .cancelBtn {
+        height: 28px !important;
+        padding: 0 12px !important;
+        background: #f1f5f9 !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        color: #475569 !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+    }
+    .daterangepicker .cancelBtn:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+    }
+    .daterangepicker .applyBtn {
+        height: 28px !important;
+        padding: 0 14px !important;
+        background-color: var(--sys-primary, #3b82f6) !important;
+        border: none !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        box-shadow: 0 2px 4px rgba(var(--sys-primary-rgb, 59, 130, 246), 0.28) !important;
+        transition: all 0.15s ease !important;
+    }
+    .daterangepicker .applyBtn:hover {
+        background-color: var(--sys-primary-hover, #2563eb) !important;
+        box-shadow: 0 3px 6px rgba(var(--sys-primary-rgb, 59, 130, 246), 0.35) !important;
+    }
+
+    .bs-advance-bar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: -3px;
+        margin-bottom: 14px;
+    }
+
+    .btn-bs-advance-toggle {
+        height: 38px;
+        padding: 0 16px;
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .btn-bs-advance-toggle:hover {
+        background-color: #f8fafc;
+        border-color: var(--sys-primary);
+        color: #0f172a;
+    }
+    .btn-bs-advance-toggle .advance-icon {
+        color: var(--sys-primary);
+        font-size: 13px;
+    }
+    .btn-bs-advance-toggle .toggle-arrow {
+        color: #64748b;
+        transition: transform 0.2s;
+        font-size: 11px;
+    }
+    .btn-bs-advance-toggle.active-panel .toggle-arrow {
+        transform: rotate(180deg);
+    }
+    .btn-bs-advance-toggle .badge-filter-count {
+        background-color: var(--sys-primary);
+        color: var(--sys-primary-text);
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 10px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .btn-bs-action {
+        height: 38px;
+        padding: 0 12px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-bs-action:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+
+    .btn-icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        font-size: 15px;
+    }
+    .btn-icon-print {
+        background-color: #e0f2fe;
+        color: #0284c7;
+        border-color: #bae6fd;
+    }
+    .btn-icon-print:hover {
+        background-color: #bae6fd;
+        color: #0369a1;
+    }
+    .btn-icon-excel {
+        background-color: #dcfce7;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+    .btn-icon-excel:hover {
+        background-color: #bbf7d0;
+        color: #15803d;
+    }
+
+    /* ── Advance Filter Panel Component ── */
+    .advance-panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        overflow: visible;
+        position: relative;
+        z-index: 100;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        display: none;
+    }
+    .advance-panel-body {
+        padding: 20px 24px;
+        overflow: visible;
+    }
+    .advance-section-title {
+        font-weight: 700;
+        font-size: 12px;
+        color: var(--sys-primary);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border-bottom: 1.5px solid #f1f5f9;
+        padding-bottom: 8px;
+        margin-bottom: 14px;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .advance-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 30px;
+        margin-bottom: 12px;
+    }
+    .advance-field {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .advance-field label {
+        width: 120px;
+        flex-shrink: 0;
+        font-size: 13px;
+        color: #475569;
+        font-weight: 600;
+        text-align: right;
+        margin: 0;
+    }
+    .advance-field select,
+    .advance-field input[type=text] {
+        flex: 1;
+        padding: 6px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 13px;
+        height: 36px;
+        color: #0f172a;
+        font-weight: 400;
+        background-color: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .advance-field select.is-placeholder,
+    .advance-field select:has(option[value=""]:checked) {
+        color: #94a3b8 !important;
+    }
+    .advance-field select option {
+        color: #0f172a;
+        font-weight: 400;
+    }
+    .advance-field select option[value=""] {
+        color: #94a3b8 !important;
+    }
+    .advance-field select:focus,
+    .advance-field input:focus {
+        border-color: var(--sys-primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--sys-primary-rgb), 0.15);
+    }
+
+    /* multiselect dropdown */
+    .multiselect-wrapper { flex: 1; position: relative; }
+    .multiselect-btn {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 13px;
+        height: 36px;
+        background: #fff;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #0f172a;
+        transition: border-color 0.2s;
+    }
+    .multiselect-btn:hover { border-color: var(--sys-primary); }
+    .multiselect-dropdown { 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        min-width: 230px;
+        background: #fff; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 6px; 
+        z-index: 1050; 
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); 
+        max-height: 220px; 
+        overflow-y: auto; 
+        display: none; 
+        padding: 6px 0;
+        margin-top: 4px;
+    }
+    .multiselect-dropdown.open { display: block; }
+    .multiselect-option { 
+        padding: 6px 12px; 
+        cursor: pointer; 
+        font-size: 13px; 
+        display: flex !important; 
+        align-items: center !important; 
+        gap: 10px !important; 
+        margin-bottom: 0 !important; 
+        white-space: nowrap !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+    }
+    .multiselect-option:hover { background: var(--sys-primary-light); color: var(--sys-primary) !important; }
+    .multiselect-option input[type=checkbox] { 
+        cursor: pointer; 
+        margin: 0 !important; 
+        flex-shrink: 0;
+        width: 15px;
+        height: 15px;
+    }
+
+    /* ── Custom 2-Column Select Component (c2s) ── */
+    .c2s-wrapper { flex: 1; position: relative; z-index: 10; }
+    .c2s-wrapper.open-active { z-index: 9999 !important; }
+    .c2s-btn {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 13px;
+        height: 36px;
+        background: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #0f172a;
+        transition: border-color 0.2s;
+    }
+    .c2s-btn:hover { border-color: var(--sys-primary); }
+    .c2s-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 320px;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        z-index: 9999 !important;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1);
+        display: none;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+    .c2s-dropdown.open { display: block !important; z-index: 9999 !important; }
+    .c2s-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-bottom: 1.5px solid #e2e8f0;
+        font-weight: 700;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .c2s-header span:first-child { flex: 1; }
+    .c2s-header span:last-child { width: 110px; text-align: left; }
+
+    .c2s-text { font-size: 13px; font-weight: 400; color: #0f172a; }
+    .c2s-text.is-placeholder { color: #94a3b8 !important; font-weight: 400 !important; }
+
+    .c2s-list { max-height: 220px; overflow-y: auto; }
+    .c2s-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.15s;
+    }
+    .c2s-item:hover { background: var(--sys-primary-light); }
+    .c2s-item .c2s-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 15px; color: #1e293b; }
+    .c2s-item .c2s-type, .c2s-item .c2s-cat { width: 110px; text-align: left; color: #64748b; font-size: 12px; flex-shrink: 0; }
+    .c2s-item.c2s-placeholder .c2s-name { color: #94a3b8 !important; font-weight: 400 !important; }
+
+    .btn-reset-filters {
+        height: 36px;
+        padding: 0 16px;
+        background-color: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-reset-filters:hover {
+        background-color: #e2e8f0;
+        color: #0f172a;
+    }
+
+    /* ── Financial Summary Cards (System Style) ── */
+    .summary-box {
+        margin-bottom: 15px;
+    }
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    .summary-item {
+        background: #ffffff;
+        padding: 16px 20px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        border-top: 3px solid var(--sys-primary);
+    }
+    .summary-item.summary-assets { border-top-color: var(--sys-primary); }
+    .summary-item.summary-liabilities { border-top-color: #ef4444; }
+    .summary-item.summary-equity { border-top-color: #10b981; }
+
+    .summary-item strong {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        font-weight: 600;
+    }
+    .summary-item span {
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    /* ── Balance Sheet Table (System Style) ── */
+    .balance-sheet-container {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+    }
+    .balance-sheet-header {
+        text-align: center;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 15px;
+        position: relative;
+        min-height: 48px;
+    }
+    .balance-sheet-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .balance-sheet-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 14px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .balance-sheet-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .balance-sheet-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 22px;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .balance-sheet-header p {
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        color: #334155;
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    .bs-table { width: 100%; border-collapse: collapse; min-width: 100%; }
+    .bs-table td, .bs-table th { white-space: nowrap; }
+    .bs-header-row {
+        background-color: var(--sys-primary);
+        color: #ffffff !important;
+    }
+    .bs-header-row td, .bs-header-row th {
+        padding: 12px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        color: #ffffff !important;
+    }
+
+    .bs-section-header {
+        font-weight: 700;
+        padding: 12px 16px !important;
+        background-color: #f8fafc;
+        font-size: 14px;
+        border-top: 2px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        cursor: pointer;
+        user-select: none;
+        color: #000000;
+    }
+    .bs-section-header:hover { background-color: #f1f5f9; }
+    .bs-section-header .collapse-icon { display: inline-block; width: 20px; text-align: center; margin-right: 5px; transition: transform 0.2s; color: #64748b; }
+    .bs-section-header.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+    .bs-group-header {
+        font-weight: 700;
+        background-color: #f1f5f9 !important;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        cursor: pointer;
+        user-select: none;
+    }
+    .bs-group-header td { padding: 9px 16px 9px 28px !important; font-size: 13px; color: #000000; }
+    .bs-group-total {
+        font-weight: 600;
+        background-color: #f8fafc !important;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 2px solid #cbd5e1;
+    }
+    .bs-group-total td { padding: 9px 16px 9px 28px !important; font-size: 13px; color: #000000; }
+
+    .bs-category-header { background-color: #ffffff !important; font-weight: 600 !important; border-top: 1px solid #f1f5f9; cursor: pointer; user-select: none; }
+    .bs-category-header:hover { background-color: #f8fafc !important; }
+    .bs-category-header td { padding: 9px 16px 9px 36px !important; font-size: 13px; color: #000000; }
+    .bs-category-header .collapse-icon { display: inline-block; width: 20px; text-align: center; margin-right: 5px; color: #64748b; transition: transform 0.2s; }
+
+    .bs-main-account { cursor: pointer; user-select: none; }
+    .bs-main-account:hover { background-color: #f8fafc !important; }
+    .bs-main-account td { padding: 8px 16px 8px 50px !important; font-size: 13px; color: #000000; }
+    .bs-main-account a { color: #000000 !important; text-decoration: none; }
+    .bs-main-account a:hover { text-decoration: underline; color: #000000 !important; }
+    .bs-main-account .collapse-icon { display: inline-block; width: 20px; text-align: center; margin-right: 5px; color: #94a3b8; transition: transform 0.2s; }
+
+    .bs-sub-account td { padding: 6px 16px 6px 74px !important; font-size: 12px; color: #000000; }
+    .bs-sub-account a { color: #000000 !important; text-decoration: none; font-weight: 500; }
+    .bs-sub-account a:hover { text-decoration: underline; color: #000000 !important; }
+
+    .bs-total-row { font-weight: 700; border-top: 2px solid #cbd5e1; background-color: #f8fafc; color: #000000; }
+    .bs-total-row td { padding: 10px 16px 10px 36px !important; color: #000000; }
+
+    .bs-category-total { font-weight: 600; background-color: #ffffff; border-top: 1px solid #f1f5f9; }
+    .bs-category-total td { padding: 8px 16px 8px 50px !important; font-style: italic; color: #000000; }
+
+    .bs-final-total {
+        font-weight: 700;
+        font-size: 15px;
+        background-color: var(--sys-primary);
+        color: #ffffff !important;
+        border-top: 2px solid var(--sys-primary-hover);
+    }
+    .bs-final-total td { 
+        padding: 12px 16px !important; 
+        color: #ffffff !important;
+    }
+
+    .bs-table td { padding: 8px 16px; border-bottom: 1px solid #f1f5f9; color: #000000; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .amount-cell { min-width: 140px; }
+    .negative-amount { color: #ef4444; font-weight: 600; }
+    .positive-amount { color: #10b981; }
+    .bs-spacer { height: 12px; background-color: transparent; border: none; }
+    tr:hover:not(.bs-header-row):not(.bs-section-header):not(.bs-spacer):not(.bs-category-header):not(.bs-final-total) { background-color: #f8fafc; }
+
+    /* ── Invoice Modal ── */
+    .modal-xl { max-width: 95%; }
+    #invoiceTable { font-size: 13px; }
+    #invoiceTable thead th {
+        background-color: var(--sys-primary);
+        color: var(--sys-primary-text);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border: none;
+    }
+    #invoiceTable tbody tr:hover { background-color: #f1f5f9; cursor: pointer; }
+
+    /* ── Print Styles ── */
+    .print-company-header { display: none; }
+
+    @@media print {
+        .print-company-header { display: block !important; text-align: center; margin-bottom: 15px; }
+        .print-company-header .co-name-kh { font-family: 'Moul', sans-serif !important; font-size: 22px !important; color: #000000; }
+        .print-company-header .co-name-en { font-family: Arial, sans-serif; font-weight: 700; font-size: 14pt; color: #000000; }
+        .print-company-header .co-divider { letter-spacing: 3px; font-size: 10pt; color: #555; margin: 4px 0; }
+
+        form, .bs-toolbar, .advance-panel, .summary-box, .no-print,
+        .main-header, .main-sidebar, .content-header,
+        .preloader, nav, aside, footer { display: none !important; }
+
+        body, .wrapper, .content-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background: white !important;
+        }
+
+        .balance-sheet-container {
+            box-shadow: none !important;
+            padding: 10px !important;
+            border: none !important;
+            border-radius: 0 !important;
+        }
+
+        .balance-sheet-header {
+            border-bottom: 2px solid #000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .bs-header-row, .bs-final-total {
+            background-color: var(--sys-primary) !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .bs-header-row td, .bs-header-row th, .bs-final-total td {
+            color: #ffffff !important;
+        }
+
+        tr { page-break-inside: avoid; }
+    }
+</style>
+
+<div id="balance-sheet-view-wrapper">
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- UNIFIED SEARCH & ACTION TOOLBAR                            -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="bs-toolbar no-print">
+        <div class="bs-toolbar-left">
+            <label class="bs-toolbar-label" for="TxtFromDate">Date Range:</label>
+            <input type="text" name="TxtFromDate" id="TxtFromDate" value="" class="bs-date-input" placeholder="DD/MM/YYYY - DD/MM/YYYY">
+            <button type="button" id="BunSearch" class="btn-bs-search">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+
+        <div class="bs-toolbar-right">
+            <button type="button" class="btn-bs-action" onclick="expandAllSections()" title="Expand All">
+                <i class="fas fa-expand-alt" style="color:var(--sys-primary);"></i> Expand All
+            </button>
+            <button type="button" class="btn-bs-action" onclick="collapseAllSections()" title="Collapse All">
+                <i class="fas fa-compress-alt" style="color:#64748b;"></i> Collapse All
+            </button>
+            <button type="button" class="btn-icon-circle btn-icon-print" onclick="PrintReport();" title="Print / PDF">
+                <i class="fas fa-print"></i>
+            </button>
+            <button type="button" class="btn-icon-circle btn-icon-excel" onclick="ExportExcel();" title="Export Excel">
+                <i class="fas fa-file-excel"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- RIGHT-ALIGNED ADVANCE FILTER BUTTON                        -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="bs-advance-bar no-print">
+        <button type="button" id="advancePanelToggle" class="btn-bs-advance-toggle" onclick="toggleAdvancePanel()">
+            <i class="fas fa-th-large advance-icon"></i>
+            <span>ADVANCE FILTER</span>
+            <span id="activeFilterBadge" class="badge-filter-count" style="display:none;"></span>
+            <i class="fas fa-chevron-down toggle-arrow"></i>
+        </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- ADVANCE FILTER PANEL                                       -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="advance-panel no-print" id="advancePanel">
+        <div class="advance-panel-body" id="advancePanelBody">
+
+            <!-- Section 1: Grid & Display Options -->
+            <div class="advance-section-title"><i class="fas fa-sliders-h"></i> GRID OPTIONS</div>
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Shown Columns</label>
+                    <div class="multiselect-wrapper">
+                        <button type="button" class="multiselect-btn" id="shownColumnsBtn" onclick="toggleMultiselect('shownColumnsDropdown', this)">
+                            <span id="shownColumnsBtnText">3 option(s) selected</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </button>
+                        <div class="multiselect-dropdown" id="shownColumnsDropdown">
+                            <label class="multiselect-option"><input type="checkbox" value="AccountNo" checked> Account No</label>
+                            <label class="multiselect-option"><input type="checkbox" value="AccountName" checked> Account Name</label>
+                            <label class="multiselect-option"><input type="checkbox" value="Balance" checked> Amount</label>
+                            <label class="multiselect-option"><input type="checkbox" value="ChangeDollar"> Change $</label>
+                            <label class="multiselect-option"><input type="checkbox" value="ChangePercent"> Change %</label>
+                            <label class="multiselect-option"><input type="checkbox" value="PercentOfRow"> % Of Row</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="advance-field">
+                    <label>Sort By</label>
+                    <div class="c2s-wrapper" id="c2s_sortBy">
+                        <input type="hidden" id="filterSortBy" value="default">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_sortBy')">
+                            <span class="c2s-text">Default</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-list" id="c2s_sortBy_list">
+                                <div class="c2s-item selected" data-val="default" onclick="selectC2sItem('c2s_sortBy', 'filterSortBy', 'default', 'Default')"><span class="c2s-name">Default</span></div>
+                                <div class="c2s-item" data-val="AccountNo" onclick="selectC2sItem('c2s_sortBy', 'filterSortBy', 'AccountNo', 'Account No')"><span class="c2s-name">Account No</span></div>
+                                <div class="c2s-item" data-val="AccountName" onclick="selectC2sItem('c2s_sortBy', 'filterSortBy', 'AccountName', 'Account Name')"><span class="c2s-name">Account Name</span></div>
+                                <div class="c2s-item" data-val="Balance" onclick="selectC2sItem('c2s_sortBy', 'filterSortBy', 'Balance', 'Total')"><span class="c2s-name">Total</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Display Columns</label>
+                    <div class="c2s-wrapper" id="c2s_displayColumns">
+                        <input type="hidden" id="filterDisplayColumns" value="default">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_displayColumns')">
+                            <span class="c2s-text">Default</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-list" id="c2s_displayColumns_list">
+                                <div class="c2s-item selected" data-val="default" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'default', 'Default')"><span class="c2s-name">Default</span></div>
+                                <div class="c2s-item" data-val="day" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'day', 'Day')"><span class="c2s-name">Day</span></div>
+                                <div class="c2s-item" data-val="week" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'week', 'Week')"><span class="c2s-name">Week</span></div>
+                                <div class="c2s-item" data-val="month" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'month', 'Month')"><span class="c2s-name">Month</span></div>
+                                <div class="c2s-item" data-val="quarter" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'quarter', 'Quarter')"><span class="c2s-name">Quarter</span></div>
+                                <div class="c2s-item" data-val="year" onclick="selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'year', 'Year')"><span class="c2s-name">Year</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="advance-field">
+                    <label>Order By</label>
+                    <div class="c2s-wrapper" id="c2s_orderBy">
+                        <input type="hidden" id="filterOrderBy" value="asc">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_orderBy')">
+                            <span class="c2s-text">Ascending</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-list" id="c2s_orderBy_list">
+                                <div class="c2s-item selected" data-val="asc" onclick="selectC2sItem('c2s_orderBy', 'filterOrderBy', 'asc', 'Ascending')"><span class="c2s-name">Ascending</span></div>
+                                <div class="c2s-item" data-val="desc" onclick="selectC2sItem('c2s_orderBy', 'filterOrderBy', 'desc', 'Descending')"><span class="c2s-name">Descending</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Search Filters -->
+            <div class="advance-section-title"><i class="fas fa-filter"></i> SEARCH FILTERS</div>
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Location</label>
+                    <div class="c2s-wrapper" id="c2s_location">
+                        <input type="hidden" id="filterLocation" value="">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_location')">
+                            <span class="c2s-text">---Please select---</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-header">
+                                <span>Name</span>
+                                <span>Type</span>
+                            </div>
+                            <div class="c2s-list" id="c2s_location_list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="advance-field">
+                    <label>Transaction Type</label>
+                    <div class="c2s-wrapper" id="c2s_txType">
+                        <input type="hidden" id="filterTxType" value="">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_txType')">
+                            <span class="c2s-text is-placeholder">---Please select---</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-list" id="c2s_txType_list">
+                                <div class="c2s-item c2s-placeholder selected" data-val="" onclick="selectC2sItem('c2s_txType', 'filterTxType', '', '---Please select---')"><span class="c2s-name">---Please select---</span></div>
+                                <div class="c2s-item" data-val="Invoice" onclick="selectC2sItem('c2s_txType', 'filterTxType', 'Invoice', 'Invoice')"><span class="c2s-name">Invoice</span></div>
+                                <div class="c2s-item" data-val="Receipt" onclick="selectC2sItem('c2s_txType', 'filterTxType', 'Receipt', 'Receipt')"><span class="c2s-name">Receipt</span></div>
+                                <div class="c2s-item" data-val="Journal" onclick="selectC2sItem('c2s_txType', 'filterTxType', 'Journal', 'Journal Entry')"><span class="c2s-name">Journal Entry</span></div>
+                                <div class="c2s-item" data-val="Expense" onclick="selectC2sItem('c2s_txType', 'filterTxType', 'Expense', 'Expense')"><span class="c2s-name">Expense</span></div>
+                                <div class="c2s-item" data-val="OpeningBalance" onclick="selectC2sItem('c2s_txType', 'filterTxType', 'OpeningBalance', 'Opening Balance')"><span class="c2s-name">Opening Balance</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Account</label>
+                    <div class="c2s-wrapper" id="c2s_account">
+                        <input type="hidden" id="filterAccount" value="">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_account')">
+                            <span class="c2s-text">---Please select---</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-header">
+                                <span>Name</span>
+                                <span>Type</span>
+                            </div>
+                            <div class="c2s-list" id="c2s_account_list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="advance-field">
+                    <label>Ref No</label>
+                    <input type="text" id="filterRefNo" placeholder="Invoice / Reference No.">
+                </div>
+            </div>
+
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Name</label>
+                    <input type="text" id="filterName" placeholder="Account name keyword">
+                </div>
+                <div class="advance-field">
+                    <label>Created By</label>
+                    <div class="c2s-wrapper" id="c2s_createdBy">
+                        <input type="hidden" id="filterCreatedBy" value="">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_createdBy')">
+                            <span class="c2s-text">---Please select---</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-header">
+                                <span>Name</span>
+                                <span>Gender</span>
+                            </div>
+                            <div class="c2s-list" id="c2s_createdBy_list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advance-row">
+                <div class="advance-field">
+                    <label>Class</label>
+                    <div class="c2s-wrapper" id="c2s_class">
+                        <input type="hidden" id="filterClass" value="">
+                        <div class="c2s-btn" onclick="toggleC2sDropdown('c2s_class')">
+                            <span class="c2s-text is-placeholder">---Please select---</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </div>
+                        <div class="c2s-dropdown">
+                            <div class="c2s-list" id="c2s_class_list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="advance-field" style="justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-reset-filters" onclick="resetAdvanceFilters()">
+                        <i class="fas fa-undo"></i> Clear / Reset Filters
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- FINANCIAL SUMMARY CARDS                                    -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="summary-box no-print" id="summaryBox">
+        <div class="summary-grid">
+            <div class="summary-item summary-assets">
+                <strong>Total Assets</strong>
+                <span id="summaryAssets">0.00</span>
+            </div>
+            <div class="summary-item summary-liabilities">
+                <strong>Total Liabilities</strong>
+                <span id="summaryLiabilities">0.00</span>
+            </div>
+            <div class="summary-item summary-equity">
+                <strong>Total Equity</strong>
+                <span id="summaryEquity">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- BALANCE SHEET TABLE CONTAINER                              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="balance-sheet-container">
+
+        <!-- Header with Company Title -->
+        <div class="balance-sheet-header">
+            <div class="print-date-line">Print Date: <span id="printDateDisplay"></span></div>
+            <div class="bs-company-kh" id="bsCompanyKH">@(initCompKH.StartsWith("ក្រុមហ៊ុន") ? initCompKH : (!string.IsNullOrEmpty(initCompKH) ? "ក្រុមហ៊ុន " + initCompKH : ""))</div>
+            <div class="bs-company-en" id="bsCompanyEN">@initCompEN</div>
+            <div class="bs-company-divider">
+                ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+            </div>
+            <h3>Balance Sheet</h3>
+            <p id="dateRangeDisplay">Loading...</p>
+        </div>
+
+        <table class="bs-table" id="balanceSheetTable">
+            <tr class="bs-header-row">
+                <td style="width:75%">Account</td>
+                <td class="text-right amount-cell" style="width:25%">Amount</td>
+            </tr>
+        </table>
+
+        <!-- Invoice Details Modal -->
+        <div id="invoiceModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">
+                            <i class="fas fa-file-invoice" style="color:var(--sys-primary);"></i> 
+                            Invoice Details: <span id="modalAccountName"></span>
+                            <span id="modalAccountTypeBadge" class="badge" style="font-size:12px; margin-left:10px; background-color:var(--sys-primary-light); color:var(--sys-primary); border:1px solid var(--sys-primary-border);"></span>
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive mt-2">
+                            <table class="table table-striped table-hover" id="invoiceTable">
+                                <thead>
+                                    <tr>
+                                        <th width="4%">No</th>
+                                        <th width="14%">Invoice No</th>
+                                        <th width="11%">Date</th>
+                                        <th width="14%">Type</th>
+                                        <th width="10%" class="text-right">Debit</th>
+                                        <th width="10%" class="text-right">Credit</th>
+                                        <th width="12%" class="text-right">Balance</th>
+                                        <th width="25%">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceTableBody">
+                                    <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                                </tbody>
+                                <tfoot id="invoiceTableFooter">
+                                    <tr class="table-info font-weight-bold" style="background-color:#f1f5f9;">
+                                        <td colspan="4" class="text-right" style="font-weight:700;">TOTAL / ENDING BALANCE:</td>
+                                        <td class="text-right" id="totalDebit">0.00</td>
+                                        <td class="text-right" id="totalCredit">0.00</td>
+                                        <td class="text-right" id="totalNetBalance" style="font-weight:700; color:var(--sys-primary);">0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window._bsCompanyLogo = '@initCompLogo';
+
+    // ─────────────────────────────────────────────────────────────
+    // Helper: Dynamic System Color Palette Mapping
+    // ─────────────────────────────────────────────────────────────
+    function getSystemTheme(sysId) {
+        var id = String(sysId || '').trim();
+        if (id === '13') {
+            return { primary: '#F89C39', hover: '#e07d15', text: '#ffffff', light: '#fff8f0', border: '#fed7aa', rgb: '248, 156, 57' };
+        }
+        if (id === '28') {
+            return { primary: '#007bff', hover: '#0069d9', text: '#ffffff', light: '#eff6ff', border: '#bfdbfe', rgb: '0, 123, 255' };
+        }
+        if (id === '27') {
+            return { primary: '#ffc107', hover: '#e0a800', text: '#212529', light: '#fffdf0', border: '#fef08a', rgb: '255, 193, 7' };
+        }
+        if (id === '25') {
+            return { primary: '#d81b60', hover: '#c2185b', text: '#ffffff', light: '#fdf2f8', border: '#fbcfe8', rgb: '216, 27, 96' };
+        }
+        // Fallback default
+        return { primary: '#F89C39', hover: '#e07d15', text: '#ffffff', light: '#fff8f0', border: '#fed7aa', rgb: '248, 156, 57' };
+    }
+
+    function applySystemTheme(sysId) {
+        var theme = getSystemTheme(sysId);
+        var root = document.documentElement;
+        root.style.setProperty('--sys-primary', theme.primary);
+        root.style.setProperty('--sys-primary-hover', theme.hover);
+        root.style.setProperty('--sys-primary-text', theme.text);
+        root.style.setProperty('--sys-primary-light', theme.light);
+        root.style.setProperty('--sys-primary-border', theme.border);
+        root.style.setProperty('--sys-primary-rgb', theme.rgb);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Helper: Extract query string or hash parameters dynamically
+    // ─────────────────────────────────────────────────────────────
+   function getSystemParam(key) {
+        // 1. Try standard search (?key=val)
+        var s = new URLSearchParams(window.location.search);
+        if (s.get(key)) return s.get(key);
+
+        // 2. Try hash query (?key=val inside hash)
+        if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+            var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+            if (h.get(key)) return h.get(key);
+        }
+
+        // 3. Regex fallback to inspect the full raw URL string
+        var match = new RegExp('[?&]' + key + '=([^&#]*)', 'i').exec(window.location.href);
+        if (match && match[1]) return decodeURIComponent(match[1]);
+
+        // 4. Server-side initial fallbacks
+        if (key.toLowerCase() === 'systemid') return '@initialSystemID';
+        if (key.toLowerCase() === 'warehouseid') return '@initialWarehouseID';
+        return '';
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // TOGGLE ADVANCE PANEL
+    // ─────────────────────────────────────────────────────────────
+    function toggleAdvancePanel() {
+        var $panel = $('#advancePanel');
+        var $btn = $('#advancePanelToggle');
+        $panel.slideToggle(200);
+        $btn.toggleClass('active-panel');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MULTISELECT DROPDOWN
+    // ─────────────────────────────────────────────────────────────
+    function toggleMultiselect(id, btn) {
+        var $dd = $('#' + id);
+        $dd.toggleClass('open');
+        $('.c2s-dropdown').removeClass('open');
+        $('.c2s-wrapper').removeClass('open-active');
+        $('.advance-row, .advance-field').css('z-index', '');
+    }
+
+    $(document).on('change', '#shownColumnsDropdown input[type=checkbox]', function () {
+        var count = $('#shownColumnsDropdown input[type=checkbox]:checked').length;
+        $('#shownColumnsBtnText').text(count + ' option(s) selected');
+        applyAdvanceFilters();
+    });
+
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.multiselect-wrapper').length) {
+            $('.multiselect-dropdown').removeClass('open');
+        }
+        if (!$(e.target).closest('.c2s-wrapper').length) {
+            $('.c2s-dropdown').removeClass('open');
+            $('.c2s-wrapper').removeClass('open-active');
+            $('.advance-row, .advance-field').css('z-index', '');
+        }
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // CUSTOM 2-COLUMN SELECT (c2s)
+    // ─────────────────────────────────────────────────────────────
+    function toggleC2sDropdown(wrapperId) {
+        var $wrapper = $('#' + wrapperId);
+        var $dropdown = $wrapper.find('.c2s-dropdown');
+        var isOpen = $dropdown.hasClass('open');
+
+        $('.c2s-dropdown').removeClass('open');
+        $('.c2s-wrapper').removeClass('open-active');
+        $('.advance-row, .advance-field').css('z-index', '');
+        $('.multiselect-dropdown').removeClass('open');
+
+        if (!isOpen) {
+            $dropdown.addClass('open');
+            $wrapper.addClass('open-active');
+            $wrapper.closest('.advance-row').css('z-index', '9999');
+            $wrapper.closest('.advance-field').css('z-index', '9999');
+        }
+    }
+
+    function selectC2sItem(wrapperId, hiddenInputId, val, displayText) {
+        var $wrapper = $('#' + wrapperId);
+        $('#' + hiddenInputId).val(val);
+
+        var labelText = displayText || '---Please select---';
+        var $textSpan = $wrapper.find('.c2s-text');
+        $textSpan.text(labelText);
+
+        if (!val || labelText === '---Please select---') {
+            $textSpan.addClass('is-placeholder');
+        } else {
+            $textSpan.removeClass('is-placeholder');
+        }
+
+        $wrapper.find('.c2s-dropdown').removeClass('open');
+        $wrapper.removeClass('open-active');
+        $('.advance-row, .advance-field').css('z-index', '');
+        $wrapper.find('.c2s-item').removeClass('selected');
+        if (val) {
+            $wrapper.find('.c2s-item[data-val="' + val + '"]').addClass('selected');
+        } else {
+            $wrapper.find('.c2s-item:first').addClass('selected');
+        }
+        applyAdvanceFilters();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // LOAD FILTER DROPDOWNS from controller (DYNAMIC BASED ON SYSTEMID)
+    // ─────────────────────────────────────────────────────────────
+    function loadFilterOptions() {
+        var currentSysId = getSystemParam('SystemID');
+        var currentWhId = getSystemParam('WarehouseID');
+
+        applySystemTheme(currentSysId);
+
+        var reqData = {
+            systemID: currentSysId,
+            warehouseID: currentWhId
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetFilterOptions", "BalanceSheet")',
+            type: 'POST',
+            data: reqData,
+            success: function(res) {
+                if (!res.success) return;
+
+                // 1. Account Dropdown
+                var $accList = $('#c2s_account_list');
+                $accList.empty();
+                $accList.append('<div class="c2s-item c2s-placeholder selected" data-val="" onclick="selectC2sItem(\'c2s_account\', \'filterAccount\', \'\', \'---Please select---\')"><span class="c2s-name">---Please select---</span><span class="c2s-type"></span></div>');
+                $.each(res.accounts || [], function(_, a) {
+                    var nameText = (a.AccountNo ? a.AccountNo + ' ' : '') + a.AccountName;
+                    var typeText = a.AccountCategory || 'Account';
+                    var safeName = nameText.replace(/'/g, "\\'");
+                    $accList.append('<div class="c2s-item" data-val="' + a.AccountNo + '" onclick="selectC2sItem(\'c2s_account\', \'filterAccount\', \'' + a.AccountNo + '\', \'' + safeName + '\')">' +
+                                        '<span class="c2s-name">' + nameText + '</span>' +
+                                        '<span class="c2s-type">' + typeText + '</span>' +
+                                    '</div>');
+                });
+
+                // 2. Location Dropdown
+                var $locList = $('#c2s_location_list');
+                $locList.empty();
+                $locList.append('<div class="c2s-item c2s-placeholder selected" data-val="" onclick="selectC2sItem(\'c2s_location\', \'filterLocation\', \'\', \'---Please select---\')"><span class="c2s-name">---Please select---</span><span class="c2s-type"></span></div>');
+                $.each(res.locations || [], function(_, l) {
+                    var safeLoc = l.WarehouseName.replace(/'/g, "\\'");
+                    $locList.append('<div class="c2s-item" data-val="' + l.WarehouseID + '" onclick="selectC2sItem(\'c2s_location\', \'filterLocation\', \'' + l.WarehouseID + '\', \'' + safeLoc + '\')">' +
+                                        '<span class="c2s-name">' + l.WarehouseName + '</span>' +
+                                        '<span class="c2s-type">Warehouse</span>' +
+                                    '</div>');
+                });
+
+                // 3. Created By Dropdown (2-column: Name & Gender)
+                var $usrList = $('#c2s_createdBy_list');
+                $usrList.empty();
+                $usrList.append('<div class="c2s-item c2s-placeholder selected" data-val="" onclick="selectC2sItem(\'c2s_createdBy\', \'filterCreatedBy\', \'\', \'---Please select---\')"><span class="c2s-name">---Please select---</span><span class="c2s-cat"></span></div>');
+                $.each(res.users || [], function(_, u) {
+                    var safeUser = (u.FullName || '').replace(/'/g, "\\'");
+                    var gender = u.Gender || '';
+                    $usrList.append('<div class="c2s-item" data-val="' + u.UserID + '" onclick="selectC2sItem(\'c2s_createdBy\', \'filterCreatedBy\', \'' + u.UserID + '\', \'' + safeUser + '\')">' +
+                                        '<span class="c2s-name">' + (u.FullName || '') + '</span>' +
+                                        '<span class="c2s-cat">' + gender + '</span>' +
+                                    '</div>');
+                });
+
+                // 4. Classes Dropdown
+                var $clsList = $('#c2s_class_list');
+                $clsList.empty();
+                $clsList.append('<div class="c2s-item c2s-placeholder selected" data-val="" onclick="selectC2sItem(\'c2s_class\', \'filterClass\', \'\', \'---Please select---\')"><span class="c2s-name">---Please select---</span></div>');
+                $.each(res.classes || [], function(_, c) {
+                    var safeClass = c.ClassName.replace(/'/g, "\\'");
+                    $clsList.append('<div class="c2s-item" data-val="' + c.ClassID + '" onclick="selectC2sItem(\'c2s_class\', \'filterClass\', \'' + c.ClassID + '\', \'' + safeClass + '\')">' +
+                                        '<span class="c2s-name">' + c.ClassName + '</span>' +
+                                    '</div>');
+                });
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // FILTER VALUES & BADGE
+    // ─────────────────────────────────────────────────────────────
+    function getAdvanceFilters() {
+        return {
+            txType:         $('#filterTxType').val(),
+            accountNo:      $('#filterAccount').val(),
+            name:           $('#filterName').val().trim(),
+            refNo:          $('#filterRefNo').val().trim(),
+            createdBy:      $('#filterCreatedBy').val(),
+            classId:        $('#filterClass').val(),
+            location:       $('#filterLocation').val(),
+            sortBy:         $('#filterSortBy').val(),
+            orderBy:        $('#filterOrderBy').val(),
+            displayColumns: $('#filterDisplayColumns').val() || 'default'
+        };
+    }
+
+    function updateActiveFilterBadge() {
+        var f = getAdvanceFilters();
+        var count = 0;
+        if (f.txType) count++;
+        if (f.accountNo) count++;
+        if (f.name) count++;
+        if (f.refNo) count++;
+        if (f.createdBy) count++;
+        if (f.classId) count++;
+        if (f.location) count++;
+        if (f.sortBy && f.sortBy !== 'default') count++;
+        if (f.orderBy && f.orderBy !== 'asc') count++;
+        if (f.displayColumns && f.displayColumns !== 'default') count++;
+
+        var $badge = $('#activeFilterBadge');
+        if (count > 0) {
+            $badge.text(count).show();
+        } else {
+            $badge.hide();
+        }
+    }
+
+    function applyAdvanceFilters() {
+        updateActiveFilterBadge();
+        var dateRange = $('#TxtFromDate').val();
+        if (dateRange && dateRange.includes(' - ')) {
+            var dates = dateRange.split(' - ');
+            loadBalanceSheetData(dates[0].trim(), dates[1].trim());
+        } else if (dateRange) {
+            loadBalanceSheetData(dateRange, dateRange);
+        }
+    }
+
+    function resetAdvanceFilters() {
+        selectC2sItem('c2s_location', 'filterLocation', '', '---Please select---');
+        selectC2sItem('c2s_account', 'filterAccount', '', '---Please select---');
+        selectC2sItem('c2s_createdBy', 'filterCreatedBy', '', '---Please select---');
+        selectC2sItem('c2s_txType', 'filterTxType', '', '---Please select---');
+        selectC2sItem('c2s_class', 'filterClass', '', '---Please select---');
+        selectC2sItem('c2s_sortBy', 'filterSortBy', 'default', 'Default');
+        selectC2sItem('c2s_displayColumns', 'filterDisplayColumns', 'default', 'Default');
+        selectC2sItem('c2s_orderBy', 'filterOrderBy', 'asc', 'Ascending');
+        $('#filterRefNo').val('');
+        $('#filterName').val('');
+
+        $('#shownColumnsDropdown input[type=checkbox]').prop('checked', true);
+        $('#shownColumnsBtnText').text('6 option(s) selected');
+
+        updateActiveFilterBadge();
+
+        var dateRange = $('#TxtFromDate').val();
+        if (dateRange && dateRange.includes(' - ')) {
+            var dates = dateRange.split(' - ');
+            loadBalanceSheetData(dates[0].trim(), dates[1].trim());
+        } else if (dateRange) {
+            loadBalanceSheetData(dateRange, dateRange);
+        }
+    }
+
+    // Live search on text input changes
+    $(document).on('input', '#filterRefNo, #filterName', function () {
+        if (window._bsFilterDebounce) clearTimeout(window._bsFilterDebounce);
+        window._bsFilterDebounce = setTimeout(applyAdvanceFilters, 400);
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // DATE RANGE PICKER & SEARCH TRIGGER
+    // ─────────────────────────────────────────────────────────────
+    function initializeDateRangePicker() {
+        if ($.fn.daterangepicker) {
+            let start = moment().startOf('year');
+            let end = moment();
+
+            $('#TxtFromDate').daterangepicker({
+                alwaysShowCalendars: true,
+                showDropdowns: true,
+                showWeekNumbers: true,
+                autoUpdateInput: true,
+                linkedCalendars: false,
+                showCustomRangeLabel: true,
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+                },
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    separator: ' - ',
+                    applyLabel: 'Apply',
+                    cancelLabel: 'Clear',
+                    fromLabel: 'From',
+                    toLabel: 'To',
+                    customRangeLabel: 'Custom Range',
+                    weekLabel: 'W',
+                    daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                    monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    firstDay: 0
+                }
+            }, function (start, end, label) {
+                $('#TxtFromDate').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            });
+
+            $('#TxtFromDate').on('apply.daterangepicker', function (ev, picker) {
+                var rangeStr = picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY');
+                $(this).val(rangeStr);
+                updateActiveFilterBadge();
+                loadBalanceSheetData(picker.startDate.format('DD/MM/YYYY'), picker.endDate.format('DD/MM/YYYY'));
+            });
+
+            $('#TxtFromDate').on('cancel.daterangepicker', function (ev, picker) {
+                let defStart = moment().startOf('year');
+                let defEnd = moment();
+                picker.setStartDate(defStart);
+                picker.setEndDate(defEnd);
+                var rangeStr = defStart.format('DD/MM/YYYY') + ' - ' + defEnd.format('DD/MM/YYYY');
+                $(this).val(rangeStr);
+                updateActiveFilterBadge();
+                loadBalanceSheetData(defStart.format('DD/MM/YYYY'), defEnd.format('DD/MM/YYYY'));
+            });
+
+            $('#TxtFromDate').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+        }
+
+        $('#BunSearch').on('click', function() {
+            updateActiveFilterBadge();
+            var dateRange = $('#TxtFromDate').val();
+            if (dateRange && dateRange.includes(' - ')) {
+                var dates = dateRange.split(' - ');
+                loadBalanceSheetData(dates[0].trim(), dates[1].trim());
+            } else if (dateRange) {
+                loadBalanceSheetData(dateRange, dateRange);
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // LOAD BALANCE SHEET DATA (POST) - Dynamic based on SystemID
+    // ─────────────────────────────────────────────────────────────
+    function loadBalanceSheetData(fromDate, toDate) {
+        var currentSysId = getSystemParam('SystemID');
+        applySystemTheme(currentSysId);
+
+        $('#balanceSheetTable').html('<tr class="bs-header-row"><td>Account</td><td class="text-right">Amount</td></tr><tr><td colspan="2" style="text-align: center; padding: 40px; color: #94a3b8;"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading data...</td></tr>');
+
+        var filters = getAdvanceFilters();
+        var dateParam = toDate;
+        if (fromDate && toDate && fromDate.trim() !== toDate.trim()) {
+            dateParam = fromDate.trim() + ' - ' + toDate.trim();
+        } else if (!dateParam && fromDate) {
+            dateParam = fromDate.trim();
+        }
+
+        var postData = {
+            toDate:         dateParam,
+            systemID:       currentSysId,
+            warehouseID:    getSystemParam('WarehouseID'),
+            txType:         filters.txType,
+            accountNo:      filters.accountNo,
+            name:           filters.name,
+            refNo:          filters.refNo,
+            createdBy:      filters.createdBy,
+            classId:        filters.classId,
+            location:       filters.location,
+            sortBy:         filters.sortBy,
+            orderBy:        filters.orderBy,
+            displayColumns: filters.displayColumns
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetBalanceSheetData", "BalanceSheet")',
+            type: 'POST',
+            data: postData,
+            success: function (response) {
+                if (response.success) {
+                    $('#dateRangeDisplay').text('To Date : ' + response.toDate);
+                    if (response.company) {
+                        if (response.company.CompanyNameKH) {
+                            var khText = response.company.CompanyNameKH.trim();
+                            if (khText && !khText.startsWith('ក្រុមហ៊ុន')) {
+                                khText = 'ក្រុមហ៊ុន ' + khText;
+                            }
+                            $('#bsCompanyKH').text(khText);
+                            window._bsCompanyKH = khText;
+                        }
+                        if (response.company.CompanyName) {
+                            $('#bsCompanyEN').text(response.company.CompanyName);
+                            window._bsCompanyEN = response.company.CompanyName;
+                        }
+                        if (response.company.Logo) {
+                            window._bsCompanyLogo = response.company.Logo;
+                        }
+                    }
+                    renderBalanceSheet(response.data);
+                } else {
+                    $('#balanceSheetTable').html('<tr class="bs-header-row"><td>Account</td><td class="text-right">Amount</td></tr><tr><td colspan="2" style="text-align: center; padding: 40px; color: #ef4444;">' + response.message + '</td></tr>');
+                }
+            },
+            error: function () {
+                $('#balanceSheetTable').html('<tr><td colspan="2" class="text-center text-danger">Error loading data.</td></tr>');
+            }
+        });
+    }
+
+    function formatNumber(num) {
+        if (num === 0 || !num) return "-";
+        var n = parseFloat(num);
+        if (isNaN(n) || n === 0) return "-";
+        var formatted = Math.abs(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        return n < 0 ? "<span class='negative-amount'>-" + formatted + "</span>" : formatted;
+    }
+
+    function getSelectedColumns() {
+        var cols = [];
+        $('#shownColumnsDropdown input[type=checkbox]:checked').each(function() {
+            cols.push($(this).val());
+        });
+        if (cols.length === 0) cols = ['Balance'];
+        return cols;
+    }
+
+    function getActiveColInfo() {
+        var cols = getSelectedColumns();
+        var count = 0;
+        var subHeaders = '';
+
+        if (cols.includes('Balance')) { count++; subHeaders += '<th class="text-right amount-cell">Amount</th>'; }
+        if (cols.includes('ChangeDollar')) { count++; subHeaders += '<th class="text-right amount-cell">Change $</th>'; }
+        if (cols.includes('ChangePercent')) { count++; subHeaders += '<th class="text-right amount-cell">Change %</th>'; }
+        if (cols.includes('PercentOfRow')) { count++; subHeaders += '<th class="text-right amount-cell">% Of Row</th>'; }
+
+        if (count === 0) { count = 1; subHeaders = '<th class="text-right amount-cell">Amount</th>'; }
+        return { cols: cols, count: count, subHeaders: subHeaders };
+    }
+
+    function renderValueCells(item, isParentHeader, columns, displayCols) {
+        var isPeriod = (displayCols && displayCols !== 'default' && columns && columns.length > 0) || (columns && columns.length > 1);
+        if (isPeriod) {
+            var cells = '';
+            for (var i = 0; i < columns.length; i++) {
+                if (isParentHeader) {
+                    cells += '<td class="text-right amount-cell"></td>';
+                } else {
+                    var val = 0;
+                    if (typeof item === 'number') {
+                        val = item;
+                    } else if (item) {
+                        if (item.ColBalances && item.ColBalances.length > i) {
+                            val = item.ColBalances[i];
+                        } else if (item.ColTotals && item.ColTotals.length > i) {
+                            val = item.ColTotals[i];
+                        } else if (columns[i].Key && item.PeriodBalances && item.PeriodBalances[columns[i].Key] !== undefined) {
+                            val = item.PeriodBalances[columns[i].Key];
+                        } else if (item.Balance !== undefined) {
+                            val = item.Balance;
+                        } else if (item.Total !== undefined) {
+                            val = item.Total;
+                        }
+                    }
+                    cells += '<td class="text-right amount-cell">' + formatNumber(val) + '</td>';
+                }
+            }
+            return cells;
+        }
+
+        // Single column mode (or Shown Columns checkboxes)
+        var balance = 0;
+        if (typeof item === 'number') balance = item;
+        else if (item && item.Balance !== undefined) balance = item.Balance;
+        else if (item && item.Total !== undefined) balance = item.Total;
+
+        var colInfo = getActiveColInfo();
+        if (isParentHeader) {
+            var emptyCells = '';
+            for (var j = 0; j < colInfo.count; j++) {
+                emptyCells += '<td class="text-right amount-cell"></td>';
+            }
+            return emptyCells;
+        }
+
+        var singleCells = '';
+        if (colInfo.cols.includes('Balance')) {
+            singleCells += '<td class="text-right amount-cell">' + formatNumber(balance) + '</td>';
+        }
+        if (colInfo.cols.includes('ChangeDollar')) {
+            singleCells += '<td class="text-right amount-cell">' + formatNumber(balance) + '</td>';
+        }
+        if (colInfo.cols.includes('ChangePercent')) {
+            var pct = balance < 0 ? '-100%' : (balance > 0 ? '100%' : '-');
+            singleCells += '<td class="text-right amount-cell">' + pct + '</td>';
+        }
+        if (colInfo.cols.includes('PercentOfRow')) {
+            var pctRow = balance !== 0 ? '100%' : '-';
+            singleCells += '<td class="text-right amount-cell">' + pctRow + '</td>';
+        }
+        return singleCells;
+    }
+
+    function renderTableHeader(toDate, columns, displayCols) {
+        var isPeriod = (displayCols && displayCols !== 'default' && columns && columns.length > 0) || (columns && columns.length > 1);
+        if (isPeriod) {
+            var thPeriodCols = '';
+            var thAmountCols = '';
+            for (var i = 0; i < columns.length; i++) {
+                var c = columns[i];
+                thPeriodCols += '<th class="text-right amount-cell" style="font-weight:700; border-bottom:1px solid rgba(255,255,255,0.3); min-width:120px; text-align:right;">' + c.Label + '</th>';
+                thAmountCols += '<th class="text-right amount-cell" style="font-size:11px; padding:6px 16px; font-weight:600; text-align:right;">' + (c.SubLabel || 'Amount') + '</th>';
+            }
+            return '<tr class="bs-header-row">'
+                 + '<td rowspan="2" style="width:35%; min-width:280px; vertical-align:middle; font-weight:700;">Account</td>'
+                 + thPeriodCols
+                 + '</tr>'
+                 + '<tr class="bs-header-row">' + thAmountCols + '</tr>';
+        }
+
+        var colInfo = getActiveColInfo();
+        var toDateStr = toDate || 'To Date';
+
+        if (colInfo.count === 1 && colInfo.cols.includes('Balance')) {
+            return '<tr class="bs-header-row">'
+                 + '<td style="width:65%">Account</td>'
+                 + '<td class="text-right amount-cell" style="width:35%">Amount</td>'
+                 + '</tr>';
+        }
+
+        return '<tr class="bs-header-row">'
+             + '<td rowspan="2" style="width:40%; vertical-align:middle; font-weight:700;">Account</td>'
+             + '<td colspan="' + colInfo.count + '" class="text-center" style="font-weight:700; border-bottom:1px solid rgba(255,255,255,0.3);">' + toDateStr + '</td>'
+             + '</tr>'
+             + '<tr class="bs-header-row">' + colInfo.subHeaders + '</tr>';
+    }
+
+    function renderBalanceSheet(data) {
+        var now = new Date();
+        var pad = function(n) { return n < 10 ? '0' + n : n; };
+        var printDate = pad(now.getDate()) + '/' + pad(now.getMonth()+1) + '/' + now.getFullYear()
+                      + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        $('#printDateDisplay').text(printDate);
+
+        var columns = (data && data.Columns) ? data.Columns : [];
+        var displayCols = (data && data.DisplayColumns) ? data.DisplayColumns : 'default';
+        var isMulti = (displayCols !== 'default' && columns && columns.length > 0) || (columns && columns.length > 1);
+        var totalColCount = isMulti ? (columns.length + 1) : (getActiveColInfo().count + 1);
+        var toDateStr = $('#dateRangeDisplay').text().replace('To Date : ', '').replace('As of ', '') || '';
+
+        var html = renderTableHeader(toDateStr, columns, displayCols);
+
+        // ASSETS section
+        html += renderSection(data.Assets, columns, displayCols);
+        html += '<tr class="bs-spacer"><td colspan="' + totalColCount + '"></td></tr>';
+
+        // LIABILITIES section
+        html += renderSection(data.Liabilities, columns, displayCols);
+        html += '<tr class="bs-spacer"><td colspan="' + totalColCount + '"></td></tr>';
+
+        // EQUITY section
+        html += renderSection(data.Equity, columns, displayCols);
+        html += '<tr class="bs-spacer"><td colspan="' + totalColCount + '"></td></tr>';
+
+        // TOTAL LIABILITIES AND EQUITY row
+        if (isMulti) {
+            html += '<tr class="bs-final-total"><td>TOTAL LIABILITIES AND EQUITY</td>';
+            for (var i = 0; i < columns.length; i++) {
+                var totalVal = (data.TotalLiabAndEquityByPeriod && data.TotalLiabAndEquityByPeriod.length > i)
+                    ? data.TotalLiabAndEquityByPeriod[i]
+                    : (data.TotalLiabilities + data.TotalEquity);
+                html += '<td class="text-right amount-cell">' + formatNumber(totalVal) + '</td>';
+            }
+            html += '</tr>';
+        } else {
+            html += '<tr class="bs-final-total"><td>TOTAL LIABILITIES AND EQUITY</td>' + renderValueCells(data.TotalLiabilities + data.TotalEquity, false, columns, displayCols) + '</tr>';
+        }
+
+        $('#balanceSheetTable').html(html);
+
+        $('#summaryAssets').text(formatNumber(data.TotalAssets).replace(/<[^>]*>?/gm, ''));
+        $('#summaryLiabilities').text(formatNumber(data.TotalLiabilities).replace(/<[^>]*>?/gm, ''));
+        $('#summaryEquity').text(formatNumber(data.TotalEquity).replace(/<[^>]*>?/gm, ''));
+    }
+
+    // ── Level 1: Render Section (ASSETS / LIABILITIES / EQUITY) ──
+    function renderSection(section, columns, displayCols) {
+        if (!section || !section.Groups || section.Groups.length === 0) return '';
+        var html = '';
+        var isMulti = (displayCols && displayCols !== 'default' && columns && columns.length > 0) || (columns && columns.length > 1);
+        var totalColCount = isMulti ? (columns.length + 1) : (getActiveColInfo().count + 1);
+
+        html += '<tr class="bs-section-header">' +
+                '<td colspan="' + totalColCount + '"><span class="collapse-icon"><i class="fas fa-chevron-down"></i></span>' +
+                '<strong>' + section.SectionName + '</strong></td></tr>';
+
+        for (var g = 0; g < section.Groups.length; g++) {
+            var grp = section.Groups[g];
+
+            // Level 2: Group Header
+            if (grp.GroupName && grp.GroupName !== '') {
+                html += '<tr class="bs-group-header">' +
+                        '<td colspan="' + totalColCount + '"><span class="collapse-icon"><i class="fas fa-chevron-down"></i></span>' +
+                        '<strong>' + grp.GroupName + '</strong></td></tr>';
+            }
+
+            for (var c = 0; c < grp.Categories.length; c++) {
+                var cat = grp.Categories[c];
+
+                // Level 3: Net Income Row
+                if (cat.CategoryName === 'Net Income' && cat.Accounts.length === 1) {
+                    html += "<tr class='bs-category-header'>" +
+                            "<td>" + cat.Accounts[0].AccountName + "</td>" +
+                            renderValueCells(cat.Accounts[0], false, columns, displayCols) +
+                            "</tr>";
+                    continue;
+                }
+
+                html += '<tr class="bs-category-header">' +
+                        '<td colspan="' + totalColCount + '"><span class="collapse-icon"><i class="fas fa-chevron-down"></i></span>' +
+                        '<strong>' + cat.CategoryName + '</strong></td></tr>';
+
+                // Level 4: Account Rows
+                html += generateRows(cat.Accounts, 1, columns, displayCols);
+
+                var isCategoryMatchingGroup = grp.GroupName && (cat.CategoryName.trim().toLowerCase() === grp.GroupName.trim().toLowerCase());
+                if (!isCategoryMatchingGroup) {
+                    html += '<tr class="bs-category-total">' +
+                            '<td class="text-left"><strong>Total - ' + cat.CategoryName + '</strong></td>' +
+                            renderValueCells(cat, false, columns, displayCols) + '</tr>';
+                }
+            }
+
+            if (grp.GroupName && grp.GroupName !== '') {
+                html += '<tr class="bs-group-total">' +
+                        '<td><strong>Total - ' + grp.GroupName + '</strong></td>' +
+                        renderValueCells(grp, false, columns, displayCols) + '</tr>';
+            }
+        }
+
+        html += '<tr class="bs-total-row">' +
+                '<td><strong>Total - ' + section.SectionName + '</strong></td>' +
+                renderValueCells(section, false, columns, displayCols) + '</tr>';
+
+        return html;
+    }
+
+    // ── Recursive Account Tree Rows ──
+    function generateRows(nodes, level, columns, displayCols) {
+        var html = "";
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            var hasChildren = node.Children && node.Children.length > 0;
+
+            var trClass = (level === 1) ? "bs-main-account" : "bs-sub-account";
+            var displayAccount = node.AccountNo ? (node.AccountNo + " - " + node.AccountName) : node.AccountName;
+            var icon = hasChildren
+                ? '<span class="collapse-icon"><i class="fas fa-chevron-down"></i></span>'
+                : '<span style="display:inline-block;width:20px;"></span>';
+
+            var accountContent = displayAccount;
+            if (node.IsLeaf && node.AccountNo) {
+                accountContent = '<a href="javascript:void(0)" onclick="viewInvoices(\'' +
+                    node.AccountNo + '\', \'' + node.AccountName.replace(/'/g, "\\'") + '\')">' +
+                    displayAccount + '</a>';
+            }
+
+            html += "<tr class='" + trClass + "'>" +
+                    "<td>" + icon + accountContent + "</td>" +
+                    renderValueCells(node, hasChildren, columns, displayCols) +
+                    "</tr>";
+
+            if (hasChildren) {
+                html += generateRows(node.Children, level + 1, columns, displayCols);
+                html += "<tr class='bs-category-total'>" +
+                        "<td class='text-left'><em>Total - " + displayAccount + "</em></td>" +
+                        renderValueCells(node, false, columns, displayCols) +
+                        "</tr>";
+            }
+        }
+        return html;
+    }
+
+    // ── View Invoices Modal ──
+  // ── View Invoices Modal ──
+    function viewInvoices(accountNo, accountName) {
+        var displayTitle = (accountNo ? accountNo + ' - ' : '') + accountName;
+        $('#modalAccountName').text(displayTitle);
+        $('#modalAccountTypeBadge').text('').hide();
+        $('#invoiceTableBody').html('<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading...</td></tr>');
+        $('#invoiceModal').modal('show');
+
+        var dateRange = $('#TxtFromDate').val();
+        var fromDate = '';
+        var toDate = '';
+
+        if (dateRange && dateRange.includes(' - ')) {
+            var dates = dateRange.split(' - ');
+            fromDate = dates[0].trim();
+            toDate = dates[1].trim();
+        } else if (dateRange) {
+            fromDate = dateRange.trim();
+            toDate = dateRange.trim();
+        }
+
+        var postData = {
+            accountNo:   accountNo,
+            accountName: accountName,
+            fromDate:    fromDate,     // <-- Send selected fromDate (01/07/2026)
+            toDate:      toDate,       // <-- Send selected toDate (31/07/2026)
+            systemID:    getSystemParam('SystemID'),
+            warehouseID: getSystemParam('WarehouseID')
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetAccountInvoices", "BalanceSheet")',
+            type: 'POST',
+            data: postData,
+            success: function(res) {
+                if(res.success) {
+                    var html = '';
+                    var totalDeb = 0;
+                    var totalCred = 0;
+                    var runningBal = 0;
+                    var accType = (res.data && res.data.length > 0) ? (res.data[0].AccountTypes || 'Asset') : 'Asset';
+                    var isAssetOrExp = (accType.toLowerCase().indexOf('asset') >= 0 || accType.toLowerCase().indexOf('expense') >= 0);
+
+                    if (res.data && res.data.length > 0) {
+                        $('#modalAccountTypeBadge').text(accType).show();
+                    }
+
+                    for (var i = 0; i < res.data.length; i++) {
+                        var item = res.data[i];
+
+                        if (isAssetOrExp) {
+                            runningBal += (item.Debit - item.Credit);
+                        } else {
+                            runningBal += (item.Credit - item.Debit);
+                        }
+
+                        // Accumulate all rows including OPENING so footer totals balance correctly
+                        totalDeb += (Number(item.Debit) || 0);
+                        totalCred += (Number(item.Credit) || 0);
+
+                        var invNo = item.InvoiceNo;
+                        if (!invNo || invNo === 'null' || invNo === 'undefined') {
+                            invNo = '-';
+                        }
+                        var invType = (item.InvoiceType && item.InvoiceType !== 'null') ? item.InvoiceType : 'Journal Entry';
+                        var desc = (item.Description && item.Description !== 'null') ? item.Description : '';
+
+                        html += '<tr>';
+                        html += '<td>' + item.No + '</td>';
+                        html += '<td><strong>' + invNo + '</strong></td>';
+                        html += '<td>' + (item.InvoiceDate || '') + '</td>';
+                        html += '<td><span class="badge badge-light" style="font-weight:600;">' + invType + '</span></td>';
+                        html += '<td class="text-right">' + (item.Debit !== 0 ? formatNumber(item.Debit) : '-') + '</td>';
+                        html += '<td class="text-right">' + (item.Credit !== 0 ? formatNumber(item.Credit) : '-') + '</td>';
+                        html += '<td class="text-right" style="font-weight:600;">' + formatNumber(runningBal) + '</td>';
+                        html += '<td>' + desc + '</td>';
+                        html += '</tr>';
+                    }
+
+                    if(res.data.length === 0) {
+                        html = '<tr><td colspan="8" class="text-center text-muted" style="padding:24px;">No transactions found for this period.</td></tr>';
+                    }
+
+                    $('#invoiceTableBody').html(html);
+                    $('#totalDebit').html(formatNumber(totalDeb));
+                    $('#totalCredit').html(formatNumber(totalCred));
+                    $('#totalNetBalance').html(formatNumber(runningBal));
+                }
+            }
+        });
+    }
+
+    function expandAllSections() {
+        $('.collapse-icon i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        $('.bs-table tr').show();
+    }
+
+    function collapseAllSections() {
+        $('.collapse-icon i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        $('.bs-main-account, .bs-sub-account').hide();
+    }
+
+    // ── Table Accordion Click Handlers ──
+    $(document).on('click', '.bs-section-header', function() {
+        var $icon = $(this).find('.collapse-icon i');
+        $icon.toggleClass('fa-chevron-down fa-chevron-right');
+        var $rows = $(this).nextUntil('.bs-section-header, .bs-final-total, .bs-spacer');
+        $rows.toggle();
+    });
+
+    $(document).on('click', '.bs-group-header', function() {
+        var $icon = $(this).find('.collapse-icon i');
+        $icon.toggleClass('fa-chevron-down fa-chevron-right');
+        var $rows = $(this).nextUntil('.bs-group-header, .bs-section-header, .bs-total-row, .bs-spacer');
+        $rows.toggle();
+    });
+
+    $(document).on('click', '.bs-category-header', function() {
+        var $icon = $(this).find('.collapse-icon i');
+        $icon.toggleClass('fa-chevron-down fa-chevron-right');
+        var $rows = $(this).nextUntil('.bs-category-header, .bs-category-total, .bs-group-header, .bs-group-total, .bs-section-header, .bs-total-row');
+        $rows.toggle();
+    });
+
+    $(document).on('click', '.bs-main-account', function(e) {
+        if ($(e.target).is('a')) return;
+        var $icon = $(this).find('.collapse-icon i');
+        $icon.toggleClass('fa-chevron-down fa-chevron-right');
+        var $rows = $(this).nextUntil('.bs-main-account, .bs-category-header, .bs-category-total, .bs-group-header, .bs-section-header');
+        $rows.toggle();
+    });
+
+    // ── Print Report ──
+    function PrintReport() {
+        var currentSysId = getSystemParam('SystemID');
+        var theme = getSystemTheme(currentSysId);
+        var dateRangeStr = $('#dateRangeDisplay').text();
+        var printDateStr = $('#printDateDisplay').text();
+        var tableContent = $('#balanceSheetTable').prop('outerHTML');
+
+        var printCompKH = (window._bsCompanyKH || $('#bsCompanyKH').text() || '').trim();
+        var printCompEN = (window._bsCompanyEN || $('#bsCompanyEN').text() || '').trim();
+        var printLogoSrc = window._bsCompanyLogo ? `/Uploads/ClassLogo/${encodeURIComponent(window._bsCompanyLogo)}` : '/Content/images/logo.png';
+
+        var formattedCompKH = printCompKH;
+        if (formattedCompKH && !formattedCompKH.startsWith('ក្រុមហ៊ុន')) {
+            formattedCompKH = 'ក្រុមហ៊ុន ' + formattedCompKH;
+        }
+
+        var companyHeader = `
+            <div style="text-align: center; position: relative; margin-bottom: 20px;">
+                <div style="position: absolute; left: 0; top: 0;">
+                    <img src="${printLogoSrc}" style="height: 60px;" onerror="if (this.src.indexOf('/Uploads/ClassLogo/') !== -1) { this.src = '/Content/CompanyLogo/' + encodeURIComponent(window._bsCompanyLogo || ''); } else { this.src='/Content/images/logo.png'; this.onerror=function(){this.style.display='none'}; }" />
+                </div>
+                <div style="font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important; font-size: 20px !important; line-height: 1.6; margin-bottom: 4px; color: #000;">
+                   ${formattedCompKH}
+                </div>
+                <div style="font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif; font-size: 14px; font-weight: 900; margin-bottom: 6px; color: #000; letter-spacing: 0.5px;">
+                    ${printCompEN}
+                </div>
+                <div style="font-size: 10px; margin-bottom: 12px; color: #000; letter-spacing: 2px;">
+                    ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+                </div>
+                <div style="font-family: 'Kantumruy Pro', 'Roboto', sans-serif; font-weight: bold; font-size: 16px; text-transform: uppercase;">
+                    BALANCE SHEET REPORT
+                </div>
+            </div>
+            <div class="report-header-print" style="margin-top: 15px; margin-bottom: 20px; width: 100%;">
+                <div class="metadata-bar" style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; border-bottom: 1.5px solid #475569; padding-bottom: 8px; margin-bottom: 12px;">
+                    <div>${dateRangeStr}</div>
+                    <div>Print Date : ${printDateStr}</div>
+                </div>
+            </div>
+        `;
+
+        var win = window.open('', '', 'width=1200,height=900');
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Balance Sheet</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+                <style>
+                    @@font-face {
+                        font-family: 'Khmer OS Battambang';
+                        src: local('Khmer OS Battambang'),
+                             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                    }
+                    @@font-face {
+                        font-family: 'Khmer OS Muol Light';
+                        src: local('Khmer OS Muol Light'), local('Khmer OS Muol');
+                        font-weight: normal;
+                        font-style: normal;
+                    }
+                    body { font-family: 'Kantumruy Pro', 'Khmer OS Battambang', Arial, sans-serif; font-size:13px; padding:20px; }
+                    table { width:100%; border-collapse:collapse; }
+                    th { background:${theme.primary}; color:#000000; padding: 10px 15px; border-bottom: 2px solid #ddd; text-align: left; }
+                    td { padding: 8px 15px; border-bottom: 1px solid #f0f0f0; color:#000000; }
+                    .text-right { text-align: right; }
+                    .amount-cell { white-space: nowrap; }
+                    .bs-section-header td { font-weight: bold; font-size: 14px; background: #f9f9f9; padding-top: 12px; color:#000000; }
+                    .bs-group-header td { font-weight: bold; font-size: 13px; background: #f0f4f8; padding-left: 25px; color:#000000; }
+                    .bs-category-header td { font-weight: bold; background: #f5f5f5; padding-left: 30px; color:#000000; }
+                    .bs-main-account td { padding-left: 45px; color:#000000; }
+                    .bs-sub-account td { padding-left: 70px; color:#000000; }
+                    .bs-category-total td { font-weight: bold; font-style: italic; padding-left: 45px; color:#000000; }
+                    .bs-group-total td { font-weight: bold; background: #e8f0f7; padding-left: 25px; color:#000000; }
+                    .bs-total-row td { font-weight: bold; border-top: 2px solid #ddd; background: #f5f5f5; color:#000000; }
+                    .bs-final-total td { font-weight: bold; font-size: 15px; background: ${theme.primary}; color: #000000; }
+                </style>
+            </head>
+            <body>
+                ${companyHeader}
+                ${tableContent}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        setTimeout(function () { win.print(); }, 800);
+    }
+
+    // ── Export to Excel ──
+    function ExportExcel() {
+        var table = document.getElementById("balanceSheetTable");
+        if (!table) return;
+        var wb = XLSX.utils.table_to_book(table, { sheet: "Balance Sheet" });
+        XLSX.writeFile(wb, "BalanceSheet.xlsx");
+    }
+
+    // ── Initialize on Document Ready ──
+    $(document).ready(function() {
+        var currentSysId = getSystemParam('SystemID');
+        applySystemTheme(currentSysId);
+
+        initializeDateRangePicker();
+        loadFilterOptions();
+
+        var dateRange = $('#TxtFromDate').val();
+        if (dateRange && dateRange.includes(' - ')) {
+            var dates = dateRange.split(' - ');
+            loadBalanceSheetData(dates[0].trim(), dates[1].trim());
+        } else if (dateRange) {
+            loadBalanceSheetData(dateRange, dateRange);
+        }
+    });
+</script>

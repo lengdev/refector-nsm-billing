@@ -1,0 +1,955 @@
+@{ Layout = null; }
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div id="profit-loss-view-wrapper">
+    <div class="custom-search-toolbar">
+        <div class="toolbar-left">
+            <label>From Date:</label>
+            <input id="TxtFromDate" />
+            <label style="margin-left: 10px;">To Date:</label>
+            <input id="TxtToDate" />
+            <button class="btn-custom-search" onclick="generateProfitAndLossReport();">
+                <i class="fa fa-search"></i> Search
+            </button>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn-icon-outline btn-icon-pdf" onclick="PrintReport();" title="Print / PDF">
+                <i class="fa fa-print"></i>
+            </button>
+            <button class="btn-icon-outline btn-icon-excel" onclick="ExportExcel();" title="Export Excel">
+                <i class="fa fa-file-excel"></i>
+            </button>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "PL" } })
+
+    <div class="pl-report-header">
+        <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+        <div class="bs-company-kh" id="lblCompanyNameKh">@ViewBag.CompanyNameKh</div>
+        <div class="bs-company-en" id="lblCompanyNameEn">@ViewBag.CompanyNameEn</div>
+        <div class="bs-company-divider">
+            ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+        </div>
+        <h3 id="lblReportTitle">Profit and loss standard</h3>
+        <div class="tb-date-range-bar" id="lblDateRangeBar">
+            01/09/26 - 30/09/26
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="TableGride" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="vertical-align: middle; width: 60%; background-color: #efefef; color: #000000; font-weight: bold; border: 1px solid #b0b0b0; padding: 8px 12px; text-transform: uppercase; font-size: 12px;">Account</th>
+                    <th colspan="1" style="text-align: center; background-color: #efefef; color: #000000; font-weight: bold; border: 1px solid #b0b0b0; padding: 8px 12px; text-transform: uppercase; font-size: 12px;">Total</th>
+                </tr>
+                <tr>
+                    <th style="text-align: center; background-color: #efefef; color: #000000; font-weight: bold; border: 1px solid #b0b0b0; padding: 8px 12px; width: 25%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap');
+
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Battambang';
+        src: local('Khmer OS Battambang'),
+             url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Khmer OS Muol Light';
+        src: local('Khmer OS Muol Light'), local('Khmer OS Muol');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    #profit-loss-view-wrapper {
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #1e293b;
+        padding-bottom: 60px;
+    }
+
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    .custom-search-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        margin-bottom: 15px;
+    }
+
+    .toolbar-left, .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .toolbar-left label {
+        font-weight: bold;
+        margin: 0;
+        color: #333;
+    }
+
+    .toolbar-left .k-datepicker {
+        width: 150px;
+    }
+
+    .toolbar-left .k-datepicker .k-picker-wrap,
+    .toolbar-left .k-datepicker .k-input {
+        border-radius: 4px !important;
+        border: 1px solid #cccccc !important;
+        height: 34px !important;
+        padding-left: 8px;
+    }
+
+    .btn-custom-search {
+        background-color: #f5f5f5;
+        color: #000;
+        border: 1px solid #cccccc;
+        padding: 5px 16px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+
+    .btn-custom-search:hover {
+        background-color: #e5e5e5;
+    }
+
+    .btn-icon-outline {
+        background-color: #fff;
+        border: 1px solid #cccccc;
+        width: 34px;
+        height: 34px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .btn-icon-outline:hover {
+        background-color: #f0f0f0;
+    }
+
+    .btn-icon-pdf { color: #2563eb; }
+    .btn-icon-excel { color: #16a34a; }
+
+    .table-responsive {
+        background: #ffffff;
+        border: 1px solid #b0b0b0;
+        border-radius: 0;
+        overflow-x: auto !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px;
+        @* padding-bottom: 8px; *@
+    }
+
+    /* Simple Standard P&L Grid Styling */
+    #TableGride {
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        width: max-content !important;
+        min-width: 100% !important;
+        background-color: #ffffff;
+        margin-bottom: 0 !important;
+        border: 1px solid #b0b0b0 !important;
+    }
+
+        #TableGride th {
+            background-color: #efefef !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+            border: 1px solid #b0b0b0 !important;
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            text-align: center !important;
+            font-family: 'Kantumruy Pro', Arial, sans-serif !important;
+        }
+
+        #TableGride td {
+            padding: 4px 10px !important;
+            border: 1px solid #d4d4d4 !important;
+            font-size: 12px !important;
+            color: #000000 !important;
+            font-family: 'Kantumruy Pro', Arial, Helvetica, sans-serif !important;
+        }
+
+        /* Sticky Account Column */
+        #TableGride tr > td:first-child,
+        #TableGride tr > th:first-child {
+            position: sticky !important;
+            left: 0 !important;
+            min-width: 380px !important;
+            max-width: 600px !important;
+            width: 380px !important;
+            border-right: 1px solid #b0b0b0 !important;
+            text-align: left !important;
+        }
+
+        #TableGride thead tr > th:first-child {
+            background-color: #efefef !important;
+            z-index: 15 !important;
+        }
+
+        #TableGride tbody tr > td:first-child {
+            background-color: #ffffff !important;
+            z-index: 10 !important;
+        }
+
+        /* Amount Columns */
+        #TableGride tr > td:nth-child(n+2),
+        #TableGride tr > th:nth-child(n+2) {
+            min-width: 120px !important;
+            white-space: nowrap !important;
+            text-align: right !important;
+        }
+
+        #TableGride thead tr > th:nth-child(n+2) {
+            text-align: center !important;
+        }
+
+        /* Section Header (Revenue, COGS, Expense) */
+        #TableGride tr.pl-section-header td {
+            font-weight: bold !important;
+            font-size: 13px !important;
+            color: #000000 !important;
+            padding-top: 8px !important;
+            padding-bottom: 4px !important;
+            padding-left: 8px !important;
+        }
+
+        /* Group Header (50000 - Cogs, etc.) */
+        #TableGride tr.pl-group-header td {
+            font-weight: bold !important;
+            color: #000000 !important;
+            padding-left: 24px !important;
+            padding-top: 4px !important;
+            padding-bottom: 2px !important;
+        }
+
+        /* Account Row */
+        #TableGride tr.pl-account-row td {
+            padding-left: 40px !important;
+            font-weight: normal !important;
+            color: #000000 !important;
+        }
+
+        #TableGride tr.pl-sub-account-row td {
+            padding-left: 56px !important;
+            font-weight: normal !important;
+            color: #000000 !important;
+        }
+
+        #TableGride tr.pl-flat-account-row td {
+            padding-left: 24px !important;
+            font-weight: normal !important;
+            color: #000000 !important;
+        }
+
+        /* Group Total */
+        #TableGride tr.pl-group-total td {
+            font-weight: bold !important;
+            padding-left: 24px !important;
+            color: #000000 !important;
+        }
+
+        #TableGride tr.pl-group-total td:nth-child(n+2) {
+            font-weight: bold !important;
+        }
+
+        /* Section Total */
+        #TableGride tr.pl-section-total td {
+            font-weight: bold !important;
+            font-size: 12px !important;
+            color: #000000 !important;
+            padding-left: 8px !important;
+        }
+
+        #TableGride tr.pl-section-total td:nth-child(n+2) {
+            font-weight: bold !important;
+        }
+
+        /* KPI Row (Gross Profit / Net Income) */
+        #TableGride tr.pl-kpi-row td {
+            font-weight: bold !important;
+            font-size: 13px !important;
+            color: #000000 !important;
+            padding-left: 8px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+        }
+
+        #TableGride tr.pl-kpi-row td:nth-child(n+2) {
+            font-weight: bold !important;
+        }
+</style>
+
+<script>
+    function formatNumber(num) {
+        if (num === null || num === undefined || isNaN(num)) return '-';
+        if (Math.abs(num) < 0.0001) return '-';
+        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function generateProfitAndLossReport(isFirstLoad) {
+        var fromDate = $("#TxtFromDate").data("kendoDatePicker").value();
+        var toDate = $("#TxtToDate").data("kendoDatePicker").value();
+        var advFilter = (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.getFilters) 
+            ? window.AccountingAdvanceFilter.getFilters() 
+            : {};
+        
+        var displayColumns = advFilter.displayColumns || "Total";
+
+        if (!isFirstLoad) {
+            toastr.options = {
+                closeButton: false,
+                debug: false,
+                newestOnTop: true,
+                progressBar: true,
+                positionClass: "toast-top-center",
+                preventDuplicates: true,
+                timeOut: 0,
+                extendedTimeOut: 0
+            };
+            toastr.info("Loading Profit and Loss Data...");
+            setTimeout(function() {
+                var baseColor = localStorage.getItem("BaseSystemBGColor");
+                if (baseColor) {
+                    $(".toast-info").css({ "background-color": baseColor, "box-shadow": "0 0 12px " + baseColor });
+                }
+            }, 10);
+        }
+
+        var getUrlParam = function (key) {
+            var s = new URLSearchParams(window.location.search);
+            if (s.get(key)) return s.get(key);
+            if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                if (h.get(key)) return h.get(key);
+            }
+            return '';
+        };
+
+        // Update Metadata Banner
+        var now = new Date();
+        var printDateStr = kendo.toString(now, "dd-MMM-yyyy HH:mm");
+        var fromStr = fromDate ? kendo.toString(fromDate, "dd/MM/yy") : "All";
+        var toStr = toDate ? kendo.toString(toDate, "dd/MM/yy") : "All";
+        
+        $("#profit-loss-view-wrapper #lblPrintDate").text("Print Date " + printDateStr);
+        $("#profit-loss-view-wrapper #lblDateRangeBar").text(fromStr + " - " + toStr);
+
+        var reportTitle = "Profit and loss standard";
+        if (displayColumns && displayColumns !== "Total") {
+            reportTitle = "Profit and loss by " + displayColumns.toLowerCase();
+        }
+        $("#profit-loss-view-wrapper #lblReportTitle").text(reportTitle);
+
+        $.ajax({
+            url: '@Url.Action("Read", "ProfitAndLoss")',
+            type: 'POST',
+            data: {
+                SystemID: getUrlParam('SystemID') || '@(ViewBag.SystemID ?? "")',
+                WarehouseID: getUrlParam('WarehouseID') || '@(ViewBag.WarehouseID ?? "")',
+                fromDate: fromDate ? kendo.toString(fromDate, "yyyy-MM-dd") : "",
+                toDate: toDate ? kendo.toString(toDate, "yyyy-MM-dd") : "",
+                location: advFilter.location || "",
+                account: advFilter.account || "",
+                name: advFilter.name || "",
+                className: advFilter.className || "",
+                txType: advFilter.txType || "",
+                refNo: advFilter.refNo || "",
+                createdBy: advFilter.createdBy || "",
+                displayColumns: displayColumns
+            },
+            success: function (res) {
+                if (!res.Success) {
+                    alert("Error: " + res.Message);
+                    return;
+                }
+
+                if (res.Company) {
+                    if (res.Company.CompanyNameKh) {
+                        var khText = (res.Company.CompanyNameKh || '').trim();
+                        if (khText && !khText.startsWith('ក្រុមហ៊ុន')) {
+                            khText = 'ក្រុមហ៊ុន ' + khText;
+                        }
+                        $("#profit-loss-view-wrapper #lblCompanyNameKh").text(khText);
+                    }
+                    if (res.Company.CompanyNameEn) {
+                        $("#profit-loss-view-wrapper #lblCompanyNameEn").text(res.Company.CompanyNameEn);
+                    }
+                }
+
+                var $view = $('#profit-loss-view-wrapper');
+                var $table = $view.find('#TableGride');
+
+                // 1. Extract unique dynamic columns from res.Data
+                var colMap = {};
+                res.Data.forEach(function(item) {
+                    var cg = item.ColumnGroup || 'Total';
+                    if (cg !== 'Total') {
+                        colMap[cg] = true;
+                    }
+                });
+
+                var dynamicCols = Object.keys(colMap).sort();
+                var colsToRender = [];
+                if (displayColumns !== 'Total' && dynamicCols.length > 0) {
+                    colsToRender = dynamicCols.concat(['Total']);
+                } else {
+                    colsToRender = ['Total'];
+                }
+
+                // 2. Render Table Header with Sticky Pinned Account Column
+                var thRow1 = `<th rowspan="2" style="vertical-align: middle; min-width: 380px; width: 380px; text-align: left; position: sticky; left: 0; background-color: #efefef; z-index: 15; border-right: 1px solid #b0b0b0;">Account</th>`;
+                var thRow2 = '';
+                colsToRender.forEach(function(col) {
+                    thRow1 += `<th colspan="1" style="text-align: center; min-width: 130px; white-space: nowrap;">${col}</th>`;
+                    thRow2 += `<th style="text-align: center; min-width: 130px; white-space: nowrap;">Amount</th>`;
+                });
+
+                $table.find('thead').html(`
+                    <tr>${thRow1}</tr>
+                    <tr>${thRow2}</tr>
+                `);
+
+                // Helper to render amount cells for a given column-value dictionary
+                // underlineType: false (none), 'single' / true (single line below number), 'double' (double line below number)
+                var renderCellsForDict = function(dict, underlineType) {
+                    var html = '';
+                    colsToRender.forEach(function(col) {
+                        var val = 0;
+                        if (col === 'Total') {
+                            if (colsToRender.length === 1) {
+                                val = dict['Total'] || 0;
+                            } else {
+                                Object.keys(dict).forEach(function(k) {
+                                    if (k !== 'Total') val += (dict[k] || 0);
+                                });
+                            }
+                        } else {
+                            val = dict[col] || 0;
+                        }
+                        var formatted = formatNumber(val);
+                        if (underlineType && formatted !== '-') {
+                            if (underlineType === 'double') {
+                                html += `<td align="right"><span style="border-bottom: 3px double #000000; display: inline-block; padding-bottom: 1px; font-weight: bold;">${formatted}</span></td>`;
+                            } else {
+                                html += `<td align="right"><span style="border-bottom: 1px solid #000000; display: inline-block; padding-bottom: 1px; font-weight: bold;">${formatted}</span></td>`;
+                            }
+                        } else {
+                            html += `<td align="right">${formatted}</td>`;
+                        }
+                    });
+                    return html;
+                };
+
+                var renderEmptyCells = function() {
+                    var html = '';
+                    colsToRender.forEach(function() {
+                        html += `<td></td>`;
+                    });
+                    return html;
+                };
+
+                // 3. Build Hierarchy Tree
+                // tree[type].parents[parentKey].items[accountKey] = { itemData, colAmounts: { col: amt } }
+                var tree = {};
+                var grossRevenue = {};
+                var grossCogs = {};
+                var totalExpense = {};
+                var totalOtherExpense = {};
+
+                res.Data.forEach(function (item) {
+                    var type = item.AccountTypes || 'Expense';
+                    if (type === 'Other Expense' || type === 'Other Expenses') type = 'OtherExpense';
+                    var parentKey = item.ParentAccountNo ? (item.ParentAccountNo + ' - ' + item.ParentAccountName) : '';
+                    var amount = parseFloat(item.Amount) || 0;
+                    var colGroup = item.ColumnGroup || 'Total';
+
+                    if (!tree[type]) {
+                        tree[type] = { colTotals: {}, parents: {} };
+                    }
+                    if (!tree[type].colTotals[colGroup]) tree[type].colTotals[colGroup] = 0;
+                    tree[type].colTotals[colGroup] += amount;
+
+                    if (!tree[type].parents[parentKey]) {
+                        tree[type].parents[parentKey] = { colTotals: {}, items: {} };
+                    }
+                    if (!tree[type].parents[parentKey].colTotals[colGroup]) tree[type].parents[parentKey].colTotals[colGroup] = 0;
+                    tree[type].parents[parentKey].colTotals[colGroup] += amount;
+
+                    var accKey = item.AccountNo + ' - ' + item.AccountName;
+                    if (!tree[type].parents[parentKey].items[accKey]) {
+                        tree[type].parents[parentKey].items[accKey] = {
+                            AccountNo: item.AccountNo,
+                            AccountName: item.AccountName,
+                            colAmounts: {}
+                        };
+                    }
+                    if (!tree[type].parents[parentKey].items[accKey].colAmounts[colGroup]) {
+                        tree[type].parents[parentKey].items[accKey].colAmounts[colGroup] = 0;
+                    }
+                    tree[type].parents[parentKey].items[accKey].colAmounts[colGroup] += amount;
+
+                    if (type === 'Revenue' || type === 'Other Income') {
+                        grossRevenue[colGroup] = (grossRevenue[colGroup] || 0) + amount;
+                    } else if (type === 'COGS' || type === 'Cost') {
+                        grossCogs[colGroup] = (grossCogs[colGroup] || 0) + amount;
+                    } else if (type === 'OtherExpense') {
+                        totalOtherExpense[colGroup] = (totalOtherExpense[colGroup] || 0) + amount;
+                    } else if (type === 'Expense') {
+                        totalExpense[colGroup] = (totalExpense[colGroup] || 0) + amount;
+                    }
+                });
+
+                var tbodyHtml = '';
+                var sectionOrder = ['Revenue', 'COGS', 'Expense', 'OtherExpense'];
+                Object.keys(tree).forEach(function (t) {
+                    if (sectionOrder.indexOf(t) === -1) sectionOrder.push(t);
+                });
+
+                sectionOrder.forEach(function (type) {
+                    if (!tree[type]) return;
+
+                    // Section Header
+                    tbodyHtml += `<tr class="pl-section-header">
+                        <td>${type}</td>
+                        ${renderEmptyCells()}
+                    </tr>`;
+
+                    var parents = tree[type].parents;
+                    Object.keys(parents).forEach(function (parentKey) {
+                        var pData = parents[parentKey];
+
+                        if (parentKey !== '') {
+                            // Parent Header
+                            tbodyHtml += `<tr class="pl-group-header">
+                                <td>${parentKey}</td>
+                                ${renderEmptyCells()}
+                            </tr>`;
+
+                            Object.keys(pData.items).forEach(function (accKey) {
+                                var accObj = pData.items[accKey];
+                                tbodyHtml += `<tr class="pl-sub-account-row">
+                                    <td>${accKey}</td>
+                                    ${renderCellsForDict(accObj.colAmounts, false)}
+                                </tr>`;
+                            });
+
+                            // Parent Total
+                            tbodyHtml += `<tr class="pl-group-total">
+                                <td>Total - ${parentKey}</td>
+                                ${renderCellsForDict(pData.colTotals, 'single')}
+                            </tr>`;
+                        } else {
+                            // Flat accounts (No Parent)
+                            Object.keys(pData.items).forEach(function (accKey) {
+                                var accObj = pData.items[accKey];
+                                tbodyHtml += `<tr class="pl-flat-account-row">
+                                    <td>${accKey}</td>
+                                    ${renderCellsForDict(accObj.colAmounts, false)}
+                                </tr>`;
+                            });
+                        }
+                    });
+
+                    // Section Total
+                    tbodyHtml += `<tr class="pl-section-total">
+                        <td>Total - ${type}</td>
+                        ${renderCellsForDict(tree[type].colTotals, 'single')}
+                    </tr>`;
+
+                    // Gross Profit after COGS (or Revenue)
+                    if (type === 'COGS' || (type === 'Revenue' && !tree['COGS'])) {
+                        var gpDict = {};
+                        var allCols = Object.keys(grossRevenue).concat(Object.keys(grossCogs));
+                        allCols.forEach(function(c) {
+                            gpDict[c] = (grossRevenue[c] || 0) - (grossCogs[c] || 0);
+                        });
+
+                        tbodyHtml += `<tr class="pl-kpi-row">
+                            <td>Gross Profit</td>
+                            ${renderCellsForDict(gpDict, 'single')}
+                        </tr>`;
+                    }
+                });
+
+                // Final Net Income
+                var niDict = {};
+                var allNiCols = Object.keys(grossRevenue).concat(Object.keys(grossCogs)).concat(Object.keys(totalExpense)).concat(Object.keys(totalOtherExpense));
+                allNiCols.forEach(function(c) {
+                    niDict[c] = (grossRevenue[c] || 0) - (grossCogs[c] || 0) - (totalExpense[c] || 0) - (totalOtherExpense[c] || 0);
+                });
+
+                tbodyHtml += `<tr class="pl-kpi-row">
+                    <td>Net Income</td>
+                    ${renderCellsForDict(niDict, 'double')}
+                </tr>`;
+
+                $table.find('tbody').html(tbodyHtml);
+                applyPlShownColumns();
+            },
+            error: function (xhr) {
+                alert("Server error. Check console.");
+                console.log(xhr.responseText);
+            },
+            complete: function () {
+                toastr.clear();
+                toastr.remove();
+            }
+        });
+    }
+
+    function applyPlShownColumns() {
+        var $wrapper = $('#profit-loss-view-wrapper');
+        var $table = $wrapper.find('#TableGride');
+        
+        var showAccount = $('#gjShownColumnsDropdown input[value="Account"]').length === 0 || $('#gjShownColumnsDropdown input[value="Account"]').is(':checked');
+        var showAmount  = $('#gjShownColumnsDropdown input[value="Amount"]').length === 0 || $('#gjShownColumnsDropdown input[value="Amount"]').is(':checked');
+
+        if (!showAccount) {
+            $table.find('tr').each(function() {
+                $(this).children().eq(0).hide();
+            });
+        } else {
+            $table.find('tr').each(function() {
+                $(this).children().eq(0).show();
+            });
+        }
+
+        if (!showAmount) {
+            $table.find('tr').each(function() {
+                $(this).children().slice(1).hide();
+            });
+        } else {
+            $table.find('tr').each(function() {
+                $(this).children().slice(1).show();
+            });
+        }
+    }
+    window.applyShownColumns = applyPlShownColumns;
+
+    $(document).ready(function () {
+        $("#TxtFromDate").kendoDatePicker({ format: "dd/MM/yyyy" });
+        $("#TxtToDate").kendoDatePicker({ format: "dd/MM/yyyy" });
+
+        var today = new Date();
+        var firstDayThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        $("#TxtFromDate").data("kendoDatePicker").value(firstDayThisMonth);
+        $("#TxtToDate").data("kendoDatePicker").value(today);
+
+        setTimeout(function() { generateProfitAndLossReport(true); }, 200);
+    });
+
+    function PrintReport() {
+        var fromDateObj = $("#TxtFromDate").data("kendoDatePicker").value();
+        var toDateObj = $("#TxtToDate").data("kendoDatePicker").value();
+        var fromStr = fromDateObj ? kendo.toString(fromDateObj, "dd/MM/yy") : "All";
+        var toStr = toDateObj ? kendo.toString(toDateObj, "dd/MM/yy") : "All";
+        var printDateStr = kendo.toString(new Date(), "dd-MMM-yyyy HH:mm");
+        var headerElement = document.querySelector(".pl-report-header");
+        var headerCopy = headerElement ? headerElement.cloneNode(true) : null;
+        if (headerCopy) {
+            var printDate = headerCopy.querySelector("#lblPrintDate");
+            if (printDate) printDate.textContent = "Print Date: " + printDateStr;
+            var dateRange = headerCopy.querySelector("#lblDateRangeBar");
+            if (dateRange) dateRange.textContent = fromStr + " - " + toStr;
+        }
+        var headerBanner = headerCopy ? headerCopy.outerHTML : '';
+        var tableContent = $(".table-responsive").html();
+
+        var win = window.open('', '', 'width=1200,height=900');
+        if (!win) {
+            alert("The PDF preview window was blocked by the browser.");
+            return;
+        }
+        win.document.write(`
+            <html>
+            <head>
+                <title>Profit and Loss Standard</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+                <style>
+                    @@import url('https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap');
+
+                    body {
+                        font-family: 'Kantumruy Pro', Arial, Helvetica, sans-serif;
+                        font-size: 12px;
+                        margin: 0;
+                        padding: 12mm;
+                        color: #000000;
+                    }
+                    .pl-report-header {
+                        text-align: center;
+                        margin-bottom: 24px;
+                        position: relative;
+                    }
+                    .pl-report-header .bs-company-kh {
+                        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+                        font-size: 20px !important;
+                        font-weight: normal;
+                        line-height: 1.6;
+                        margin-bottom: 4px;
+                        color: #000;
+                        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+                    }
+                    .pl-report-header .bs-company-en {
+                        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+                        font-size: 16px;
+                        font-weight: 900;
+                        margin-bottom: 6px;
+                        color: #000;
+                        letter-spacing: 0.5px;
+                    }
+                    .pl-report-header .bs-company-divider {
+                        font-size: 10px;
+                        margin-bottom: 12px;
+                        color: #000;
+                        letter-spacing: 2px;
+                    }
+                    .pl-report-header h3 {
+                        margin: 0 0 6px 0;
+                        font-weight: 600;
+                        color: #0f172a;
+                        font-size: 14px !important;
+                        font-family: 'Kantumruy Pro', sans-serif;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .pl-report-header .print-date-line {
+                        position: static;
+                        display: block;
+                        margin: 0 0 8px;
+                        font-size: 12px;
+                        color: #64748b;
+                        font-family: 'Kantumruy Pro', sans-serif;
+                        text-align: right;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        border: 1px solid #b0b0b0;
+                        font-family: 'Kantumruy Pro', Arial, sans-serif;
+                    }
+                    th {
+                        background: #efefef;
+                        padding: 6px 10px;
+                        border: 1px solid #b0b0b0;
+                        text-align: center;
+                        font-weight: bold;
+                        font-size: 12px;
+                        font-family: 'Kantumruy Pro', Arial, sans-serif;
+                    }
+                    td {
+                        padding: 4px 10px;
+                        border: 1px solid #d4d4d4;
+                        font-size: 12px;
+                        color: #000000;
+                        font-family: 'Kantumruy Pro', Arial, sans-serif;
+                    }
+                    #TableGride tr > td:first-child,
+                    #TableGride tr > th:first-child {
+                        position: static !important;
+                    }
+                    .pl-section-header td { font-weight: bold; font-size: 13px; padding-top: 8px; padding-bottom: 4px; padding-left: 8px; }
+                    .pl-group-header td { font-weight: bold; padding-left: 24px; padding-top: 4px; padding-bottom: 2px; }
+                    .pl-account-row td { padding-left: 40px; }
+                    .pl-sub-account-row td { padding-left: 56px; }
+                    .pl-flat-account-row td { padding-left: 24px; }
+                    .pl-group-total td { font-weight: bold; padding-left: 24px; }
+                    .pl-group-total td:nth-child(n+2) { font-weight: bold; text-decoration: underline; }
+                    .pl-section-total td { font-weight: bold; font-size: 12px; padding-left: 8px; }
+                    .pl-section-total td:nth-child(n+2) { font-weight: bold; text-decoration: underline; }
+                    .pl-kpi-row td { font-weight: bold; font-size: 13px; padding-left: 8px; padding-top: 6px; padding-bottom: 6px; }
+                    .pl-kpi-row td:nth-child(n+2) { font-weight: bold; text-decoration: underline; }
+
+                    @@media print {
+                        @@page {
+                            size: auto;
+                            margin: 0;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                ${headerBanner}
+                ${tableContent}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        setTimeout(function () { win.print(); }, 800);
+    }
+
+    function ExportExcel() {
+        var table = document.getElementById("TableGride");
+        if (!table) {
+            alert("No Profit and Loss data is available to export.");
+            return;
+        }
+        if (!window.XLSX || !XLSX.utils) {
+            alert("Excel export is unavailable because the spreadsheet library did not load. Please refresh and try again.");
+            return;
+        }
+
+        var headerRows = [
+            [getProfitLossExportHeaderText($("#profit-loss-view-wrapper #lblCompanyNameKh").text(), "")],
+            [getProfitLossExportHeaderText($("#profit-loss-view-wrapper #lblCompanyNameEn").text(), "")],
+            [getProfitLossExportHeaderText($("#profit-loss-view-wrapper #lblReportTitle").text(), "Profit and Loss")],
+            [$.trim($("#profit-loss-view-wrapper #lblDateRangeBar").text())],
+            ["Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm")]
+        ];
+        var tableSheet = XLSX.utils.table_to_sheet(table);
+        var tableRows = XLSX.utils.sheet_to_json(tableSheet, { header: 1, raw: true });
+        var tableRange = tableSheet["!ref"] ? XLSX.utils.decode_range(tableSheet["!ref"]) : { e: { c: 1 } };
+        var columnCount = Math.max(1, tableRange.e.c + 1);
+        var worksheet = XLSX.utils.aoa_to_sheet(headerRows.concat(tableRows));
+        worksheet["!merges"] = headerRows.map(function (_, rowIndex) {
+            return {
+                s: { r: rowIndex, c: 0 },
+                e: { r: rowIndex, c: columnCount - 1 }
+            };
+        });
+        var headerStyles = [
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Khmer OS Muol Light", sz: 16, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Times New Roman", sz: 14, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 12, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } }
+        ];
+        headerStyles.forEach(function (style, rowIndex) {
+            var headerCell = worksheet[XLSX.utils.encode_cell({ r: rowIndex, c: 0 })];
+            if (headerCell) headerCell.s = style;
+        });
+        (tableSheet["!merges"] || []).forEach(function (merge) {
+            worksheet["!merges"].push({
+                s: { r: merge.s.r + headerRows.length, c: merge.s.c },
+                e: { r: merge.e.r + headerRows.length, c: merge.e.c }
+            });
+        });
+        worksheet["!cols"] = Array.from({ length: columnCount }, function (_, columnIndex) {
+            return { wch: columnIndex === 0 ? 54 : 18 };
+        });
+        worksheet["!rows"] = [{ hpt: 30 }, { hpt: 24 }, { hpt: 22 }, { hpt: 20 }, { hpt: 20 }];
+
+        var workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Profit And Loss");
+        XLSX.writeFile(workbook, "ProfitAndLoss.xlsx");
+    }
+
+    function getProfitLossExportHeaderText(value, fallback) {
+        value = $.trim(value || "");
+        return !value || /^(unknown|undefined|null)$/i.test(value) ? fallback : value;
+    }
+
+    if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.loadLookups === 'function') {
+        window.AccountingAdvanceFilter.loadLookups('@Url.Action("GetAdvanceFilterLookups", "ProfitAndLoss")');
+    }
+
+    $(document).ready(function () {
+        if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.loadLookups === 'function') {
+            window.AccountingAdvanceFilter.loadLookups('@Url.Action("GetAdvanceFilterLookups", "ProfitAndLoss")');
+        }
+    });
+</script>

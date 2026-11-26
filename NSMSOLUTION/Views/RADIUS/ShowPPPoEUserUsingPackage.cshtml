@@ -1,0 +1,40 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col">
+        <div id="showpppoeuser">
+            <table class="table table-bordered table-head-fixed">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Customer Name</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody id="trshowpppoeuser">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var Data = `@Html.Raw(ViewBag.Data)`;
+    $(function () {
+        Data = JSON.parse(Data);
+        var row = "";
+        $.each(Data, function (key, value) {
+            var cust = "";
+            var active = ""; 
+            if (value.Words.username)
+                cust = value.Words.username;
+            else
+                cust = value.Words.user;
+            if (value.Words.active)
+                active = value.Words.active;
+            else
+                active = value.Words.state;
+            row += '<tr><td>' + (key + 1) + "</td>";
+            row += '<td>' + cust + '</td><td>' + active + '</td></tr>';
+        });
+        $("tbody#trshowpppoeuser").html(row);
+    })
+</script>

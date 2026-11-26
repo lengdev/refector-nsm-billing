@@ -1,0 +1,319 @@
+﻿@{ Layout = null;}
+<div id="show_Device_Info"></div>
+<script>
+    var DeviceInfoData = JSON.parse(`@Html.Raw(ViewBag.Data)`);
+    var ChangeDevice = "@ViewBag.ChangeDevice";
+    var ReceiveReturnDevice = "@ViewBag.ReceiveReturnDevice";
+    $(function () {
+        if (ChangeDevice != "True")
+            $("#ReceivedDevice").hide();
+        if (ReceiveReturnDevice != "True")
+            $("#ChangeDevice").hide();
+        let Table = (DeviceInfoData.Table);
+        if (Table.toString() == "") {
+            $("#show_Device_Info").html('<h2 class="text-red">No data available in table</h2>');
+            return;
+        }
+        let row = '', row2 = '';
+        let ConnectionID = "", ConnectionID2 = "", i = 0, j = 0;
+        $.each(Table, function (key, dt) {
+            ConnectionID = dt.ConnectionID;
+            j++;
+            if (ConnectionID != ConnectionID2) {
+                if (ConnectionID2 != "") {
+                    j = 1;
+                    row += '</tbody></table></div></div></div></div>';
+                    row += row2;
+                }
+                i++;
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label>' + i + '.</label></div>';
+                row += '<div class="col-auto"><label>Connection ID: ' + dt.ConnectionID + '</label></div>';
+                row += '<div class="col-auto"><label>Service ID: ' + dt.SID + '</label></div>';
+                row += '<div class="col-auto"><label>Connection Type: ' + dt.ConnectionType + '</label></div>';                
+                row += '</div>';
+                if (dt.CustomerNotes != '') {
+                    row += '<div class="row">';
+                    row += '<div class="col-auto"><label>Customer Note:</label></div><div class="col-auto"><pre class="text-nowrap-pre">';
+                    row += dt.CustomerNotes;
+                    row += `</pre></div></div>`;
+                }
+                row += '<div class="card card-outline card-success">';
+                row += '<div class="card-header"><h5 class="card-title">Device Information</h5></div>';
+                row += '<div class="card-body">';                
+                row += '<div class="row">';
+                if (dt.DeviceNameOLT !="")
+                    row += '<div class="col"><label>Device Name:</label> ' + dt.DeviceNameOLT + '</div>';
+                if (dt.PONPort!="")
+                    row += '<div class="col"><label>PON/Port:</label> ' + dt.PONPort + '</div>';
+                if (dt.SplitterName!="")
+                    row += '<div class="col"><label>Splitter Name:</label> ' + dt.SplitterName + '</div>';
+                if (dt.Port!="")
+                row += '<div class="col"><label>Port:</label> ' + dt.Port + '</div>';
+                row += '</div><div class="row">';
+                if (dt.Length!="")
+                    row += '<div class="col"><label>Length:</label> ' + dt.Length + '</div>';
+                if (dt.LossDB!="")
+                    row += '<div class="col"><label>Loss DB:</label> ' + dt.LossDB + '</div>';
+                if (dt.GoogleMap != "")
+                    row += '<div class="col"><label>Google Map:</label> <a href="' + dt.GoogleMap + '" target="_blank">' + dt.GoogleMap + '</a></div>';
+                row += '</div>';
+                row += '<div class="row">';
+                row += '<div class="table-container"><div class="table-scroll"> ';//<th>Barcode</th>
+                row += `<table><thead>
+                    <tr><th>No</th><th>Date</th><th>Item Name</th>
+                    <th>Serial No</th><th>MAC Address</th><th>Status</th>
+                    <th>Reason</th><th>Installed By</th><th>Activated By</th><th>Modified By</th><th>Modified Date</th><th>Return By</th><th>Change By</th>
+                    </tr></thead>
+                    <tbody><tr><td align="right">`+ j + `</td>
+                    <td>`+ moment(new Date(dt.CreateDate)).format('LLLL') + `</td>`;//.format('DD-MM-YYYY')
+                    //<td>`+ dt.Barcode + `</td><th>NSM</th><th>Customer</th>
+                row += `<td>` + dt.ItemName + `</td>
+                    <td>`+ dt.SerialNo + `</td>
+                    <td>`+ dt.MACAddress + `</td>`;
+                //row += `<td align="center"><span class="badge badge-pill text-uppercase badge-primary">` + dt.Status + `</span></td>`;
+                if (dt.Status == 'Active')
+                    row += `<td align="center"><span class="badge badge-pill text-uppercase badge-primary">` + dt.Status + `</span></td>`;
+                else
+                    row += `<td align="center"><span class="badge badge-pill text-uppercase badge-danger">` + dt.Status + `</span></td>`;
+                row += `<td>` + (dt.Reason == null ? "" : dt.Reason) + `</td>`;
+                row += `<td>` + (dt.InstallBy == null ? "" : dt.InstallBy) + `</td>`;
+                row += `<td>` + (dt.ActivateBy == null ? "" : dt.ActivateBy) + `</td>`;
+                row += `<td>` + (dt.ModifyBy == null ? "" : dt.ModifyBy) + `</td>`;
+                row += `<td>` + (dt.ModifyDate == null ? "" : moment(new Date(dt.ModifyDate)).format('DD-MM-YYYY hh:mm A')) + `</td>`;
+                row += `<td>` + (dt.ReturnBy == null ? "" : dt.ReturnBy) + `</td>`;
+                row += `<td>` + (dt.ChangeBy == null ? "" : dt.ChangeBy) + `</td>`;
+                //if (!dt.NSM)
+                //    row += `<td></td>`;
+                //else
+                //    row += `<td align="center"><i class="fa-solid fa-square-check text-primary"></i></td>`;
+                //if (!dt.Customer)
+                //    row += `<td></td>`;
+                //else
+                //    row += `<td align="center"><i class="fa-solid fa-square-check text-primary"></i></td>`;
+                row += `</tr>`;
+                //----end row
+
+                //start row2
+
+                row2 = `<div class="row" id="divNetConfig">
+        <div class="col">
+            <div class="card card-outline card-success">
+                <div class="card-header">
+                    <h5 class="card-title">Network Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6" id="divUserNetInfo">
+                        <div class="row form-group" id="ActivateDate" style="">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap" for="TxtActivateDate">Activate Date:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ moment(new Date(dt.ActivateDate)).format('LLLL') + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>    
+                        <div class="row form-group" id="divSID" style="">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap" for="TxtSID">Service ID:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.SID + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap" for="Cbo_RouterName">Router Name:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.RouterName + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap">Connection Type:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.ConnectionType + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>`;
+                if (dt.ConnectionType == 'Static') {
+                    row2 += `<div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">Vlan Name:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.VLanName + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label" for="VLanIPAddress">Address IP:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.VLanIPAddress + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">Customer IP:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.IPAddress + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label text-nowrap">Default Getway IP:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.GetwayIP + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">Subnet IP:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.SubnetIP + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">DNS1:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.DNS1 + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">DNS2:</label>
+                                    </div>
+                                    <div class="col" data-validate="DNS2 is required.">
+                                        <input value="`+ dt.DNS2 + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                            </div>`;
+                }
+                else {
+                    row2 += `<div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label text-nowrap">Profile Name:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.PPPoEProfileName + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">User Name:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.PPPoEUserName + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-3 text-right">
+                                        <label class="col-form-label">Password:</label>
+                                    </div>
+                                    <div class="col">
+                                        <input value="`+ dt.PPPoEPassword + `" type="text" class="form-control" readonly="readonly" />
+                                    </div>
+                                </div>
+                            </div>`;
+                }
+                row2 += `</div>
+                        <div class="col-6">
+                        <div class="row form-group" id="ActivateBy" style="">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap" for="TxtActivateBy">Activate By:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.ActivateBy + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label">Device Name:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.DeviceName + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label">Router IP:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.WifiIP + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label">Wifi Name:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.WifiName + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label">Wifi Key:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.WifiKey + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap">Login Name:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.WifiLoginName + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-3 text-right">
+                                    <label class="col-form-label text-nowrap">Login PWD:</label>
+                                </div>
+                                <div class="col">
+                                    <input value="`+ dt.WifiLoginPassword + `" type="text" class="form-control" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+                //end row2
+            }
+            else {
+                row += `<tr><td align="right">` + j +`</td>
+                    <td>`+ moment(new Date(dt.CreateDate)).format('LLLL') + `</td>
+                    <td>`+ dt.ItemName + `</td>
+                    <td>`+ dt.SerialNo + `</td>
+                    <td>`+ dt.MACAddress + `</td>`;//<td>`+ dt.Barcode + `</td>
+                if (dt.Status =='Active')
+                    row += `<td align="center"><span class="badge badge-pill text-uppercase badge-primary">` + dt.Status + `</span></td>`;
+                else
+                    row += `<td align="center"><span class="badge badge-pill text-uppercase badge-danger">` + dt.Status + `</span></td>`;
+                row += `<td>` + (dt.Reason == null ? "" : dt.Reason) + `</td>`;
+                row += `<td>` + (dt.CreateBy == null ? "" : dt.CreateBy) + `</td>`;
+                row += `<td></td>`;
+                row += `<td></td>`;
+                row += `<td></td>`;
+                row += `<td>` + (dt.ReturnBy == null ? "" : dt.ReturnBy) + `</td>`;
+                row += `<td>` + (dt.ChangeBy == null ? "" : dt.ChangeBy) + `</td>`;
+                row += `</tr>`;
+            }
+            ConnectionID2 = dt.ConnectionID;
+        });
+        row += '</tbody></table></div></div></div></div></div>';
+        row += row2;
+        $("#show_Device_Info").html(row);
+    });
+</script>

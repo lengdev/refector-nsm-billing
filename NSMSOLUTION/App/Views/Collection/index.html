@@ -1,0 +1,265 @@
+﻿<!doctype html>
+<html lang="en" ng-app="collectionApp">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Collections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+Khmer:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <!-- custom.css is already loaded by your layout. -->
+  <link rel="stylesheet" href="App/Views/Collection/style.css">
+  <link rel="stylesheet" href="App/Views/Collection/list.css">
+  <style>
+    [ng-cloak] {
+      display: none !important
+    }
+  </style>
+</head>
+
+<body>
+  <!-- CollectionCtrl owns the modal and the data. CollectionListCtrl (child) owns search, filters, sort, paging. -->
+  <div class="cl-root" ng-controller="CollectionCtrl" ng-cloak>
+    <div class="cx-page" ng-controller="CollectionListCtrl">
+
+      <!-- ===== Header ===== -->
+      <header class="cx-head">
+        <div class="cx-title">
+          <h1>Collections</h1>
+          <p>Receipts collected from customers</p>
+        </div>
+        <div class="cx-head-actions">
+          <button class="cl-btn" type="button" ng-click="reload()" ng-disabled="listLoading" tooltip
+            title="Reload the list">
+            <i class="ti ti-refresh"></i> Refresh
+          </button>
+          <button class="cl-btn" type="button" ng-click="exportCsv()" ng-disabled="!list.count" tooltip
+            title="Download the filtered rows as CSV">
+            <i class="ti ti-csv"></i> Export
+          </button>
+          <button class="cl-btn d-none" type="button" ng-click="printList()" ng-disabled="!list.count" tooltip
+            title="Print the filtered rows">
+            <i class="ti ti-printer"></i> Print
+          </button>
+          <button class="cl-btn cl-primary" type="button" ng-click="openAdd()">
+            <i class="ti ti-plus cl-ico" aria-hidden="true"></i>Add Collection
+          </button>
+        </div>
+      </header>
+
+      <!-- ===== Summary of the filtered rows ===== -->
+      <section class="cx-kpis" aria-label="Summary">
+        <div class="cx-kpi cx-kpi-main">
+          <span>Total collected</span>
+          <b>{{list.sym}}{{list.total | number:2}}</b>
+          <small>Average {{list.sym}}{{list.avg | number:2}} per receipt</small>
+        </div>
+        <div class="cx-kpi">
+          <span>Receipts</span>
+          <b>{{list.count}}</b>
+          <small>{{list.rangeLabel}}</small>
+        </div>
+        <div class="cx-kpi">
+          <span>Top method</span>
+          <b>{{list.top ? list.top.label : '—'}}</b>
+          <small ng-show="list.top">{{list.sym}}{{list.top.sum | number:2}} · {{list.top.count}}
+            receipt{{list.top.count === 1 ? '' : 's'}}</small>
+        </div>
+      </section>
+
+      <!-- ===== Toolbar + table ===== -->
+      <section class="cx-card">
+        <div class="cx-bar">
+          <label class="cx-search">
+            <i class="ti ti-search cl-ico"></i>
+            <input type="text" autocomplete="off" placeholder="Search number, customer, method…" ng-model="list.q"
+              ng-model-options="{debounce: 200}" aria-label="Search collections">
+            <button type="button" class="cx-clear" ng-show="list.q" ng-click="list.q = ''" aria-label="Clear search">
+              <i class="ti ti-x cl-ico" aria-hidden="true"></i>
+            </button>
+          </label>
+
+          <div class="cx-seg" role="group" aria-label="Date range">
+            <button type="button" ng-repeat="p in presets" ng-class="{'cx-on': list.preset === p.key}"
+              ng-click="setPreset(p.key)">{{p.label}}</button>
+          </div>
+
+          <div class="cx-dates" ng-show="list.preset === 'custom'">
+            <input type="date" ng-model="list.fromObj" ng-change="onDate()" aria-label="From date">
+            <span>to</span>
+            <input type="date" ng-model="list.toObj" ng-change="onDate()" aria-label="To date">
+          </div>
+
+          <select class="cx-select" ng-model="list.method" ng-options="m for m in list.methods"
+            aria-label="Payment method">
+            <option value="">All methods</option>
+          </select>
+
+          <button type="button" class="cx-link" ng-show="hasFilters()" ng-click="clearFilters()">Clear filters</button>
+        </div>
+
+        <div class="cx-scroll">
+          <table class="cx-table" aria-busy="{{!!listLoading}}">
+            <thead>
+              <tr>
+                <th class="cx-c-idx">#</th>
+                <th class="cx-sortable" ng-class="sortClass('no')" ng-click="sortBy('no')"
+                  ng-attr-aria-sort="{{ariaSort('no')}}">Number<i class="ti ti-arrows-sort cl-ico cx-sort"
+                    aria-hidden="true"></i></th>
+                <th class="cx-sortable" ng-class="sortClass('date')" ng-click="sortBy('date')"
+                  ng-attr-aria-sort="{{ariaSort('date')}}" nowrap>Date<i class="ti ti-arrows-sort cl-ico cx-sort"
+                    aria-hidden="true"></i></th>
+                <th class="cx-sortable" ng-class="sortClass('customer')" ng-click="sortBy('customer')"
+                  ng-attr-aria-sort="{{ariaSort('customer')}}">Customer<i class="ti ti-arrows-sort cl-ico cx-sort"
+                    aria-hidden="true"></i></th>
+                <th class="cx-sortable" ng-class="sortClass('method')" ng-click="sortBy('method')"
+                  ng-attr-aria-sort="{{ariaSort('method')}}">Method<i class="ti ti-arrows-sort cl-ico cx-sort"
+                    aria-hidden="true"></i></th>
+                <th class="cx-hide-sm">Deposit To</th>
+                <th class="cx-r cx-sortable" ng-class="sortClass('amount')" ng-click="sortBy('amount')"
+                  ng-attr-aria-sort="{{ariaSort('amount')}}">Amount<i class="ti ti-arrows-sort cl-ico cx-sort"
+                    aria-hidden="true"></i></th>
+                <th>TYPE</th>
+                <th class="cx-c-act"><span class="cx-sr">Actions</span></th>
+              </tr>
+            </thead>
+
+            <tbody ng-if="listLoading && !saved.length" aria-hidden="true">
+              <tr class="cx-skel" ng-repeat="n in [1,2,3,4,5] track by $index">
+                <td><i class="cx-sk cx-sk-s"></i></td>
+                <td><i class="cx-sk cx-sk-m"></i></td>
+                <td><i class="cx-sk cx-sk-m"></i></td>
+                <td><i class="cx-sk cx-sk-l"></i></td>
+                <td><i class="cx-sk cx-sk-m"></i></td>
+                <td class="cx-hide-sm"><i class="cx-sk cx-sk-l"></i></td>
+                <td><i class="cx-sk cx-sk-s"></i></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody>
+              <tr class="cx-empty" ng-if="!listLoading && !saved.length">
+                <td colspan="8">
+                  <div class="cx-empty-in">
+                    <span class="cx-empty-ico"><i class="ti ti-receipt cl-ico" aria-hidden="true"></i></span>
+                    <b>No collections yet</b>
+                    <span>Receipts you save will appear here.</span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cx-empty" ng-if="saved.length && !list.count">
+                <td colspan="8">
+                  <div class="cx-empty-in">
+                    <span class="cx-empty-ico"><i class="ti ti-search cl-ico" aria-hidden="true"></i></span>
+                    <b>No matching collections</b>
+                    <span>Try a different search or widen the date range.</span>
+                    <button class="cl-btn" type="button" ng-click="clearFilters()">Clear filters</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr ng-repeat="r in list.items track by r.id">
+                <td class="cx-c-idx">{{list.from + $index}}</td>
+                <td class="cx-no">
+                  <button type="button" class="cx-view" ng-click="viewRow(r)" ng-disabled="list.viewing === r.no"
+                    tooltip title="View receipt">{{r.no}}</button>
+                  <button type="button" class="cx-act cx-copy" ng-click="copyNo(r)" tooltip title="Copy number"
+                    aria-label="Copy number {{r.no}}"><i class="ti ti-copy cl-ico" aria-hidden="true"></i></button>
+                </td>
+                <td>{{r.date | date:'dd-MMM-yyyy'}}</td>
+                <td class="cx-cust" tooltip ng-attr-title="{{r.customer}}">{{r.customer}}</td>
+                <td><span class="cx-pill" ng-class="{'cx-pill-alt': isCredit(r)}">{{r.method}}</span></td>
+                <td class="cx-hide-sm">{{r.deposit}}</td>
+                <td class="cx-r cx-amt">
+                  {{r.sym}}{{amt(r) | number:2}}
+                  <span class="cx-credit d-none" ng-if="hasCredit(r)" tooltip
+                    title="This money was not applied to an invoice. It was saved as customer credit and can pay the customer's future invoices.">{{creditNote(r)}}</span>
+                </td>
+                <td>
+                  <span class="cx-pill" ng-class="{'cx-pill-dep': isDepositRow(r)}">{{ typeLabel(r) }}</span>
+                </td>
+                <td class="cx-c-act">
+                  <button type="button" class="cx-act" ng-if="!r.status || r.status === 'Posted'" ng-click="openEdit(r)"
+                    ng-disabled="ui.opening" tooltip title="Edit collection" aria-label="Edit {{r.no}}">
+                    <i class="ti ti-edit cl-ico" aria-hidden="true"></i>
+                  </button>
+
+                  <button type="button" class="cx-act cx-act-danger" ng-click="askRollback(r)" tooltip
+                    title="Rollback this receipt" aria-label="Rollback {{r.no}}">
+                    <i class="ti ti-rotate-2 cl-ico" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+
+            <tfoot ng-show="list.count">
+              <tr>
+                <td colspan="6">Total · {{list.count}} receipt{{list.count === 1 ? '' : 's'}}
+                  <span class="cx-sub" ng-show="list.count > list.items.length">(this page {{list.sym}}{{list.pageSum |
+                    number:2}})</span>
+                </td>
+                <td class="cx-r cx-amt">{{list.sym}}{{list.total | number:2}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="cx-pager" ng-show="list.count">
+          <span class="cx-sub">Showing {{list.from}}–{{list.to}} of {{list.count}}</span>
+          <div class="cx-pager-ctl">
+            <label class="cx-sub">Rows
+              <select class="cx-select cx-select-sm" ng-model="list.size" ng-options="n for n in sizes"></select>
+            </label>
+            <button type="button" class="cx-pg" ng-click="go(list.page - 1)" ng-disabled="list.page <= 1"
+              aria-label="Previous page"><i class="ti ti-chevron-left cl-ico" aria-hidden="true"></i></button>
+            <span class="cx-sub">Page {{list.page}} of {{list.pages}}</span>
+            <button type="button" class="cx-pg" ng-click="go(list.page + 1)" ng-disabled="list.page >= list.pages"
+              aria-label="Next page"><i class="ti ti-chevron-right cl-ico" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Rollback confirmation ===== -->
+      <div class="cl-scrim" ng-show="rollbackDlg.open">
+        <div class="cl-dlg" role="alertdialog" aria-labelledby="cx-rollback-title">
+
+          <h3 id="cx-rollback-title">
+            Rollback {{rollbackDlg.row.no}}?
+          </h3>
+
+          <p>
+            The invoices this receipt paid will be reopened,
+            and the receipt number can be reused for a new collection.
+            This action cannot be undone.
+          </p>
+
+          <div class="cl-err" ng-show="rollbackDlg.error">
+            {{rollbackDlg.error}}
+          </div>
+
+          <div class="cl-acts">
+            <button class="cl-btn" type="button" ng-click="rollbackDlg.open = false" ng-disabled="rollbackDlg.busy">
+              Keep receipt
+            </button>
+
+            <button class="cl-btn cl-danger" type="button" ng-click="confirmRollback()" ng-disabled="rollbackDlg.busy">
+              <i class="ti ti-rotate-2" ng-if="!rollbackDlg.busy"></i>
+
+              {{rollbackDlg.busy ? 'Rolling back...' : 'Rollback receipt'}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- the Add Collection modal (unchanged) -->
+    <div ng-include="'App/Views/Collection/modal.html'"></div>
+  </div>
+</body>
+
+</html>

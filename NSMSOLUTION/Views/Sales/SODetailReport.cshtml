@@ -1,0 +1,12 @@
+﻿
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function showSOForm(salesId, soNumber, saleType) {
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox("Preview Sales Order Form No.: " + soNumber, "Auto", "500", URL);
+    }
+</script>

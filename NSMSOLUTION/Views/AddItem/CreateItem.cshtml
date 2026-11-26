@@ -1,0 +1,266 @@
+﻿@{
+    Layout = null;
+}
+
+@Html.Raw(@ViewBag.DrawHTMLForm)
+
+<script>
+    $(function () {
+        let isEdit = "@ViewBag.PrimaryFieldValue" > "0" ? true : false;
+
+        $(document).on("change", 'input[name="iMultiplier"]', function () {
+            let m = $(this);
+            const tr = $(this).closest('tr');
+            const unit = $(tr).find('input[name="iUM"]');
+            if (unit.val() === "") {
+                DialogSweetAlert("error", "Please select UM.", function () {
+                    $(m).val("");
+                    $(unit).focus();
+                });
+                return false;
+            }
+            if (parseInt(m.val()) === 0) {
+                m.val(1);
+            }
+        });
+
+        $(document).on("keyup", 'input[name="iCostPrice"], input[name="iSellingPrice"]', function () {
+            const input = $(this);
+            const name = input.attr('name');
+            const tr = input.closest('tr');
+            const table = input.closest('#Table_UMItem');
+            const tRows = $(table).find("tbody tr");
+            const i = tRows.index(tr);
+
+            const currentValue = parseFloat(input.val() || 0);
+
+            if (isNaN(currentValue)) return;
+
+            if (name === "iCostPrice" || name === "iSellingPrice") {
+                const m = tr.find('input[name="iMultiplier"]');
+
+                if (m.val() === "") {
+                    DialogSweetAlert("error", "Please Enter Multiplier.", function () {
+                        input.val("");
+                        m.focus();
+                    });
+                    return false;
+                }
+
+                let value = currentValue;
+
+                for (let j = i + 1; j < tRows.length; j++) {
+                    const nextRow = tRows.eq(j);
+                    const nextMultiplierInput = nextRow.find('input[name="iMultiplier"]');
+                    const nextMultiplier = parseFloat(nextMultiplierInput.val() || 0);
+
+                    if (!isNaN(nextMultiplier) && nextMultiplier !== 0) {
+                        value = value / nextMultiplier;
+                        nextRow.find(`input[name="${name}"]`).val(value);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        });
+
+        $(document).on("focus", 'input[name="iCostPrice"], input[name="iSellingPrice"]', function () {
+            const input = $(this);
+            const name = input.attr('name');
+            const tr = input.closest('tr');
+            const table = input.closest('#Table_UMItem');
+            const tRows = $(table).find("tbody tr");
+            const i = tRows.index(tr);
+
+            if (i === 0 || input.val().trim() !== "") return;
+
+            const prevRow = tRows.eq(i - 1);
+            const prevValue = parseFloat(prevRow.find(`input[name="${name}"]`).val() || 0);
+            const currentMultiplier = parseFloat(tr.find('input[name="iMultiplier"]').val() || 0);
+
+            if (!isNaN(prevValue) && !isNaN(currentMultiplier) && currentMultiplier !== 0) {
+                const result = prevValue / currentMultiplier;
+                input.val(result);
+            }
+        });
+
+    });
+    function AddVariantsItem() {
+        let ItemName = $("#ItemName").val();
+        if (ItemName == "") {
+            DialogSweetAlert("error", "Please Enter Item Name.");
+            return;
+        }
+        let URL = "AddItem/CreateVariantsItem?ItemName=" + ItemName;
+        ShowDialogBox2("Add Variants Item", "Auto", "500", URL, 0, "DialogAddVariantsItem", function () {
+            //$("#DialogAddVariantsItem").on('hide.bs.modal', function () {
+            //    loadItem();
+            //});
+        });
+    }
+    function getDateEdit(response) {
+        response = JSON.parse(response);
+        //console.log(response);
+        //DataTblEdit = response;
+    }
+    function checkopeningstock() {
+        if (accounting.unformat($("#OpeningStock").val()) > 0 && $("#OpeningStockRatePerUnit").val() == "") {
+            DialogSweetAlert("error", "Please enter Opening Stock Rate Per Unit.", function () {
+                $("#OpeningStockRatePerUnit").focus();
+                return false;
+            });
+            return false;
+        }
+        return true;
+    }
+    function addCategoryToItem(response) {
+        var Data = [], iCostPrice = {}, iSellingPrice = {}, objDatas = [], ItemCategory = {}, objDataOpeningStock = [];
+        ItemCategory = SaveChangeResponse.filter(function (item) {
+            return item.name == 'StockName_StockNameID';
+        });
+        Data = SaveChangeResponse['Data'].IDENTITYValue.split("~");
+        var Datas = Data[0].split("|");
+        //var PurchasePrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'PurchasePrice'
+        //})[0].value;
+        //var SellingPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'SellingPrice'
+        //})[0].value;
+        var objs = [];
+        for (var i = 0; i < Data.length; i++) {
+            var dt = Data[i].split("|")
+            var obj = {};
+            if (dt[0] == "ParentItemID") {
+                obj = { ItemID: dt[1] };
+                objs.push(obj);
+            }
+        }
+        Datas = {
+            ItemID: Datas[1],
+            //iCostPrice: PurchasePrice,
+            //SellingPrice: SellingPrice
+        };
+        //iCostPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iCostPrice' && item.value != "";
+        //});
+        //iSellingPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iSellingPrice' && item.value != "";
+        //});
+        for (var j = 0; j < objs.length; j++) {
+            var objData = {
+                ItemID: objs[j].ItemID,
+                iCostPrice: accounting.unformat(iCostPrice[j].value),
+                SellingPrice: accounting.unformat(iSellingPrice[j].value)
+            }
+            objDatas.push(objData);
+        }
+        objDatas.push(Datas);
+        var ojbCat = [];
+        for (var i = 0; i < ItemCategory.length; i++) {
+            var Category = ItemCategory[i].value;
+            var obj = {};
+            $.each(objDatas, function (key, value) {
+                obj = {
+                    ItemID: value.ItemID,
+                    CategoryID: Category
+                }
+                ojbCat.push(obj);
+            });
+        }
+        //var OpeningStock = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "OpeningStock";
+        //})[0].value;
+        //var OpeningStockRatePerUnit = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "OpeningStockRatePerUnit";
+        //})[0].value;
+        var ItemExpirationDate = SaveChangeResponse.filter(function (item) {
+            return item.name == "ItemExpirationDate";
+        })[0].value;
+        var VendorName = SaveChangeResponse.filter(function (item) {
+            return item.name == "VendorName_Reference_VendorName";
+        })[0].value;
+        var VendorID = SaveChangeResponse.filter(function (item) {
+            return item.name == "VendorName_VendorID";
+        })[0].value;
+        var Warehouse = SaveChangeResponse.filter(function (item) {
+            return item.name == "Warehouse";
+        })[0].value;
+        var WID = SaveChangeResponse.filter(function (item) {
+            return item.name == "Warehouse_WID";
+        })[0].value;
+        var ItemName = SaveChangeResponse.filter(function (item) {
+            return item.name == "Txt_ItemName";
+        })[0].value;
+        //var UM = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "Txt_UMName";
+        //})[0].value;
+
+        const createBy = $("#CreateBy").val();
+        const createDate = $("#CreateDate").val();
+        isEdit = JSON.parse(response.Data)[0].IsUpdate;
+
+        objDataOpeningStock.push({
+            ItemID: Datas.ItemID,
+            //OpeningStock: accounting.unformat((OpeningStock == "" ? "0" : OpeningStock)),
+            //OpeningStockRatePerUnit: accounting.unformat((OpeningStockRatePerUnit == "" ? "0" : OpeningStockRatePerUnit)),
+            VendorName: encodeURIComponent(VendorName),
+            VendorID: VendorID,
+            Warehouse: encodeURIComponent(Warehouse),
+            WID: WID,
+            ItemName: encodeURIComponent(ItemName),
+            /*UM: UM,*/
+            ItemExpirationDate: (ItemExpirationDate == "" ? "" : StringToDate(ItemExpirationDate))
+        });
+
+        var dateTimeObj = [
+            { CreateBy: createBy, CreateDate: createDate, IsUpdate: isEdit }
+        ];
+
+
+        var DATA = {
+            ItemCategory: JSON.stringify(ojbCat),
+            //ItemPriceList: JSON.stringify(objDatas),
+            OpeningStock: JSON.stringify(objDataOpeningStock),
+            DateTimeCreate: JSON.stringify(dateTimeObj)
+        };
+        //console.log(ItemCategory)
+        PostData("AddItem/SaveChangeItem", DATA, function (res) {
+            const rst = JSON.parse(res);
+
+            if (rst.Resutl === 2 && !isEdit) {
+                PostData("AddItem/SendNotificationToTelegram", { ItemID: Datas.ItemID });
+            }
+        });
+    }
+
+    function generateItemCode() {
+        let lastSeq;
+        LoadData('AddItem/GetLastSeq', function (response) {
+            const res = JSON.parse(JSON.parse(response).data);
+            if (res.length > 0) {
+                lastSeq = res[0].seq;
+                lastSeq++;
+                // Convert the number to a string and pad with leading zeros
+                const newItemCode = lastSeq.toString().padStart(4, '0');
+                $("#ItemCode").val(newItemCode);
+                $('input[name="ItemCodeSeq"]').val(lastSeq);
+            }
+        });
+    }
+
+    // Call generateItemCode on focus if the input is empty
+    $("#ItemCode").on("focus", function () {
+        const currCode = $(this).val();
+        if (!currCode) {
+            generateItemCode();
+        }
+    }).on('change', function () {
+        $('input[name="ItemCodeSeq"]').val(null);
+    });
+
+    // Initial call to generateItemCode if the input is empty
+    if (!$("#ItemCode").val()) {
+        generateItemCode();
+    }
+
+</script>

@@ -1,0 +1,41 @@
+﻿
+@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+
+    function onGridRequestReturn(THIS, IsRequestStockReturn) {
+        var index = $(THIS).closest("tr").index();
+        var tdindex = $("tr[name=TrRowNo]:eq(" + index + ") td").index(THIS);
+        if (tdindex < 6) {
+            var RequestItemID = $("tr[name=TrRowNo]:eq(" + index + ") td:eq(1)").html();
+            var RequestNo = $("tr[name=TrRowNo]:eq(" + index + ") td:eq(3)").html();
+            ShowDialogBox2("Request No:. " + RequestNo, "auto", "500", "Items/StockReturnForm?ID=" + RequestItemID + "&IsRequestStockReturn=" + IsRequestStockReturn, 0, "dialogitemrequest", function () {
+                $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+                $("#SaveChange2").click(function () {
+                    $("#divItemRequestForm").printThis();
+                });
+            });
+        }
+    }
+    function ApproveDisapproveRequestReturn(RequestItemID, Status, RequestMode) {
+        RequestMode = typeof RequestMode == "undefined" ? "Request Stock Return" : RequestMode;
+        var msg = "Approval this Stock Return. You won't be able to revert this!";
+        var m = "Approving...";
+        if (Status == "Disapproved") {
+            m = "Disapproving...";
+            msg = "Disapprove this Stock Return. You won't be able to revert this!";
+        }
+        DoSaveChangeSweetCofirm("Items/ApproveDisapproveRequestReturn?ID=" + RequestItemID + "&Status=" + Status + "&RequestMode=" + RequestMode, "", function (response) {
+            $("#BunSearch").click();
+        }, m, msg);
+    }
+    function showRequestReturnForm(requestId, isRequestApproval, requestNo) {
+        var URL = "Items/StockReturnForm?ID=" + requestId + "&IsRequestStockReturn=" + isRequestApproval;
+        ShowDialogBox(`Preview Request Return Form No.: ${requestNo}`, "Auto", "500", URL, "", "", "", "", "", function () {
+            $("#SaveChange").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange").click(function () {
+                $("#divRequestReturnForm").printThis();
+            });
+        });
+    }
+</script>

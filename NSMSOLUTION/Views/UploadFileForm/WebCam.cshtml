@@ -1,0 +1,219 @@
+﻿@{
+    Layout = null;
+}
+<style>
+    .my_camera {
+        width: 720px;
+        height: 560px;
+    }
+
+    .results {
+        width: 720px;
+        height: 560px;
+        border: 2px dashed #808080;
+        /*top: 0;*/
+    }
+
+    video {
+        border: 2px dashed #808080;
+        /*width: 100% !important;
+        height: 100% !important;
+        transform: none !important;*/
+        /*width: 720px;
+        height: 560px;*/
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-11 mt-3">
+        <div id="my_camera"></div>
+        <div id="results" class="results" style="display:none"></div>
+        <div id="Cropresults" class="results col-12" style="display:none"></div>
+    </div>
+</div>
+
+<!-- Configure a few settings and attach camera -->
+<script language="JavaScript">
+    var myFileList = "";
+    var TakeSnapshot = false;
+    var cropper = "";
+    var CropImgData = "";
+    // preload shutter audio clip
+    var shutter = new Audio();
+    $(function () {
+        var btn = '<div class="mr-auto"><button id="TakeSnapshot" type="button" class="btn btn-info">';
+        btn += '<i class="fas fa-photo-video"></i> Take Snapshot</button>&nbsp;';
+        btn += '<button id="CropSnapshot" onclick="Crop();" type="button" class="btn btn-info">';
+        btn += '<i class="fa fa-crop-alt"></i> Crop</button></div>';
+        $("#btnSaveWebCam").before(btn);
+        initWebCam();
+        $("#TakeSnapshot").click(function () {
+            take_snapshot();
+        });
+        $("#btnSaveWebCam").click(function () {
+            SaveCropImg();
+        });
+    });
+
+    function initWebCam() {
+        $("#CropSnapshot").attr("disabled", true);
+        //$("#btnSaveWebCam").attr("disabled", true);
+        // Configure a few settings and attach camera
+        Webcam.set({
+            width: 720,//1920×1080
+            height: 560,
+            image_format: 'jpeg',
+            jpeg_quality: 100,
+            //flip_horiz: true,
+            dest_width: 1920,
+            dest_height: 1460,
+            //constraints: {
+            //    width: { exact: 1920 },
+            //    height: { exact: 1080 }
+            //},
+            //force_flash: false,
+            //fps: 45
+        });
+        Webcam.attach('#my_camera');
+        shutter.autoplay = true;
+        shutter.src = "Scripts/UploadFile/" + navigator.userAgent.match(/Firefox/) ? 'shutter.ogg' : 'shutter.mp3';
+    }
+
+    function take_snapshot(callback) {
+        callback = (typeof callback == "undefined" ? "" : callback);
+        if (callback == "") {
+            if (!TakeSnapshot) {
+                TakeSnapshot = true;
+                // play sound effect
+                shutter.play();
+                // take snapshot and get image data
+                Webcam.snap(function (data_uri) {
+                    // display results in page
+                    $('#results').html('<img id="imgTakeSnapshot" src="' + data_uri + '"/>');
+                    Webcam.reset();
+                    $("#results").show();
+                    $("#Cropresults").hide();
+                    $("#my_camera").hide();
+                    $("#TakeSnapshot").html('<i class="fas fa-photo-video"></i> Re Take Snapshot');
+                    CropImg("imgTakeSnapshot");
+                });
+            }
+            else {
+                $("#TakeSnapshot").html('<i class="fas fa-photo-video"></i> Take Snapshot');
+                $("#my_camera").show();
+                $("#results").hide();
+                $("#Cropresults").hide();
+                initWebCam();
+                TakeSnapshot = false;
+            }
+        }
+        else {
+            if (!TakeSnapshot) {
+                TakeSnapshot = true;
+                // play sound effect
+                shutter.play();
+                Webcam.snap(function (data_uri) {
+                    // display results in page
+                    $('#results').html('<img id="imgTakeSnapshot" src="' + data_uri + '"/>');
+                    //Webcam.reset();
+                    $("#results").show();
+                    $("#Cropresults").hide();
+                    $("#my_camera").hide();
+                    $("#TakeSnapshot").html('<i class="fas fa-photo-video"></i> Re Take Snapshot');
+                    CropImg("imgTakeSnapshot", callback);
+                });
+            }
+            else {
+                Crop(callback);
+            }
+        }
+    }
+
+    function CropImg(ImgID, callback) {
+        callback = (typeof callback == "undefined" ? "" : callback);
+        $("#CropSnapshot").removeAttr("disabled");
+        var image = document.querySelector('#' + ImgID);
+        var options = {
+            //viewMode:1,            
+            autoCropArea: 1,
+            //aspectRatio: 16 / 9,
+            //preview: '.img-preview',
+            ready: function (e) {                
+                //var width = cropper.imageData.width;//parseInt($(this).parents('.panel-body').find('.width').val());
+                //var height = cropper.imageData.height;//parseInt($(this).parents('.panel-body').find('.height').val());
+                //console.log(width, height);
+                //cropper.setCropBoxData(0, -118, width, height);
+                //cropper.moveTo(0, 0);
+                cropper.setDragMode("move");
+                //var ratio = document.getElementById('imgTakeSnapshot').cropper.imageData.width / document.getElementById('imgTakeSnapshot').cropper.imageData.naturalWidth;
+
+                //document.getElementById('imgTakeSnapshot').cropper.setCropBoxData({ width: width * ratio, height: height * ratio });
+                if (callback != "") {
+                    return Crop(callback);
+                }
+                //console.log(e.type);
+            },
+            cropstart: function (e) {
+                //console.log(e.type, e.detail.action);
+            },
+            cropmove: function (e) {
+                //console.log(e, e.type, e.detail.action);
+            },
+            cropend: function (e) {
+                //console.log(e.type, e.detail.action);
+            },
+            crop: function (e) {
+                //var data = e.detail;
+                //console.log(e.type);
+                //data.textContent = JSON.stringify(cropper.getData());
+                //cropBoxData.textContent = JSON.stringify(cropper.getCropBoxData());
+            },
+            zoom: function (e) {
+                //console.log(e.type, e.detail.ratio);
+            }
+        };
+        cropper = new Cropper(image, options);
+    }
+
+    function Crop(callback) {
+        callback = (typeof callback == "undefined" ? "" : callback);
+        //$("#btnSaveWebCam").removeAttr("disabled");
+        $("#results").hide();
+        $("#Cropresults").show();
+        $("#my_camera").hide();
+        var result = document.getElementById("Cropresults");
+        result.innerHTML = '';
+        result.appendChild(cropper.getCroppedCanvas());
+        cropper.getCroppedCanvas().toBlob((blob) => {
+            //var blobUrl = URL.createObjectURL(blob);
+            const file = new File([blob], 'untitled.png', { type: blob.type });
+            let list = new DataTransfer();
+            list.items.add(file);
+            myFileList = list.files;
+            if (callback != "") {
+                return callback(myFileList);
+            }
+            //blobToBase64(blob).then(res => {
+            //    CropImgData = res;
+            //});
+        });
+    }
+
+    function SaveCropImg() {
+        take_snapshot(function (data) {
+            IsShowdrawPhotoEditor = false;
+            //$(".imageuploadify-container").remove();
+            //var FileList = $('input[name=custFile]').prop('files');
+            //var dt = new DataTransfer();
+            //$.each(FileList, function (key, value) {
+            //  dt.items.add(value);
+            //});
+            //dt.items.add(data[0]);
+            //$('input[name=custFile]').prop('files', dt.files);
+            $('input[name=custFile]').prop('files', data);
+            $('input[name=custFile]').trigger('change');            
+            //Webcam.reset();
+            $("#btnCloseWebCam").click();
+        });
+    }
+</script>

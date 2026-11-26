@@ -1,0 +1,40 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowPOInvoice(VendorID, POID, PONumber) {
+        var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + POID + "&Type=PO";
+        ShowDialogBox("Preview PR No.: " + PONumber, "Auto", "500", URL);
+    }
+    function ShowBillInvoice(VendorID, BillID, BillNumber) {
+        var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + BillID + "&Type=Bill";
+        ShowDialogBox("Preview PR No.: " + BillNumber, "Auto", "500", URL);
+    }
+
+    function ShowReceivedNoteInvoice(VendorID, StockInID, ReceiveNoteNumber) {
+        var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + StockInID + "&Type=ReceivingNoteFromStockInOnly&ReturnHtmlData=true";
+        ShowDialogBox2("Receive Note No.: " + ReceiveNoteNumber, "Auto", "500", URL, 0, "dialogShowBill", function (result) {
+            //dialogShowBillmodalbody
+            result = JSON.parse(result).Data;
+            $("#dialogShowBillmodalbody p").html(result);
+            setTimeout(function () {
+                $("div#div_inv_footer").remove();
+                $("#p_TermsConditions").remove();
+            }, 500);
+            var row = '<i class="fa fa-print" aria-hidden="true"></i> Print';
+            $("#SaveChange2").html(row);
+            $("#SaveChange2").click(function () {
+                $("#dialogShowBillmodalbody").printThis();
+            });
+        });
+    }
+    function ShowInvoiceStockReceive(stockInId, receiveNumber) {
+        ShowDialogBox2("Receive Note No.:" + receiveNumber, "auto", "500", "AddStockIn/InvoiceStockReceive?ID=" + stockInId, 0, "", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#DivPrintStockReciveInvoice").printThis();
+            });
+        });
+    }
+</script>

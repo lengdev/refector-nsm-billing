@@ -1,0 +1,70 @@
+﻿@{ Layout = null; }
+
+@Html.Raw(ViewBag.Result)
+
+<div id="gridGetPo_@ViewBag.Type"></div>
+<script>
+    var GTYPE = "@ViewBag.Type";
+    var data = `@Html.Raw(ViewBag.invoiceDetails)`;    
+    $(function () {
+        if (data != "") {
+            data = JSON.parse(data);
+            // Initialize Kendo Grid
+            $("#gridGetPo_" + GTYPE).kendoGrid({
+                dataSource: {
+                    data: data,
+                    schema: {
+                        model: {
+                            fields: {
+                                ID: { type: "string" },
+                                INV_NO: { type: "string" },
+                                TOTAL_AMT: { type: "number" },
+                                INV_DATE: { type: "string" },
+                                NAME_EN: { type: "string" }
+                            }
+                        }
+                    },
+                    pageSize: 10000 // Set the page size
+                },
+                pageable: true,
+                height: 500,
+                toolbar: ["create","search"],
+                columns: [
+                    { field: "INV_NO", title: "Invoice No" },
+                    //{ field: "TOTAL_AMT", title: "Total Amount", format: "{0:c}" },
+                    {
+                        field: "TOTAL_AMT",
+                        title: "Total Amount",
+                        template: "#= kendo.toString(TOTAL_AMT, 'n0') # ៛"
+                        // 'n0' formats the number with thousands separator and no decimals
+                    },
+                    { field: "INV_DATE", title: "Invoice Date", },
+                    { field: "NAME_EN", title: "Customer Name" },
+                    {
+                        title: "Actions", // Column title
+                        template: '<button class="btn btn-danger" onclick="deleteRow(event)">Delete</button>',
+                        width: "120px" // Set the width for action column
+                    }
+                ]
+            });
+        }
+    });
+
+    // Function to handle row deletion
+    function deleteRow(event) {
+        event.preventDefault();
+        var grid = $("#gridGetPo_" + GTYPE).data("kendoGrid");
+        var dataItem = grid.dataItem($(event.target).closest("tr")); // Get the data item for the clicked row
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        var Id = $("#TxtUserName").val();
+        var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+        var DATA = {
+            sessionId: sessionId,
+            ID: dataItem.ID
+        };
+        DoDelete("Taxs/DeletePurchasingGoodsandServicesAsync", DATA, function () {            
+            grid.dataSource.remove(dataItem); // Remove the data item
+            grid.dataSource.sync(); // Sync with the data source
+        });
+    }
+</script>

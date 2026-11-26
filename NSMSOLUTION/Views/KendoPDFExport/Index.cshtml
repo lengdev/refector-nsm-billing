@@ -1,0 +1,1560 @@
+﻿@{
+Layout = null;
+var classInfo = ViewBag.ClassInfo;
+var allowChangePdfTitle = ViewBag.ChangePDFExportTitle;
+}
+<link href="~/Content/css/custom.css" rel="stylesheet">
+<link href="~/Content/css/custom_bootstrap.css" rel="stylesheet">
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<style>
+    :root {
+        --base-color: "";
+        --base-color-text: "";
+        --tb-radius: 7px;
+        --tb-border: #e4e4e7;
+        --tb-bg: #ffffff;
+        --tb-hover: #f4f4f5;
+        --tb-text: #3f3f46;
+        --tb-muted: #a1a1aa;
+        --tb-shadow: 0 1px 3px rgba(0, 0, 0, .07), 0 1px 2px rgba(0, 0, 0, .04);
+        --tb-shadow-lg: 0 8px 24px rgba(0, 0, 0, .10);
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-weight: 500 !important;
+    }
+
+    label {
+        margin: 0;
+    }
+
+    /* ── Loader overlay ── */
+    .loader-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, .45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s;
+    }
+
+    .loader-backdrop.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .loader-box {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        min-width: 220px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+    }
+
+    .loader-spinner {
+        width: 38px;
+        height: 38px;
+        border: 3.5px solid #e4e4e7;
+        border-top-color: var(--base-color, #6c63ff);
+        border-radius: 50%;
+        animation: loaderSpin .75s linear infinite;
+    }
+
+    @@keyframes loaderSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loader-text {
+        font-size: 13px;
+        color: #71717a;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    .loader-sub {
+        font-size: 11px;
+        color: #a1a1aa;
+        margin-top: -8px;
+        text-align: center;
+    }
+
+    /* ── Wrapper ── */
+    .wrap {
+        border: 1px solid var(--tb-border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 16px;
+        background: #fff;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 12px;
+        background: #fafafa;
+        border-bottom: 1px solid var(--tb-border);
+    }
+
+    .tb-group {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        background: var(--tb-bg);
+        border: 1px solid var(--tb-border);
+        border-radius: var(--tb-radius);
+        padding: 3px 4px;
+        box-shadow: var(--tb-shadow);
+    }
+
+    .tb-group-label {
+        font-size: 10px;
+        color: var(--tb-muted);
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        padding: 0 4px 0 2px;
+        white-space: nowrap;
+        user-select: none;
+    }
+
+    .tb-sep {
+        width: 1px;
+        height: 16px;
+        background: var(--tb-border);
+        margin: 0 3px;
+        flex-shrink: 0;
+    }
+
+    .tb-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--tb-text);
+        font-size: 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        line-height: 1;
+        transition: background .12s, color .12s;
+    }
+
+    .tb-btn:hover {
+        background: var(--tb-hover);
+    }
+
+    .tb-btn.active {
+        background: var(--base-color);
+        color: var(--base-color-text);
+        font-weight: 500;
+    }
+
+    .tb-btn.active:hover {
+        opacity: .88;
+    }
+
+    .tb-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--tb-text);
+        cursor: pointer;
+        transition: background .12s;
+    }
+
+    .tb-icon-btn:hover {
+        background: var(--tb-hover);
+    }
+
+    .tb-icon-btn.active {
+        background: var(--base-color);
+        color: var(--base-color-text);
+    }
+
+    .tb-icon-btn.active:hover {
+        opacity: .88;
+    }
+
+    input[type=color] {
+        width: 24px;
+        height: 24px;
+        border: 1px solid var(--tb-border);
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 2px;
+        background: none;
+    }
+
+    .tb-select {
+        padding: 3px 6px;
+        border: none;
+        border-radius: 5px;
+        font-size: 12px;
+        background: transparent;
+        color: var(--tb-text);
+        cursor: pointer;
+        outline: none;
+        max-width: 90px;
+    }
+
+    .tb-select:hover {
+        background: var(--tb-hover);
+    }
+
+    .sign-btn {
+        padding: 3px 9px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--tb-muted);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .12s, color .12s;
+    }
+
+    .sign-btn:hover {
+        background: var(--tb-hover);
+        color: var(--tb-text);
+    }
+
+    .sign-btn.active {
+        background: var(--base-color);
+        color: var(--base-color-text);
+    }
+
+    .action-btns {
+        margin-left: auto;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 13px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--tb-border);
+        background: #fff;
+        color: var(--tb-text);
+        transition: background .12s, box-shadow .12s;
+        box-shadow: var(--tb-shadow);
+    }
+
+    .btn-action:hover {
+        background: var(--tb-hover);
+    }
+
+    .btn-action.btn-primary {
+        background: var(--base-color);
+        color: var(--base-color-text);
+        border-color: var(--base-color);
+    }
+
+    .btn-action.btn-primary:hover {
+        opacity: .88;
+    }
+
+    .btn-action.btn-danger {
+        color: #dc2626;
+    }
+
+    .btn-action.btn-danger:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+    }
+
+    .btn-action:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+    .tb-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        color: var(--tb-text);
+        cursor: pointer;
+        white-space: nowrap;
+        padding: 4px 6px;
+    }
+
+    .tb-check input {
+        accent-color: var(--base-color);
+        cursor: pointer;
+    }
+
+    /* ── Dropdowns ── */
+    .dropdown-wrap {
+        position: relative;
+    }
+
+    .dropdown-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--tb-text);
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: background .12s;
+    }
+
+    .dropdown-btn:hover {
+        background: var(--tb-hover);
+    }
+
+    .dropdown-btn .caret {
+        font-size: 9px;
+        color: var(--tb-muted);
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 200;
+        background: #fff;
+        border: 1px solid var(--tb-border);
+        border-radius: 9px;
+        min-width: 190px;
+        padding: 5px 0;
+        box-shadow: var(--tb-shadow-lg);
+    }
+
+    .dropdown-menu.open {
+        display: block;
+    }
+
+    .dd-header {
+        padding: 5px 12px 4px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--tb-muted);
+        user-select: none;
+    }
+
+    .dd-scroll {
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .dd-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .dd-scroll::-webkit-scrollbar-track {
+        background: #f5f5f5;
+        border-radius: 4px;
+    }
+
+    .dd-scroll::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 4px;
+    }
+
+    .dd-scroll::-webkit-scrollbar-thumb:hover {
+        background: #bbb;
+    }
+
+    .dd-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--tb-text);
+        transition: background .1s;
+    }
+
+    .dd-item:hover {
+        background: var(--tb-hover);
+    }
+
+    .dd-item input[type=checkbox],
+    .dd-item input[type=radio] {
+        accent-color: var(--base-color);
+        cursor: pointer;
+    }
+
+    .dd-divider {
+        height: 1px;
+        background: var(--tb-border);
+        margin: 4px 0;
+    }
+
+    .drag-handle {
+        cursor: grab;
+        color: #ccc;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .dd-item.dragging {
+        opacity: .35;
+    }
+
+    .dd-item.drag-over {
+        border-top: 2px solid var(--base-color);
+    }
+
+    /* ── Align ── */
+    .align-btns {
+        display: flex;
+        gap: 2px;
+    }
+
+    .align-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border: 1px solid var(--tb-border);
+        border-radius: 5px;
+        background: #fff;
+        color: var(--tb-muted);
+        cursor: pointer;
+        transition: background .12s, color .12s;
+    }
+
+    .align-btn:hover {
+        background: var(--tb-hover);
+        color: var(--tb-text);
+    }
+
+    .align-btn.active {
+        background: var(--base-color);
+        color: var(--base-color-text);
+        border-color: var(--base-color);
+    }
+
+    /* ── Sort direction ── */
+    .sort-indicator {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 10px;
+        opacity: .75;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    thead th {
+        padding: 9px 12px;
+        text-align: left;
+        font-weight: 500;
+        color: var(--base-color-text);
+        white-space: nowrap;
+        background: var(--base-color);
+    }
+
+    tbody tr td {
+        border: 1px solid #f0f0f0;
+    }
+
+    tbody tr:hover {
+        background: #fafafa;
+    }
+
+    tbody td {
+        padding: 7px 12px;
+        color: #333;
+        white-space: nowrap;
+    }
+
+    /* ── Footer ── */
+    .footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 14px;
+        background: #fafafa;
+        border-top: 1px solid var(--tb-border);
+        font-size: 11px;
+        color: var(--tb-muted);
+    }
+
+    /* ── PDF header ── */
+    .pdf-header {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        align-items: center;
+        position: relative;
+        min-height: 130px;
+        padding: 12px 16px;
+    }
+
+    .pdf-header p {
+        font-size: 18px;
+        line-height: .9;
+    }
+
+    .report-date {
+        position: absolute;
+        right: 16px;
+        bottom: 8px;
+        color: darkred;
+        font-style: italic;
+        font-size: 13px;
+    }
+
+    .dd-empty {
+        padding: 8px 12px;
+        font-size: 11px;
+        color: var(--tb-muted);
+        font-style: italic;
+    }
+</style>
+
+<!-- ═══════════════════════ LOADER OVERLAY ═══════════════════════ -->
+<div id="loaderBackdrop" class="loader-backdrop">
+    <div class="loader-box">
+        <div class="loader-spinner" id="loaderSpinner"></div>
+        <span class="loader-text" id="loaderMsg">Please wait…</span>
+        <span class="loader-sub" id="loaderSub"></span>
+    </div>
+</div>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<div class="wrap">
+
+    <!-- ═══════════════════════════ TOOLBAR ═══════════════════════════ -->
+    <div class="toolbar">
+
+        <!-- Head Color -->
+        <div class="tb-group d-none">
+            <span class="tb-group-label">Color</span>
+            <input type="color" id="headColor" title="Header color">
+        </div>
+
+        <!-- Rows -->
+        <div class="tb-group">
+            <span class="tb-group-label">Rows</span>
+            <select id="rowCount" class="tb-select">
+                <option value="10">10</option>
+                <option value="30" selected>30</option>
+                <option value="50">50</option>
+                <option value="1000">1 000</option>
+                <option value="99999">All</option>
+            </select>
+        </div>
+
+        <!-- Columns -->
+        <div class="tb-group">
+            <span class="tb-group-label">Columns</span>
+            <div class="dropdown-wrap" id="ddWrap">
+                <div class="dropdown-btn" id="ddColBtn">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                        <rect x="1" y="1" width="4" height="14" rx="1" />
+                        <rect x="6" y="1" width="4" height="14" rx="1" />
+                        <rect x="11" y="1" width="4" height="14" rx="1" />
+                    </svg>
+                    <span id="ddLabel">All</span>
+                    <span class="caret">▼</span>
+                </div>
+                <div class="dropdown-menu" id="ddMenu">
+                    <div class="dd-item" id="ddToggleAll">
+                        <input type="checkbox" id="chkAll" checked>
+                        <strong>All columns</strong>
+                    </div>
+                    <div class="dd-divider"></div>
+                    <div class="dd-scroll">
+                        <div id="ddItems"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Format -->
+        <div class="tb-group">
+            <span class="tb-group-label">Date</span>
+            <div class="dropdown-wrap" id="ddDateWrap">
+                <div class="dropdown-btn" id="ddDateBtn">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                        <rect x="1" y="3" width="14" height="12" rx="2" fill="none" stroke="currentColor"
+                            stroke-width="1.5" />
+                        <path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span id="ddDateLabel">Format</span>
+                    <span class="caret">▼</span>
+                </div>
+                <div class="dropdown-menu" id="ddDateMenu" style="min-width:210px">
+                    <div class="dd-header">Apply to column</div>
+                    <div class="dd-scroll" style="max-height:130px">
+                        <div id="ddDateCols"></div>
+                    </div>
+                    <div class="dd-divider"></div>
+                    <div class="dd-scroll" style="max-height:180px">
+                        <div class="dd-item" data-fmt="original"><span class="fmt-check"
+                                id="fmt_original">✓</span>&nbsp;Original</div>
+                        <div class="dd-item" data-fmt="dd-MM-yyyy"><span class="fmt-check"
+                                id="fmt_dd-MM-yyyy"></span>&nbsp;dd-MM-yyyy</div>
+                        <div class="dd-item" data-fmt="MM-dd-yyyy"><span class="fmt-check"
+                                id="fmt_MM-dd-yyyy"></span>&nbsp;MM-dd-yyyy</div>
+                        <div class="dd-item" data-fmt="yyyy-MM-dd"><span class="fmt-check"
+                                id="fmt_yyyy-MM-dd"></span>&nbsp;yyyy-MM-dd</div>
+                        <div class="dd-item" data-fmt="dd/MM/yyyy"><span class="fmt-check"
+                                id="fmt_dd/MM/yyyy"></span>&nbsp;dd/MM/yyyy</div>
+                        <div class="dd-item" data-fmt="MM/dd/yyyy"><span class="fmt-check"
+                                id="fmt_MM/dd/yyyy"></span>&nbsp;MM/dd/yyyy</div>
+                        <div class="dd-item" data-fmt="dd MMM yyyy"><span class="fmt-check"
+                                id="fmt_dd MMM yyyy"></span>&nbsp;dd MMM yyyy</div>
+                        <div class="dd-item" data-fmt="dd.MM.yyyy"><span class="fmt-check"
+                                id="fmt_dd.MM.yyyy"></span>&nbsp;dd.MM.yyyy</div>
+                        <div class="dd-item" data-fmt="MMM dd, yyyy"><span class="fmt-check"
+                                id="fmt_MMM dd, yyyy"></span>&nbsp;MMM dd, yyyy</div>
+                        <div class="dd-item" data-fmt="dd MMM yyyy HH:mm"><span class="fmt-check"
+                                id="fmt_dd MMM yyyy HH:mm"></span>&nbsp;dd MMM yyyy HH:mm</div>
+                        <div class="dd-item" data-fmt="yyyy/MM/dd"><span class="fmt-check"
+                                id="fmt_yyyy/MM/dd"></span>&nbsp;yyyy/MM/dd</div>
+                        <div class="dd-item" data-fmt="yyyy-MM-dd HH:mm"><span class="fmt-check"
+                                id="fmt_yyyy-MM-dd HH:mm"></span>&nbsp;yyyy-MM-dd HH:mm</div>
+                        <div class="dd-item" data-fmt="dd-MMM-yy"><span class="fmt-check"
+                                id="fmt_dd-MMM-yy"></span>&nbsp;dd-MMM-yy</div>
+                        <div class="dd-item" data-fmt="dd-MM-yy"><span class="fmt-check"
+                                id="fmt_dd-MM-yy"></span>&nbsp;dd-MM-yy</div>
+                        <div class="dd-item" data-fmt="MM/dd/yy"><span class="fmt-check"
+                                id="fmt_MM/dd/yy"></span>&nbsp;MM/dd/yy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Align -->
+        <div class="tb-group">
+            <span class="tb-group-label">Align</span>
+            <div class="dropdown-wrap" id="ddAlignWrap">
+                <div class="dropdown-btn" id="ddAlignBtn">
+                    <svg width="13" height="11" viewBox="0 0 14 11" fill="currentColor">
+                        <rect x="0" y="0" width="14" height="2" rx="1" />
+                        <rect x="0" y="4.5" width="9" height="2" rx="1" />
+                        <rect x="0" y="9" width="12" height="2" rx="1" />
+                    </svg>
+                    <span id="ddAlignLabel">Column</span>
+                    <span class="caret">▼</span>
+                </div>
+                <div class="dropdown-menu" id="ddAlignMenu" style="min-width:210px">
+                    <div class="dd-header">Apply to column</div>
+                    <div class="dd-scroll" style="max-height:160px">
+                        <div id="ddAlignCols"></div>
+                    </div>
+                    <div class="dd-divider"></div>
+                    <div style="padding:6px 12px;display:flex;align-items:center;gap:8px">
+                        <span style="font-size:11px;color:var(--tb-muted)">Align:</span>
+                        <div class="align-btns">
+                            <button class="align-btn active" data-align="left" title="Left">
+                                <svg width="13" height="11" viewBox="0 0 14 11" fill="currentColor">
+                                    <rect x="0" y="0" width="14" height="2" rx="1" />
+                                    <rect x="0" y="4.5" width="9" height="2" rx="1" />
+                                    <rect x="0" y="9" width="12" height="2" rx="1" />
+                                </svg>
+                            </button>
+                            <button class="align-btn" data-align="center" title="Center">
+                                <svg width="13" height="11" viewBox="0 0 14 11" fill="currentColor">
+                                    <rect x="0" y="0" width="14" height="2" rx="1" />
+                                    <rect x="2.5" y="4.5" width="9" height="2" rx="1" />
+                                    <rect x="1" y="9" width="12" height="2" rx="1" />
+                                </svg>
+                            </button>
+                            <button class="align-btn" data-align="right" title="Right">
+                                <svg width="13" height="11" viewBox="0 0 14 11" fill="currentColor">
+                                    <rect x="0" y="0" width="14" height="2" rx="1" />
+                                    <rect x="5" y="4.5" width="9" height="2" rx="1" />
+                                    <rect x="2" y="9" width="12" height="2" rx="1" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No column swap -->
+        <div class="tb-group">
+            <span class="tb-group-label">No</span>
+            <button class="tb-btn" id="btnSwapNo" title="Swap No column order">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 3v10M4 3L1.5 5.5M4 3L6.5 5.5" />
+                    <path d="M12 13V3M12 13l-2.5-2.5M12 13l2.5-2.5" />
+                </svg>
+                <span id="swapNoLabel">30→1</span>
+            </button>
+        </div>
+
+        <!-- Currency sign -->
+        <div class="tb-group">
+            <span class="tb-group-label">Sign</span>
+            <button class="sign-btn active" id="btnSignNone" data-sign="none">—</button>
+            <button class="sign-btn" id="btnSignUSD" data-sign="$">$</button>
+            <button class="sign-btn" id="btnSignKHR" data-sign="៛">៛</button>
+        </div>
+
+        <!-- Remove links -->
+        <div class="tb-group">
+            <label class="tb-check">
+                <input type="checkbox" id="chkNoLink">
+                No links
+            </label>
+        </div>
+
+        <!-- Page size & orientation -->
+        <div class="tb-group">
+            <span class="tb-group-label">Page</span>
+            <select id="pageSize" class="tb-select">
+                <option value="A4">A4</option>
+                <option value="A3">A3</option>
+                <option value="Letter">Letter</option>
+            </select>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" id="btnPort" title="Portrait">
+                <svg width="10" height="13" viewBox="0 0 10 13" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linejoin="round">
+                    <rect x="1" y="1" width="8" height="11" rx="1" />
+                </svg>
+                P
+            </button>
+            <button class="tb-btn active" id="btnLand" title="Landscape">
+                <svg width="13" height="10" viewBox="0 0 13 10" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linejoin="round">
+                    <rect x="1" y="1" width="11" height="8" rx="1" />
+                </svg>
+                L
+            </button>
+        </div>
+
+        <div class="tb-group">
+            <select id="classSelect" class="tb-select" style="max-width: 100%;">
+                @for (int i = 0; i < classInfo.Count; i++) { var c=classInfo[i]; <option value="@c["ClassID"]"
+                    data-logo="@c["FileLogo"]" data-name-en="@c["FullName"]" data-name-kh="@c["KHName"]" @(i==0
+                    ? "selected" : "" )>
+                    @c["ClassName"]
+                    </option>
+                    }
+            </select>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-btns">
+            <button class="btn-action" id="btnPreview">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M2 2h12v12H2z" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linejoin="round" />
+                    <path d="M5 10l2-2 2 2 2-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none" />
+                </svg>
+                Print Preview
+            </button>
+            <button class="btn-action btn-primary d-none" id="btnExport">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 13h10M8 3v7M5 7l3 3 3-3" />
+                </svg>
+                Export PDF
+            </button>
+            <button class="btn-action btn-danger" id="btnReset">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round">
+                    <path d="M3 3l10 10M13 3L3 13" />
+                </svg>
+                Reset
+            </button>
+        </div>
+
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <div class="table-wrap">
+        <div class="pdf-header mt-4">
+            <div>
+                <img id="logoImg" alt="Logo" style="width:220px;height:120px;display:block" />
+            </div>
+            <div style="text-align:center">
+                <p style="font-family:'Moul' !important;font-size:24px !important;" id="companyNameKH"></p>
+                <p style="font-size:20px !important" id="companyNameEN"></p>
+                <p>~~~~~~~~~~~~~~</p>
+                <p id="report-title">Report</p>
+            </div>
+            <p class="report-date">@DateTime.Now.ToString("ddd, dd-MMM-yyyy HH:mm:ss")</p>
+        </div>
+
+        <table id="mainTable">
+            <thead>
+                <tr id="headerRow"></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <span id="rowInfo">—</span>
+        <span id="colInfo">—</span>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        /* ══════════════════════════════════════════════════════════════
+           LOADER HELPERS
+        ══════════════════════════════════════════════════════════════ */
+        function showLoader(msg, sub) {
+            $("#loaderMsg").text(msg || "Please wait…");
+            $("#loaderSub").text(sub || "");
+            $("#loaderBackdrop").addClass("show");
+            // Disable action buttons to prevent double-click
+            $("#btnPreview, #btnExport").prop("disabled", true);
+        }
+
+        function updateLoader(msg, sub) {
+            $("#loaderMsg").text(msg || "");
+            if (sub !== undefined) $("#loaderSub").text(sub);
+        }
+
+        function hideLoader() {
+            $("#loaderBackdrop").removeClass("show");
+            $("#btnPreview, #btnExport").prop("disabled", false);
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           INIT
+        ══════════════════════════════════════════════════════════════ */
+        var baseColor = localStorage.getItem("BaseSystemBGColor");
+        var baseColorText = localStorage.getItem("BaseSystemColor");
+
+        document.documentElement.style.setProperty("--base-color", baseColor);
+        document.documentElement.style.setProperty("--base-color-text", baseColorText);
+
+        // Keep spinner border-top-color in sync with base color
+        document.getElementById("loaderSpinner").style.borderTopColor = baseColor || "#6c63ff";
+
+        function rgbToHex(rgb) {
+            if (!rgb) return "#000000";
+            if (rgb.startsWith("#")) return rgb;
+            var m = rgb.match(/\d+/g);
+            if (!m || m.length < 3) return "#000000";
+            return "#" + m.slice(0, 3).map(function (v) {
+                return parseInt(v).toString(16).padStart(2, "0");
+            }).join("");
+        }
+
+        function isDateCol(col) {
+            var m = colMeta[col];
+            if (!m) return false;
+            return m.type === "date" || (m.format && m.format.toLowerCase().includes("yy"));
+        }
+
+        var savedCols = localStorage.getItem("kendo_grid_columns");
+        var gridCols = savedCols ? JSON.parse(savedCols) : [];
+        var saved = localStorage.getItem("kendo_grid_export");
+        var reportTitle = localStorage.getItem("report_title");
+        var rawData = saved ? JSON.parse(saved) : [];
+
+        var hiddenCols = {};
+        var dateFormats = {};
+        var colAlign = {};
+        var headColor = baseColor;
+        var orient = "landscape";
+        var dragSrc = null;
+        var selectedDateCol = null;
+        var selectedAlignCol = null;
+        var currencySign = "none";
+        var noSortDir = "desc";
+
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        var colMeta = {};
+        $.each(gridCols, function (_, c) { colMeta[c.field] = c; });
+
+        // Auto-apply dd-MMM-yyyy for date columns
+        $.each(colMeta, function (field, meta) {
+            if (isDateCol(field)) dateFormats[field] = "dd-MMM-yyyy";
+        });
+
+        var allCols = gridCols.length > 0
+            ? gridCols
+                .filter(function (c) { return rawData.length === 0 || rawData[0].hasOwnProperty(c.field); })
+                .map(function (c) { return c.field; })
+            : (rawData.length > 0 ? Object.keys(rawData[0]) : []);
+
+        var colOrder = allCols.slice();
+
+        $("#headColor").val(rgbToHex(baseColor));
+        $("#report-title").text(reportTitle);
+
+        /* ── Editable report title ── */
+        $(document).on("dblclick", "#report-title", function () {
+            if ('@allowChangePdfTitle' === "False") return;
+            var $div = $(this);
+            var val = $div.text().trim();
+            var $input = $("<input>", {
+                type: "text", value: val,
+                class: "form-control report-title-input",
+                style: "display:block;margin:0 auto;text-align:center;font-size:16px;width:300px;"
+            });
+            $div.replaceWith($input);
+            $input.focus();
+            $input.on("blur", function () {
+                var newVal = $(this).val().trim() || "Report";
+                var $newDiv = $("<div>", { id: "report-title", text: newVal, style: "text-align:center;" });
+                $(this).replaceWith($newDiv);
+                reportTitle = newVal;
+                localStorage.setItem("report_title", newVal);
+            });
+            $input.on("keydown", function (e) {
+                if (e.key === "Enter") $(this).blur();
+                if (e.key === "Escape") $(this).val(val).blur();
+            });
+        });
+
+        /* ══════════════════════════════════════════════════════════════
+           FORMATTERS
+        ══════════════════════════════════════════════════════════════ */
+        function formatDate(val, fmt) {
+            if (!fmt || fmt === "original") return val;
+            if (!val) return val;
+            var clean = String(val).replace(/<[^>]+>/g, "").trim();
+            var d = new Date(clean);
+            if (isNaN(d.getTime())) return val;
+            var dd = String(d.getDate()).padStart(2, "0");
+            var mm = String(d.getMonth() + 1).padStart(2, "0");
+            var yyyy = String(d.getFullYear());
+            var yy = yyyy.slice(-2);
+            var mmm = months[d.getMonth()];
+            var HH = String(d.getHours()).padStart(2, "0");
+            var mmMin = String(d.getMinutes()).padStart(2, "0");
+            return fmt
+                .replace(/yyyy/g, yyyy).replace(/yy/g, yy)
+                .replace(/MMM/g, mmm).replace(/MM/g, mm)
+                .replace(/dd/g, dd).replace(/HH/g, HH).replace(/mm/g, mmMin);
+        }
+
+        function stripLinks(val) {
+            if (!$("#chkNoLink").is(":checked")) return val;
+            var $tmp = $("<div>").html(val != null ? String(val) : "");
+            $tmp.find("a").each(function () { $(this).replaceWith($(this).text()); });
+            return $tmp.html();
+        }
+
+        function getEffectiveSign(col) {
+            if (currencySign !== "none") return currencySign;
+            var m = colMeta[col];
+            var fmt = m && m.format ? m.format.toLowerCase() : "";
+            if (/\{0:c/.test(fmt) || fmt === "c" || /^c\d*$/.test(fmt)) return "$";
+            return null;
+        }
+
+        function processVal(col, val) {
+            var v = val != null ? String(val) : "";
+            if (dateFormats[col]) v = formatDate(v, dateFormats[col]);
+            if (isNumericCol(col)) v = formatNumber(v, getEffectiveSign(col));
+            return stripLinks(v);
+        }
+
+        function getTitle(col) {
+            return (colMeta[col] && colMeta[col].title) ? colMeta[col].title : col;
+        }
+
+        function isNumericCol(col) {
+            var m = colMeta[col];
+            if (!m) return false;
+            return m.type === "number" || (m.format && /\{0:n/i.test(m.format));
+        }
+
+        function getAlign(col) {
+            return colAlign[col] || (isNumericCol(col) ? "right" : "left");
+        }
+
+        function getVisCols() {
+            return colOrder.filter(function (c) { return !hiddenCols[c]; });
+        }
+
+        function getCount() {
+            return Math.min(parseInt($("#rowCount").val()), rawData.length);
+        }
+
+        function formatNumber(val, sign) {
+            var n = parseFloat(String(val).replace(/[^0-9\-\.]/g, ""));
+            var prefix = (sign && sign !== "none") ? sign + " " : "";
+            if (isNaN(n)) return prefix + "0.00";
+            var neg = n < 0 ? "-" : "";
+            var abs = Math.abs(n);
+            var s = abs.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return neg + prefix + s;
+        }
+
+        /* ── No-column sort ── */
+        function getSortedData() {
+            var noCol = colOrder.find(function (c) { return c === "No" || getTitle(c) === "No"; });
+            if (!noCol || noSortDir === "desc") return rawData;
+            var noVals = rawData.map(function (r) { return r[noCol]; });
+            noVals.reverse();
+            return rawData.map(function (row, i) {
+                var copy = $.extend({}, row);
+                copy[noCol] = noVals[i];
+                return copy;
+            });
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           DROPDOWNS
+        ══════════════════════════════════════════════════════════════ */
+        function closeAllDropdowns() { $(".dropdown-menu").removeClass("open"); }
+
+        function toggleDropdown(id) {
+            var $m = $("#" + id);
+            var was = $m.hasClass("open");
+            closeAllDropdowns();
+            if (!was) $m.addClass("open");
+        }
+
+        $(document).on("click", function (e) {
+            if (!$(e.target).closest(".dropdown-wrap").length) closeAllDropdowns();
+        });
+
+        $("#ddColBtn").on("click", function (e) { e.stopPropagation(); toggleDropdown("ddMenu"); });
+        $("#ddDateBtn").on("click", function (e) { e.stopPropagation(); toggleDropdown("ddDateMenu"); });
+        $("#ddAlignBtn").on("click", function (e) { e.stopPropagation(); toggleDropdown("ddAlignMenu"); });
+        $(".dropdown-menu").on("click", function (e) { e.stopPropagation(); });
+
+        /* ── Column list (drag-to-reorder) ── */
+        function buildDropdown() {
+            var $c = $("#ddItems").empty();
+            $.each(colOrder, function (_, col) {
+                var title = getTitle(col);
+                var $d = $("<div>")
+                    .addClass("dd-item")
+                    .attr({ draggable: true, "data-col": col })
+                    .html(
+                        '<span class="drag-handle">⠿</span>' +
+                        '<input type="checkbox" id="chk_' + col + '"' + (!hiddenCols[col] ? " checked" : "") + '>' +
+                        '<label for="chk_' + col + '" style="cursor:pointer;flex:1">' + title + '</label>'
+                    );
+                $d.find("input[type=checkbox]").on("change", function () { toggleCol(col); });
+                $d.on("dragstart", function (e) { dragSrc = col; $d.addClass("dragging"); e.originalEvent.dataTransfer.effectAllowed = "move"; });
+                $d.on("dragend", function () { $d.removeClass("dragging"); });
+                $d.on("dragover", function (e) { e.preventDefault(); $("#ddItems .dd-item").removeClass("drag-over"); $d.addClass("drag-over"); });
+                $d.on("drop", function (e) {
+                    e.preventDefault(); $d.removeClass("drag-over");
+                    if (dragSrc === col) return;
+                    var fi = colOrder.indexOf(dragSrc), ti = colOrder.indexOf(col);
+                    colOrder.splice(fi, 1); colOrder.splice(ti, 0, dragSrc);
+                    buildDropdown(); buildDateColList(); buildAlignColList(); render();
+                });
+                $c.append($d);
+            });
+        }
+
+        function toggleCol(col) {
+            if (hiddenCols[col]) delete hiddenCols[col]; else hiddenCols[col] = true;
+            $("#chkAll").prop("checked", Object.keys(hiddenCols).length === 0);
+            updateDdLabel(); render();
+        }
+
+        $("#ddToggleAll").on("click", function (e) {
+            if ($(e.target).is("#chkAll")) return;
+            $("#chkAll").prop("checked", !$("#chkAll").is(":checked")).trigger("change");
+        });
+
+        $("#chkAll").on("change", function () {
+            var checked = $(this).is(":checked");
+            $.each(colOrder, function (_, col) {
+                if (checked) delete hiddenCols[col]; else hiddenCols[col] = true;
+                $("#chk_" + col).prop("checked", checked);
+            });
+            updateDdLabel(); render();
+        });
+
+        function updateDdLabel() {
+            var hidden = Object.keys(hiddenCols).length;
+            $("#ddLabel").text(hidden === 0 ? "All" : (colOrder.length - hidden) + "/" + colOrder.length);
+        }
+
+        /* ── Date column list ── */
+        function buildDateColList() {
+            var $c = $("#ddDateCols").empty();
+            var dateCols = colOrder.filter(function (col) { return isDateCol(col); });
+            if (dateCols.length === 0) {
+                $c.append('<div class="dd-empty">No date columns found</div>');
+                return;
+            }
+            $.each(dateCols, function (_, col) {
+                var title = getTitle(col);
+                var badge = dateFormats[col]
+                    ? ' <span style="color:' + baseColor + ';font-size:10px">(' + dateFormats[col] + ')</span>' : "";
+                var $d = $("<div>").addClass("dd-item").css("paddingLeft", "16px").html(
+                    '<input type="radio" name="dateCol" id="dcol_' + col + '" value="' + col + '">' +
+                    '<label style="cursor:pointer;flex:1" for="dcol_' + col + '">' + title + badge + '</label>'
+                );
+                $d.find("input").on("change", function () {
+                    selectedDateCol = col;
+                    var cur = dateFormats[col] || "original";
+                    $(".fmt-check").text("");
+                    $("#fmt_" + cur.replace(/\//g, "\\/")).text("✓");
+                    $("#ddDateLabel").text(title);
+                });
+                $c.append($d);
+            });
+        }
+
+        $("#ddDateMenu").on("click", "[data-fmt]", function () {
+            var fmt = $(this).data("fmt");
+            if (!selectedDateCol) { alert("Please select a date column first."); return; }
+            if (fmt === "original") delete dateFormats[selectedDateCol];
+            else dateFormats[selectedDateCol] = fmt;
+            $(".fmt-check").text("");
+            $("#fmt_" + fmt.replace(/\//g, "\\/")).text("✓");
+            buildDateColList(); render();
+        });
+
+        /* ── Align column list ── */
+        function buildAlignColList() {
+            var $c = $("#ddAlignCols").empty();
+            $.each(colOrder, function (_, col) {
+                if (hiddenCols[col]) return;
+                var title = getTitle(col);
+                var badge = colAlign[col]
+                    ? ' <span style="color:' + baseColor + ';font-size:10px">(' + colAlign[col] + ')</span>' : "";
+                var $d = $("<div>").addClass("dd-item").css("paddingLeft", "16px").html(
+                    '<input type="radio" name="alignCol" id="acol_' + col + '" value="' + col + '">' +
+                    '<label style="cursor:pointer;flex:1" for="acol_' + col + '">' + title + badge + '</label>'
+                );
+                $d.find("input").on("change", function () {
+                    selectedAlignCol = col;
+                    var cur = getAlign(col);
+                    $(".align-btn").removeClass("active");
+                    $('.align-btn[data-align="' + cur + '"]').addClass("active");
+                    $("#ddAlignLabel").text(title);
+                });
+                $c.append($d);
+            });
+        }
+
+        $("#ddAlignMenu").on("click", ".align-btn", function () {
+            if (!selectedAlignCol) { alert("Please select a column first."); return; }
+            var align = $(this).data("align");
+            if (align === "left") delete colAlign[selectedAlignCol];
+            else colAlign[selectedAlignCol] = align;
+            $(".align-btn").removeClass("active");
+            $(this).addClass("active");
+            buildAlignColList(); render();
+        });
+
+        /* ── No column swap ── */
+        function getNoRange() {
+            var noCol = colOrder.find(function (c) { return c === "No" || getTitle(c) === "No"; });
+            if (!noCol || rawData.length === 0) return { first: 1, last: rawData.length };
+            return { first: rawData[0][noCol], last: rawData[rawData.length - 1][noCol] };
+        }
+
+        function updateSwapBtn() {
+            var r = getNoRange();
+            $("#swapNoLabel").text(noSortDir === "desc" ? r.first + "→" + r.last : r.last + "→" + r.first);
+        }
+
+        $("#btnSwapNo").on("click", function () {
+            noSortDir = (noSortDir === "desc") ? "asc" : "desc";
+            updateSwapBtn(); render();
+        });
+
+        /* ── Sign buttons ── */
+        $(".sign-btn").on("click", function () {
+            currencySign = $(this).data("sign");
+            $(".sign-btn").removeClass("active");
+            $(this).addClass("active");
+            render();
+        });
+
+        /* ── Head color ── */
+        function applyHeadColor(val) {
+            headColor = val;
+            $("thead th").css("background", val);
+        }
+        $("#headColor").on("input", function () { applyHeadColor($(this).val()); });
+
+        /* ── Orientation ── */
+        function setOrient(o) {
+            orient = o;
+            $("#btnPort").toggleClass("active", o === "portrait");
+            $("#btnLand").toggleClass("active", o === "landscape");
+        }
+        $("#btnPort").on("click", function () { setOrient("portrait"); });
+        $("#btnLand").on("click", function () { setOrient("landscape"); });
+
+        // Handle change class
+        function loadClassInfo() {
+            var selected = $("#classSelect option:selected");
+
+            $("#logoImg")
+                .off("error")
+                .on("error", function () {
+                    $(this).off("error");
+                    $(this).attr("src", "Content/images/placeholder.jpg");
+                })
+                .attr("src", "/Uploads/ClassLogo/" + selected.data("logo"));
+
+            $("#companyNameEN").text(
+                `${selected.data("name-en")}`
+            );
+            $("#companyNameKH").text(
+                `ក្រុមហ៊ុន ${selected.data("name-kh")}`
+            );
+        }
+
+        // Initial load
+        $("#classSelect").trigger("change");
+
+        loadClassInfo();
+
+        // Change event
+        $("#classSelect").on("change", function () {
+            loadClassInfo();
+        });
+
+
+        /* ══════════════════════════════════════════════════════════════
+           RENDER TABLE
+        ══════════════════════════════════════════════════════════════ */
+        function render() {
+            var count = getCount();
+            var visCols = getVisCols();
+            var sortedData = getSortedData();
+            var noCol = colOrder.find(function (c) { return c === "No" || getTitle(c) === "No"; });
+
+            var $hr = $("#headerRow").empty();
+            $.each(visCols, function (_, col) {
+                var indicator = (col === noCol)
+                    ? '<span class="sort-indicator">' + (noSortDir === "asc" ? "↑" : "↓") + '</span>' : "";
+                $("<th>").html(getTitle(col) + indicator)
+                    .css({ background: headColor, color: baseColorText, textAlign: getAlign(col) })
+                    .appendTo($hr);
+            });
+
+            var $tb = $("#tbody").empty();
+            $.each(sortedData.slice(0, count), function (_, row) {
+                var $tr = $("<tr>");
+                $.each(visCols, function (_, col) {
+                    $("<td>").html(processVal(col, row[col])).css("textAlign", getAlign(col)).appendTo($tr);
+                });
+                $tb.append($tr);
+            });
+
+            /* Total row */
+            var hasSumCol = visCols.some(function (col) { return isNumericCol(col); });
+            if (hasSumCol) {
+                var sums = {};
+                $.each(visCols, function (_, col) {
+                    if (!isNumericCol(col)) return;
+                    var total = 0;
+                    $.each(sortedData.slice(0, count), function (_, row) {
+                        var v = parseFloat(row[col]); if (!isNaN(v)) total += v;
+                    });
+                    sums[col] = total;
+                });
+
+                var labelColspan = 0;
+                for (var i = 0; i < visCols.length; i++) {
+                    if (isNumericCol(visCols[i])) break;
+                    labelColspan++;
+                }
+                var labelPlaced = false;
+                var $footRow = $("<tr>").css({ fontWeight: "bold", background: "#f0f0f0", borderTop: "2px solid #ddd" });
+                $.each(visCols, function (i, col) {
+                    if (labelPlaced && i < labelColspan) return;
+                    var $td = $("<td>").css("padding", "7px 12px");
+                    if (isNumericCol(col)) {
+                        $td.text(formatNumber(sums[col], getEffectiveSign(col)))
+                            .css({ textAlign: "right", color: "#c0392b" });
+                    } else if (!labelPlaced) {
+                        $td.text("Total").attr("colspan", labelColspan)
+                            .css({ textAlign: "right", color: "#888", fontStyle: "italic" });
+                        labelPlaced = true;
+                    }
+                    $td.appendTo($footRow);
+                });
+                $tb.append($footRow);
+            }
+
+            var shown = parseInt($("#rowCount").val()) >= rawData.length ? "All " + rawData.length : count;
+            $("#rowInfo").text("Showing " + shown + " of " + rawData.length + " rows · No " + (noSortDir === "asc" ? "1↑ top" : "1↓ bottom"));
+            $("#colInfo").text(Object.keys(hiddenCols).length === 0
+                ? "All columns visible"
+                : getVisCols().length + " of " + colOrder.length + " columns visible");
+
+            buildAlignColList();
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           PRINT PREVIEW  (with loader)
+        ══════════════════════════════════════════════════════════════ */
+        $("#btnPreview").on("click", function () {
+            var count = getCount();
+            var visCols = getVisCols();
+            var ps = $("#pageSize").val();
+            var isLand = orient === "landscape";
+            var $img = $("#logoImg");
+            var imgSrc = $img.attr("src") || "";
+            var imgAlt = $img.attr("alt") || "";
+            var sortedData = getSortedData();
+
+            showLoader("Preparing preview…", "Building document structure");
+
+            function openPreview(logoSrc) {
+                updateLoader("Opening print dialog…", "");
+
+                var companyNameKH = $(".pdf-header p:eq(0)").text();
+                var companyName = $(".pdf-header p:eq(1)").text();
+                var reportDate = $(".report-date").text();
+
+                var pdfHeader =
+                    '<div style="display:grid;grid-template-columns:160px 1fr;align-items:center;position:relative;min-height:130px;margin-bottom:10px;">' +
+                    '  <div>' + (logoSrc ? '<img src="' + logoSrc + '" alt="' + imgAlt + '" style="width:220px;height:120px;display:block">' : '') + '</div>' +
+                    '  <div style="text-align:center">' +
+                    '    <p style="font-family:Moul,serif;font-size:22px;margin-bottom:4px">' + companyNameKH + '</p>' +
+                    '    <p style="font-size:16px;margin-bottom:2px">' + companyName + '</p>' +
+                    '    <p style="margin-bottom:2px">~~~~~~~~~~~~~~</p>' +
+                    '    <p>' + reportTitle + '</p>' +
+                    '  </div>' +
+                    '  <p style="position:absolute;right:0;bottom:0;color:darkred;font-style:italic;font-size:12px">' + reportDate + '</p>' +
+                    '</div>';
+
+                var _noCol = colOrder.find(function (c) { return c === "No" || getTitle(c) === "No"; });
+                var thead = visCols.map(function (col) {
+                    var indicator = (col === _noCol) ? (noSortDir === "asc" ? " ↑" : " ↓") : "";
+                    return '<th style="padding:6px 8px;text-align:' + getAlign(col) +
+                        ';font-weight:500;color:' + baseColorText +
+                        ';background:' + headColor +
+                        ' !important;-webkit-print-color-adjust:exact;print-color-adjust:exact">' + getTitle(col) + indicator + '</th>';
+                }).join("");
+
+                var tbody = sortedData.slice(0, count).map(function (row) {
+                    return '<tr>' + visCols.map(function (col) {
+                        return '<td style="padding:4px 8px;border-bottom:0.5px solid #eee;color:#333;text-align:' +
+                            getAlign(col) + '">' + processVal(col, row[col]) + '</td>';
+                    }).join("") + '</tr>';
+                }).join("");
+
+                var hasSumCol = visCols.some(function (col) { return isNumericCol(col); });
+                var tfootHtml = "";
+                if (hasSumCol) {
+                    var labelColspan = 0;
+                    for (var i = 0; i < visCols.length; i++) { if (isNumericCol(visCols[i])) break; labelColspan++; }
+                    var cells = []; var labelInserted = false; var skip = 0;
+                    for (var j = 0; j < visCols.length; j++) {
+                        if (skip > 0) { skip--; continue; }
+                        var col = visCols[j];
+                        if (isNumericCol(col)) {
+                            var total = 0;
+                            $.each(sortedData.slice(0, count), function (_, row) { var v = parseFloat(row[col]); if (!isNaN(v)) total += v; });
+                            cells.push('<td style="padding:4px 8px;text-align:right;color:#c0392b;font-weight:bold">' + formatNumber(total, getEffectiveSign(col)) + '</td>');
+                        } else if (!labelInserted && labelColspan > 0) {
+                            cells.push('<td colspan="' + labelColspan + '" style="padding:4px 8px;color:#888;font-style:italic;text-align:right;">Total</td>');
+                            labelInserted = true; skip = labelColspan - 1;
+                        } else { cells.push('<td></td>'); }
+                    }
+                    tfootHtml = '<tfoot><tr style="font-weight:bold;background:#f5f5f5">' + cells.join("") + '</tr></tfoot>';
+                }
+
+                var popup = window.open("", "_blank");
+                popup.document.write(
+                    '<!DOCTYPE html><html><head><title>' + reportTitle + '</title>' +
+                    '<link href="' + location.protocol + '//' + location.host + '/Content/css/custom.css" rel="stylesheet">' +
+                    '<style>' +
+                    '@@page { size: ' + ps + ' ' + (isLand ? 'landscape' : 'portrait') + '; margin: 1cm; }' +
+                    'body { font-family: Inter, "Khmer OS Siemreap" !important; margin: 0; padding: 0; }' +
+                    'table { width: 100%; border-collapse: collapse; font-size: 11px; }' +
+                    'thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+                    'tbody td { padding: 4px 8px; border: 1px solid #f0f0f0; color: #333; }' +
+                    'tfoot { display: table-row-group; }' +
+                    'p { line-height: 0.9; }' +
+                    '</style></head><body>' +
+                    pdfHeader +
+                    '<table><thead><tr>' + thead + '</tr></thead><tbody>' + tbody + '</tbody>' + tfootHtml + '</table>' +
+                    '<script>window.onload=function(){window.addEventListener("afterprint",function(){window.close();});window.print();};<\/script>' +
+                    '</body></html>'
+                );
+                popup.document.close();
+
+                // Hide loader after a short delay (print dialog takes over)
+                setTimeout(hideLoader, 600);
+            }
+
+            setTimeout(function () {
+                if (imgSrc) {
+                    var absSrc = imgSrc;
+                    if (!imgSrc.startsWith("http://") && !imgSrc.startsWith("https://") && !imgSrc.startsWith("data:")) {
+                        absSrc = location.protocol + "//" + location.host + "/" + imgSrc.replace(/^(\.\.\/|\.\/)+/, "");
+                    }
+                    updateLoader("Loading logo…", "Converting image for print");
+                    var canvas = document.createElement("canvas");
+                    var ctx = canvas.getContext("2d");
+                    var tmpImg = new Image();
+                    tmpImg.crossOrigin = "anonymous";
+                    tmpImg.onload = function () {
+                        canvas.width = tmpImg.naturalWidth;
+                        canvas.height = tmpImg.naturalHeight;
+                        ctx.drawImage(tmpImg, 0, 0);
+                        updateLoader("Building preview…", "Rendering table data");
+                        try { openPreview(canvas.toDataURL("image/png")); }
+                        catch (e) { openPreview(absSrc); }
+                    };
+                    tmpImg.onerror = function () {
+                        updateLoader("Building preview…", "");
+                        openPreview(absSrc);
+                    };
+                    tmpImg.src = absSrc + "?_=" + Date.now();
+                } else {
+                    openPreview("");
+                }
+            }, 50);
+        });
+
+        /* ══════════════════════════════════════════════════════════════
+           EXPORT PDF  (with loader)
+        ══════════════════════════════════════════════════════════════ */
+        $("#btnExport").on("click", function () {
+            var count = getCount();
+            var visCols = getVisCols();
+            var sortedData = getSortedData();
+
+            var exportData = sortedData.slice(0, count).map(function (row) {
+                var r = {};
+                $.each(visCols, function (_, col) { r[col] = processVal(col, row[col]); });
+                return r;
+            });
+
+            showLoader("Generating PDF…", "Sending " + exportData.length + " rows to server");
+
+            $.ajax({
+                url: "@Url.Action("Export", "KendoPDFExport")",
+                type: "POST",
+                data: {
+                    gridData: JSON.stringify(exportData),
+                    headColor: headColor,
+                    pageSize: $("#pageSize").val(),
+                    orientation: orient
+                },
+                xhrFields: { responseType: "blob" },
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    // Show progress if server supports it
+                    xhr.addEventListener("progress", function (e) {
+                        if (e.lengthComputable) {
+                            var pct = Math.round((e.loaded / e.total) * 100);
+                            updateLoader("Generating PDF…", "Downloading… " + pct + "%");
+                        }
+                    });
+                    return xhr;
+                },
+                success: function (response) {
+                    updateLoader("Done!", "Starting download…");
+                    var link = document.createElement("a");
+                    link.href = window.URL.createObjectURL(response);
+                    link.download = (reportTitle || "GridExport") + ".pdf";
+                    link.click();
+                    setTimeout(hideLoader, 800);
+                },
+                error: function (xhr, status, error) {
+                    hideLoader();
+                    console.error("Export error:", error);
+                    alert("PDF export failed. Please try again.\n\nError: " + (error || status));
+                }
+            });
+        });
+
+        /* ══════════════════════════════════════════════════════════════
+           RESET
+        ══════════════════════════════════════════════════════════════ */
+        $("#btnReset").on("click", function () {
+            hiddenCols = {}; dateFormats = {}; colAlign = {};
+            selectedDateCol = null; selectedAlignCol = null;
+            headColor = baseColor; orient = "landscape"; currencySign = "none";
+            colOrder = allCols.slice();
+            noSortDir = "desc";
+
+            $.each(colMeta, function (field, meta) {
+                if (isDateCol(field)) dateFormats[field] = "dd-MMM-yyyy";
+            });
+
+            $("#headColor").val(rgbToHex(baseColor));
+            $("#rowCount").val("30");
+            $("#pageSize").val("A4");
+            $("#chkNoLink").prop("checked", false);
+            $("#chkAll").prop("checked", true);
+            $("#ddDateLabel").text("Format");
+            $("#ddAlignLabel").text("Column");
+            $(".fmt-check").text("");
+            $("#fmt_original").text("✓");
+            $(".align-btn").removeClass("active");
+            $('.align-btn[data-align="left"]').addClass("active");
+            $(".sign-btn").removeClass("active");
+            $("#btnSignNone").addClass("active");
+            updateSwapBtn();
+            setOrient("landscape");
+            updateDdLabel();
+            buildDropdown(); buildDateColList(); buildAlignColList();
+            applyHeadColor(baseColor); render();
+        });
+
+        /* ══════════════════════════════════════════════════════════════
+           MISC EVENT BINDINGS
+        ══════════════════════════════════════════════════════════════ */
+        $("#rowCount").on("change", render);
+        $("#chkNoLink").on("change", render);
+
+        /* ══════════════════════════════════════════════════════════════
+           INIT
+        ══════════════════════════════════════════════════════════════ */
+        buildDropdown(); buildDateColList(); buildAlignColList();
+        updateSwapBtn();
+        applyHeadColor(headColor);
+        $("#fmt_original").text("✓");
+        render();
+    });
+</script>

@@ -1,0 +1,16 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+
+<script>
+    $(function () {
+        var loc = window.location.href;
+        var PackageDetailID = getQueryStringValue(loc, 'PackageDetailID');
+        if (PackageDetailID != "") {
+            setTimeout(function () {
+                $("#txtPackageName").val(PackageDetailID).trigger('change');
+            }, 500);
+        }
+    });
+</script>

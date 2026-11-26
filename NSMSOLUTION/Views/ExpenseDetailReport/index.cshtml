@@ -1,0 +1,1279 @@
+@{ Layout = null; }
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div id="expense-detail-report-view-wrapper">
+    @Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+    @Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "ED" } })
+
+    <div class="pl-report-header" id="edReportHeader" style="margin-top: 15px; margin-bottom: 20px;">
+        <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+        <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "")</div>
+        <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "")</div>
+        <div class="bs-company-divider">
+            ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+        </div>
+        <h3 id="lblReportTitle">@(ViewBag.ReportTitle ?? "Expense Detail")</h3>
+        <div class="tb-date-range-bar" id="lblDateRangeBar"></div>
+    </div>
+</div>
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: none;
+        border-bottom: none;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .report-header-print {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+        .report-header-print .metadata-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+            border-bottom: 1.5px solid #475569;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+    /* Left align date range search form and limit input width */
+    #expense-detail-report-view-wrapper form,
+    #expense-detail-report-view-wrapper .form-search {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        padding: 8px 4px !important;
+        width: 100% !important;
+    }
+
+    #expense-detail-report-view-wrapper form table,
+    #expense-detail-report-view-wrapper .form-search table {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+        width: auto !important;
+        border-collapse: separate !important;
+        border-spacing: 0 8px !important;
+    }
+
+    #expense-detail-report-view-wrapper form table td,
+    #expense-detail-report-view-wrapper .form-search table td {
+        text-align: left !important;
+        width: auto !important;
+    }
+
+    #expense-detail-report-view-wrapper form table td:first-child,
+    #expense-detail-report-view-wrapper .form-search table td:first-child,
+    #expense-detail-report-view-wrapper form table td label,
+    #expense-detail-report-view-wrapper .form-search table td label {
+        text-align: left !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        padding-left: 0 !important;
+        padding-right: 12px !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        min-width: auto !important;
+    }
+
+    #expense-detail-report-view-wrapper #TxtFromDate,
+    #expense-detail-report-view-wrapper input[name="TxtFromDate"] {
+        width: 240px !important;
+        max-width: 240px !important;
+        display: inline-block !important;
+        text-align: center !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 6px 12px !important;
+        height: 38px !important;
+        box-shadow: none !important;
+    }
+
+    /* Status badge styling */
+    #gjFilterStatusBadge .gj-badge {
+        display:inline-flex; align-items:center; gap:4px;
+        background:#ef4444; color:#fff; font-size:11px; font-weight:700;
+        padding:2px 8px; border-radius:999px; line-height:1.4;
+    }
+    #gjFilterStatusBadge .gj-badge.active {
+        background: linear-gradient(90deg,#3b82f6,#6366f1);
+    }
+
+    /* Print Preview & Print Styles matching Profit & Loss */
+    @@media print {
+        body {
+            font-family: 'Kantumruy Pro', Arial, Helvetica, sans-serif !important;
+            font-size: 12px !important;
+            padding: 15px !important;
+            color: #000000 !important;
+            background: #ffffff !important;
+        }
+
+        #gjAdvanceContainer,
+        #expense-detail-report-view-wrapper form,
+        #expense-detail-report-view-wrapper .form-search,
+        .k-grid-toolbar,
+        .btn,
+        button {
+            display: none !important;
+        }
+
+        #edReportHeader {
+            display: block !important;
+            text-align: center !important;
+            margin-bottom: 20px !important;
+        }
+
+        .table-responsive,
+        .k-grid {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+
+        th {
+            background-color: #efefef !important;
+            color: #000000 !important;
+            border: 1px solid #b0b0b0 !important;
+            font-weight: bold !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        td {
+            border: 1px solid #d4d4d4 !important;
+            color: #000000 !important;
+        }
+
+        @@page {
+            size: landscape;
+            margin: 10mm;
+        }
+    }
+</style>
+
+<script>
+(function () {
+    window.expenseDetailInitialDateFilterPending = true;
+    window.expenseDetailInitialGridRequestCompleted = false;
+    window.expenseDetailDateFilterRetryStarted = false;
+    window.expenseDetailDateFilterLoaded = false;
+    $('#expense-detail-report-view-wrapper .ShowGridTable').first().css('visibility', 'hidden');
+
+    function getKendoGrid() {
+        var $g = $('#expense-detail-report-view-wrapper').find('[data-role="grid"]').first();
+        return $g.length ? $g.data('kendoGrid') : null;
+    }
+
+    function isExpenseDetailDateFilterRequest(settings) {
+        var requestData = settings && settings.data;
+        var fieldWithValue = requestData && requestData.FieldWithValue;
+        if (typeof requestData === 'string') {
+            var match = /(?:^|&)FieldWithValue=([^&]*)/.exec(requestData);
+            if (match) {
+                fieldWithValue = decodeURIComponent(match[1].replace(/\+/g, ' '));
+            }
+        }
+        return typeof fieldWithValue === 'string' &&
+            fieldWithValue.indexOf('format(COALESCE(ep.PaymentDate') !== -1;
+    }
+
+    function reloadExpenseDetailWithDateFilter() {
+        var $dateInput = $('#expense-detail-report-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').first();
+        if (!$dateInput.val() || !$dateInput.data('daterangepicker') || typeof LoadTableGrid !== 'function') return;
+        if (window.expenseDetailDateFilterRetryStarted) return;
+        window.expenseDetailDateFilterRetryStarted = true;
+        if (typeof window.invalidateLoadGridCache === 'function') {
+            window.invalidateLoadGridCache();
+        }
+        LoadTableGrid(1);
+    }
+
+    function updateEdDateRangeHeader() {
+        var rawVal = $('#expense-detail-report-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').val() || '';
+        rawVal = rawVal.trim();
+        if (!rawVal) return;
+        if (rawVal.indexOf(' - ') !== -1) {
+            var parts = rawVal.split(' - ');
+            $('#lblDateRangeBar').text(parts[0].trim() + ' - ' + parts[1].trim());
+        } else {
+            $('#lblDateRangeBar').text(rawVal);
+        }
+    }
+
+    function getExpenseDetailClassValues() {
+        var values = $('#gjFilterClass').val();
+        return Array.isArray(values) ? values.filter(function (value) {
+            return value !== null && value !== '';
+        }) : (values ? [values] : []);
+    }
+
+    function rememberExpenseDetailClassSelection(value) {
+        if (!value) return;
+        var valueString = String(value);
+        var order = window.expenseDetailClassSelectionOrder || [];
+        order = order.filter(function (item) { return item !== valueString; });
+        order.push(valueString);
+        window.expenseDetailClassSelectionOrder = order;
+    }
+
+    function forgetExpenseDetailClassSelection(value) {
+        if (!value) return;
+        var valueString = String(value);
+        window.expenseDetailClassSelectionOrder = (window.expenseDetailClassSelectionOrder || [])
+            .filter(function (item) { return item !== valueString; });
+    }
+
+    function getExpenseDetailHeaderClassValue() {
+        var values = getExpenseDetailClassValues().map(String);
+        var order = window.expenseDetailClassSelectionOrder || [];
+        for (var i = order.length - 1; i >= 0; i--) {
+            if (values.indexOf(order[i]) !== -1) return order[i];
+        }
+        return values.length ? values[values.length - 1] : '';
+    }
+
+    function getSelectedClassInfo() {
+        var selectedVal = '';
+        var selectedText = '';
+
+        // The report's own Class filter is authoritative; other report dropdowns may be unrelated.
+        var $classFilter = $('#gjFilterClass');
+        var selectedClassValue = getExpenseDetailHeaderClassValue();
+        if (selectedClassValue && selectedClassValue !== '--- All Classes ---' && selectedClassValue !== 'All') {
+            selectedVal = selectedClassValue;
+            selectedText = $.trim($classFilter.find('option').filter(function () {
+                return this.value === selectedClassValue;
+            }).first().text()) || selectedClassValue;
+        }
+
+        // 1. Check Kendo DropDownLists on the page (toolbar, filter bars, etc.)
+        if (!selectedText) $('[data-role="dropdownlist"]').each(function () {
+            var ddl = $(this).data('kendoDropDownList');
+            if (ddl) {
+                var text = $.trim(ddl.text());
+                var val = $.trim(ddl.value());
+                if (text && text !== '--- All Classes ---' && text !== 'All' && text !== '--- Please select ---') {
+                    if (text.indexOf('Tech') !== -1 || text.indexOf('NSM') !== -1 || text.indexOf('Printing') !== -1 || text.indexOf('ISP') !== -1 || text.indexOf('BS') !== -1) {
+                        selectedVal = val || text;
+                        selectedText = text;
+                        return false;
+                    }
+                }
+            }
+        });
+
+        // 2. Check visible toolbar dropdown text (.k-dropdown .k-input, .select2-selection__rendered)
+        if (!selectedText) {
+            $('.k-dropdown .k-input, .select2-selection__rendered').each(function () {
+                var txt = $.trim($(this).text());
+                if (txt && (txt.indexOf('Tech') !== -1 || txt.indexOf('NSM') !== -1 || txt.indexOf('Printing') !== -1 || txt.indexOf('ISP') !== -1 || txt.indexOf('BS') !== -1)) {
+                    selectedVal = txt;
+                    selectedText = txt;
+                    return false;
+                }
+            });
+        }
+
+        // 4. Check all select elements
+        if (!selectedText) {
+            $('select').each(function () {
+                var $s = $(this);
+                var id = ($s.attr('id') || '').toLowerCase();
+                var name = ($s.attr('name') || '').toLowerCase();
+                var isClass = id.indexOf('class') !== -1 || name.indexOf('class') !== -1;
+
+                var val = $s.val();
+                val = Array.isArray(val) ? (val.length === 1 ? val[0] : '') : val;
+                if (!val || val === '--- All Classes ---' || val === 'All' || val === '0' || val === '-1') return;
+
+                var text = $.trim($s.find('option:selected').first().text()) || val;
+                if (!text || text === '--- All Classes ---' || text === 'All') text = val;
+
+                if (isClass || text.indexOf('Tech') !== -1 || text.indexOf('NSM') !== -1 || text.indexOf('Printing') !== -1 || text.indexOf('ISP') !== -1 || text.indexOf('BS') !== -1) {
+                    selectedVal = val;
+                    selectedText = text;
+                    return false;
+                }
+            });
+        }
+
+        var companyKh = $.trim($('#lblCompanyNameKh').text());
+        var companyEn = $.trim($('#lblCompanyNameEn').text());
+
+        var resolvedClass = window.expenseDetailResolvedClassHeader;
+        if (resolvedClass && resolvedClass.selectionKey === selectedVal) {
+            companyEn = resolvedClass.companyNameEn || companyEn;
+            companyKh = resolvedClass.companyNameKh || companyKh;
+        }
+
+        return {
+            val: selectedVal,
+            classId: resolvedClass && resolvedClass.selectionKey === selectedVal ? resolvedClass.classId : selectedVal,
+            text: selectedText,
+            companyKh: companyKh,
+            companyEn: companyEn
+        };
+    }
+
+    function getDynamicReportTitle(companyEn) {
+        return 'Expense Detail';
+    }
+
+    function isExpenseDetailTitle(value) {
+        return /^(?:.*\s[-–|]\s)?expenses?\s+detail(?:\s*\(filtered\s+by[^\)]*\))?$/i.test($.trim(value));
+    }
+
+    function getExportFileName(companyEn, extension) {
+        var prefix = companyEn ? companyEn.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') + '_' : '';
+        return prefix + 'Expense_Detail.' + extension;
+    }
+
+    function bindExpenseDetailPdfExport() {
+        var exportPdf = window.kendoGridPdfExport;
+        if (!exportPdf || exportPdf._expenseDetailWrapped) return;
+
+        var wrappedExport = function (e, config) {
+            var header = document.getElementById('expense-detail-report-view-wrapper')
+                ? window.expenseDetailPdfHeader
+                : null;
+            if (!header) return exportPdf.call(this, e, config);
+
+            if (!e || !e.sender || typeof window._kFetchAllRows !== 'function' ||
+                typeof window._flattenKendoGroups !== 'function' || !config || !config.serverRoot) {
+                console.error('Expense Detail PDF export could not start: export configuration is incomplete.');
+                alert('Failed to generate the Expense Detail PDF. Please try again.');
+                return;
+            }
+
+            e.preventDefault();
+            var grid = e.sender;
+            var systemId = localStorage.getItem('SystemID');
+            var dateRange = $.trim($('#lblDateRangeBar').text()) || 'All';
+            var reportPrintDate = kendo.toString(new Date(), 'dd-MMM-yyyy HH:mm');
+            var gridCols = grid.columns
+                .filter(function (column) {
+                    return !column.hidden && column.field && column.title.toLowerCase().trim() !== 'action';
+                })
+                .map(function (column) {
+                    return {
+                        field: column.field,
+                        title: column.title || column.field,
+                        type: column.type || null,
+                        format: column.format || null
+                    };
+                });
+            localStorage.setItem('kendo_grid_columns', JSON.stringify(gridCols));
+            localStorage.setItem('report_title', header.title || 'Expense Detail');
+
+            if (typeof window._kShowLoader === 'function') {
+                window._kShowLoader('Opening report…', 'Fetching all records');
+            }
+
+            window._kFetchAllRows(grid.dataSource)
+                .then(function (allData) {
+                    var gridDataJson = JSON.stringify(window._flattenKendoGroups(allData));
+                    localStorage.setItem('kendo_grid_export', gridDataJson);
+                    if (typeof window._kUpdateLoader === 'function') {
+                        window._kUpdateLoader('Generating report…', 'Please do not close this page');
+                    }
+                    return $.ajax({
+                        url: config.serverRoot + 'KendoPDFExport',
+                        type: 'POST',
+                        headers: { Authorization: 'Bearer ' + access_Token },
+                        data: { data: gridDataJson, systemId: systemId }
+                    });
+                })
+                .then(function (response) {
+                    var pdfDocument = new DOMParser().parseFromString(String(response), 'text/html');
+                    var reportDateElement = pdfDocument.querySelector('.report-date');
+                    if (reportDateElement) {
+                        reportDateElement.textContent = dateRange + ' | Print Date: ' + reportPrintDate;
+                    }
+                    var classSelect = pdfDocument.getElementById('classSelect');
+                    var selectedOption = null;
+                    if (classSelect) {
+                        $(classSelect).find('option').each(function () {
+                            var isSelected = header.classId && this.value === String(header.classId);
+                            this.selected = !!isSelected;
+                            if (isSelected) selectedOption = this;
+                        });
+                        if (!selectedOption) {
+                            selectedOption = classSelect.options[classSelect.selectedIndex];
+                        }
+                    }
+                    if (selectedOption) {
+                        selectedOption.setAttribute('data-name-en', header.companyEn || '');
+                        selectedOption.setAttribute(
+                            'data-name-kh',
+                            (header.companyKh || '').replace(/^ក្រុមហ៊ុន\s*/, '')
+                        );
+                    }
+                    var companyEnElement = pdfDocument.getElementById('companyNameEN');
+                    var companyKhElement = pdfDocument.getElementById('companyNameKH');
+                    if (companyEnElement) companyEnElement.textContent = header.companyEn || '';
+                    if (companyKhElement) companyKhElement.textContent = header.companyKh || '';
+                    var html = '<!DOCTYPE html>\n' + pdfDocument.documentElement.outerHTML;
+
+                    var newTab = window.open('', '_blank');
+                    if (!newTab) {
+                        throw new Error('The PDF preview window was blocked by the browser.');
+                    }
+                    newTab.document.open();
+                    newTab.document.write(html);
+                    newTab.document.close();
+                    if (typeof window._kUpdateLoader === 'function') {
+                        window._kUpdateLoader('Done!', 'Opening in new tab…');
+                    }
+                    if (typeof window._kHideLoader === 'function') {
+                        setTimeout(window._kHideLoader, 800);
+                    }
+                })
+                .catch(function (error) {
+                    if (typeof window._kHideLoader === 'function') window._kHideLoader();
+                    console.error('Expense Detail PDF export failed:', error);
+                    alert('Failed to generate the Expense Detail PDF. Please try again.');
+                });
+        };
+        wrappedExport._expenseDetailWrapped = true;
+        window.kendoGridPdfExport = wrappedExport;
+    }
+
+    function updateDynamicTitle(companyOverride, classId) {
+        var classInfo = getSelectedClassInfo();
+        var compEn = companyOverride ? companyOverride.companyNameEn : classInfo.companyEn;
+        var compKh = companyOverride ? companyOverride.companyNameKh : classInfo.companyKh;
+        var selectedClassId = classId || classInfo.classId || classInfo.val;
+        var title = getDynamicReportTitle(compEn);
+        window.expenseDetailPdfHeader = {
+            title: title,
+            companyEn: compEn,
+            companyKh: compKh,
+            classId: selectedClassId
+        };
+        bindExpenseDetailPdfExport();
+
+        document.title = title;
+        $('#lblReportTitle').text(title);
+        $('.report-header-print h3, .report-header-print h4, .report-header-print h5, .report-header-print .report-title, .report-title, .header-report h3, .header-report h2, .header-report .title').text(title);
+
+        // Update the English company name for the selected class.
+        if (compEn) {
+            $('#lblCompanyNameEn, .bs-company-en, .company-name-en, .header-company-en, .print-company-header .co-name-en').text(compEn);
+            $('.report-header-print .company-name-en').text(compEn);
+        }
+
+        // 3. Dynamically change company Khmer name
+        if (compKh) {
+            $('#lblCompanyNameKh, .bs-company-kh, .company-name-kh, .header-company-kh, .print-company-header .co-name-kh').text(compKh);
+            $('.report-header-print .company-name, .report-header-print h2').text(compKh);
+        }
+
+        // 4. Update header text inside report wrapper and TableGridWidget
+        var $wrapper = $('#expense-detail-report-view-wrapper');
+        $wrapper.find('h3, h2, h1, .report-title, .bs-company-en, .bs-company-kh, .header-company-en, .header-company-kh').each(function () {
+            var $t = $(this);
+            var txt = $.trim($t.text());
+            if (isExpenseDetailTitle(txt)) {
+                $t.text(title);
+            }
+            if (compEn && (txt === 'NSM TECHNOLOGY' || txt === 'NSM TECH' || txt === 'NSM TECH CO., LTD' || txt === 'NSM SOLUTION AND MAINTENANCE CO., LTD')) {
+                $t.text(compEn);
+            }
+            if (compKh && (txt === 'ក្រុមហ៊ុន អិនអេសអិម ថេកណូឡូជី' || txt === 'អិនអេសអិម ថេកណូឡូជី' || txt.indexOf('ថេកណូឡូជី') !== -1 || txt.indexOf('សឹលូសិន') !== -1)) {
+                $t.text(compKh);
+            }
+        });
+
+        // 5. Update Kendo Grid PDF options
+        var grid = getKendoGrid();
+        if (grid) {
+            if (!grid.options.pdf) grid.options.pdf = {};
+            grid.options.pdf.title = title;
+            grid.options.pdf.fileName = getExportFileName(compEn, 'pdf');
+            if (!grid.options.excel) grid.options.excel = {};
+            grid.options.excel.fileName = getExportFileName(compEn, 'xlsx');
+        }
+
+        // 6. Update TableGridWidget registry title and company names for Print Preview & export
+        if (window.TableGridWidget && window.TableGridWidget.registry) {
+            $.each(window.TableGridWidget.registry, function (_, config) {
+                if (config) {
+                    config.reportTitle = title;
+                    config.Title = title;
+                    config.report_title = title;
+                    config.title = title;
+                    if (compKh) {
+                        config.companyNameKh = compKh;
+                        config.CompanyNameKh = compKh;
+                        config.CompanyKH = compKh;
+                    }
+                    if (compEn) {
+                        config.companyNameEn = compEn;
+                        config.CompanyNameEn = compEn;
+                        config.CompanyEN = compEn;
+                        config.companyName = compEn;
+                    }
+                    if (config.arrCompanyInfo && config.arrCompanyInfo.length > 0) {
+                        try {
+                            var compList = JSON.parse(config.arrCompanyInfo[0]);
+                            if (compList && compList.length > 0) {
+                                if (compKh) compList[0].CompanyNameKH = compKh;
+                                if (compEn) compList[0].CompanyName = compEn;
+                                config.arrCompanyInfo[0] = JSON.stringify(compList);
+                            }
+                        } catch(e) {}
+                    }
+                }
+            });
+        }
+
+        return { title: title, companyEn: compEn, companyKh: compKh };
+    }
+
+    var classHeaderRequest = 0;
+    function refreshSelectedClassHeader() {
+        var $classFilter = $('#gjFilterClass');
+        var classId = getExpenseDetailHeaderClassValue();
+
+        if (!classId) {
+            window.expenseDetailResolvedClassHeader = null;
+            classHeaderRequest++;
+            updateDynamicTitle();
+            return;
+        }
+
+        window.expenseDetailResolvedClassHeader = null;
+        var $selectedOption = $classFilter.find('option').filter(function () {
+            return this.value === classId;
+        }).first();
+        var className = $.trim($selectedOption.text()) || classId;
+        var classLookup = window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.lastData
+            ? (window.AccountingAdvanceFilter.lastData.classes || window.AccountingAdvanceFilter.lastData.Classes || [])
+            : [];
+        var classRecord = null;
+        $.each(classLookup, function (_, item) {
+            if ($.trim(String(item.ClassName || '')) === className) {
+                classRecord = item;
+                return false;
+            }
+        });
+        var databaseClassId = classRecord && classRecord.ClassID != null
+            ? String(classRecord.ClassID)
+            : (/^\d+$/.test(classId) ? classId : '');
+        var requestId = ++classHeaderRequest;
+
+        $.ajax({
+            url: '@Url.Action("GetCompanyHeader", "ExpenseDetailReport")',
+            type: 'GET',
+            data: { className: className, classId: databaseClassId },
+            success: function (response) {
+                if (requestId !== classHeaderRequest) return;
+                if (!response || !response.success || !response.companyNameEn) {
+                    console.warn('Expense Detail company header could not be resolved for class:', className);
+                    updateDynamicTitle();
+                    return;
+                }
+                window.expenseDetailResolvedClassHeader = {
+                    selectionKey: classId,
+                    classId: response.classId || classId,
+                    companyNameEn: response.companyNameEn || '',
+                    companyNameKh: response.companyNameKh || ''
+                };
+                updateDynamicTitle(response, response.classId || classId);
+            },
+            error: function (xhr, status, error) {
+                if (requestId === classHeaderRequest) {
+                    console.warn('Expense Detail company header request failed:', status, error);
+                }
+            }
+        });
+    }
+
+    function placeAdvancePanel() {
+        var $wrapper = $('#expense-detail-report-view-wrapper');
+        if ($wrapper.length === 0) return;
+        var $panel = $wrapper.find('#gjAdvanceContainer, #gjAdvancePanel, .gj-advance-panel').first();
+        var $form = $wrapper.find('form, .form-search, table.table-search, .search-form-wrapper').first();
+        var $header = $wrapper.find('#edReportHeader').first();
+
+        if ($form.length && $panel.length) {
+            $form.after($panel);
+        }
+
+        var $grid = $wrapper.find('.table-responsive, [data-role="grid"], .k-grid, #TableGride').first();
+        var $gridHost = $grid.closest('.ShowGridTable');
+        var $tableContainer = $grid.closest('.table-responsive, [class*="tableresponsive_"]');
+        if ($tableContainer.length === 0) {
+            $tableContainer = $grid.closest('.k-grid');
+        }
+
+        if ($header.length && $gridHost.length) {
+            $gridHost.before($header);
+            $header.show();
+        } else if ($header.length && $tableContainer.length) {
+            $tableContainer.before($header);
+            $header.show();
+        } else if ($header.length && $panel.length) {
+            $panel.after($header);
+            $header.show();
+        }
+
+        updateEdDateRangeHeader();
+    }
+
+    function injectSearchButton() {
+        var $wrapper = $('#expense-detail-report-view-wrapper');
+        $wrapper.find('#btnEdSearch').remove();
+
+        var $dateInput = $wrapper.find('#TxtFromDate, input[name="TxtFromDate"]').first();
+        if ($dateInput.length === 0) return;
+
+        var $btn = $('<button id="btnEdSearch" type="button" style="height:36px;padding:0 18px;background-color:#4f46e5;color:#fff;border:none;border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin-left:8px;"><i class="fas fa-search"></i> Search</button>');
+        $btn.on('click', function () {
+            if (typeof LoadTableGrid === 'function') { LoadTableGrid(1); }
+            else {
+                $wrapper.find('#BunSearch, button[type="submit"]').first().trigger('click');
+                setTimeout(applyEdFilters, 400);
+            }
+        });
+
+        var $td = $dateInput.closest('td');
+        if ($td.length > 0) { $td.after($('<td style="padding:0;"></td>').append($btn)); }
+        else { $dateInput.after($btn); }
+
+        $wrapper.find('#BunSearch, button[type="submit"].btn-search').hide();
+    }
+
+    function renumberEdRows() {
+        var grid = getKendoGrid();
+        if (!grid || !grid.tbody) return;
+
+        var colMap = {};
+        $.each(grid.columns, function (i, col) {
+            if (col.field) colMap[col.field] = i;
+        });
+        if (colMap['No'] === undefined) return;
+
+        var page = (grid.dataSource && grid.dataSource.page) ? (grid.dataSource.page() || 1) : 1;
+        var pageSize = (grid.dataSource && grid.dataSource.pageSize) ? (grid.dataSource.pageSize() || 0) : 0;
+        var counter = (page > 1 && pageSize > 0) ? ((page - 1) * pageSize) + 1 : 1;
+
+        grid.tbody.find('tr[data-uid]').each(function () {
+            var $row = $(this);
+            if ($row.hasClass('k-grouping-row') || $row.hasClass('k-group-footer') || $row.hasClass('k-footer-template')) return;
+
+            var $noCell = $row.children('td').eq(colMap['No']);
+            if ($noCell.length > 0 && $.trim($noCell.text()) !== '') {
+                $noCell.text((counter < 10 ? '0' : '') + counter);
+                counter++;
+            }
+        });
+    }
+
+    function addCurrencySymbolSpacing(grid) {
+        if (!grid) return;
+
+        var currencyFields = {
+            AmountUSD: true,
+            UnitPrice: true,
+            Discount: true,
+            VAT: true
+        };
+        var currencyColumnIndexes = [];
+
+        $.each(grid.columns, function (index, column) {
+            if (currencyFields[column.field]) currencyColumnIndexes.push(index);
+        });
+
+        $.each(currencyColumnIndexes, function (_, index) {
+            grid.tbody.find('tr[data-uid]').each(function () {
+                var $cell = $(this).children('td').eq(index);
+                $cell.text($cell.text().replace(/\$(?=\S)/g, '$ '));
+            });
+
+            var $footerCell = grid.wrapper.find('tfoot tr').last().children('td').eq(index);
+            if ($footerCell.length) {
+                $footerCell.text($footerCell.text().replace(/\$(?=\S)/g, '$ '));
+            }
+        });
+    }
+
+    function bindExpenseDetailExcelHeader(grid) {
+        if (grid._expenseDetailExcelHeaderBound) return;
+
+        grid.bind('excelExport', function (e) {
+            var sheet = e.workbook.sheets[0];
+            var rows = sheet.rows;
+            if (!rows || !rows.length) return;
+
+            var headerInfo = updateDynamicTitle();
+            var title = (headerInfo && headerInfo.title) ? headerInfo.title : 'Expense Detail';
+            var compEn = (headerInfo && headerInfo.companyEn) ? headerInfo.companyEn : '';
+            var compKh = (headerInfo && headerInfo.companyKh) ? headerInfo.companyKh : '';
+            if (grid.options && grid.options.excel) {
+                grid.options.excel.fileName = getExportFileName(compEn, 'xlsx');
+            }
+
+            var hasCompanyEn = false;
+            var hasCompanyKh = false;
+            var hasTitle = false;
+            for (var r = 0; r < Math.min(rows.length, 10); r++) {
+                if (rows[r] && rows[r].type === 'header' && rows[r].cells) {
+                    for (var c = 0; c < rows[r].cells.length; c++) {
+                        var cell = rows[r].cells[c];
+                        if (cell && cell.value) {
+                            var val = $.trim(cell.value.toString());
+                            if (isExpenseDetailTitle(val)) {
+                                cell.value = title;
+                                cell.textAlign = 'center';
+                                cell.fontSize = 12;
+                                cell.bold = true;
+                                hasTitle = true;
+                            } else if (compEn && /^(NSM\s+TECH(?:NOLOGY)?(?:\s+CO\.?,?\s*LTD\.?)?|NSM\s+SOLUTION\s+AND\s+MAINTENANCE\s+CO\.?,?\s*LTD\.?|BS\s+PRINTING\s+AND\s+ADVERTISING\s+CO\.?,?\s*LTD\.?|NSM\s+INTERNET\s+SERVICE\s+PROVIDER)$/i.test(val)) {
+                                cell.value = compEn;
+                                cell.textAlign = 'center';
+                                cell.fontSize = 14;
+                                cell.bold = true;
+                                hasCompanyEn = true;
+                            }
+                            if (compKh && /^ក្រុមហ៊ុន\s+/.test(val) && (val.indexOf('ថេកណូឡូជី') !== -1 || val.indexOf('សឹលូសិន') !== -1 || val.indexOf('ព្រីនធីង') !== -1 || val.indexOf('អាយអេសភី') !== -1)) {
+                                cell.value = compKh;
+                                cell.textAlign = 'center';
+                                cell.fontSize = 16;
+                                cell.fontFamily = 'Khmer OS Muol Light';
+                                cell.bold = true;
+                                hasCompanyKh = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var headerRows = [];
+            var columnCount = Math.max(1, grid.columns.filter(function (column) {
+                return !column.hidden && column.field;
+            }).length);
+            if (compKh && !hasCompanyKh) {
+                headerRows.push({
+                    cells: [{ value: compKh, colSpan: columnCount, textAlign: 'center', fontSize: 16, fontFamily: 'Khmer OS Muol Light', bold: true }],
+                    type: 'header',
+                    height: 30
+                });
+            }
+            if (compEn && !hasCompanyEn) {
+                headerRows.push({
+                    cells: [{ value: compEn, colSpan: columnCount, textAlign: 'center', fontSize: 14, bold: true }],
+                    type: 'header',
+                    height: 24
+                });
+            }
+            if (!hasTitle) {
+                headerRows.push({
+                    cells: [{ value: title, colSpan: columnCount, textAlign: 'center', fontSize: 12, bold: true }],
+                    type: 'header',
+                    height: 22
+                });
+            }
+            var dateRange = $.trim($('#lblDateRangeBar').text());
+            headerRows.push({
+                cells: [{ value: dateRange || 'All', colSpan: columnCount, textAlign: 'center', fontSize: 10 }],
+                type: 'header',
+                height: 20
+            });
+            headerRows.push({
+                cells: [{ value: 'Print Date: ' + kendo.toString(new Date(), 'dd-MMM-yyyy HH:mm'), colSpan: columnCount, textAlign: 'center', fontSize: 10 }],
+                type: 'header',
+                height: 20
+            });
+            if (headerRows.length) rows.splice.apply(rows, [0, 0].concat(headerRows));
+        });
+
+        grid._expenseDetailExcelHeaderBound = true;
+    }
+
+    function bindExpenseDetailPdfHeader(grid) {
+        if (!grid || grid._expenseDetailPdfHeaderBound) return;
+
+        grid.bind('pdfExport', function (e) {
+            var headerInfo = updateDynamicTitle();
+            var title = (headerInfo && headerInfo.title) ? headerInfo.title : 'Expense Detail';
+            var compEn = (headerInfo && headerInfo.companyEn) ? headerInfo.companyEn : '';
+            var compKh = (headerInfo && headerInfo.companyKh) ? headerInfo.companyKh : '';
+
+            if (grid.options && grid.options.pdf) {
+                grid.options.pdf.title = title;
+                grid.options.pdf.fileName = getExportFileName(compEn, 'pdf');
+            }
+
+            if (e && e.element) {
+                var $elem = $(e.element);
+                var metadata = $('<div class="expense-detail-export-metadata"></div>')
+                    .text(($.trim($('#lblDateRangeBar').text()) || 'All') + ' | Print Date: ' + kendo.toString(new Date(), 'dd-MMM-yyyy HH:mm'))
+                    .css({ textAlign: 'center', fontSize: '10px', margin: '6px 0 12px' });
+                $elem.prepend(metadata);
+
+                // Update the title in the PDF export.
+                $elem.find('*').filter(function () {
+                    var $t = $(this);
+                    if ($t.children().length > 0) return false;
+                    var txt = $.trim($t.text());
+                    return isExpenseDetailTitle(txt);
+                }).text(title);
+
+                $elem.find('#lblReportTitle, .report-title, .header-report h3, h3').each(function () {
+                    var txt = $.trim($(this).text());
+                    if (isExpenseDetailTitle(txt)) {
+                        $(this).text(title);
+                    }
+                });
+
+                // Update the English company name in the PDF export.
+                if (compEn) {
+                    $elem.find('.company-name-en, .header-company-en, .bs-company-en').text(compEn);
+                    $elem.find('*').filter(function () {
+                        var $t = $(this);
+                        if ($t.children().length > 0) return false;
+                        var txt = $.trim($t.text());
+                        return txt === 'NSM TECHNOLOGY' || txt === 'NSM TECH' || txt === 'NSM TECH CO., LTD' || txt === 'NSM SOLUTION AND MAINTENANCE CO., LTD';
+                    }).text(compEn);
+                }
+
+                // Update the Khmer company name in the PDF export.
+                if (compKh) {
+                    $elem.find('.company-name, .header-company-kh, .bs-company-kh').text(compKh);
+                    $elem.find('*').filter(function () {
+                        var $t = $(this);
+                        if ($t.children().length > 0) return false;
+                        var txt = $.trim($t.text());
+                        return txt === 'ក្រុមហ៊ុន អិនអេសអិម ថេកណូឡូជី' || txt === 'អិនអេសអិម ថេកណូឡូជី' || txt.indexOf('ថេកណូឡូជី') !== -1 || txt.indexOf('សឹលូសិន') !== -1;
+                    }).text(compKh);
+                }
+            }
+        });
+
+        grid._expenseDetailPdfHeaderBound = true;
+    }
+
+    var _dataBoundBound = false;
+    function bindDataBound() {
+        var grid = getKendoGrid();
+        if (!grid) return;
+
+        bindExpenseDetailExcelHeader(grid);
+        bindExpenseDetailPdfHeader(grid);
+        if (!_dataBoundBound) {
+            grid.bind('dataBound', function () {
+                setTimeout(function () {
+                    renumberEdRows();
+                    addCurrencySymbolSpacing(grid);
+                    var totalBefore = grid.dataSource.data().length;
+                    var totalAfter = grid.dataSource.total();
+                    var activeCount = (grid.dataSource.filter() && grid.dataSource.filter().filters) ? grid.dataSource.filter().filters.length : 0;
+                    updateEdFilterBadge(activeCount, totalBefore, totalAfter);
+                }, 40);
+            });
+        }
+        addCurrencySymbolSpacing(grid);
+        _dataBoundBound = true;
+    }
+
+    function updateEdFilterBadge(activeCount, totalRows, filteredRows) {
+        var $badge = $('#gjFilterStatusBadge');
+        if (activeCount === 0) {
+            $badge.hide().html('');
+            return;
+        }
+        var html = '<span class="gj-badge active">' +
+            '<i class="fas fa-filter" style="font-size:10px;"></i> ' +
+            activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active &mdash; ' +
+            filteredRows + ' / ' + totalRows + ' rows' +
+            '</span>';
+        $badge.html(html).show();
+    }
+
+    window.applyEdFilters = function () {
+        var grid = getKendoGrid();
+        if (!grid || !grid.dataSource) return;
+
+        /* 1. Column visibility */
+        $('#gjShownColumnsDropdown input[type=checkbox]').each(function () {
+            var fieldName = $(this).val();
+            if ($(this).is(':checked')) { grid.showColumn(fieldName); }
+            else                        { grid.hideColumn(fieldName); }
+        });
+
+        /* 2. Sorting */
+        var sortField = $.trim($('#gjFilterSortBy').val());
+        var sortDir   = $('#gjFilterOrderBy').val() || 'desc';
+        if (sortField) {
+            grid.dataSource.sort({ field: sortField, dir: sortDir });
+        }
+
+        /* 3. Build Kendo filters */
+        var parseMulti = function (val) {
+            if (Array.isArray(val)) {
+                return val.filter(function (x) { return x !== null && x !== '' && x !== undefined; });
+            }
+            if (val && typeof val === 'string' && $.trim(val) !== '') {
+                return val.split(',').map(function (s) { return $.trim(s); }).filter(function (x) { return !!x; });
+            }
+            return [];
+        };
+
+        var selectedVendors  = parseMulti($('#edFilterVendor').val());
+        var selectedAccounts = parseMulti($('#gjFilterAccount').val());
+        var selectedClasses  = parseMulti($('#gjFilterClass').val());
+        var selectedMethods  = parseMulti($('#edFilterPaymentMethod').val());
+        var selectedUsers    = parseMulti($('#gjFilterCreatedBy').val());
+        var itemName = $.trim($('#edFilterItemName').val()).toLowerCase();
+        var refNo    = $.trim($('#gjFilterRefNo').val()).toLowerCase();
+        var fromAmt  = parseFloat($('#edFilterFromAmount').val());
+        var toAmt    = parseFloat($('#edFilterToAmount').val());
+
+        var hasFilter = !!(selectedVendors.length || selectedAccounts.length || selectedClasses.length || selectedMethods.length || selectedUsers.length || itemName || refNo || !isNaN(fromAmt) || !isNaN(toAmt));
+
+        var activeCount = 0;
+        if (selectedVendors.length) activeCount++;
+        if (selectedAccounts.length) activeCount++;
+        if (selectedClasses.length) activeCount++;
+        if (selectedMethods.length) activeCount++;
+        if (selectedUsers.length) activeCount++;
+        if (itemName) activeCount++;
+        if (refNo) activeCount++;
+        if (!isNaN(fromAmt) || !isNaN(toAmt)) activeCount++;
+
+        var allData = grid.dataSource.data();
+        var totalBefore = allData.length;
+
+        if (hasFilter) {
+            var matchingRowIds = {};
+
+            for (var i = 0; i < allData.length; i++) {
+                var item = allData[i];
+                if (!item) continue;
+                allData[i]._rowId = (i + 1);
+
+                var match = true;
+
+                // 1. Vendors
+                if (selectedVendors.length > 0) {
+                    var vName = (item.Vendor || item.VendorName || '').toString().toLowerCase().trim();
+                    var vId = (item.VendorID || '').toString().toLowerCase().trim();
+                    var vMatch = false;
+                    for (var v = 0; v < selectedVendors.length; v++) {
+                        var targetV = selectedVendors[v].toLowerCase().trim();
+                        if (vName === targetV || vId === targetV || (targetV.length >= 3 && vName.indexOf(targetV) !== -1)) {
+                            vMatch = true;
+                            break;
+                        }
+                    }
+                    if (!vMatch) match = false;
+                }
+
+                // 2. Accounts
+                if (match && selectedAccounts.length > 0) {
+                    var cat = (item.Account || '').toString().toLowerCase().trim();
+                    var payAcc = (item.PaymentAccount || '').toString().toLowerCase().trim();
+                    var aMatch = false;
+                    for (var a = 0; a < selectedAccounts.length; a++) {
+                        var targetA = selectedAccounts[a].toLowerCase().trim();
+                        if (cat === targetA || payAcc === targetA || cat.indexOf(targetA) !== -1 || payAcc.indexOf(targetA) !== -1 || (cat && targetA.indexOf(cat) !== -1) || (payAcc && targetA.indexOf(payAcc) !== -1)) {
+                            aMatch = true;
+                            break;
+                        }
+                    }
+                    if (!aMatch) match = false;
+                }
+
+                // 3. Classes
+                if (match && selectedClasses.length > 0) {
+                    var cls = (item.ClassName || item.Class || item.Department || '').toString().toLowerCase().trim();
+                    var clsId = (item.ClassID || '').toString().toLowerCase().trim();
+                    var cMatch = false;
+                    for (var c = 0; c < selectedClasses.length; c++) {
+                        var targetC = selectedClasses[c].toLowerCase().trim();
+                        if (cls === targetC || clsId === targetC || (targetC.length >= 3 && (cls.indexOf(targetC) !== -1 || targetC.indexOf(cls) !== -1))) {
+                            cMatch = true;
+                            break;
+                        }
+                    }
+                    if (!cMatch) {
+                        $('#gjFilterClass option:selected').each(function () {
+                            var t = $.trim($(this).text()).toLowerCase();
+                            if (t && t !== '--- all classes ---' && t !== 'all') {
+                                if (cls === t || (cls && t.indexOf(cls) !== -1) || (t && cls.indexOf(t) !== -1)) {
+                                    cMatch = true;
+                                    return false;
+                                }
+                            }
+                        });
+                    }
+                    if (!cMatch) match = false;
+                }
+
+                // 4. Payment Method
+                if (match && selectedMethods.length > 0) {
+                    var pm = (item.PaymentMethod || '').toString().toLowerCase().trim();
+                    var pmMatch = false;
+                    for (var m = 0; m < selectedMethods.length; m++) {
+                        var targetM = selectedMethods[m].toLowerCase().trim();
+                        if (pm === targetM) {
+                            pmMatch = true;
+                            break;
+                        }
+                    }
+                    if (!pmMatch) match = false;
+                }
+
+                // 5. Users / Approved By
+                if (match && selectedUsers.length > 0) {
+                    var usr = (item.ApprovedBy || '').toString().toLowerCase().trim();
+                    var uMatch = false;
+                    for (var u = 0; u < selectedUsers.length; u++) {
+                        var targetU = selectedUsers[u].toLowerCase().trim();
+                        if (usr === targetU || (targetU.length >= 3 && usr.indexOf(targetU) !== -1)) {
+                            uMatch = true;
+                            break;
+                        }
+                    }
+                    if (!uMatch) match = false;
+                }
+
+                // 6. Item Name
+                if (match && itemName) {
+                    var desc = (item.Description || '').toString().toLowerCase();
+                    var itm = (item.ItemName || '').toString().toLowerCase();
+                    var notes = (item.Notes || '').toString().toLowerCase();
+                    if (desc.indexOf(itemName) === -1 && itm.indexOf(itemName) === -1 && notes.indexOf(itemName) === -1) {
+                        match = false;
+                    }
+                }
+
+                // 7. Ref / Receipt No
+                if (match && refNo) {
+                    var rec = (item.ReceiptNumber || '').toString().toLowerCase();
+                    var expLink = (item.ExpenseIDLink || '').toString().toLowerCase();
+                    var expId = (item.ExpenseID || '').toString().toLowerCase();
+                    if (rec.indexOf(refNo) === -1 && expLink.indexOf(refNo) === -1 && expId.indexOf(refNo) === -1) {
+                        match = false;
+                    }
+                }
+
+                // 8. Amount
+                var amt = parseFloat(item.AmountUSD) || 0;
+                if (match && !isNaN(fromAmt) && amt < fromAmt) match = false;
+                if (match && !isNaN(toAmt) && amt > toAmt) match = false;
+
+                if (match) {
+                    matchingRowIds[i + 1] = true;
+                }
+            }
+
+            grid.dataSource.filter({
+                field: "_rowId",
+                operator: function (rowId) {
+                    return !!matchingRowIds[rowId];
+                },
+                value: 1
+            });
+        } else {
+            grid.dataSource.filter([]);
+        }
+
+        var totalAfter = grid.dataSource.total();
+        setTimeout(renumberEdRows, 50);
+        updateEdFilterBadge(activeCount, totalBefore, totalAfter);
+        updateDynamicTitle();
+    };
+
+    function setupReportHeader() {
+        updateDynamicTitle();
+    }
+
+    $(document).ajaxSuccess(function (event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('LoadTableGrid') !== -1) {
+            window.expenseDetailInitialGridRequestCompleted = true;
+            var $gridHost = $('#expense-detail-report-view-wrapper .ShowGridTable').first();
+            var $dateInput = $('#expense-detail-report-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').first();
+            var hasCurrentDateRange = $dateInput.val() && $dateInput.data('daterangepicker');
+            var hasDateFilter = isExpenseDetailDateFilterRequest(settings);
+            if (hasCurrentDateRange && !hasDateFilter && !window.expenseDetailDateFilterLoaded) {
+                if (!window.expenseDetailDateFilterRetryStarted) {
+                    window.expenseDetailInitialDateFilterPending = true;
+                    $gridHost.css('visibility', 'hidden');
+                }
+                if (!window.expenseDetailDateFilterRetryStarted && !window.expenseDetailDateFilterRetryScheduled) {
+                    window.expenseDetailDateFilterRetryScheduled = true;
+                    setTimeout(function () {
+                        window.expenseDetailDateFilterRetryScheduled = false;
+                        reloadExpenseDetailWithDateFilter();
+                    }, 0);
+                } else if (window.expenseDetailDateFilterRetryStarted) {
+                    window.expenseDetailInitialDateFilterPending = false;
+                    $gridHost.css('visibility', '');
+                    console.error('Expense Detail could not apply the default date range: the grid request did not include its date filter.');
+                }
+            } else if (window.expenseDetailInitialDateFilterPending && hasDateFilter) {
+                window.expenseDetailInitialDateFilterPending = false;
+                window.expenseDetailDateFilterLoaded = true;
+                $gridHost.css('visibility', '');
+            }
+            setTimeout(function () {
+                placeAdvancePanel();
+                updateEdDateRangeHeader();
+                injectSearchButton();
+                bindDataBound();
+                applyEdFilters();
+                setupReportHeader();
+            }, 80);
+        }
+    });
+
+    var lookupInitAttempts = 0;
+    var lookupInitStarted = false;
+    function initEdLookups() {
+        if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.loadLookups === 'function') {
+            if (lookupInitStarted) return;
+            lookupInitStarted = true;
+            window.AccountingAdvanceFilter.loadLookups('/ExpenseDetailReport/GetFilterOptions');
+        } else if (lookupInitAttempts < 50) {
+            lookupInitAttempts += 1;
+            setTimeout(initEdLookups, 100);
+        } else {
+            console.warn('Expense Detail report filters did not initialize: AccountingAdvanceFilter is unavailable.');
+        }
+    }
+
+    initEdLookups();
+
+    $(document).ready(function () {
+        initEdLookups();
+        setTimeout(function () {
+            placeAdvancePanel();
+            updateEdDateRangeHeader();
+            injectSearchButton();
+            bindDataBound();
+            setupReportHeader();
+            updateDynamicTitle();
+            if (window.AccountingAdvanceFilter && typeof window.AccountingAdvanceFilter.populateLookups === 'function') {
+                window.AccountingAdvanceFilter.populateLookups();
+            }
+            if (window.expenseDetailInitialDateFilterPending) {
+                var $dateInput = $('#expense-detail-report-view-wrapper').find('#TxtFromDate, input[name="TxtFromDate"]').first();
+                if (window.expenseDetailInitialGridRequestCompleted &&
+                    $dateInput.val() && $dateInput.data('daterangepicker') && typeof LoadTableGrid === 'function') {
+                    reloadExpenseDetailWithDateFilter();
+                } else if (!$dateInput.val() || !$dateInput.data('daterangepicker')) {
+                    window.expenseDetailInitialDateFilterPending = false;
+                    $('#expense-detail-report-view-wrapper .ShowGridTable').first().css('visibility', '');
+                }
+            }
+            refreshSelectedClassHeader();
+        }, 150);
+
+        // Continuous sync on any user interaction or filter change
+        $(document).on('change', 'select, input', function () {
+            if ($(this).is('#gjFilterClass')) return;
+            setTimeout(updateDynamicTitle, 60);
+        });
+        getExpenseDetailClassValues().forEach(rememberExpenseDetailClassSelection);
+        $(document).off('select2:select.expenseDetailHeader', '#gjFilterClass')
+            .on('select2:select.expenseDetailHeader', '#gjFilterClass', function (event) {
+            var selected = event.params && event.params.data ? event.params.data.id : '';
+            rememberExpenseDetailClassSelection(selected);
+            setTimeout(refreshSelectedClassHeader, 0);
+        });
+        $(document).off('select2:unselect.expenseDetailHeader', '#gjFilterClass')
+            .on('select2:unselect.expenseDetailHeader', '#gjFilterClass', function (event) {
+            var removed = event.params && event.params.data ? event.params.data.id : '';
+            forgetExpenseDetailClassSelection(removed);
+            setTimeout(refreshSelectedClassHeader, 0);
+        });
+        $(document).off('change.expenseDetailHeader', '#gjFilterClass')
+            .on('change.expenseDetailHeader', '#gjFilterClass', function () {
+            var values = getExpenseDetailClassValues().map(String);
+            window.expenseDetailClassSelectionOrder = (window.expenseDetailClassSelectionOrder || [])
+                .filter(function (value) { return values.indexOf(value) !== -1; });
+            values.forEach(function (value) {
+                var order = window.expenseDetailClassSelectionOrder;
+                if (order.indexOf(value) === -1) order.push(value);
+            });
+            refreshSelectedClassHeader();
+        });
+
+        $('#expense-detail-report-view-wrapper').on('apply.daterangepicker change', 'input[name="TxtFromDate"], #TxtFromDate', function () {
+            updateEdDateRangeHeader();
+            if (typeof LoadTableGrid === 'function') {
+                LoadTableGrid(1);
+            }
+        });
+    });
+})();
+</script>

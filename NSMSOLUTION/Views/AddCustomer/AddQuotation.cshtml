@@ -1,0 +1,2722 @@
+﻿@{
+    Layout = null;
+}
+
+<section class="content" id="CustomerFormAgreement">
+    <div class="container-fluid" name="custFormAgreement" id="custFormAgreement">
+        <div class="row">
+            <div class="col-12">
+                <div id="DivLogoCompany"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center" style="padding:20px 0 0 0">
+                <span style="font-family: 'Francois One','Bayon'; font-size: 30px">
+                    សម្រង់តម្លៃ
+                </span><br />
+                <span class="text-center text-uppercase" style="font-family: 'Francois One','Bayon'; font-size: 28px ">Quotation</span>
+            </div>
+        </div>
+
+        <form id="frmcust" class="contact2-form validate-form" novalidate autocomplete="off">
+            <div class="row">
+                <div class="col-auto"><label for="Employee" class="col-form-label khmerFont1">ភ្នាក់ងារលក់/Sale's Name:</label></div>
+                <div class="col-2">
+                    <div class="wrap-input2 validate-input" data-validate="Sale's Name is required">
+                        <input type="text" class="input2 CustInfo" id="Employee" name="Employee">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 p-0" style="border:solid 1px #808080">
+                    <div class="form-content">
+                        <div class="bg-gray-light" style="display:none">
+                            <div class="card-header">
+                                <h3 class="card-title text-uppercase">Order Type</h3>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix p-2" id="CustOrderType" style="display:none"></div>
+
+                        <div style="background-color: #F89C39">
+                            <div class="card-header">
+                                <h3 class="card-title khmerFont1-Header">ព័ត៌មានអតិថិជន / Customer Information</h3>
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <label for="CustomerType" class="col-form-label khmerFont1">
+                                        ប្រភេទ/Type:
+                                    </label>
+                                </div>
+                                <div class="col align-text-bottom">
+                                    <div class="wrap-input2 validate-input" data-validate="Customer Type is required">
+                                        <input type="text" class="input2" id="CustomerType" name="CustomerType">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="CustomerCode" class="col-form-label khmerFont1">
+                                        លេខសម្គាល់/CID:
+                                    </label>
+                                </div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Customer Code is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerCode" name="CustomerCode">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="CustomerName" class="col-form-label khmerFont1">
+                                        ឈ្មោះ/Name:
+                                    </label>
+                                </div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Customer Name is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerName" name="CustomerName">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerGender" class="col-form-label khmerFont1">ភេទ/Gender:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Gender is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerGender" name="CustomerGender">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="CustomerAddress" class="col-form-label khmerFont1">អាសយដ្ឋាន/Address:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Address is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerAddress" name="CustomerAddress">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerCommune" name="CustomerCommune">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="District is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerDistrict" name="CustomerDistrict">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerProvinceCity" name="CustomerProvinceCity">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="CustomerMobile" class="col-form-label khmerFont1">ទូរស័ព្ទដៃ/H/P:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input">
+                                        <input type="text" class="input2 CustInfo" id="CustomerMobile" name="CustomerMobile">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerEmail" class="col-form-label khmerFont1">អ៊ីមែល/Email:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="email" class="input2 CustInfo" id="CustomerEmail" name="CustomerEmail">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CustomerNationality" class="col-form-label khmerFont1">សញ្ជាតិ/Nationality:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Nationality is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerNationality" name="CustomerNationality">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="CustomerIdentification" class="col-form-label khmerFont1">អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន/Identification/Passport No:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="CustomerIdentification" name="CustomerIdentification">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto" style="display:none"><label for="CustomerContactName" class="col-form-label">Contact Name:</label></div>
+                                <div class="col" style="display:none">
+                                    <div class="wrap-input2 validate-input" data-validate="Contact Name is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerContactName" name="CustomerContactName">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto" style="display:none"><label for="CustomerContactMobileNumber" class="col-form-label">Contact Mobile Number:</label></div>
+                                <div class="col" style="display:none">
+                                    <div class="wrap-input2 validate-input" data-validate="Contact Mobile Number is required">
+                                        <input type="text" class="input2 CustInfo" id="CustomerContactMobileNumber" name="CustomerContactMobileNumber">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto" style="display:none"><label for="CustomerContactEmail" class="col-form-label">Contact Email:</label></div>
+                                <div class="col" style="display:none">
+                                    <div class="wrap-input2">
+                                        <input type="email" class="input2 CustInfo" id="CustomerContactEmail" name="CustomerContactEmail">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background-color: #F89C39">
+                            <div class="card-header">
+                                <h3 class="card-title khmerFont1-Header">ព័ត៌មានទូទាត់វិក្កយបត្រ / Customer Billing Information</h3>
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <div class="row">
+                                <div class="col-auto"><label for="CompanyName" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុន/Company Name:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="CompanyName" name="CompanyName">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyNameKH" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុនជាភាសាខ្មែរ/Company Name KH:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="CompanyNameKH" name="CompanyNameKH">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="CompanyDeskPhone" class="col-form-label khmerFont1">ទូរស័ព្ទលើតុ/Company Desk Phone:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="CompanyDeskPhone" name="CompanyDeskPhone">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyMobile" class="col-form-label khmerFont1">ទូរស័ព្ទដៃ/Company H/P:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="CompanyMobile" name="CompanyMobile">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyEmail CustInfo" class="col-form-label khmerFont1">អ៊ីមែលទូទាត់វិក្កយបត្រ/Billing Email:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="email" class="input2 CustInfo" id="CompanyEmail" name="CompanyEmail">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="VATNumber" class="col-form-label khmerFont1">លេខ VAT/VAT TIN:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2">
+                                        <input type="text" class="input2 CustInfo" id="VATNumber" name="VATNumber">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="IndustryType" class="col-form-label khmerFont1">ប្រភេទអាជីវកម្ម/Business Type:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Business Type is required">
+                                        <input type="text" class="input2 CustInfo" id="IndustryType" name="IndustryType">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto"><label for="CompanyAddress" class="col-form-label khmerFont1">អាសយដ្ឋានក្រុមហ៊ុន/Company Add.:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Company Address is required">
+                                        <input type="text" class="input2 CustInfo" id="CompanyAddress" name="CompanyAddress">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                        <input type="text" class="input2 CustInfo" id="CompanyCommune" name="CompanyCommune">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="District is required">
+                                        <input type="text" class="input2 CustInfo" id="CompanyDistrict" name="CompanyDistrict">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-auto"><label for="CompanyProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+                                <div class="col">
+                                    <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                        <input type="text" class="input2 CustInfo" id="CompanyProvinceCity" name="CompanyProvinceCity">
+                                        <span class="focus-input2"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12" style="background-color:papayawhip">
+                                    <div class="row">
+                                        <div class="col-auto"><label for="CompanyContactName" class="col-form-label khmerFont1">ឈ្មោះទំនាក់ទំនង/Contact Person:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Company Contact Name is required">
+                                                <input type="text" class="input2 CustInfo" id="CompanyContactName" name="CompanyContactName">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="CompanyContactPosition" class="col-form-label khmerFont1">តំណែង/Position:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2">
+                                                <input type="text" class="input2 CustInfo" id="CompanyContactPosition" name="CompanyContactPosition">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="CompanyContactMobileNumber" class="col-form-label khmerFont1">លេខទំនាក់ទំនង/Contact Number:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Contact Mobile Number is required">
+                                                <input type="text" class="input2 CustInfo" id="CompanyContactMobileNumber" name="CompanyContactMobileNumber">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="DivBillToAddress">
+                                        <div class="col-auto"><label for="BillToAddress" class="col-form-label khmerFont1">អាសយដ្ឋានទូទាត់វិក្កយបត្រ/Bill Add.:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Bill To Address is required">
+                                                <input type="text" class="input2 CustInfo" id="BillToAddress" name="BillToAddress">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="BillToCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                                <input type="text" class="input2 CustInfo" id="BillToCommune" name="BillToCommune">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="BillToDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="District is required">
+                                                <input type="text" class="input2 CustInfo" id="BillToDistrict" name="BillToDistrict">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="BillToProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                                <input type="text" class="input2 CustInfo" id="BillToProvinceCity" name="BillToProvinceCity">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="DivInstallationBill">
+                                        <div class="col-auto"><label for="InstallAddress" class="col-form-label khmerFont1">អាសយដ្ឋានតម្លើង/Installation Add.:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Installation Address is required">
+                                                <input type="text" class="input2 CustInfo" id="InstallAddress" name="InstallAddress">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="InstallCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                                <input type="text" class="input2 CustInfo" id="InstallCommune" name="InstallCommune">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="InstallDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="District is required">
+                                                <input type="text" class="input2 CustInfo" id="InstallDistrict" name="InstallDistrict">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto"><label for="InstallProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+                                        <div class="col">
+                                            <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                                <input type="text" class="input2 CustInfo" id="InstallProvinceCity" name="InstallProvinceCity">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-light" style="display:none">
+                            <div class="card-header">
+                                <h3 class="card-title text-center w-100 text-uppercase">Industry Type</h3>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix p-2" style="display:none">
+                            <div class="row" id="DivIndustryType"></div>
+                        </div>
+                        <div style="background-color: #F89C39">
+                            <div class="card-header">
+                                <h3 class="card-title khmerFont1-Header">សេវាកម្ម / Service Plan</h3>
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <div class="row p-2" style="display:none">
+                                <div class="col-12">
+                                    <div class="row" style="background-color:cornsilk">
+                                        <div class="col-auto"><label for="PreviousISP" class="col-form-label khmerFont1-Header" style="color:black">ក្រុមហ៊ុនដែលបានផ្តល់សេវាអ៊ិនធឺណិតពីមុន / Previous ISP:</label></div>
+                                        <div class="col-3">
+                                            <div class="wrap-input2">
+                                                <input type="text" class="input2 CustInfo" id="PreviousISP" name="PreviousISP">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-bordered khmerFont1 table-valign-middle" name="tblSeviceDetail">
+                                <thead style="color: white !important; background-color: #F89C39">
+                                    <tr>
+                                        <th class="col-auto">ល.រ</th>
+                                        <th class="col-6">បរិយាយ</th>
+                                        <th class="col-1">ខ្នាត</th>
+                                        <th class="col-1">បរិមាណ</th>
+                                        <th>ឯកតា</th>
+                                        <th colspan="2">បញ្ចុះតម្លៃ</th>
+                                        <th class="col-1">សរុប$</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="col-auto">No.</th>
+                                        <th class="col-6">Description</th>
+                                        <th class="col-1">UM</th>
+                                        <th class="col-1">QTY</th>
+                                        <th>UnitPrice</th>
+                                        <th class="col-1">Dis%</th>
+                                        <th class="col-1">Dis$</th>
+                                        <th class="col-1">Amount$</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr name="trServiceDetail">
+                                        <td name="tdNumber" align="center" valign="top">1</td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-auto"><label for="ServicePlan" class="col-form-label khmerFont1">ឈ្មោះសេវាកម្ម/Service Plan</label></div>
+                                                <div class="col">
+                                                    <div class="wrap-input2 validate-input" data-validate="Service Plan is required">
+                                                        <input type="text" class="input2" id="ServicePlan" name="ServicePlan">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-auto"><label for="PackageName" class="col-form-label khmerFont1">កញ្ចប់សេវាកម្ម/Package Name</label></div>
+                                                <div class="col">
+                                                    <div class="wrap-input2 validate-input" data-validate="Package Name is required">
+                                                        <input type="text" class="input2" id="PackageName" name="PackageName">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-10 p-2">
+                                                    <div id="divPackageFeature"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="UM is required">
+                                                <input type="text" class="input2 text-center CustDetail" id="UM" name="UM">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="QTY is required">
+                                                <input type="text" onkeyup="cal(this);" class="input2 text-center CustDetail" id="QTY" name="QTY">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="Unit Price is required">
+                                                <input type="text" onkeyup="cal(this);" class="input2 text-center CustDetail" id="PackagePrice" name="PackagePrice">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="Discount % is required">
+                                                <input type="text" onkeyup="cal(this);" class="input2 text-center CustDetail" id="Disp" name="Disp">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="Discount USD is required">
+                                                <input type="text" onkeyup="cal(this);" class="input2 text-center CustDetail" id="Disusd" name="Disusd">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                        <td valign="top">
+                                            <div class="wrap-input3 validate-input" data-validate="Amount is required">
+                                                <input type="text" onkeyup="cal(this);" class="input2 text-center CustDetail" id="Amount" name="Amount" readonly>
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" rowspan="7" class="p-2" valign="top">
+                                            <div class="row">
+                                                <div class="col-auto">
+                                                    <div id="specialNote" class="col-auto"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-auto">&nbsp;</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-auto">
+                                                    <div class="icheck-material-cyan icheck-inline">
+                                                        <input type="checkbox" name="IsIncludedVAT" id="ExcludedVAT" checked="checked" value="false">
+                                                        <label for="ExcludedVAT">Excluded VAT</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <div class="icheck-material-cyan icheck-inline">
+                                                        <input type="checkbox" name="IsIncludedVAT" id="IncludedVAT" value="true">
+                                                        <label for="IncludedVAT">Included VAT</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-auto">
+                                                    <p class="text-nowrap-pre text-sm p-2" id="TermCondition"></p>
+                                                </div>
+                                            </div>
+                                            <div class="row" id="divContract"></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label">Sub Total:</label>
+                                        </td>
+                                        <td align="center"><label class="col-form-label" name="SubTotal">0.00</label></td>
+                                    </tr>
+                                    <tr name="trVAT">
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label khmerFont1">ពន្ធបន្ថែម / VAT 10%:</label>
+                                        </td>
+                                        <td align="center"><label class="col-form-label" name="VAT">0.00</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label khmerFont1">សរុប / Total:</label>
+                                        </td>
+                                        <td align="center"><label class="col-form-label" name="Total">0.00</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label khmerFont1">បញ្ចុះតំលៃ / Discount %:</label>
+                                        </td>
+                                        <td align="center">
+                                            <div class="wrap-input3">
+                                                <input type="text" class="input2 text-center text-bold" value="0.00" name="TxtDisP">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label khmerFont1">បញ្ចុះតំលៃ / Discount $:</label>
+                                        </td>
+                                        <td align="center">
+                                            <div class="wrap-input3">
+                                                <input type="text" class="input2 text-center text-bold" value="0.00" name="TxtDisUSD">
+                                                <span class="focus-input2"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" align="right">
+                                            <label class="col-form-label khmerFont1">សរុបចុងក្រោយ / Grand Total:</label>
+                                        </td>
+                                        <td align="center"><label class="col-form-label" name="GrandTotal">0.00</label></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col-5">
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase khmerFont1">
+                            ហត្ថលេខា និងត្រាអ្នកតំណាងលក់ឱ្យ NSM ISP<br />
+                            Singed and Stamped for and behalf of NSM ISP
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        @*<label class="col-form-label khmerFont1">
+                            ហត្ថលេខា និង ឈ្មោះសាម៉ីខ្លួន
+                            <br />
+                            (Signature, Write full name)</label>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                @*<div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label text-uppercase khmerFont1">បុគ្គលិកផ្នែកលក់/Sale Persion's Name</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label khmerFont1">
+                                ហត្ថលេខា និង ឈ្មោះសាម៉ីខ្លួន
+                                <br />
+                                (Signature, Write full name)
+                            </label>
+                        </div>
+                    </div>*@
+            </div>
+            <div class="col-5">
+                <div class="row">
+                    <div class="col text-center khmerFont1">
+                        <label class="col-form-label text-uppercase">
+                            ហត្ថលេខា និងត្រាអ្នកតំណាងឱ្យអតិថិជន
+                            <br />
+                            Signed and Stamped for and behalf of the Customer
+                        </label>
+                    </div>
+                </div>
+                @*<div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label khmerFont1">
+                                ហត្ថលេខា និង ឈ្មោះសាម៉ីខ្លួន
+                                <br />(Signature, Write full name)
+                            </label>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    var CustQuotationInfo = "@ViewBag.CustQuotationInfo";
+    var CustQuotationDetail = "@ViewBag.CustQuotationDetail";
+    var InvData = "@ViewBag.InvData";
+    var CustomerID = 0;
+    var CustomerBillInformationID = 0;
+    var isSaveChange = false;
+    var printForm = false;
+    var SaveAndPrint = false;
+    var tdData = "";
+    var Commune = "", District = "", ProvinceCity = "";
+    var DepositFee = 0;
+    var CustomerTypeID = "";
+    var IndustryTypeID = "";
+    var ServicePlanID = "";
+    var PackageID = "";
+    var PackageDetailID = "";
+    var PackageDuration = 0;
+    var PackageFreeDuration = 0;
+    var Duration = 0;
+    var FreeDuration = 0;
+    var EmployeeID = "";
+    var Bandwidth = 0;
+    var DowSpeed = 0;
+    var UpSpeed = 0;
+    var InvoiceNoted = "";
+    function tdNum() {
+        $("td[name=tdNumber]").parent("tr").each(function (i) {
+            $("td[name=tdNumber]").eq(i).html(i + 1);
+        });
+        $("input[name=QTY").autoNumeric({ mDec: false });
+        $("input[name=PackagePrice").autoNumeric();
+        $("input[name=Disp").autoNumeric({ vMin: '0.00' });
+        $("input[name=Disusd").autoNumeric({ vMin: '0.00' });
+        $("input[name=Amount").autoNumeric({ vMin: '0.00' });
+        Total();
+    }
+    function Total() {
+        var Amount = 0;
+        $.each($("input[name=Amount"), function (index) {
+            Amount += accounting.unformat($("input[name=Amount").eq(index).val());
+        });
+        $("label[name=SubTotal]").html(Amount.toFixed(2));
+        VAT();
+    }
+    function cal(THIS) {
+        var attrName = $(THIS).attr('name');
+        var index = $(THIS).parent().parent().parent('tr').index();
+        var QTY = accounting.unformat($("input[name=QTY").eq(index).val());
+        var UnitPrice = accounting.unformat($("input[name=PackagePrice").eq(index).val());
+        var DiscountP = accounting.unformat($("input[name=Disp").eq(index).val());
+        var DiscountUSD = accounting.unformat($("input[name=Disusd").eq(index).val());
+        var Amount = accounting.unformat($("input[name=Amount").eq(index).val());
+        var Totalval = (QTY * UnitPrice);
+        if (attrName == 'Disp') {
+            DiscountUSD = ((Totalval * DiscountP) / 100).toFixed(2);
+            $("input[name=Disusd").eq(index).val(DiscountUSD);
+        }
+        else if (attrName == 'Disusd') {
+            DiscountP = ((DiscountUSD / Totalval) * 100).toFixed(2);
+            $("input[name=Disp").eq(index).val(accounting.formatNumber(DiscountP));
+        }
+        Amount = (Totalval - DiscountUSD).toFixed(2);
+        $("input[name=Amount").eq(index).val(Amount);
+        Total();
+    }
+
+    function VAT() {
+        var SubTotal = accounting.unformat($("label[name=SubTotal]").html());
+        var VAT = 0;
+        var Total = 0;
+        if ($('#IncludedVAT').is(':checked'))
+            VAT = (SubTotal * 10) / 100;
+        $("label[name=VAT]").html(VAT.toFixed(2));
+        Total = (SubTotal + VAT);
+        $("label[name=Total]").html(Total.toFixed(2));
+        DisP(); DisUSD();
+    }
+    function addRowOtherCharge(data, tdData, index) {
+        var tr = '<tr name="otherCharge">';
+        tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+        tr += '<td>';
+        tr += '<div class="wrap-input3 validateInput">';
+        tr += '<input class="input2 OtherCharge" name="otherCharge" type="text">';
+        tr += '<div class="input-delete" data-validate="Delete Row Other Charge" onclick="delRow(this);"></div>';
+        tr += '<span class="focus-input2"></span>';
+        tr += '</div>';
+        tr += '<div><input class="input2" name="OtherChargeID" type="hidden"></div>';
+        tr += '<div><input class="input2" name="StockInID" type="hidden"></div>';
+        tr += '<div><input class="input2" name="ItemID" type="hidden"></div>';
+        tr += '</td>';
+        tr += tdData;
+        tr += '</tr>';
+        $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+        tdNum();
+        var odata = data;
+        $("input[name=otherCharge]").eq(index).typeahead("destroy");
+        $("input[name=otherCharge]").eq(index).typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },
+            {
+                limit: 9999,
+                display: "Name",
+                source: function (query, cb) {
+                    var matches = [];
+                    $.each(odata, function (i, str) {
+                        const value = str.ItemName;
+                        const globalRegex = new RegExp(query, '\ig');
+                        if (globalRegex.test(value)) {
+                            matches.push({ Name: str.ItemName, ID: str.StockInID, Fee: str.SalePrice, UM: str.UM, OtherChargeID: str.OtherChargeID, ItemID: str.ItemID });
+                        }
+                    });
+                    cb(matches);
+                }
+            }).bind("typeahead:selected", function (obj, data, name) {
+                var rowIndex = $(this).parent().parent().parent($("td[name=tdNumber]")).index();
+                $("input[name=UM]").eq(rowIndex).val(data.UM);
+                $("input[name=QTY]").eq(rowIndex).val("1");
+                $("input[name=PackagePrice]").eq(rowIndex).val(data.Fee.toFixed(2));
+                $("input[name=Disp]").eq(rowIndex).val("0.00");
+                $("input[name=Disusd]").eq(rowIndex).val("0.00");
+                $("input[name=Amount]").eq(rowIndex).val(data.Fee.toFixed(2));
+                var index = $("input[name=otherCharge]").index($(this));
+                $("input[name=StockInID]").eq(index).val(data.ID);
+                $("input[name=OtherChargeID]").eq(index).val(data.OtherChargeID);
+                $("input[name=ItemID]").eq(index).val(data.ItemID);
+                if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                    addRowOtherCharge(odata, tdData, (index + 1));
+                }
+                Total();
+            });
+        $("input[name=otherCharge]").eq(index).click(function () {
+            $("input[name=otherCharge]").eq(index).typeahead("open");
+        });
+        $("input[name=otherCharge]").on('focus', function () {
+            if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                var index = ($("input[name=otherCharge]").index($(this)) + 1);
+                addRowOtherCharge(odata, tdData, index);
+            }
+        });
+    }
+
+    function delRow(THIS) {
+        $(THIS).parent().parent().parent("tr").remove();
+        tdNum();
+    }
+
+    function DisP() {
+        var DiscountUSD = 0;
+        var Total = accounting.unformat($("label[name=Total]").html());
+        var DiscountP = accounting.unformat($("input[name=TxtDisP").val());
+        DiscountUSD = ((Total * DiscountP) / 100).toFixed(2);
+        $("input[name=TxtDisUSD").val(DiscountUSD);
+        Total = (Total - DiscountUSD).toFixed(2);
+        $("label[name=GrandTotal").html(Total);
+    }
+
+    function DisUSD() {
+        var DiscountP = 0;
+        var Total = accounting.unformat($("label[name=Total]").html());
+        var DiscountUSD = accounting.unformat($("input[name=TxtDisUSD").val());
+        DiscountP = ((DiscountUSD / Total) * 100).toFixed(2);
+        $("input[name=TxtDisP").val(DiscountP);
+        Total = (Total - DiscountUSD).toFixed(2);
+        $("label[name=GrandTotal").html(Total);
+    }
+
+    $(function () {
+        $("#IndustryType").val('Personal');
+        var btn = '<button type="button" onclick=PrintForm(); id="PrintThisForm" class="btn btn-outline-warning">';
+        btn += '<i class="fas fa-print"></i> Print This Form</button>';
+        $("#SaveChange").before(btn);
+        btn = '<button type="button" onclick=SavePrint(); id="SaveChangePrint" class="btn btn-outline-info">';
+        btn += '<i class="fa fa-save"></i> Save Change & Print</button>';
+        $("#SaveChange").before(btn);
+
+        $('input[name=IsIncludedVAT]').click(function () {
+            $('input[name=IsIncludedVAT]').removeAttr('checked');
+            $('input[name=IsIncludedVAT]').prop('checked', true);
+            $('input[name=IsIncludedVAT]:checked').not(this).prop('checked', false);
+            VAT();
+        });
+        $("input[name=TxtDisP").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisUSD").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisP").focus(function () {
+            $(this).select();
+        });
+        $("input[name=TxtDisUSD").focus(function () {
+            $(this).select();
+        })
+        $("input[name=TxtDisP").keyup(function () {
+            DisP();
+        });
+        $("input[name=TxtDisUSD").keyup(function () {
+            DisUSD();
+        });
+
+        LoadData('/AddCustomer/LoadEployee', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#Employee").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.EmployeeName;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.EmployeeName, ID: str.EmployeeID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    EmployeeID = data.ID;
+                });
+            $("#EmployeeID").on("click", function () {
+                $("#EmployeeID").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadCustOrderType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $.each(data, function (id, obj) {
+                var row = '<div class="icheck-material-cyan icheck-inline">';
+                row += '<input class="CustInfo" type="checkbox" name="CustOrderType" id="CustOrderType' + obj.OrderTypeID + '" ';
+                if (obj.OrderType == "New Order")
+                    row += 'checked="checked" ';
+                row += 'value = "' + obj.OrderTypeID + '">';
+                row += '<label for="CustOrderType' + obj.OrderTypeID + '">' + obj.OrderType;
+                row += '</label></div>';
+                $("div#CustOrderType").append(row);
+            });
+            $('input[name=CustOrderType]').click(function () {
+                $('input[name=CustOrderType]').prop('checked', true);
+                $('input[name=CustOrderType]:checked').not(this).prop('checked', false);
+            });
+        });
+        LoadData('/AddCustomer/LoadCustType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#CustomerType").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var filteredList = $.grep(data, function (item, index) {
+                            return item;
+                        });
+                        mapped = $.map(filteredList, function (item) { return { Name: item.CustomerType, ID: item.CustomerTypeID } });
+                        cb(mapped);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    CustomerTypeID = data.ID;
+                    //$(this).data("seletectedId", data.ID);
+                });
+            $("#CustomerType").on("click", function () {
+                $("#CustomerType").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            Commune = data;
+        });
+        LoadData('/AddCustomer/LoadIndustryType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#IndustryType").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    limit: 9999,
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.IndustryType;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.IndustryType, ID: str.IndustryTypeID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    IndustryTypeID = data.ID;
+                    //$(this).data("seletectedId", data.ID);
+                });
+            $("#IndustryType").on("click", function () {
+                $("#IndustryType").typeahead("open");
+            });
+            //$.each(data, function (id, obj) {
+            //    var row = '<div class="col-auto">';
+            //    row += '<div class="icheck-material-cyan icheck-inline">';
+            //    row += '<input class="CustInfo" type="checkbox" name="ChIndustryType" id="IndustryType' + obj.IndustryTypeID + '" ';
+            //    if (obj.IndustryType == "Personal")
+            //        row += ' checked ';
+            //    row += 'value = "' + obj.IndustryTypeID + '">';
+            //    row += '<label for="IndustryType' + obj.IndustryTypeID + '">' + obj.IndustryType;
+            //    row += '</label></div>';
+            //    row += '</div>';
+            //    $("div#DivIndustryType").append(row);
+            //});
+            //$('input[name=ChIndustryType]').click(function () {
+            //    $('input[name=ChIndustryType]').prop('checked', true);
+            //    $('input[name=ChIndustryType]:checked').not(this).prop('checked', false);
+            //    //if ($('input[name=ChIndustryType]:checked').length == 0) {
+            //    //    $('input[name=ChIndustryType]').prop('checked', true);
+            //    //    $('input[name=ChIndustryType]:checked').not(this).prop('checked', false);
+            //    //}
+            //});
+        });
+        LoadData('/AddCustomer/LoadServicePlan', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#ServicePlan").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    limit: 9999,
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.ServiceName;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.ServiceName, ID: str.ServiceID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    ServicePlanID = data.ID;
+                    $("#ServicePlan").parent().css("border-bottom", "none");
+                    $("#PackageName").parent(".wrap-input2").css("border-bottom", "1px solid #adadad");
+                    $("#divPackageFeature").html('');
+                    $("#PackageName").val('');
+                    LoadData('/AddCustomer/LoadPackages/?ServiceID=' + ServicePlanID, function (result) {
+                        var data = JSON.parse(result).data;
+                        data = JSON.parse(data);
+                        $("#PackageName").typeahead("destroy");
+                        $("#PackageName").typeahead({
+                            hint: false,
+                            highlight: true,
+                            minLength: 0
+                        },
+                            {
+                                limit: 9999,
+                                display: "Name",
+                                source: function (query, cb) {
+                                    var matches = [];
+                                    $.each(data, function (i, str) {
+                                        const value = str.PackageName;
+                                        const globalRegex = new RegExp(query, '\ig');
+                                        if (globalRegex.test(value)) {
+                                            matches.push({
+                                                Name: str.PackageName,
+                                                ID: str.PackageID,
+                                                Price: str.Price,
+                                                Feature: str.Feature,
+                                                DepositFee: str.DepositFee,
+                                                FreeDuration: str.FreeDuration,
+                                                Duration: str.Duration,
+                                                SpecialNote: str.SpecialNote,
+                                                UM: str.UM,
+                                                Bandwidth: str.Bandwidth,
+                                                DowSpeed: str.DowSpeed,
+                                                UpSpeed: str.UpSpeed,
+                                                PackageDetailID: str.PackageDetailID
+                                            });
+                                        }
+                                    });
+                                    cb(matches);
+                                }
+                            }).bind("typeahead:selected", function (obj, data, name) {
+                                PackageID = data.ID
+                                Bandwidth = data.Bandwidth;
+                                DowSpeed = data.DowSpeed;
+                                UpSpeed = data.UpSpeed;
+                                PackageDetailID = data.PackageDetailID;
+                                tdData = '<td valign="top">';
+                                tdData += '<div class="wrap-input3">';
+                                tdData += '<input type="text" class="input2 text-center OtherCharge" name="UM">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="QTY is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="QTY">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Unit Price is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="PackagePrice">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Discount % is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Disp">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Discount USD is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Disusd">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Amount is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Amount" readonly>';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+
+                                $("#divPackageFeature").html('');
+                                $("#PackageName").parent().css("border-bottom", "none");
+                                var SpecialNote = data.SpecialNote;
+                                var Feature = data.Feature;
+                                var newFeature = Feature.split('&#013;&#010;');
+                                var FeatureData = '<div class="row"><div class="col ml-2"><label>Feature:</label></div></div>';
+                                $("#divPackageFeature").append(FeatureData);
+                                for (var i = 0; i < newFeature.length; i++) {
+                                    Feature = '<div class="row"><div class="col-auto ml-2">';
+                                    Feature += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">';
+                                    Feature += '<path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>';
+                                    Feature += '</svg></div><div class="col">';
+                                    Feature += '<p class="text-justify">' + newFeature[i] + '</p>';
+                                    Feature += '</div></div>';
+                                    $("#divPackageFeature").append(Feature);
+                                }
+                                Duration = data.Duration;
+                                PackageDuration = Duration;
+                                var row = '<div class="row" id="packageduration">';
+                                row += '<div class="col-auto">';
+                                row += '<label class="text-primary">Period ' + Duration + returnMonth(Duration);
+                                row += ' From ' + $.format.date(addMonths(new Date(), 0), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(), Duration), 'dd-MMMM-yyyy');
+                                row += '</label></div>';
+                                row += '</div>';
+                                $("#divPackageFeature").append(row);
+                                FreeDuration = data.FreeDuration;
+                                if (FreeDuration != "") {
+                                    PackageFreeDuration = FreeDuration;
+                                    var row = '<div class="row" id="freeduration">';
+                                    row += '<div class="col-auto">';
+                                    row += '<label class="text-danger">Free ' + FreeDuration + returnMonth(FreeDuration);
+                                    row += ' Period From ' + $.format.date(addMonths(new Date(), Duration), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(), (FreeDuration + Duration)), 'dd-MMMM-yyyy');
+                                    row += '</label></div>';
+                                    row += '</div>';
+                                    $("#divPackageFeature").append(row);
+                                }
+
+                                if (SpecialNote != "") {
+                                    $("#specialNote").html('<div class="row"><div class="col-auto"><label>Noted:</label></div><div class="col-auto text-nowrap-pre">' + SpecialNote + '</div></div>');
+                                    InvoiceNoted = encodeURIComponent(SpecialNote);
+                                }
+                                var UM = data.Duration + ' ' + data.UM;
+                                var divCon = '<div class="row text-danger" style="display:none"><div class="col-auto"><label class="col-form-label khmerFont1">សុពលភាពនៃកិច្ចព្រមព្រៀង/Contract Period: ' + UM + '</label></div></div>';
+                                //divCon += '<div class="row" style="display:none"><div class="col-auto"><label class="col-form-label">Payment Due Date:</label></div>';
+                                //divCon += '<div class="col-auto"><div class="wrap-input3">';
+                                //divCon += '<input type="text" class="input2" id="paymentduedate" />';
+                                //divCon += '<span class="focus-input2"></span></div></div></div>';
+                                divCon += '<div class="row" style="display:none"><div class="col-auto"><label class="col-form-label">Completed Date:</div>';
+                                divCon += '<div class="col-2"><div class="wrap-input3">';
+                                divCon += '<input type="text" class="input2" id="cmdate" />';
+                                divCon += '<span class="focus-input2"></span></div></div></div>';
+                                divCon += '<div class="row text-danger"><div class="col-auto"><label class="col-form-label khmerFont1">ថ្ងៃចេញសម្រង់តម្លៃ/Quotation Date:</div>';
+                                divCon += '<div class="col"><div class="wrap-input3">';
+                                divCon += '<input type="text" class="input2" id="chdate" />';
+                                divCon += '<span class="focus-input2"></span></div></div>';
+                                divCon += '</div>';
+                                divCon += '<div class="row text-danger"><div class="col-auto"><label class="col-form-label khmerFont1">ថ្ងៃផុតកំណត់/Expired Date:</label></div>';
+                                divCon += '<div class="col-auto"><div class="wrap-input3">';
+                                divCon += '<input type="text" class="input2" id="paymentduedate" />';
+                                divCon += '<span class="focus-input2"></span></div></div></div>';
+                                $("#divContract").html(divCon);
+                                $("#paymentduedate").daterangepicker({
+                                    singleDatePicker: true,
+                                    startDate: moment().add(7, 'day'),
+                                    locale: {
+                                        format: 'DD/MM/YYYY'
+                                    }
+                                });
+                                $("#cmdate").daterangepicker({
+                                    singleDatePicker: true,
+                                    locale: {
+                                        format: 'DD/MM/YYYY'
+                                    }
+                                });
+                                $("#chdate").daterangepicker({
+                                    singleDatePicker: true,
+                                    locale: {
+                                        format: 'DD/MM/YYYY'
+                                    }
+                                }).on('apply.daterangepicker', function (ev, picker) {
+                                    var d = picker.startDate.format('YYYY-MM-DD');
+                                    $("#paymentduedate").data('daterangepicker').setStartDate(moment(d).add(7, 'day'));
+                                    var row = '<div class="col-auto">';
+                                    row += '<label class="text-primary">Period ' + Duration + returnMonth(Duration);
+                                    row += ' From ' + $.format.date(addMonths(new Date(d), 0), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(d), Duration), 'dd-MMMM-yyyy');
+                                    row += '</label></div>';
+                                    $("div#packageduration").html(row);
+                                    if (FreeDuration != "") {
+                                        var row = '<div class="col-auto">';
+                                        row += '<label class="text-danger">Free ' + FreeDuration + returnMonth(FreeDuration);
+                                        row += ' Period From ' + $.format.date(addMonths(new Date(d), Duration), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(d), (FreeDuration + Duration)), 'dd-MMMM-yyyy');
+                                        row += '</label></div>';
+                                        $("div#freeduration").html(row);
+                                    }
+                                });
+
+                                $("input[name=UM]").eq(0).val(UM);
+                                $("input[name=QTY]").eq(0).val('1');
+                                var Price = data.Price;
+                                $("input[name=PackagePrice]").eq(0).val(accounting.formatNumber(Price, 2));
+                                $("input[name=Disp]").eq(0).val("0.00");
+                                $("input[name=Disusd]").eq(0).val("0.00");
+                                $("input[name=Amount]").eq(0).val(accounting.formatNumber(Price, 2));
+
+                                DepositFee = data.DepositFee;
+                                $("tr[name=depositFee]").remove();
+                                if (DepositFee != "") {
+                                    var tr = "<tr name=\"depositFee\">";
+                                    tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+                                    //tr += "<td><label class=\"col-form-label\">Deposit Fee</label></td>";
+                                    tr += '<td>';
+                                    tr += '<div class="wrap-input3">';
+                                    tr += '<input class="input2 text-bold" name="DepositFee" value="Deposit Fee" type="text" readonly>';
+                                    tr += '<span class="focus-input2"></span>';
+                                    tr += '</div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3">';
+                                    tr += '<input type="text" class="input2 text-center" name="UM">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="QTY is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="QTY">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Unit Price is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="PackagePrice">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Discount % is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Disp">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Discount USD is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Disusd">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Amount is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Amount" readonly>';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += "</tr>";
+                                    $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+                                    setTimeout(function () {
+                                        $("input[name=QTY]").eq(1).val("1");
+                                        $("input[name=Disp]").eq(1).val("0.00");
+                                        $("input[name=Disusd]").eq(1).val("0.00");
+                                        $("input[name=PackagePrice]").eq(1).val(DepositFee.toFixed(2));
+                                        $("input[name=Amount]").eq(1).val(DepositFee.toFixed(2));
+                                        tdNum();
+                                    }, 300);
+                                }
+
+                                $("tr[name=otherCharge]").remove();
+                                var tr = '<tr name="otherCharge">';
+                                tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+                                tr += '<td>';
+                                tr += '<div class="wrap-input3 validateInput">';
+                                tr += '<input class="input2" name="otherCharge" type="text">';
+                                tr += '<span class="focus-input2"></span>';
+                                tr += '</div>';
+                                tr += '<div><input class="input2" name="OtherChargeID" type="hidden"></div>';
+                                tr += '<div><input class="input2" name="StockInID" type="hidden"></div>';
+                                tr += '<div><input class="input2" name="ItemID" type="hidden"></div>';
+                                tr += '</td>';
+                                tr += tdData;
+                                tr += '</tr>';
+                                $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+                                tdNum();
+                                $("input[name=otherCharge]").typeahead("destroy");
+                                LoadData('/AddCustomer/LoadOtherCharge', function (result) {
+                                    var odata = JSON.parse(result).data;
+                                    odata = JSON.parse(odata);
+                                    $("input[name=otherCharge]").typeahead({
+                                        hint: true,
+                                        highlight: true,
+                                        minLength: 0
+                                    },
+                                        {
+                                            limit: 9999,
+                                            display: "Name",
+                                            source: function (query, cb) {
+                                                var matches = [];
+                                                $.each(odata, function (i, str) {
+                                                    const value = str.ItemName;
+                                                    const globalRegex = new RegExp(query, '\ig');
+                                                    if (globalRegex.test(value)) {
+                                                        matches.push({ Name: str.ItemName, ID: str.StockInID, Fee: str.SalePrice, UM: str.UM, OtherChargeID: str.OtherChargeID, ItemID: str.ItemID });
+                                                    }
+                                                });
+                                                cb(matches);
+                                            }
+                                        }).bind("typeahead:selected", function (obj, data, name) {
+                                            var rowIndex = $(this).parent().parent().parent($("td[name=tdNumber]")).index();
+                                            $("input[name=UM]").eq(rowIndex).val(data.UM);
+                                            $("input[name=QTY]").eq(rowIndex).val("1");
+                                            $("input[name=PackagePrice]").eq(rowIndex).val(data.Fee.toFixed(2));
+                                            $("input[name=Disp]").eq(rowIndex).val("0.00");
+                                            $("input[name=Disusd]").eq(rowIndex).val("0.00");
+                                            $("input[name=Amount]").eq(rowIndex).val(data.Fee.toFixed(2));
+                                            var index = $("input[name=otherCharge]").index($(this));
+                                            $("input[name=StockInID]").eq(index).val(data.ID);
+                                            $("input[name=OtherChargeID]").eq(index).val(data.OtherChargeID);
+                                            $("input[name=ItemID]").eq(index).val(data.ItemID);
+                                            if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                                                addRowOtherCharge(odata, tdData, (index + 1));
+                                            }
+                                            Total();
+                                        });
+                                    $("input[name=otherCharge]").eq(0).on("click", function () {
+                                        //$("input[name=otherCharge]").typeahead('val', '');
+                                        $("input[name=otherCharge]").eq(0).typeahead("open");
+                                    });
+                                });
+                            });
+                        $("#PackageName").click(function () {
+                            //var v = $(this).val();
+                            //$('#PackageName').typeahead('val', '');
+                            $("#PackageName").typeahead("open");
+                        });
+                    });
+                });
+            $("#ServicePlan").on("click", function () {
+                $("#ServicePlan").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadNationality', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#CustomerNationality").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.CustomerNationality;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.CustomerNationality });
+                            }
+                        });
+                        cb(matches);
+                    }
+                });
+            $("#CustomerNationality").on("click", function () {
+                $("#CustomerNationality").typeahead("open");
+            });
+        });
+        var Gender = ['Male', 'Female'];
+        $("#CustomerGender").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },
+            {
+                display: "Gender",
+                source: function (query, cb) {
+                    var filteredList = $.grep(Gender, function (item, index) {
+                        return item;
+                    });
+                    mapped = $.map(filteredList, function (item) { return { Gender: item } });
+                    cb(mapped);
+                }
+            }).bind("typeahead:selected", function (obj, datum, name) {
+                //console.log(datum.Gender);
+                //$(this).data("seletectedId", datum.ID);
+            });
+        LoadData('/AddCustomer/LoadCompanyLogo', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data)[0];
+            var row = '<div class="row"><div class="col-3">';
+            row += '<img class="img-fluid" src="' + ServerRoot + '/Content/CompanyLogo/' + data.Logo + '">';
+            row += '</div></div>';
+            row += '<div class="row"><div class="col-12">';
+            row += data.CompanyAddress;
+            row += '</div></div>';
+            row += '<div class="row"><div class="col-auto">';
+            row += 'Customer Service: ' + data.Phone;
+            row += '</div><div class="col-auto">';
+            row += data.Website;
+            row += '</div><div class="col-auto">';
+            row += data.Email;
+            row += '</div></div>';
+            $("#DivLogoCompany").append(row);
+            $("#TermCondition").html(data.TermCondition);
+
+        });
+        $("#ServicePlan").change(function () {
+            if ($(this).val() == '') {
+                $(this).parent().css("border-bottom", "1px solid #adadad");
+            }
+        });
+        $("#PackageName").change(function () {
+            if ($(this).val() == '') {
+                $(this).parent().css("border-bottom", "1px solid #adadad");
+            }
+        });
+
+        ApplyTypeahead("CustomerCommune", Commune,
+            {
+                CustomerDistrict: 'District',
+                CustomerProvinceCity: 'ProvinceCity',
+                CompanyCommune: 'Name',
+                CompanyDistrict: 'District',
+                CompanyProvinceCity: 'ProvinceCity',
+                BillToCommune: 'Name',
+                BillToDistrict: 'District',
+                BillToProvinceCity: 'ProvinceCity',
+                InstallCommune: 'Name',
+                InstallDistrict: 'District',
+                InstallProvinceCity: 'ProvinceCity'
+            },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("CompanyCommune", Commune,
+            { CompanyDistrict: 'District', CompanyProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("BillToCommune", Commune,
+            { BillToDistrict: 'District', BillToProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("InstallCommune", Commune,
+            { InstallDistrict: 'District', InstallProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+
+        if (CustQuotationInfo != "") {
+            CustQuotationInfo = JSON.parse(CustQuotationInfo.replace(/&quot;/ig, '"'));
+            EmployeeID = CustQuotationInfo[0].EmployeeID;
+            CustomerTypeID = CustQuotationInfo[0].CustomerTypeID;
+            CustomerID = CustQuotationInfo[0].CustomerID;
+            $.each(CustQuotationInfo[0], function (key, value) {
+                $("input[name=" + key + "]").val(value);
+            });
+            CustQuotationDetail = JSON.parse(CustQuotationDetail.replace(/&quot;/ig, '"'));
+            CustomerBillInformationID = CustQuotationDetail[0].CustomerBillInformationID;
+            $.each(CustQuotationDetail[0], function (key, value) {
+                $("input[name=" + key + "]").val(value);
+            });
+        }
+    });
+
+    $("#CustomerAddress").keyup(function () {
+        var addr = $(this).val();
+        $("#CompanyAddress").val(addr);
+        $("#BillToAddress").val(addr);
+        $("#InstallAddress").val(addr);
+    });
+    $("#CustomerName").keyup(function () {
+        var CustName = $(this).val();
+        $("#CustomerContactName").val(CustName);
+        $("#CompanyContactName").val(CustName);
+    });
+    $("#CustomerMobile").keyup(function () {
+        var CustMobile = $(this).val();
+        $("#CustomerContactMobileNumber").val(CustMobile);
+        $("#CompanyContactMobileNumber").val(CustMobile);
+    });
+    $("#CustomerEmail").keyup(function () {
+        var CustEmail = $(this).val();
+        $("#CustomerContactEmail").val(CustEmail);
+        $("#CompanyEmail").val(CustEmail);
+    });
+
+    $('.input2').on('change', function () {
+        $('.validate-input input').each(function () {
+            if ($(this).val().trim() != "") {
+                $(this).parent().removeClass('alert-validate');
+            }
+        });
+    });
+    $('.input2').each(function () {
+        $(this).on('blur', function () {
+            if ($(this).val().trim() != "") {
+                //$(this).addClass('has-val');
+            }
+            else {
+                $(this).removeClass('has-val');
+            }
+        });
+        $(this).on('focus', function () {
+            $(this).parent().removeClass('alert-validate');
+        });
+    });
+    function validateInput() {
+        var check = true;
+        $('input[type="email"]').each(function () {
+            if ($(this).val() != "") {
+                var email = $(this).val();
+                var thisAlert = $(this).parent();
+                var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                check = regex.test(email);
+                if (!check) {
+                    $(thisAlert).addClass('alert-validate');
+                    $(thisAlert).attr("data-validate", "Invalid Email Address.");
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        $(".validate-input input").each(function () {
+            var thisAlert = $(this).parent();
+            if ($(this).attr("name")) {
+                if ($(this).val().trim() == '') {
+                    $(thisAlert).addClass('alert-validate');
+                    check = false;
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        var otherCharge = "";
+        $(".validateInput input").each(function (index, element) {
+            var thisAlert = $(this).parent();
+            $(thisAlert).removeClass('alert-validate');
+            if (element.name != "" && element.name == "otherCharge") {
+                otherCharge = $(this).val();
+            }
+            if (otherCharge != "" && element.name != "" && element.name != "otherCharge") {
+                if ($(this).val().trim() == '') {
+                    $(thisAlert).addClass('alert-validate');
+                    check = false;
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        return check;
+    }
+
+    function PrintForm() {
+        printForm = true;
+        $("#SaveChange").click();
+    }
+
+    function SavePrint() {
+        SaveAndPrint = true;
+        $("#SaveChange").click();
+    }
+
+    $("#SaveChange").click(function () {
+        var check = validateInput();
+        var CustomerCode = $("input[name=CustomerCode]").val();
+        if (check) {
+            if (CustomerCode != "") {
+                checkCustCode(CustomerCode, $("input[name=CustomerCode]"), function (ch) {
+                    if (ch) {
+                        var CustomerData = [];
+                        var CustInvoice = [];
+                        var CustomerOtherChargeInvoice = [];
+                        var objData = {};
+                        var DepositFee = 0;
+                        objData["ContactName"] = "";
+                        objData["EmployeeID"] = EmployeeID;
+                        objData["CustomerID"] = CustomerID;
+                        objData["CustomerTypeID"] = CustomerTypeID;
+                        objData["IndustryTypeID"] = IndustryTypeID;
+                        objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                        objData["RegisterBy"] = UsrName;
+                        objData["PaymentDueDate"] = StringToDate($("#paymentduedate").val());
+                        $("#frmcust input.CustInfo").each(function (index, element) {
+                            if (element.name != "") {
+                                if (element.type == "checkbox") {
+                                    if (element.checked)
+                                        objData[element.name] = encodeURIComponent(element.value);
+                                }
+                                else
+                                    objData[element.name] = encodeURIComponent(element.value);
+                            }
+                        });
+                        CustomerData.push(objData);
+                        objData = {};
+                        objData["ServiceID"] = ServicePlanID;
+                        objData["PackageID"] = PackageID;
+                        objData["UM"] = $("input[name=UM]").eq(0).val();
+                        objData["QTY"] = $("input[name=QTY]").eq(0).val();
+                        objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(0).val());
+                        objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(0).val());
+                        objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(0).val());
+                        objData["Amount"] = accounting.unformat($("input[name=Amount]").eq(0).val());
+                        objData["Duration"] = PackageDuration;
+                        objData["FreeDuration"] = PackageFreeDuration;
+                        objData["StartChargingDate"] = StringToDate($("#chdate").val());
+                        objData["CompletedDate"] = StringToDate($("#cmdate").val());
+                        objData["PaymentDueDate"] = StringToDate($("#paymentduedate").val());
+                        var EndChargingDate = (accounting.unformat(PackageDuration) + accounting.unformat(PackageFreeDuration));
+                        var NextInvoiceDate = $.format.date(addMonths(new Date(StringToDate($("#chdate").val())), EndChargingDate), 'yyyy-MM-dd');
+                        objData["EndChargingDate"] = NextInvoiceDate;
+                        objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                        objData["SubTotal"] = accounting.unformat($("label[name=SubTotal]").html());
+                        objData["VAT"] = accounting.unformat($("label[name=VAT]").html());
+                        objData["Total"] = accounting.unformat($("label[name=Total]").html());
+                        objData["DiscountP"] = accounting.unformat($("input[name=TxtDisP]").val());
+                        objData["DiscountUSD"] = accounting.unformat($("input[name=TxtDisUSD]").val());
+                        objData["GrandTotal"] = accounting.unformat($("label[name=GrandTotal]").html());
+                        objData["NextInvoiceDate"] = NextInvoiceDate;
+                        objData["EndNextInvoiceDate"] = $.format.date(addMonths(new Date(NextInvoiceDate), EndChargingDate), 'yyyy-MM-dd');
+                        objData["Bandwidth"] = Bandwidth;
+                        objData["DowSpeed"] = DowSpeed;
+                        objData["UpSpeed"] = UpSpeed;
+                        objData["PackageDetailID"] = PackageDetailID;
+                        objData["InvoiceNoted"] = InvoiceNoted;
+                        CustInvoice.push(objData);
+
+                        $("tr[name=depositFee]").each(function () {
+                            objData = {};
+                            objData["Item"] = encodeURIComponent($("input[name=DepositFee]").eq(0).val());
+                            objData["StockInID"] = "0";
+                            objData["OtherChargeID"] = "0";
+                            objData["UM"] = $("input[name=UM]").eq(1).val();
+                            objData["QTY"] = $("input[name=QTY]").eq(1).val();
+                            objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(1).val());
+                            objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(1).val());
+                            objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(1).val());
+                            DepositFee = accounting.unformat($("input[name=Amount]").eq(1).val());
+                            objData["Amount"] = DepositFee;
+                            objData["DepositFee"] = DepositFee;
+                            objData["InvoiceDate"] = StringToDate($("#chdate").val());
+                            objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                            objData["PaymentDueDate"] = StringToDate($("#paymentduedate").val());
+                            CustomerOtherChargeInvoice.push(objData);
+                        });
+                        CustInvoice[0]["DepositFee"] = DepositFee;
+                        $("input[name=otherCharge]").each(function (currentIndex) {
+                            var index = $("input[name=otherCharge]").parent().parent().parent().index();
+                            if ($(this).val() != "") {
+                                objData = {};
+                                objData["Item"] = encodeURIComponent($(this).val());
+                                objData["StockInID"] = $("input[name=StockInID]").eq(currentIndex).val();
+                                objData["OtherChargeID"] = $("input[name=OtherChargeID]").eq(currentIndex).val();
+                                objData["ItemID"] = $("input[name=ItemID]").eq(currentIndex).val();
+                                objData["UM"] = $("input[name=UM]").eq(index).val();
+                                objData["QTY"] = accounting.unformat($("input[name=QTY]").eq(index).val());
+                                objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(index).val());
+                                objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(index).val());
+                                objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(index).val());
+                                objData["Amount"] = accounting.unformat($("input[name=Amount]").eq(index).val());
+                                objData["DepositFee"] = "0";
+                                objData["InvoiceDate"] = StringToDate($("#chdate").val());
+                                objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                                objData["PaymentDueDate"] = StringToDate($("#paymentduedate").val());
+                                objData["NextInvoiceDate"] = NextInvoiceDate;
+                                objData["EndNextInvoiceDate"] = $.format.date(addMonths(new Date(NextInvoiceDate), EndChargingDate), 'yyyy-MM-dd');
+                                CustomerOtherChargeInvoice.push(objData);
+                            }
+                        });
+                        //console.log(CustomerData);
+                        //console.log(CustInvoice);
+                        //console.log(CustomerOtherChargeInvoice);
+                        var DATA = {
+                            CustomerData: JSON.stringify(CustomerData),
+                            CustInvoice: JSON.stringify(CustInvoice),
+                            CustomerOtherChargeInvoice: JSON.stringify(CustomerOtherChargeInvoice)
+                        };
+                        var URL = "/AddCustomer/SaveChangeQuotation";
+                        DoSaveChangeData(URL, DATA, function (response) {
+
+                            if ($("#CompanyName").val() == "") {
+                                $("#CompanyAddress").val('');
+                                $("#CompanyCommune").val('');
+                                $("#CompanyDistrict").val('');
+                                $("#CompanyProvinceCity").val('');
+                            }
+                            response = JSON.parse(response).Data;
+                            var Data = JSON.parse(response)[0];
+                            isSaveChange = true;
+                            if (printForm) {
+                                printForm = false;
+                                $("#DivBillToAddress").hide();
+                                $("#CustomerFormAgreement").print({
+                                    title: "NSM_Quotation_Form_For_" + $("#CustomerName").val(),
+                                    deferred: $.Deferred().done(function () {
+                                        $("#DivBillToAddress").show();
+                                    })
+                                });
+                            }
+                            if (SaveAndPrint) {
+                                SaveAndPrint = false;
+                                PrintInvoice(Data.CustomerID, Data.InvoiceNo, (Data.IsIncludedVAT == false ? "0" : "1"), Data.StatusID);
+                            }
+                            $("#frmcust")[0].reset();
+                            $("#modal-defaultmodalbody").animate({ scrollTop: 0 }, "slow");
+                            $("#ExcludedVAT").attr("checked", "checked");
+                        });
+                    }
+                    else {
+                        printForm = false;
+                        DialogSweetAlert("error", "Please fill data required.");
+                    }
+                });
+            }
+        }
+        else {
+            printForm = false;
+            SaveAndPrint = false;
+            DialogSweetAlert("error", "Please fill data required.");
+        }
+    });
+
+    $("input[name=CustomerCode]").on('blur', function () {
+        var CustCode = $(this).val();
+        var thisAlert = $(this).parent();
+        $(thisAlert).attr("data-validate", "CID is required");
+        if (CustCode != "") {
+            checkCustCode(CustCode, this, function (ch) {
+                return ch;
+            });
+        }
+    });
+
+    function checkCustCode(CustCode, THIS, CallBack) {
+        var check = false;
+        var thisAlert = $(THIS).parent();
+        LoadData("/AddCustomer/CheckCustCode?CustCode=" + CustCode + "",
+            function (respone) {
+                respone = JSON.parse(respone);
+                if (respone.Result == 1) {
+                    $(thisAlert).attr("data-validate", respone.Message);
+                    $(thisAlert).addClass('alert-validate');
+                    check = false;
+                }
+                else {
+                    $(thisAlert).attr("data-validate", "CID is required");
+                    check = true;
+                }
+                return CallBack(check);
+            });
+    }
+
+    $("#DialogIDAddQuotation").on('hide.bs.modal', function () {
+        if (isSaveChange) {
+            $("#BunSearch").click();
+            $("input[name=RD]").click();
+        }
+    });
+</script>
+<!--
+
+<script>
+    var CustQuotationInfo = "@ViewBag.CustQuotationInfo";
+    var CustQuotationDetail = "@ViewBag.CustQuotationDetail";
+    var InvData = "@ViewBag.InvData";
+    var CustID = 0;
+    var CustomerBillInformationID = 0;
+    var ContactName = "";
+    var isSaveChange = false;
+    var SaveAndPrint = false;
+    var printForm = false;
+    var tdData = "";
+    var Commune = "", District = "", ProvinceCity = "";
+    var DepositFee = 0;
+    var CustomerTypeID = "";
+    var ServicePlanID = "";
+    var PackageID = "";
+    var PackageDetailID = "";
+    var PackageDuration = 0;
+    var PackageFreeDuration = 0;
+    var Duration = 0;
+    var FreeDuration = 0;
+    var EmployeeID = "";
+    var Bandwidth = 0;
+    var DowSpeed = 0;
+    var UpSpeed = 0;
+    var InvoiceNoted = "";
+
+    function tdNum() {
+        $("td[name=tdNumber]").parent("tr").each(function (i) {
+            $("td[name=tdNumber]").eq(i).html(i + 1);
+        });
+        $("input[name=QTY").autoNumeric({ mDec: false });
+        $("input[name=PackagePrice").autoNumeric();
+        $("input[name=Disp").autoNumeric({ vMin: '0.00' });
+        $("input[name=Disusd").autoNumeric({ vMin: '0.00' });
+        $("input[name=Amount").autoNumeric({ vMin: '0.00' });
+        Total();
+    }
+    function Total() {
+        var Amount = 0;
+        $.each($("input[name=Amount"), function (index) {
+            Amount += accounting.unformat($("input[name=Amount").eq(index).val());
+        });
+        $("label[name=SubTotal]").html(Amount.toFixed(2));
+        VAT();
+    }
+    function cal(THIS) {
+        var attrName = $(THIS).attr('name');
+        var index = $(THIS).parent().parent().parent('tr').index();
+        var QTY = accounting.unformat($("input[name=QTY").eq(index).val());
+        var UnitPrice = accounting.unformat($("input[name=PackagePrice").eq(index).val());
+        var DiscountP = accounting.unformat($("input[name=Disp").eq(index).val());
+        var DiscountUSD = accounting.unformat($("input[name=Disusd").eq(index).val());
+        var Amount = accounting.unformat($("input[name=Amount").eq(index).val());
+        var Totalval = (QTY * UnitPrice);
+        if (attrName == 'Disp') {
+            DiscountUSD = ((Totalval * DiscountP) / 100).toFixed(2);
+            $("input[name=Disusd").eq(index).val(DiscountUSD);
+        }
+        else if (attrName == 'Disusd') {
+            DiscountP = ((DiscountUSD / Totalval) * 100).toFixed(2);
+            $("input[name=Disp").eq(index).val(accounting.formatNumber(DiscountP));
+        }
+        Amount = (Totalval - DiscountUSD).toFixed(2);
+        $("input[name=Amount").eq(index).val(Amount);
+        Total();
+    }
+
+    function VAT() {
+        var SubTotal = accounting.unformat($("label[name=SubTotal]").html());
+        var VAT = 0;
+        var Total = 0;
+        if ($('#IncludedVAT').is(':checked'))
+            VAT = (SubTotal * 10) / 100;
+        $("label[name=VAT]").html(VAT.toFixed(2));
+        Total = (SubTotal + VAT);
+        $("label[name=Total]").html(Total.toFixed(2));
+        DisP(); DisUSD();
+    }
+    function addRowOtherCharge(data, tdData, index) {
+        var tr = '<tr name="otherCharge">';
+        tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+        tr += '<td>';
+        tr += '<div class="wrap-input3 validateInput">';
+        tr += '<input class="input2 OtherCharge" name="otherCharge" type="text">';
+        tr += '<div class="input-delete" data-validate="Delete Row Other Charge" onclick="delRow(this);"></div>';
+        tr += '<span class="focus-input2"></span>';
+        tr += '</div>';
+        tr += '<div><input class="input2" name="OtherChargeID" type="hidden"></div>';
+        tr += '<div><input class="input2" name="StockInID" type="hidden"></div>';
+        tr += '<div><input class="input2" name="ItemID" type="hidden"></div>';
+        tr += '</td>';
+        tr += tdData;
+        tr += '</tr>';
+        $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+        tdNum();
+        var odata = data;
+        $("input[name=otherCharge]").eq(index).typeahead("destroy");
+        $("input[name=otherCharge]").eq(index).typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },
+            {
+                limit: 9999,
+                display: "Name",
+                source: function (query, cb) {
+                    var matches = [];
+                    $.each(odata, function (i, str) {
+                        const value = str.ItemName;
+                        const globalRegex = new RegExp(query, '\ig');
+                        if (globalRegex.test(value)) {
+                            matches.push({ Name: str.ItemName, ID: str.StockInID, Fee: str.SalePrice, UM: str.UM, OtherChargeID: str.OtherChargeID, ItemID: str.ItemID });
+                        }
+                    });
+                    cb(matches);
+                }
+            }).bind("typeahead:selected", function (obj, data, name) {
+                var rowIndex = $(this).parent().parent().parent($("td[name=tdNumber]")).index();
+                $("input[name=UM]").eq(rowIndex).val(data.UM);
+                $("input[name=QTY]").eq(rowIndex).val("1");
+                $("input[name=PackagePrice]").eq(rowIndex).val(data.Fee.toFixed(2));
+                $("input[name=Disp]").eq(rowIndex).val("0.00");
+                $("input[name=Disusd]").eq(rowIndex).val("0.00");
+                $("input[name=Amount]").eq(rowIndex).val(data.Fee.toFixed(2));
+                var index = $("input[name=otherCharge]").index($(this));
+                $("input[name=StockInID]").eq(index).val(data.ID);
+                $("input[name=OtherChargeID]").eq(index).val(data.OtherChargeID);
+                $("input[name=ItemID]").eq(index).val(data.ItemID);
+                if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                    addRowOtherCharge(odata, tdData, (index + 1));
+                }
+                Total();
+            });
+        $("input[name=otherCharge]").eq(index).click(function () {
+            $("input[name=otherCharge]").eq(index).typeahead("open");
+        });
+        $("input[name=otherCharge]").on('focus', function () {
+            if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                var index = ($("input[name=otherCharge]").index($(this)) + 1);
+                addRowOtherCharge(odata, tdData, index);
+            }
+        });
+    }
+
+    function delRow(THIS) {
+        $(THIS).parent().parent().parent("tr").remove();
+        tdNum();
+    }
+
+    function DisP() {
+        var DiscountUSD = 0;
+        var Total = accounting.unformat($("label[name=Total]").html());
+        var DiscountP = accounting.unformat($("input[name=TxtDisP").val());
+        DiscountUSD = ((Total * DiscountP) / 100).toFixed(2);
+        $("input[name=TxtDisUSD").val(DiscountUSD);
+        Total = (Total - DiscountUSD).toFixed(2);
+        $("label[name=GrandTotal").html(Total);
+    }
+
+    function DisUSD() {
+        var DiscountP = 0;
+        var Total = accounting.unformat($("label[name=Total]").html());
+        var DiscountUSD = accounting.unformat($("input[name=TxtDisUSD").val());
+        DiscountP = ((DiscountUSD / Total) * 100).toFixed(2);
+        $("input[name=TxtDisP").val(DiscountP);
+        Total = (Total - DiscountUSD).toFixed(2);
+        $("label[name=GrandTotal").html(Total);
+    }
+
+    $('.input2').on('change', function () {
+        $('.validate-input input').each(function () {
+            if ($(this).val().trim() != "") {
+                $(this).parent().removeClass('alert-validate');
+            }
+        });
+    });
+    $('.input2').each(function () {
+        $(this).on('blur', function () {
+            if ($(this).val().trim() != "") {
+                //$(this).addClass('has-val');
+            }
+            else {
+                $(this).removeClass('has-val');
+            }
+        });
+        $(this).on('focus', function () {
+            $(this).parent().removeClass('alert-validate');
+        });
+    });
+
+    $(function () {
+        var btn = '<button type="button" onclick=PrintForm(); id="PrintThisForm" class="btn btn-outline-warning">';
+        btn += '<i class="fas fa-print"></i> Print This Form</button>';
+        $("#SaveChange").before(btn);
+        btn = '<button type="button" onclick=SavePrint(); id="SaveChangePrint" class="btn btn-outline-info">';
+        btn += '<i class="fa fa-save"></i> Save Change & Print</button>';
+        $("#SaveChange").before(btn);
+        LoadData('/AddCustomer/LoadCompanyLogo', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data)[0];
+            var img = '<img class="img-fluid" src="' + ServerRoot + '/Content/CompanyLogo/' + data.Logo + '">';
+            $("#DivLogoCompany").append(img);
+            //$("#TermCondition").html(data.TermCondition);
+        });
+        LoadData('/AddCustomer/LoadContactName', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#ContactName").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.ContactName;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.ContactName });
+                            }
+                        });
+                        cb(matches);
+                    }
+                });
+            $("#ContactName").on("click", function () {
+                $("#ContactName").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadEployee', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#Employee").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.EmployeeName;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.EmployeeName, ID: str.EmployeeID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    EmployeeID = data.ID;
+                });
+            $("#EmployeeID").on("click", function () {
+                $("#EmployeeID").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadCustType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#CustomerType").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var filteredList = $.grep(data, function (item, index) {
+                            return item;
+                        });
+                        mapped = $.map(filteredList, function (item) { return { Name: item.CustomerType, ID: item.CustomerTypeID } });
+                        cb(mapped);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    CustomerTypeID = data.ID;
+                });
+            $("#CustomerType").on("click", function () {
+                $("#CustomerType").typeahead("open");
+            });
+        });
+        LoadData('/AddCustomer/LoadNationality', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#CustomerNationality").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.CustomerNationality;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.CustomerNationality });
+                            }
+                        });
+                        cb(matches);
+                    }
+                });
+            $("#CustomerNationality").on("click", function () {
+                $("#CustomerNationality").typeahead("open");
+            });
+        });
+        var Gender = ['Male', 'Female'];
+        $("#CustomerGender").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },
+            {
+                display: "Gender",
+                source: function (query, cb) {
+                    var filteredList = $.grep(Gender, function (item, index) {
+                        return item;
+                    });
+                    mapped = $.map(filteredList, function (item) { return { Gender: item } });
+                    cb(mapped);
+                }
+            });
+        LoadData('/AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            Commune = data;
+        });
+        ApplyTypeahead("CustomerCommune", Commune,
+            {
+                CustomerDistrict: 'District',
+                CustomerProvinceCity: 'ProvinceCity',
+                CompanyCommune: 'Name',
+                CompanyDistrict: 'District',
+                CompanyProvinceCity: 'ProvinceCity',
+                BillToCommune: 'Name',
+                BillToDistrict: 'District',
+                BillToProvinceCity: 'ProvinceCity',
+                InstallCommune: 'Name',
+                InstallDistrict: 'District',
+                InstallProvinceCity: 'ProvinceCity'
+            },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("CompanyCommune", Commune,
+            { CompanyDistrict: 'District', CompanyProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("BillToCommune", Commune,
+            { BillToDistrict: 'District', BillToProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        ApplyTypeahead("InstallCommune", Commune,
+            { InstallDistrict: 'District', InstallProvinceCity: 'ProvinceCity' },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+        LoadData('/AddCustomer/LoadServicePlan', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#ServicePlan").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    limit: 9999,
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.ServiceName;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.ServiceName, ID: str.ServiceID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    ServicePlanID = data.ID;
+                    $("#ServicePlan").parent().css("border-bottom", "none");
+                    $("#PackageName").parent(".wrap-input2").css("border-bottom", "1px solid #adadad");
+                    $("#divPackageFeature").html('');
+                    $("#PackageName").val('');
+                    LoadData('/AddCustomer/LoadPackages/?ServiceID=' + ServicePlanID, function (result) {
+                        var data = JSON.parse(result).data;
+                        data = JSON.parse(data);
+                        $("#PackageName").typeahead("destroy");
+                        $("#PackageName").typeahead({
+                            hint: false,
+                            highlight: true,
+                            minLength: 0
+                        },
+                            {
+                                limit: 9999,
+                                display: "Name",
+                                source: function (query, cb) {
+                                    var matches = [];
+                                    $.each(data, function (i, str) {
+                                        const value = str.PackageName;
+                                        const globalRegex = new RegExp(query, '\ig');
+                                        if (globalRegex.test(value)) {
+                                            matches.push({
+                                                Name: str.PackageName,
+                                                ID: str.PackageID,
+                                                Price: str.Price,
+                                                Feature: str.Feature,
+                                                DepositFee: str.DepositFee,
+                                                FreeDuration: str.FreeDuration,
+                                                Duration: str.Duration,
+                                                SpecialNote: str.SpecialNote,
+                                                UM: str.UM,
+                                                Bandwidth: str.Bandwidth,
+                                                DowSpeed: str.DowSpeed,
+                                                UpSpeed: str.UpSpeed,
+                                                PackageDetailID: str.PackageDetailID
+                                            });
+                                        }
+                                    });
+                                    cb(matches);
+                                }
+                            }).bind("typeahead:selected", function (obj, data, name) {
+                                PackageID = data.ID
+                                Bandwidth = data.Bandwidth;
+                                DowSpeed = data.DowSpeed;
+                                UpSpeed = data.UpSpeed;
+                                PackageDetailID = data.PackageDetailID;
+                                tdData = '<td valign="top">';
+                                tdData += '<div class="wrap-input3">';
+                                tdData += '<input type="text" class="input2 text-center OtherCharge" name="UM">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="QTY is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="QTY">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Unit Price is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="PackagePrice">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Discount % is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Disp">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Discount USD is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Disusd">';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+                                tdData += '<td valign="top">';
+                                tdData += '<div class="wrap-input3 validateInput" data-validate="Amount is required">';
+                                tdData += '<input type="text" onkeyup="cal(this);" class="input2 text-center OtherCharge" name="Amount" readonly>';
+                                tdData += '<span class="focus-input2"></span></div>';
+                                tdData += '</td>';
+
+                                $("#divPackageFeature").html('');
+                                $("#PackageName").parent().css("border-bottom", "none");
+                                var SpecialNote = data.SpecialNote;
+                                var Feature = data.Feature;
+                                var newFeature = Feature.split('&#013;&#010;');
+                                var FeatureData = '<div class="row"><div class="col ml-2"><label>Feature:</label></div></div>';
+                                $("#divPackageFeature").append(FeatureData);
+                                for (var i = 0; i < newFeature.length; i++) {
+                                    Feature = '<div class="row"><div class="col-auto ml-2">';
+                                    Feature += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">';
+                                    Feature += '<path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>';
+                                    Feature += '</svg></div><div class="col">';
+                                    Feature += '<p class="text-justify">' + newFeature[i] + '</p>';
+                                    Feature += '</div></div>';
+                                    $("#divPackageFeature").append(Feature);
+                                }
+                                Duration = data.Duration;
+                                PackageDuration = Duration;
+                                var row = '<div class="row" id="packageduration">';
+                                row += '<div class="col-auto">';
+                                row += '<label class="text-primary">Period ' + Duration + returnMonth(Duration);
+                                row += ' From ' + $.format.date(addMonths(new Date(), 0), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(), Duration), 'dd-MMMM-yyyy');
+                                row += '</label></div>';
+                                row += '</div>';
+                                $("#divPackageFeature").append(row);
+                                FreeDuration = data.FreeDuration;
+                                if (FreeDuration != "") {
+                                    PackageFreeDuration = FreeDuration;
+                                    var row = '<div class="row" id="freeduration">';
+                                    row += '<div class="col-auto">';
+                                    row += '<label class="text-danger">Free ' + FreeDuration + returnMonth(FreeDuration);
+                                    row += ' Period From ' + $.format.date(addMonths(new Date(), Duration), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(), (FreeDuration + Duration)), 'dd-MMMM-yyyy');
+                                    row += '</label></div>';
+                                    row += '</div>';
+                                    $("#divPackageFeature").append(row);
+                                }
+
+                                if (SpecialNote != "") {
+                                    $("#specialNote").html('<div class="row"><div class="col-auto"><label>Noted:</label></div><div class="col-auto text-nowrap-pre">' + SpecialNote + '</div></div>');
+                                    InvoiceNoted = encodeURIComponent(SpecialNote);
+                                }
+                                var UM = data.Duration + ' ' + data.UM;
+                                var divCon = '';
+                                //divCon += '<div class="row"><div class="col-auto"><label class="col-form-label">Contract Period: ' + UM + '</label></div>';
+                                //divCon += '<div class="col-auto"><label class="col-form-label">Payment Due Date:</label></div>';
+                                //divCon += '<div class="col-auto"><div class="wrap-input3">';
+                                //divCon += '<input type="text" class="input2" id="paymentduedate" />';
+                                //divCon += '<span class="focus-input2"></span></div></div></div>';
+                                divCon += '<div class="row">';
+                                divCon += '<div class="col-auto"><label class="col-form-label">Quotation Date:</div>';
+                                divCon += '<div class="col-2"><div class="wrap-input3">';
+                                divCon += '<input type="text" class="input2" id="quotationDate" />';
+                                divCon += '<span class="focus-input2"></span></div></div> ';
+                                divCon += '<div class="col-auto"><label class="col-form-label">Expired Date:</div>';
+                                divCon += '<div class="col"><div class="wrap-input3">';
+                                divCon += '<input type="text" class="input2" id="expiredDate" />';
+                                divCon += '<span class="focus-input2"></span></div></div>';
+                                divCon += '</div>';
+                                $("#divContract").html(divCon);
+                                $("#expiredDate").daterangepicker({
+                                    singleDatePicker: true,
+                                    startDate: moment().add(7, 'day'),
+                                    locale: {
+                                        format: 'DD/MM/YYYY'
+                                    }
+                                });
+                                $("#quotationDate").daterangepicker({
+                                    singleDatePicker: true,
+                                    locale: {
+                                        format: 'DD/MM/YYYY'
+                                    }
+                                }).on('apply.daterangepicker', function (ev, picker) {
+                                    var d = picker.startDate.format('YYYY-MM-DD');
+                                    $("#expiredDate").data('daterangepicker').setStartDate(moment(d).add(7, 'day'));
+                                    var row = '<div class="col-auto">';
+                                    row += '<label class="text-primary">Period ' + Duration + returnMonth(Duration);
+                                    row += ' From ' + $.format.date(addMonths(new Date(d), 0), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(d), Duration), 'dd-MMMM-yyyy');
+                                    row += '</label></div>';
+                                    $("div#packageduration").html(row);
+                                    if (FreeDuration != "") {
+                                        var row = '<div class="col-auto">';
+                                        row += '<label class="text-danger">Free ' + FreeDuration + returnMonth(FreeDuration);
+                                        row += ' Period From ' + $.format.date(addMonths(new Date(d), Duration), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(d), (FreeDuration + Duration)), 'dd-MMMM-yyyy');
+                                        row += '</label></div>';
+                                        $("div#freeduration").html(row);
+                                    }
+                                });
+
+                                $("input[name=UM]").eq(0).val(UM);
+                                $("input[name=QTY]").eq(0).val('1');
+                                var Price = data.Price;
+                                $("input[name=PackagePrice]").eq(0).val(accounting.formatNumber(Price, 2));
+                                $("input[name=Disp]").eq(0).val("0.00");
+                                $("input[name=Disusd]").eq(0).val("0.00");
+                                $("input[name=Amount]").eq(0).val(accounting.formatNumber(Price, 2));
+
+                                DepositFee = data.DepositFee;
+                                $("tr[name=depositFee]").remove();
+                                if (DepositFee != "") {
+                                    var tr = "<tr name=\"depositFee\">";
+                                    tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+                                    //tr += "<td><label class=\"col-form-label\">Deposit Fee</label></td>";
+                                    tr += '<td>';
+                                    tr += '<div class="wrap-input3">';
+                                    tr += '<input class="input2 text-bold" name="DepositFee" value="Deposit Fee" type="text" readonly>';
+                                    tr += '<span class="focus-input2"></span>';
+                                    tr += '</div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3">';
+                                    tr += '<input type="text" class="input2 text-center" name="UM">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="QTY is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="QTY">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Unit Price is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="PackagePrice">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Discount % is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Disp">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Discount USD is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Disusd">';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += '<td valign="top">';
+                                    tr += '<div class="wrap-input3 validate-input" data-validate="Amount is required">';
+                                    tr += '<input type="text" onkeyup="cal(this);" class="input2 text-center" name="Amount" readonly>';
+                                    tr += '<span class="focus-input2"></span></div>';
+                                    tr += '</td>';
+                                    tr += "</tr>";
+                                    $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+                                    setTimeout(function () {
+                                        $("input[name=QTY]").eq(1).val("1");
+                                        $("input[name=Disp]").eq(1).val("0.00");
+                                        $("input[name=Disusd]").eq(1).val("0.00");
+                                        $("input[name=PackagePrice]").eq(1).val(DepositFee.toFixed(2));
+                                        $("input[name=Amount]").eq(1).val(DepositFee.toFixed(2));
+                                        tdNum();
+                                    }, 300);
+                                }
+
+                                $("tr[name=otherCharge]").remove();
+                                var tr = '<tr name="otherCharge">';
+                                tr += '<td name="tdNumber" align="center" valign="top">1</td>';
+                                tr += '<td>';
+                                tr += '<div class="wrap-input3 validateInput">';
+                                tr += '<input class="input2" name="otherCharge" type="text">';
+                                tr += '<span class="focus-input2"></span>';
+                                tr += '</div>';
+                                tr += '<div><input class="input2" name="OtherChargeID" type="hidden"></div>';
+                                tr += '<div><input class="input2" name="StockInID" type="hidden"></div>';
+                                tr += '<div><input class="input2" name="ItemID" type="hidden"></div>';
+                                tr += '</td>';
+                                tr += tdData;
+                                tr += '</tr>';
+                                $("table[name=tblSeviceDetail] tbody tr:last").after(tr);
+                                tdNum();
+                                $("input[name=otherCharge]").typeahead("destroy");
+                                LoadData('/AddCustomer/LoadOtherCharge', function (result) {
+                                    var odata = JSON.parse(result).data;
+                                    odata = JSON.parse(odata);
+                                    $("input[name=otherCharge]").typeahead({
+                                        hint: true,
+                                        highlight: true,
+                                        minLength: 0
+                                    },
+                                        {
+                                            limit: 9999,
+                                            display: "Name",
+                                            source: function (query, cb) {
+                                                var matches = [];
+                                                $.each(odata, function (i, str) {
+                                                    const value = str.ItemName;
+                                                    const globalRegex = new RegExp(query, '\ig');
+                                                    if (globalRegex.test(value)) {
+                                                        matches.push({ Name: str.ItemName, ID: str.StockInID, Fee: str.SalePrice, UM: str.UM, OtherChargeID: str.OtherChargeID, ItemID: str.ItemID });
+                                                    }
+                                                });
+                                                cb(matches);
+                                            }
+                                        }).bind("typeahead:selected", function (obj, data, name) {
+                                            var rowIndex = $(this).parent().parent().parent($("td[name=tdNumber]")).index();
+                                            $("input[name=UM]").eq(rowIndex).val(data.UM);
+                                            $("input[name=QTY]").eq(rowIndex).val("1");
+                                            $("input[name=PackagePrice]").eq(rowIndex).val(data.Fee.toFixed(2));
+                                            $("input[name=Disp]").eq(rowIndex).val("0.00");
+                                            $("input[name=Disusd]").eq(rowIndex).val("0.00");
+                                            $("input[name=Amount]").eq(rowIndex).val(data.Fee.toFixed(2));
+                                            var index = $("input[name=otherCharge]").index($(this));
+                                            $("input[name=StockInID]").eq(index).val(data.ID);
+                                            $("input[name=OtherChargeID]").eq(index).val(data.OtherChargeID);
+                                            $("input[name=ItemID]").eq(index).val(data.ItemID);
+                                            if ($(this).parent().parent().parent($("td[name=tdNumber]")).is("tbody tr:last")) {
+                                                addRowOtherCharge(odata, tdData, (index + 1));
+                                            }
+                                            Total();
+                                        });
+                                    $("input[name=otherCharge]").eq(0).on("click", function () {
+                                        $("input[name=otherCharge]").eq(0).typeahead("open");
+                                    });
+                                });
+                            });
+                        $("#PackageName").click(function () {
+                            $("#PackageName").typeahead("open");
+                        });
+                    });
+                });
+            $("#ServicePlan").on("click", function () {
+                $("#ServicePlan").typeahead("open");
+            });
+        });
+
+        $('input[name=IsIncludedVAT]').click(function () {
+            $('input[name=IsIncludedVAT]').removeAttr('checked');
+            $('input[name=IsIncludedVAT]').prop('checked', true);
+            $('input[name=IsIncludedVAT]:checked').not(this).prop('checked', false);
+            VAT();
+        });
+        $("input[name=TxtDisP").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisUSD").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisP").focus(function () {
+            $(this).select();
+        });
+        $("input[name=TxtDisUSD").focus(function () {
+            $(this).select();
+        })
+        $("input[name=TxtDisP").keyup(function () {
+            DisP();
+        });
+        $("input[name=TxtDisUSD").keyup(function () {
+            DisUSD();
+        });
+
+        if (CustQuotationInfo != "") {
+            CustQuotationInfo = JSON.parse(CustQuotationInfo.replace(/&quot;/ig, '"'));
+            EmployeeID = CustQuotationInfo[0].EmployeeID;
+            CustomerTypeID = CustQuotationInfo[0].CustomerTypeID;
+            CustomerID = CustQuotationInfo[0].CustomerID;
+            $.each(CustQuotationInfo[0], function (key, value) {
+                $("input[name=" + key + "]").val(value);
+            });
+            CustQuotationDetail = JSON.parse(CustQuotationDetail.replace(/&quot;/ig, '"'));
+            CustomerBillInformationID = CustQuotationDetail[0].CustomerBillInformationID;
+            $.each(CustQuotationDetail[0], function (key, value) {
+                $("input[name=" + key + "]").val(value);
+            });
+        }
+
+        if (InvData != "") {
+            InvData = JSON.parse(InvData.replace(/&quot;/ig, '"'));
+
+            console.log((InvData["Table"][0].ServiceID));
+        }
+    });
+
+
+
+    $("#CustomerAddress").keyup(function () {
+        var addr = $(this).val();
+        $("#CompanyAddress").val(addr);
+        $("#BillToAddress").val(addr);
+        $("#InstallAddress").val(addr);
+    });
+    $("#CustomerName").keyup(function () {
+        var CustName = $(this).val();
+        $("#CustomerContactName").val(CustName);
+        $("#CompanyContactName").val(CustName);
+    });
+    $("#CustomerMobile").keyup(function () {
+        var CustMobile = $(this).val();
+        $("#CustomerContactMobileNumber").val(CustMobile);
+        $("#CompanyContactMobileNumber").val(CustMobile);
+    });
+    $("#CustomerEmail").keyup(function () {
+        var CustEmail = $(this).val();
+        $("#CustomerContactEmail").val(CustEmail);
+    });
+
+    function validateInput() {
+        var check = true;
+        $('input[type="email"]').each(function () {
+            if ($(this).val() != "") {
+                var email = $(this).val();
+                var thisAlert = $(this).parent();
+                var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                check = regex.test(email);
+                if (!check) {
+                    $(thisAlert).addClass('alert-validate');
+                    $(thisAlert).attr("data-validate", "Invalid Email Address.");
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        $(".validate-input input").each(function () {
+            var thisAlert = $(this).parent();
+            if ($(this).attr("name")) {
+                if ($(this).val().trim() == '') {
+                    $(thisAlert).addClass('alert-validate');
+                    check = false;
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        var otherCharge = "";
+        $(".validateInput input").each(function (index, element) {
+            var thisAlert = $(this).parent();
+            $(thisAlert).removeClass('alert-validate');
+            if (element.name != "" && element.name == "otherCharge") {
+                otherCharge = $(this).val();
+            }
+            if (otherCharge != "" && element.name != "" && element.name != "otherCharge") {
+                if ($(this).val().trim() == '') {
+                    $(thisAlert).addClass('alert-validate');
+                    check = false;
+                }
+                else {
+                    $(thisAlert).removeClass('alert-validate');
+                }
+            }
+        });
+        return check;
+    }
+
+    $("#SaveChange").click(function () {
+        var check = validateInput();
+        if (check) {
+            var CustomerData = [];
+            var CustInvoice = [];
+            var CustomerOtherChargeInvoice = [];
+            var objData = {};
+            var DepositFee = 0;
+            ContactName = $("#ContactName").val();
+            objData["EmployeeID"] = EmployeeID;
+            objData["CustomerID"] = CustID;
+            objData["CustomerTypeID"] = CustomerTypeID;
+            objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+            objData["RegisterBy"] = UsrName;
+            objData["PaymentDueDate"] = StringToDate($("#expiredDate").val());
+
+            $("#frmCustQuotation input.CustInfo").each(function (index, element) {
+                if (element.name != "") {
+                    objData[element.name] = encodeURIComponent(element.value);
+                }
+            });
+            CustomerData.push(objData);
+            objData = {};
+            objData["ServiceID"] = ServicePlanID;
+            objData["PackageID"] = PackageID;
+            objData["UM"] = $("input[name=UM]").eq(0).val();
+            objData["QTY"] = $("input[name=QTY]").eq(0).val();
+            objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(0).val());
+            objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(0).val());
+            objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(0).val());
+            objData["Amount"] = accounting.unformat($("input[name=Amount]").eq(0).val());
+            objData["Duration"] = PackageDuration;
+            objData["FreeDuration"] = PackageFreeDuration;
+            objData["StartChargingDate"] = StringToDate($("#quotationDate").val());
+            objData["CompletedDate"] = StringToDate($("#quotationDate").val());
+            objData["PaymentDueDate"] = StringToDate($("#expiredDate").val());
+            objData["EndChargingDate"] = "";
+            objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+            objData["SubTotal"] = accounting.unformat($("label[name=SubTotal]").html());
+            objData["VAT"] = accounting.unformat($("label[name=VAT]").html());
+            objData["Total"] = accounting.unformat($("label[name=Total]").html());
+            objData["DiscountP"] = accounting.unformat($("input[name=TxtDisP]").val());
+            objData["DiscountUSD"] = accounting.unformat($("input[name=TxtDisUSD]").val());
+            objData["GrandTotal"] = accounting.unformat($("label[name=GrandTotal]").html());
+            objData["NextInvoiceDate"] = "";
+            objData["EndNextInvoiceDate"] = "";
+            objData["Bandwidth"] = Bandwidth;
+            objData["DowSpeed"] = DowSpeed;
+            objData["UpSpeed"] = UpSpeed;
+            objData["PackageDetailID"] = PackageDetailID;
+            objData["InvoiceNoted"] = InvoiceNoted;
+            CustInvoice.push(objData);
+
+            $("tr[name=depositFee]").each(function () {
+                objData = {};
+                objData["Item"] = encodeURIComponent($("input[name=DepositFee]").eq(0).val());
+                objData["StockInID"] = "0";
+                objData["OtherChargeID"] = "0";
+                objData["UM"] = $("input[name=UM]").eq(1).val();
+                objData["QTY"] = $("input[name=QTY]").eq(1).val();
+                objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(1).val());
+                objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(1).val());
+                objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(1).val());
+                DepositFee = accounting.unformat($("input[name=Amount]").eq(1).val());
+                objData["Amount"] = DepositFee;
+                objData["DepositFee"] = DepositFee;
+                objData["InvoiceDate"] = StringToDate($("#quotationDate").val());
+                objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                objData["PaymentDueDate"] = StringToDate($("#expiredDate").val());
+                CustomerOtherChargeInvoice.push(objData);
+            });
+            CustInvoice[0]["DepositFee"] = DepositFee;
+            $("input[name=otherCharge]").each(function (currentIndex) {
+                var index = $("input[name=otherCharge]").parent().parent().parent().index();
+                if ($(this).val() != "") {
+                    objData = {};
+                    objData["Item"] = encodeURIComponent($(this).val());
+                    objData["StockInID"] = $("input[name=StockInID]").eq(currentIndex).val();
+                    objData["OtherChargeID"] = $("input[name=OtherChargeID]").eq(currentIndex).val();
+                    objData["ItemID"] = $("input[name=ItemID]").eq(currentIndex).val();
+                    objData["UM"] = $("input[name=UM]").eq(index).val();
+                    objData["QTY"] = accounting.unformat($("input[name=QTY]").eq(index).val());
+                    objData["UnitPrice"] = accounting.unformat($("input[name=PackagePrice]").eq(index).val());
+                    objData["DiscountP"] = accounting.unformat($("input[name=Disp]").eq(index).val());
+                    objData["DiscountUSD"] = accounting.unformat($("input[name=Disusd]").eq(index).val());
+                    objData["Amount"] = accounting.unformat($("input[name=Amount]").eq(index).val());
+                    objData["DepositFee"] = "0";
+                    objData["InvoiceDate"] = StringToDate($("#chdate").val());
+                    objData["IsIncludedVAT"] = $("input[name=IsIncludedVAT]:checked").val();
+                    objData["PaymentDueDate"] = StringToDate($("#expiredDate").val());
+                    objData["NextInvoiceDate"] = "";
+                    objData["EndNextInvoiceDate"] = "";
+                    CustomerOtherChargeInvoice.push(objData);
+                }
+            });
+            //console.log(CustomerData);
+            //console.log(CustInvoice);
+            //console.log(CustomerOtherChargeInvoice);
+            var DATA = {
+                CustomerData: JSON.stringify(CustomerData),
+                CustInvoice: JSON.stringify(CustInvoice),
+                CustomerOtherChargeInvoice: JSON.stringify(CustomerOtherChargeInvoice)
+            };
+            var URL = "/AddCustomer/SaveChangeQuotation";
+            DoSaveChangeData(URL, DATA, function (response) {
+                response = JSON.parse(response).Data;
+                var Data = JSON.parse(response)[0];
+                isSaveChange = true;
+                if (CustID == 0) {
+                    if (printForm) {
+                        printForm = false;
+                        $("#CustomerQuotation").print({
+                            title: "NSM_Internet_Service_QUOTATION_FORM_" + $("#CustomerName").val()
+                        });
+                    }
+                    if (SaveAndPrint) {
+                        SaveAndPrint = false;
+                        PrintInvoice(Data.CustomerID, Data.InvoiceNo, (Data.IsIncludedVAT == false ? "0" : "1"), Data.StatusID);
+                    }
+                    $("#frmCustQuotation")[0].reset();
+                    $("#DialogIDAddQuotationmodalbody").animate({ scrollTop: 0 }, "slow");
+                    $("#ExcludedVAT").attr("checked", "checked");
+                    $("#ContactName").val(ContactName);
+                }
+                else {
+                    if (printForm) {
+                        printForm = false;
+                        $("#CustomerQuotation").print({
+                            title: "NSM_Internet_Service_QUOTATION_FORM_" + $("#CustomerName").val()
+                        });
+                    }
+                    if (SaveAndPrint) {
+                        SaveAndPrint = false;
+                        PrintInvoice(Data.CustomerID, Data.InvoiceNo, (Data.IsIncludedVAT == false ? "0" : "1"), Data.StatusID);
+                    }
+                    $("#CloseModal").click();
+                    LoadCustQuotation(CustID);
+                }
+            });
+        }
+        else {
+            printForm = false;
+            SaveAndPrint = false;
+            DialogSweetAlert("error", "Please fill data required.");
+        }
+    });
+
+    function SavePrint() {
+        SaveAndPrint = true;
+        $("#SaveChange").click();
+    }
+    function PrintForm() {
+        printForm = true;
+        $("#SaveChange").click();
+    }
+
+    $("#DialogIDAddQuotation").on('hide.bs.modal', function () {
+        if (isSaveChange) {
+            $("#BunSearch").click();
+            $("input[name=RD]").click();
+        }
+    });
+
+    var entityMap = {
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#39;': "'",
+        '&#x2F;': '/',
+        '&#x60;': '`',
+        '&#x3D;': '='
+    };
+    function escapeHtml(string) {
+        return String(string).replace(/&amp;&lt;&gt;&quot;&#39;&#x2F;&#x60;&#x3D;/g, function (s) {
+            return entityMap[s];
+        });
+    }
+</script>-->

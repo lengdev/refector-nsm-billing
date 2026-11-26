@@ -1,0 +1,139 @@
+
+# ==================================================
+# Visual Studio / VS Code
+# ==================================================
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.launch.user
+*.userprefs
+
+# ==================================================
+# Build outputs
+# ==================================================
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rtifacts/
+*.pdb
+*.cache
+
+# ==================================================
+# NuGet packages
+# ==================================================
+packages/
+*.nupkg
+*.snupkg
+
+# ==================================================
+# NSMSOLUTION - Generated files
+# ==================================================
+/NSMSOLUTION/bin/
+/NSMSOLUTION/obj/
+/NSMSOLUTION/packages/
+
+# ==================================================
+# Puppeteer / Playwright / Chromium
+# ==================================================
+/NSMSOLUTION/chromium-cache/
+/NSMSOLUTION/Chromium/
+**/chrome-profile/
+**/playwright-report/
+**/test-results/
+**/chrome-win64/
+**/chrome-headless-shell-win64/
+**/firefox/
+**/webkit/
+
+# ==================================================
+# ASP.NET / MVC temporary files
+# ==================================================
+[Tt]emp/
+[Tt]emporary ASP.NET Files/
+aspnet_client/system_web/
+
+# ==================================================
+# Database files / Backups
+# ==================================================
+*.mdf
+*.ldf
+*.bak
+*.trn
+*.sqlite
+*.db
+
+# ==================================================
+# Logs / Runtime files
+# ==================================================
+Logs/
+logs/
+*.log
+*.log.*
+*.pid
+
+# ==================================================
+# Deployment / Publishing
+# ==================================================
+publish/
+Publish/
+Published/
+*.publishsettings
+*.pubxml.user
+
+# ==================================================
+# Python / Telegram Bot
+# ==================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.python-version
+
+# ==================================================
+# Node.js / Frontend
+# ==================================================
+node_modules/
+dist/
+coverage/
+.npm/
+
+# ==================================================
+# Environment variables / Secrets
+# ==================================================
+.env
+.env.*
+!.env.example
+secrets.json
+*.pfx
+*.p12
+*.key
+
+# ==================================================
+# Operating System
+# ==================================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ==================================================
+# Temporary files
+# ==================================================
+*.tmp
+*.temp
+*.swp
+*.old
+*.bak~

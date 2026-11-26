@@ -1,0 +1,593 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+<script>
+    var Status = "@ViewBag.Status";
+    var ItemDescriptionData = "";
+    var DataTblEdit = "";
+    var KVendorName = "@ViewBag.VendorName";
+    var Type = "@ViewBag.Type";
+    var PONumber = "@ViewBag.PONumber";
+
+    $("#PaymentTerms").change(function () {
+        var currentValue = $(this).val();
+        var ApplyDueDate = '';
+        if (currentValue != "Due on Receipt") {
+            currentValue = $("#PaymentTerms_NumberofDays").val();
+            ApplyDueDate = moment(new Date()).add(currentValue, 'day');
+            $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+        }
+        else {
+            ApplyDueDate = moment(new Date());
+            $("#PaymentDueDate").data('daterangepicker').setStartDate(ApplyDueDate);
+        }
+    });
+    $("#Tax").change(function () {
+        LoadTermCondition();
+        if ($(this).val() != "") {
+            $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / ' + $(this).val());
+        }
+        else {
+            $("#Tax_Rate").val(0);
+            $("tr[name=trVAT] td label").first().html('ពន្ធបន្ថែម / VAT 10%:');
+            $("label[name=VAT]").html('0.00');
+        }
+        TotalAll();
+    });
+    $("#Currency").change(function () {
+        setTimeout(function () {
+            TotalAll();
+        }, 1000);
+    });
+
+    $(function () {
+        LoadTermCondition();
+        $("tr[name=TRTotalAS]").hide();
+        LoadData('PurchaseOrder/LoadItem', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            ItemDescriptionData = data;
+            if (DataTblEdit != "") {
+                $.each(DataTblEdit, function (key, value) {
+                    Reload_ItemName(key, value);
+                });
+                setTimeout(function () {
+                    $.each(DataTblEdit, function (Index, EditData) {
+                        LoadData('PurchaseOrder/LoadItemDetail?ItemID=' + EditData.ItemID, function (result) {
+                            var data = JSON.parse(result).data;
+                            data = JSON.parse(data)[0];
+                            $("input[name=_ItemID]").eq(Index).val(EditData.ItemID);
+                            $("div[name=div_ItemExpirationDate]").eq(Index).remove();
+                            $("textarea[name=ItemDescription]").eq(Index).remove();
+                            var rowData = '<div name="div_ItemExpirationDate" class="col-sm align-text-bottom p-2">';
+                            rowData += '<div class="wrap-input2">';
+                            rowData += '<input type="text" name="ItemExpirationDate" value="" placeholder="Add Item Expiration Date" class="input2 CustInfo"><span class="focus-input2"></span>';
+                            rowData += '</div></div>';
+                            $("input[name=ItemName]").eq(Index).parent().after(rowData);
+
+                            var rowData = '<textarea class="text-nowrap-pre text-sm p-2 border border-1 col-12" style="height: auto; resize: none;" name="ItemDescription" tabindex="80" placeholder="Add description to your item"></textarea>';
+                            $("div[name=div_ItemExpirationDate]").eq(Index).parent().after(rowData);
+
+                            $("input[name=ItemExpirationDate]").eq(Index).daterangepicker({
+                                singleDatePicker: true,
+                                autoUpdateInput: (Type == "EditBill" ? true : false),
+                                locale: {
+                                    format: 'DD/MM/YYYY'
+                                }
+                            }).on("apply.daterangepicker", function (e, picker) {
+                                picker.element.val(picker.startDate.format(picker.locale.format));
+                            });
+
+                            var UM = '<p name="OrderUM" class="text-center">' + data.UM + '</p>';
+                            $("p[name=OrderUM]").eq(Index).remove();
+                            $("input[name=OrderQTY]").eq(Index).parent().after(UM);
+
+                            var UM = '<p name="UM" class="text-center">' + data.UM + '</p>';
+                            $("p[name=UM]").eq(Index).remove();
+                            $("input[name=QTY]").eq(Index).parent().after(UM);
+
+                            $("input[name=UnitPrice]").eq(Index).val(data.CostPrice);
+                            $("input[name=_ChartOfAccountID]").eq(Index).val(data.ChartOfAccountID);
+                            $("input[name=AccountName]").eq(Index).typeahead('val', data.AccountName);
+                            $("textarea[name=ItemDescription]").eq(Index).html(data.ItemDescription);
+
+                            $("input[name=ItemName]:eq(" + Index + ")").typeahead('val', EditData.ItemName);
+                            $("input[name=_ChartOfAccountID]").eq(Index).val(EditData.ChartOfAccountID);
+                            $("input[name=AccountName]").eq(Index).typeahead('val', EditData.AccountName);
+                            $("textarea[name=ItemDescription]").eq(Index).html(EditData.ItemDescription);
+                            $("input[name=OrderQTY]").eq(Index).val(EditData.OrderQTY);
+                            $("input[name=QTY]").eq(Index).val(EditData.QTY);
+                            $("input[name=UnitPrice]").eq(Index).val(EditData.UnitPrice);
+                            $("input[name=DisP]").eq(Index).val(EditData.DisP);
+                            $("input[name=DisP]").eq(Index).val(EditData.DisUSD);
+                            $("input[name=Amount]").eq(Index).val(EditData.Amount);
+
+                            if (EditData.ItemExpirationDate != null) {
+                                var exDate = moment(new Date(EditData.ItemExpirationDate));
+                                $("input[name=ItemExpirationDate]").eq(Index).data('daterangepicker').setStartDate(exDate);
+                            }
+                            else {
+                                $("input[name=ItemExpirationDate]").eq(Index).val('');
+                            }
+                            TotalAll();
+                        });
+                    });
+                }, 100);
+                setTimeout(function () {
+                    $("input[name=ItemName]").typeahead('close');
+                }, 1500);
+            }
+            else {
+                setTimeout(function () {
+                    $("#Vendor_Name").focus();
+                }, 500);
+            }
+
+            if (PONumber != "") {
+                setTimeout(function () {
+                    $("#PONumber").val(PONumber).trigger("keydown");
+                }, 500);
+                setTimeout(function () {
+                    $("ul.ui-autocomplete li").first().trigger("click");
+                }, 1000);
+            }
+        });
+
+        console.log(Status);
+    });
+
+    function TotalAll() {
+        var SubTotal = 0;
+        $("input[name=ItemName]").each(function (i) {
+            var QTY = $("input[name=QTY]").eq(i).val();
+            QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+            var UnitPrice = $("input[name=UnitPrice]").eq(i).val();
+            UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+            var Amount = (QTY * UnitPrice);
+
+            var DisUSD = $("input[name=DisUSD]").eq(i).val();
+            DisUSD = (DisUSD == "" ? 0 : accounting.unformat(DisUSD));
+            Amount = Amount - DisUSD;
+
+            $("input[name=Amount]").eq(i).val(accounting.formatNumber(Amount, 2));
+            SubTotal += Amount;
+        });
+        $("label[name=SubTotal]").html(accounting.formatNumber(SubTotal, 2));
+        var Rate = $("#Tax_Rate").val();
+        Rate = (Rate == "" ? 0 : accounting.unformat(Rate));
+        //var VAT = //$("label[name=VAT]").html();
+        var Total = accounting.unformat(SubTotal);
+        if (Rate != 0) {
+            var VAT = ((accounting.unformat(SubTotal) * Rate) / 100);
+            $("label[name=VAT]").html(accounting.formatNumber(VAT, 2));
+            Total += accounting.unformat(VAT);
+        }
+        $("label[name=Total]").html(accounting.formatNumber(Total, 2));
+        var TxtDisUSD = $("input[name=TxtDisUSD]").val();
+        TxtDisUSD = (TxtDisUSD == "" ? 0 : accounting.unformat(TxtDisUSD));
+        var GrandTotal = accounting.unformat(Total) - TxtDisUSD;
+        $("label[name=GrandTotal]").html(accounting.formatNumber(GrandTotal, 2));
+
+        var cutext = $("#Currency").val();
+        var ex = $("#TxtExchangeRate").val();
+        if (ex != "" && cutext != "") {
+            $("tr[name=TRTotalAS]").show();
+            $("label[name=LBLTotalAS]").html('សរុបជា ' + cutext + ' / Total​ As ' + cutext + ':');
+            var GrandTotal = accounting.unformat($("label[name=GrandTotal]").html());
+            GrandTotal = parseFloat(GrandTotal) * accounting.unformat(ex);
+            $("label[name=TotalAS]").html(accounting.formatNumber(GrandTotal, 2));
+        }
+        else {
+            $("tr[name=TRTotalAS]").hide();
+        }
+    }
+
+    function Reload_ItemName(Index) {
+        ApplyTypeAheadGroup("AccountName", Index);
+        $("input[name=QTY]").autoNumeric({ mDec: false });
+        $("input[name=UnitPrice]").autoNumeric();
+        $("input[name=DisP]").autoNumeric({ vMin: '0.00' });
+        $("input[name=DisUSD]").autoNumeric({ vMin: '0.00' });
+        $("input[name=Amount]").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisUSD]").autoNumeric({ vMin: '0.00' });
+        $("input[name=TxtDisP]").autoNumeric({ vMin: '0.00' });
+
+        $("input[name=DisP]").keyup(function () {
+            var Index = $(this).closest("tr").index();
+            var QTY = $("input[name=QTY]").eq(Index).val();
+            QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+            var UnitPrice = $("input[name=UnitPrice]").eq(Index).val();
+            UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+            var Amount = (QTY * UnitPrice);
+            var DisP = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var DiscountUSD = ((Amount * DisP) / 100);
+            $("input[name=DisUSD]").eq(Index).val(accounting.formatMoney(DiscountUSD, ''));
+            TotalAll();
+        });
+        $("input[name=TxtDisP]").keyup(function () {
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DisP = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var DiscountUSD = ((Amount * DisP) / 100);
+            $("input[name=TxtDisUSD]").val(accounting.formatMoney(DiscountUSD, ''));
+            TotalAll();
+        });
+        $("input[name=DisUSD]").keyup(function () {
+            var DiscountUSD = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var Index = $(this).closest("tr").index();
+            var QTY = $("input[name=QTY]").eq(Index).val();
+            QTY = (QTY == "" ? 0 : accounting.unformat(QTY));
+            var UnitPrice = $("input[name=UnitPrice]").eq(Index).val();
+            UnitPrice = (UnitPrice == "" ? 0 : accounting.unformat(UnitPrice));
+            var Amount = (QTY * UnitPrice);
+            var DiscountP = ((DiscountUSD / Amount) * 100);
+            $("input[name=DisP]").eq(Index).val(accounting.formatMoney(DiscountP, ''));
+            TotalAll();
+        });
+        $("input[name=TxtDisUSD]").keyup(function () {
+            var DiscountUSD = ($(this).val() == "" ? 0 : accounting.unformat($(this).val()));
+            var Amount = accounting.unformat($("label[name=Total]").html());
+            var DiscountP = ((DiscountUSD / Amount) * 100);
+            $("input[name=TxtDisP]").val(accounting.formatMoney(DiscountP, ''));
+            TotalAll();
+        });
+        $("input[name=QTY], input[name=UnitPrice]").keyup(function () {
+            TotalAll();
+        });
+
+        $("input[name=ItemName]").eq(Index).typeahead("destroy");
+        $("input[name=ItemName]:eq(" + Index + ")").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },
+            {
+                limit: 9999,
+                display: "Name",
+                source: function (query, cb) {
+                    var matches = [];
+                    $.each(ItemDescriptionData, function (i, str) {
+                        const value = str.ItemName;
+                        const globalRegex = new RegExp(query, '\ig');
+                        if (globalRegex.test(value)) {
+                            matches.push({ Name: str.ItemName, ItemID: str.ItemID });
+                        }
+                    });
+                    cb(matches);
+                },
+                templates: {
+                    header: '<div onclick="AddNewItem();" class="tt-suggestion tt-selectable"><a href="javascript:void(0);"><i class=\"fa fa-plus\"></i> New Item</a></div>'
+                }
+            }).bind("typeahead:selected", function (obj, data, name) {
+                $("input[name=_ItemID]").eq(Index).val(data.ItemID);
+                $("div[name=div_ItemExpirationDate]").eq(Index).remove();
+                $("textarea[name=ItemDescription]").eq(Index).remove();
+                var rowData = '<div name="div_ItemExpirationDate" class="col-sm align-text-bottom p-2">';
+                rowData += '<div class="wrap-input2">';
+                rowData += '<input type="text" name="ItemExpirationDate" value="" placeholder="Add Item Expiration Date" class="input2 CustInfo"><span class="focus-input2"></span>';
+                rowData += '</div></div>';
+                $("input[name=ItemName]").eq(Index).parent().after(rowData);
+
+                var rowData = '<textarea class="text-nowrap-pre text-sm p-2 border border-1 col-12" style="height: auto; resize: none;" name="ItemDescription" tabindex="80" placeholder="Add description to your item"></textarea>';
+                $("div[name=div_ItemExpirationDate]").eq(Index).parent().after(rowData);
+
+                $("input[name=ItemExpirationDate]").eq(Index).daterangepicker({
+                    singleDatePicker: true,
+                    autoUpdateInput: false,
+                    locale: {
+                        format: 'DD/MM/YYYY'
+                    }
+                }).on("apply.daterangepicker", function (e, picker) {
+                    picker.element.val(picker.startDate.format(picker.locale.format));
+                });
+
+                LoadData('PurchaseOrder/LoadItemDetail?ItemID=' + data.ItemID, function (result) {
+                    var data = JSON.parse(result).data;
+                    data = JSON.parse(data)[0];
+                    var UM = '<p name="OrderUM" class="text-center">' + data.UM + '</p>';
+                    $("p[name=OrderUM]").eq(Index).remove();
+                    $("input[name=OrderQTY]").eq(Index).parent().after(UM);
+
+                    var UM = '<p name="UM" class="text-center">' + data.UM + '</p>';
+                    $("p[name=UM]").eq(Index).remove();
+                    $("input[name=QTY]").eq(Index).parent().after(UM);
+
+                    $("input[name=UnitPrice]").eq(Index).val(data.CostPrice);
+                    $("input[name=_ChartOfAccountID]").eq(Index).val(data.ChartOfAccountID);
+                    $("input[name=AccountName]").eq(Index).typeahead('val', data.AccountName);
+                    $("textarea[name=ItemDescription]").eq(Index).html(data.ItemDescription);
+                    TotalAll();
+                });
+            });
+        $("input[name=ItemName]").on("click", function () {
+            var index = $(this).closest("tr").index();
+            $("input[name=ItemName]").eq(index).typeahead("open");
+        });
+        setTimeout(function () {
+            //if (EditData != "")
+            $("input[name=ItemName]:eq(" + Index + ")").focus();//.typeahead('val', EditData.ItemName).select();
+            //else
+            //  $("input[name=ItemName]:eq(" + Index + ")").focus().typeahead('val', '').select();
+
+        }, 50);
+
+        $('input[name=QTY], input[name=UnitPrice], input[name=DisP], input[name=DisUSD]').on('keydown', function (e) {
+            if (e.which == 40) {
+                var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                var THIS = $('input[name=' + $(this).attr('name') + ']');
+                $(this).closest('tr').next().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                var scrollPosition = (THIS.eq(index).offset().top - 120);
+                $(window).scrollTop(scrollPosition);
+                delete e.which;
+                return false;
+            }
+            if (e.which == 38) {
+                var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                var THIS = $('input[name=' + $(this).attr('name') + ']');
+                $(this).closest('tr').prev().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                var scrollPosition = (THIS.eq(index).offset().top - 200);
+                $(window).scrollTop(scrollPosition);
+                delete e.which;
+                return false;
+            }
+        });
+
+        $('input[name=QTY], input[name=UnitPrice], input[name=DisP], input[name=DisUSD]').on('keypress', function (e) {
+            if (e.which == 13) {
+                var $next = $('[tabIndex=' + (+this.tabIndex + 1) + ']');
+                $next.focus().select();
+                e.preventDefault();
+                delete e.which;
+                return false;
+            }
+        });
+    }
+    function SaveChangeCallbackFunction(response) {
+        response = JSON.parse(response.Data)[0];
+        var isOpen = false;
+        if (Type != "NewBill" && Type != "EditBill") {
+            isOpen = true;
+            var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+            OpenNewTap(url);
+        }
+        else if (KVendorName != "") {
+            if (KVendorName != $("#Vendor_Name").val()) {
+                isOpen = true;
+                var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+                OpenNewTap(url);
+            }
+            else {
+                Bill_Number = response.BillNumber;
+                $("#BunSearch").click();
+                $("#BtnSearchVendorPO").click();
+                $("#BtnSearchVendorBills").click();
+                $("#Bills_Tap").click();
+            }
+        } else if (Type == "EditBill") {
+            Bill_Number = response.BillNumber;
+            $("#BunSearch").click();
+            $("#PurchaseOrder_Tap").click();
+            $("#BtnSearchVendorPO").click();
+        }
+
+        var loc = window.location.href;
+        var ID = getQueryStringValue(loc, 'ID');
+        if (!isOpen && ID == "") {
+            var url = '#!/Profile?ID=' + response.VendorID + '&BillNumber=' + response.BillNumber;
+            OpenNewTap(url);
+        }
+        $("#modal-default").modal('hide');
+    }
+
+    function OnPONumberChange() {
+        $("tr[name=TRNo]").not(":last").remove();
+        var PONumber = encodeURIComponent($("#PONumber").val());
+        LoadData('Bills/LoadPO?PONumber=' + PONumber + '', function (result) {
+            var Itemdata = JSON.parse(result).data;
+            Itemdata = JSON.parse(Itemdata);
+            var DeliverTo = Itemdata[0].DeliverTo;
+            var Tax = Itemdata[0].Tax;
+            var VendorName = Itemdata[0].VendorName;
+            var PurchaseOrderID = Itemdata[0].PurchaseOrderID;
+            $("#VendorID").val(Itemdata[0].VendorID);
+            $("#PurchaseOrderID").val(PurchaseOrderID);
+            $("#Vendor_Name").val(VendorName);
+            $("#Warehouse_WID").val(Itemdata[0].WID);
+            $("#Warehouse").val(DeliverTo);
+            $("#Tax_Rate").val(Itemdata[0].Rate);
+            $("#Tax").typeahead('val', Tax).trigger('change');
+            $("#TxtContactName").val(Itemdata[0].ContactName);
+            $("#TxtContactPhone").val(Itemdata[0].ContactPhone);
+            $("#ClassName_ClassID").val(Itemdata[0].ClassID);
+            $("#ClassName").val(Itemdata[0].ClassName);
+
+            $.each(Itemdata, function (key, value) {
+                Reload_ItemName(key, value);
+            });
+            setTimeout(function () {
+                $.each(Itemdata, function (Index, EditData) {
+                    LoadData('PurchaseOrder/LoadItemDetail?ItemID=' + EditData.ItemID, function (result) {
+                        var data = JSON.parse(result).data;
+                        data = JSON.parse(data)[0];
+                        $("input[name=_ItemID]").eq(Index).val(EditData.ItemID);
+                        $("div[name=div_ItemExpirationDate]").eq(Index).remove();
+                        $("textarea[name=ItemDescription]").eq(Index).remove();
+                        var rowData = '<div name="div_ItemExpirationDate" class="col-sm align-text-bottom p-2">';
+                        rowData += '<div class="wrap-input2">';
+                        rowData += '<input type="text" name="ItemExpirationDate" value="" placeholder="Add Item Expiration Date" class="input2 CustInfo"><span class="focus-input2"></span>';
+                        rowData += '</div></div>';
+                        $("input[name=ItemName]").eq(Index).parent().after(rowData);
+
+                        var rowData = '<textarea class="text-nowrap-pre text-sm p-2 border border-1 col-12" style="height: auto; resize: none;" name="ItemDescription" tabindex="80" placeholder="Add description to your item"></textarea>';
+                        $("div[name=div_ItemExpirationDate]").eq(Index).parent().after(rowData);
+
+                        $("input[name=ItemExpirationDate]").eq(Index).daterangepicker({
+                            singleDatePicker: true,
+                            autoUpdateInput: false,
+                            locale: {
+                                format: 'DD/MM/YYYY'
+                            }
+                        }).on("apply.daterangepicker", function (e, picker) {
+                            picker.element.val(picker.startDate.format(picker.locale.format));
+                        });
+
+                        var UM = '<p name="OrderUM" class="text-center">' + data.UM + '</p>';
+                        $("p[name=OrderUM]").eq(Index).remove();
+                        $("input[name=OrderQTY]").eq(Index).parent().after(UM);
+
+                        var UM = '<p name="UM" class="text-center">' + data.UM + '</p>';
+                        $("p[name=UM]").eq(Index).remove();
+                        $("input[name=QTY]").eq(Index).parent().after(UM);
+
+                        $("input[name=UnitPrice]").eq(Index).val(data.CostPrice);
+                        $("input[name=_ChartOfAccountID]").eq(Index).val(data.ChartOfAccountID);
+                        $("input[name=AccountName]").eq(Index).typeahead('val', data.AccountName);
+                        $("textarea[name=ItemDescription]").eq(Index).html(data.ItemDescription);
+
+                        $("input[name=ItemName]:eq(" + Index + ")").typeahead('val', EditData.ItemName);
+                        $("input[name=_ChartOfAccountID]").eq(Index).val(EditData.ChartOfAccountID);
+                        $("input[name=AccountName]").eq(Index).typeahead('val', EditData.AccountName);
+                        $("textarea[name=ItemDescription]").eq(Index).html(EditData.ItemDescription);
+                        $("input[name=OrderQTY]").eq(Index).val(EditData.QTY);
+                        $("input[name=QTY]").eq(Index).val(EditData.QTY);
+                        $("input[name=UnitPrice]").eq(Index).val(EditData.UnitPrice);
+                        $("input[name=DisP]").eq(Index).val(EditData.DisP);
+                        $("input[name=DisP]").eq(Index).val(EditData.DisUSD);
+                        $("input[name=Amount]").eq(Index).val(EditData.Amount);
+                        TotalAll();
+                    });
+                });
+            }, 100);
+            setTimeout(function () {
+                $("input[name=ItemName]").typeahead('close');
+            }, 1000);
+        });
+    }
+
+    function loadItem() {
+        LoadData('PurchaseOrder/LoadItem', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            ItemDescriptionData = data;
+            Reload_ItemName(0);
+        });
+    }
+
+    function getDateEdit(response) {
+        response = JSON.parse(response);
+        DataTblEdit = response;
+    }
+</script>
+
+<script>
+    var DestinationFile_1670649223 = "";
+    var Old_Value = "";
+    var New_Value = "";
+    var THIS = "";
+    var Tbl_Name = "";
+    var Field_Name = "";
+    $(function () {
+        $("button[name=SaveChange]").attr({ 'id': 'SaveChange_1670649223', name: 'SaveChange_1670649223' });
+        $("button[name=CloseModal]").attr({ 'id': 'CloseModal_1670649223', name: 'CloseModal_1670649223' });
+        $("#VendorName").focus();
+        DestinationFile_1670649223 = JSON.stringify({ DestinationFile: "Uploads/Vendors/Bills", FieldName: "AttachmentFile" });
+        var row = '<div style="display:none"><input type="file" name="AttachmentFile" class="d-print-none" style="display: none; user-select: none; visibility: hidden;" /></div>';
+        $("#CreateBills_1670649223").append(row);
+        var btn = "<div class='mr-auto'><button type='button' onclick='AddAttachmentFile(\"Add Attachment File\",\"AttachmentFile\");' id='AttachmentFile' class='btn btn-info'>";
+        btn += '<i class="fas fa-paperclip"></i> Add Attachment File</button></div>';
+        $("#SaveChange_1670649223").before(btn);
+
+        $("#SaveChange_1670649223").click(function () { SaveChange_CreateBills_1670649223(); });
+    });
+    function SaveChange_CreateBills_1670649223() {
+        if (validateInput('CreateBills')) {
+            var KeepTableData1670649223 = [];
+            RowFields = [];
+            addRowFiled('ItemName', 'ItemName', 'Required', '');
+            addRowFiled('AccountName', 'AccountName', 'Required', '');
+            addRowFiled('OrderQTY', 'OrderQTY', '', 'Unformat');
+            addRowFiled('QTY', 'QTY', '', 'Unformat');
+            addRowFiled('UnitPrice', 'UnitPrice', 'Required', 'Unformat');
+            addRowFiled('DisP', 'DisP', '', 'Unformat');
+            addRowFiled('DisUSD', 'DisUSD', '', 'Unformat');
+            addRowFiled('Amount', 'Amount', '', 'Unformat');
+            addRowFiled('ItemID', '_ItemID', '', '');
+            addRowFiled('ItemDescription', 'ItemDescription', '', '');
+            addRowFiled('ChartOfAccountID', '_ChartOfAccountID', '', '');
+            addRowFiled('ItemExpirationDate', 'ItemExpirationDate', '', 'IsDate');
+            addRowFiled('Type', '_Type', '', '');
+            KeepTableData1670649223 = getRowData('TRNo', RowFields);
+
+            if (KeepTableData1670649223 || KeepTableData1670649223.length > 0) {
+                var SaveData1670649223 = [];
+                var ISSaveData1670649223 = false;
+                $("#modal-default").on('hide.bs.modal', function (e) {
+                    if (ISSaveData1670649223) {
+                        if (typeof LoadTableGrid == "function") {
+                            LoadTableGrid(CurrentPage);
+                        }
+                        $("input[type='radio']:eq(0)").click();
+                    }
+                });
+                var Data1670649223_1 = [];
+                var obj1670649223_1 = {};
+                var objTbl1670649223_1 = {};
+                var obj_AddValueToTblNameIfNotExistingData1670649223_1 = [];
+                obj1670649223_1["AttachmentFile"] = 'AttachmentFile';
+                obj1670649223_1["PrimaryFieldValue"] = '0';
+                obj1670649223_1["GetIDENTITYByFiled"] = 'BillID';
+                obj1670649223_1["PrimaryFieldName"] = '7qHaPBthyqoPJQO5wS41aw==';
+                obj1670649223_1["VendorID"] = accounting.unformat(($("input[name=VendorID]").val() == "" ? "0" : $("input[name=VendorID]").val()));
+                obj1670649223_1["PurchaseOrderID"] = encodeURIComponent($("input[name=PurchaseOrderID]").val());
+                obj1670649223_1["PONumber"] = encodeURIComponent($("input[name=PONumber]").val());
+                obj1670649223_1["Attention"] = encodeURIComponent($("input[name=Txt_Attention]").val());
+                obj1670649223_1["VendorDONumber"] = encodeURIComponent($("input[name=VendorDONumber]").val());
+                obj1670649223_1["VendorInvoiceNumber"] = encodeURIComponent($("input[name=VendorInvoiceNumber]").val());
+                obj1670649223_1["SubTotal"] = accounting.unformat(($("label[name=SubTotal]").html() == "" ? "0" : $("label[name=SubTotal]").html()));
+                obj1670649223_1["VAT"] = accounting.unformat(($("label[name=VAT]").html() == "" ? "0" : $("label[name=VAT]").html()));
+                obj1670649223_1["Total"] = accounting.unformat(($("label[name=Total]").html() == "" ? "0" : $("label[name=Total]").html()));
+                obj1670649223_1["DiscountP"] = accounting.unformat(($("input[name=TxtDisP]").val() == "" ? "0" : $("input[name=TxtDisP]").val()));
+                obj1670649223_1["DiscountUSD"] = accounting.unformat(($("input[name=TxtDisUSD]").val() == "" ? "0" : $("input[name=TxtDisUSD]").val()));
+                obj1670649223_1["GrandTotal"] = accounting.unformat(($("label[name=GrandTotal]").html() == "" ? "0" : $("label[name=GrandTotal]").html()));
+                obj1670649223_1["CustomerNotes"] = encodeURIComponent(nl2br($("textarea[name=Customer_Notes]").val()));
+                obj1670649223_1["TermsConditions"] = encodeURIComponent(nl2br($("textarea[name=TermsConditions]").val()));
+                obj1670649223_1["Type"] = encodeURIComponent($("input[name=Type]").val());
+                obj1670649223_1["ReceiveNoteNumber"] = encodeURIComponent($("input[name=ReceiveNoteNumber]").val());
+                obj1670649223_1["ReceiveDate"] = encodeURIComponent($("input[name=ReceiveDate]").val());
+                obj1670649223_1["ReceiveNoteNumber"] = encodeURIComponent($("#ReceiveNoteNumber").val());
+                obj1670649223_1["UpdatePrefixModule"] = { UpdatePrefixModule: 'Receive Note', SetPrefixToDbFieldName: 'ReceiveNoteNumber', Prefix: $("#PrefixReceiveNoteNumber").val() }
+                obj1670649223_1["ReceiveDate"] = StringToDate($("#ReceiveDate").val());
+                obj1670649223_1["UpdateTableBySQLCommand"] = { SQL: 'UuId6ySaYv/c8i+emrKrflVJjgtzxg0fCjh3zDv6A5xCNZxAxYL9AACAHzJPv8N8Kt2xaA/GeZjRH5u4DkP5LwHs58U1xM8/6Q1+jW/+t+Y=', Value: $("#PurchaseOrderID").val() }
+                obj1670649223_1["AddValueToTblNameIfNotExistingData"] = obj_AddValueToTblNameIfNotExistingData1670649223_1;
+                Data1670649223_1.push(obj1670649223_1);
+                objTbl1670649223_1["ChvRD7AMmMShnkSI4zepHg=="] = { "ChvRD7AMmMShnkSI4zepHg==": Data1670649223_1[0] };
+                SaveData1670649223.push(objTbl1670649223_1["ChvRD7AMmMShnkSI4zepHg=="]);
+                obj1670649223_1["BillNumber"] = encodeURIComponent($("#BillNumber").val());
+                obj1670649223_1["UpdatePrefixModule"] = [{ UpdatePrefixModule: 'Receive Note', SetPrefixToDbFieldName: 'ReceiveNoteNumber', Prefix: $("#PrefixReceiveNoteNumber").val() }, { UpdatePrefixModule: 'Bills', SetPrefixToDbFieldName: 'BillNumber', Prefix: $("#PrefixBillNumber").val() }]
+                obj1670649223_1["BillDate"] = StringToDate($("#BillDate").val());
+                obj1670649223_1["PaymentTerms"] = encodeURIComponent($("#PaymentTerms").val());
+                obj1670649223_1["NumberofDays"] = $("#PaymentTerms_NumberofDays").val();
+                obj1670649223_1["PaymentDueDate"] = StringToDate($("#PaymentDueDate").val());
+                obj1670649223_1["Warehouse"] = encodeURIComponent($("#Warehouse").val());
+                obj1670649223_1["WID"] = $("#Warehouse_WID").val();
+                obj1670649223_1["ContactName"] = encodeURIComponent($("#TxtContactName").val());
+                obj1670649223_1["ContactPhone"] = encodeURIComponent($("#TxtContactPhone").val());
+                obj1670649223_1["ClassName"] = encodeURIComponent($("#ClassName").val());
+                obj1670649223_1["ClassID"] = $("#ClassName_ClassID").val();
+                obj1670649223_1["Tax"] = encodeURIComponent($("#Tax").val());
+                obj1670649223_1["Rate"] = $("#Tax_Rate").val();
+                obj1670649223_1["KeepTableData"] = {
+                    TableName: 'p1kA3RZuKnaHRE1rhEJ0Zg==',
+                    GetIDENTITYByFiled: '7qHaPBthyqoPJQO5wS41aw==', KeepTableData: KeepTableData1670649223, ReturnFieldNameValue: '3p6Ith/s/uByYPBhkfQlIclbDimVpBtj+cJtil6O4vE=', ReturnFieldNameValueFromTblName: 'ChvRD7AMmMShnkSI4zepHg==', UpdateValueFiledName: 'I8OPGn+g16SNeGu2YlxMkw==', UpdateValueFiledNameToTblName: 'tiafsNe3Umgaw7H6pJP0sA==', UpdateValueFiledNameConditionFiledName: '+EG3VKhvU1LQkmI/XykDyg==', PrimaryFieldName: 'LpFweplhAPmSIUO3LHHZmQ=='
+                }
+                SaveData1670649223 = { Data: JSON.stringify({ SaveData1670649223 }), DestinationFile: DestinationFile_1670649223, SaveDataWithProcedureName: "" };
+                DoSaveChageAjaxForm('CreateBills', 'DoActionData/SaveChangeFormV1', SaveData1670649223, 'Saving Data...', function (response) {
+
+                    ISSaveData1670649223 = true;
+                    return SaveChangeCallbackFunction(response);
+                    $("#VendorName").focus();
+                }, '', '', 'VendorName');
+
+            }
+        }
+    };
+</script>

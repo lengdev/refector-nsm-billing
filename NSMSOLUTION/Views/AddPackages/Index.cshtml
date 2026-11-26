@@ -1,0 +1,13 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+<script>
+    function deletePackage(URL, DATA) {
+        DATA = { PackageID: DATA };
+        DoDelete(URL, DATA, function () {
+            $("input[name=RD]").click();
+            $("#BunSearch").click();
+        });
+    }
+</script>

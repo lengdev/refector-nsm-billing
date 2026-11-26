@@ -1,0 +1,328 @@
+<div class="db-root" ng-controller="DashboardCtrl as vm">
+    <link rel="stylesheet" href="App/Views/Home/style.css">
+
+    <!-- Header -->
+    <div class="db-header">
+        <div>
+            <ol class="db-breadcrumb" aria-label="breadcrumb">
+                <li><a href="Home/Dashboard">Home</a></li>
+                <li class="sep">/</li>
+                <li aria-current="page">Dashboard</li>
+            </ol>
+            <p class="db-title">Dashboard Overview</p>
+            <p class="db-subtitle">Billing, connectivity, and customer management.</p>
+        </div>
+        <div class="db-rate-pill">
+            <span class="db-rate-label">{{ vm.exchangeText }}</span>
+            <span class="db-rate-value">{{ vm.exchangeRate }}</span>
+        </div>
+    </div>
+
+    <!-- Billing summary — 4 up -->
+    <div class="db-grid-4">
+        <a href="#!/CustomerInvoiceList" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Total Invoice</span>
+                <div class="db-stat-icon orange"><i class="ti ti-file-dollar"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.formatMoneyStr(vm.invoice.InvoiceAmount) }}</div>
+            <div class="db-stat-sub">Total billed this period</div>
+        </a>
+        <a href="#!/CustomerPayment" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Paid Amount</span>
+                <div class="db-stat-icon green"><i class="ti ti-circle-check"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.formatMoneyStr(vm.invoice.PaidAmount) }}</div>
+            <div class="db-stat-sub">Collected this period</div>
+        </a>
+        <a href="#!/ReportCustomerInvoiceUnpaid?StatusID=11" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Unpaid / A/R</span>
+                <div class="db-stat-icon red"><i class="ti ti-file-x"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.formatMoneyStr(vm.invoice.UnpaidAmount) }}</div>
+            <div class="db-stat-sub">Outstanding receivable</div>
+        </a>
+        <a href="#!/CustomerPayment" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Deposit</span>
+                <div class="db-stat-icon indigo"><i class="ti ti-wallet"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.formatMoneyStr(vm.invoice.DepositFee) }}</div>
+            <div class="db-stat-sub">Held as customer credit</div>
+        </a>
+    </div>
+
+    <!-- Connectivity stats — 6 up -->
+    <div class="db-grid-6">
+        <a href="#!/AddCustomer" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Customers</span>
+                <div class="db-stat-icon blue"><i class="ti ti-users"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.Customer }}</div>
+            <div class="db-stat-sub">Total registered</div>
+        </a>
+        <a href="javascript:void(0);" ng-click="vm.showActivated(40)" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Activated</span>
+                <div class="db-stat-icon green"><i class="ti ti-wifi"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustActivated }}</div>
+            <span class="db-badge db-badge-success">● Online</span>
+        </a>
+        <a href="javascript:void(0);" ng-click="vm.showActivated(43)" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Inactive</span>
+                <div class="db-stat-icon cyan"><i class="ti ti-wifi-off"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustInactive }}</div>
+            <span class="db-badge db-badge-info">Idle</span>
+        </a>
+        <a href="javascript:void(0);" ng-click="vm.showActivated(41)" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Locked</span>
+                <div class="db-stat-icon orange"><i class="ti ti-lock"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustLocked }}</div>
+            <span class="db-badge db-badge-warn">Locked</span>
+        </a>
+        <a href="javascript:void(0);" ng-click="vm.showActivated(42)" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Terminated</span>
+                <div class="db-stat-icon red"><i class="ti ti-user-x"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.Terminate }}</div>
+            <span class="db-badge db-badge-danger">Churned</span>
+        </a>
+        <a href="#!/ShowCustCompany" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Companies</span>
+                <div class="db-stat-icon purple"><i class="ti ti-building"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.Companies }}</div>
+            <span class="db-badge db-badge-purple">Corporate</span>
+        </a>
+    </div>
+
+    <!-- Extra stats — 6 up -->
+    <div class="db-grid-6 db-section-gap">
+        <a href="#!/AddCustomer?FormStatus=register" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">New</span>
+                <div class="db-stat-icon blue"><i class="ti ti-user-plus"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CountnewCustomer }}</div>
+            <div class="db-stat-sub">New customers</div>
+        </a>
+        <a href="javascript:void(0)" ng-click="vm.getPPPoEUserOnline(true)" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">PPPoE</span>
+                <div class="db-stat-icon green"><i class="ti ti-antenna"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.PPPoEUserOnline }}</div>
+            <span class="db-badge db-badge-success">Live</span>
+        </a>
+        <a href="#!/ReportCustomerNearlyExpired" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Expiring</span>
+                <div class="db-stat-icon orange"><i class="ti ti-calendar-exclamation"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustomerNearlyExpired }}</div>
+            <span class="db-badge db-badge-warn">&lt; 7 days</span>
+        </a>
+        <a href="#!/ShowGeneratedInvoice" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Invoices</span>
+                <div class="db-stat-icon green"><i class="ti ti-file-invoice"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustomerGeneratedInvoice }}</div>
+            <span class="db-badge db-badge-success">Ready</span>
+        </a>
+        <a href="#!/Tickets" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Support</span>
+                <div class="db-stat-icon purple"><i class="ti ti-message-question"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustomerSupport }}</div>
+            <span class="db-badge db-badge-purple">Open</span>
+        </a>
+        <a href="#!/ReportCustomerInvoiceUnpaid?StatusID=11" class="db-stat">
+            <div class="db-stat-top">
+                <span class="db-stat-label">Receivable</span>
+                <div class="db-stat-icon red"><i class="ti ti-message-question"></i></div>
+            </div>
+            <div class="db-stat-val">{{ vm.stats.CustomerInvoiceUnpaid }}</div>
+            <span class="db-badge db-badge-danger">Unpaid</span>
+        </a>
+    </div>
+
+    <!-- Bottom: insights row (donut / sparkline / billing snapshot) -->
+    <div class="insights-card mb-3">
+
+        <!-- Panel 1: Customers by Group (donut) -->
+        <div class="insights-panel">
+            <div class="insights-panel-header">
+                <span class="insights-panel-title">
+                    <i class="ti ti-stack-2"></i> Customers by Group
+                </span>
+                <a href="#!/ShowCustCompany" class="insights-more">More details <i class="ti ti-arrow-right"></i></a>
+            </div>
+
+            <div class="insights-donut-row">
+                <div id="lead-sources-chart" class="insights-donut-chart"></div>
+                <div class="insights-legend-list">
+                    <div class="insights-legend-row" ng-repeat="g in vm.groupBreakdown">
+                        <span class="insights-legend-bar" ng-style="{ background: g.color }"></span>
+                        <span class="insights-legend-label">{{ g.label }}</span>
+                        <span class="insights-legend-value">{{ vm.formatNumber(g.value) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Revenue trend (sparkline) -->
+        <div class="insights-panel">
+            <div class="insights-panel-header">
+                <span class="insights-panel-title">
+                    <i class="ti ti-chart-line"></i> Revenue This Year
+                </span>
+                <a href="#!/CustomerPayment" class="insights-more">View billing <i class="ti ti-arrow-right"></i></a>
+            </div>
+
+            <div class="insights-big-number">{{ vm.formatMoneyStr(vm.salesThisYear) }}</div>
+            <div class="insights-subrow">
+                <span class="insights-sub">revenue over the last 12 months</span>
+                <span class="insights-pill"
+                    ng-class="vm.revenueChangePct >= 0 ? 'insights-pill-up' : 'insights-pill-down'">
+                    <i class="ti" ng-class="vm.revenueChangePct >= 0 ? 'ti-arrow-up' : 'ti-arrow-down'"></i>
+                    {{ vm.formatPercent(vm.revenueChangePct) }}
+                </span>
+            </div>
+
+            <div id="revenue-trend-chart" class="insights-sparkline"></div>
+        </div>
+
+        <!-- Panel 3: Billing snapshot -->
+        <div class="insights-panel">
+            <div class="insights-panel-header">
+                <span class="insights-panel-title">
+                    <i class="ti ti-report-money"></i> Billing Snapshot
+                </span>
+                <a href="#!/ReportCustomerInvoiceUnpaid?StatusID=11" class="insights-more">Full snapshot <i
+                        class="ti ti-arrow-right"></i></a>
+            </div>
+
+            <div class="insights-kpi-row">
+                <div class="insights-kpi">
+                    <span class="insights-kpi-label">Invoiced</span>
+                    <span class="insights-kpi-value">{{ vm.formatMoneyStr(vm.invoice.InvoiceAmount) }}</span>
+                </div>
+                <div class="insights-kpi">
+                    <span class="insights-kpi-label">Paid</span>
+                    <span class="insights-kpi-value">{{ vm.formatMoneyStr(vm.invoice.PaidAmount) }}</span>
+                </div>
+                <div class="insights-kpi">
+                    <span class="insights-kpi-label">Unpaid</span>
+                    <span class="insights-kpi-value">{{ vm.formatMoneyStr(vm.invoice.UnpaidAmount) }}</span>
+                </div>
+            </div>
+
+            <div class="insights-mix-row">
+                <span class="insights-sub">Paid vs unpaid mix</span>
+                <span class="insights-mix-pct">{{ vm.paidPct }}% / {{ 100 - vm.paidPct }}%</span>
+            </div>
+            <div class="insights-progress-track">
+                <div class="insights-progress-fill" ng-style="{ width: vm.paidPct + '%' }"></div>
+            </div>
+
+            <div class="insights-legend-inline">
+                <div class="insights-legend-inline-item">
+                    <span class="insights-dot insights-dot-dark"></span> Paid
+                    <strong>{{ vm.formatMoneyStr(vm.invoice.PaidAmount) }}</strong>
+                </div>
+                <div class="insights-legend-inline-item">
+                    <span class="insights-dot insights-dot-light"></span> Unpaid
+                    <strong>{{ vm.formatMoneyStr(vm.invoice.UnpaidAmount) }}</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sales overview -->
+    <div class="db-card visitor-chart-card">
+        <div class="visitor-chart-top">
+            <div>
+                <div class="visitor-chart-value">{{ vm.formatMoneyStr(vm.salesThisYear) }}</div>
+                <div class="visitor-chart-sub">Revenue in the last 12 months.</div>
+            </div>
+            <div class="visitor-chart-controls">
+                <select class="visitor-year-select" ng-model="vm.selectedYear" ng-change="vm.onYearChange()"
+                    ng-options="y for y in vm.availableYears">
+                </select>
+                <span class="visitor-chart-pill"
+                    ng-class="vm.revenueChangePct >= 0 ? 'insights-pill-up' : 'insights-pill-down'">
+                    <i class="ti" ng-class="vm.revenueChangePct >= 0 ? 'ti-arrow-up' : 'ti-arrow-down'"></i>
+                    {{ vm.formatPercent(vm.revenueChangePct) }} vs prior 12 months
+                </span>
+            </div>
+        </div>
+        <div id="sales-overview" style="width:100%;height:280px;"></div>
+    </div>
+
+    <!-- PPPoE Online dialog (replaces the jQuery-built <table> + ShowDialogBox2) -->
+    <div class="pppoe-dialog-backdrop" ng-if="vm.pppoeDialogVisible" ng-click="vm.pppoeDialogVisible = false">
+        <div class="pppoe-dialog" ng-click="$event.stopPropagation()">
+            <div class="pppoe-dialog-header">
+                <h3>PPPoE User Online</h3>
+                <button type="button" class="pppoe-dialog-close"
+                    ng-click="vm.pppoeDialogVisible = false">&times;</button>
+            </div>
+            <div class="pppoe-dialog-body">
+                <input type="text" placeholder="Search" ng-model="vm.pppoeSearch" class="pppoe-search-input" />
+                <table class="pppoe-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Router</th>
+                            <th>PPPoE Name</th>
+                            <th>User IP</th>
+                            <th>Profile Name</th>
+                            <th>Remain</th>
+                            <th>Calling Station ID</th>
+                            <th>From Time</th>
+                            <th>Till Time</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in vm.pppoeRows | filter:vm.pppoeSearch">
+                            <td>{{ row.no }}</td>
+                            <td>{{ row.router }}</td>
+                            <td><a href="#!/CustomerProfile?ID={{ row.customerId }}" target="_blank">{{ row.pppoeUser
+                                    }}</a></td>
+                            <td>{{ row.userIp }}</td>
+                            <td>{{ row.profile }}</td>
+                            <td class="text-danger">{{ row.remainDay }} day{{ row.remainDay === 1 ? '' : 's' }}</td>
+                            <td>{{ row.callingStationId }}</td>
+                            <td>{{ row.fromTime }}</td>
+                            <td>{{ row.tillTime }}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm text-uppercase text-nowrap"
+                                    ng-click="vm.cutSession(row.routerId, row.id, row.pppoeUser)">
+                                    <span class="d-none d-md-inline">Cut Session</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr ng-if="vm.pppoeRows.length === 0">
+                            <td colspan="10">No items to display.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

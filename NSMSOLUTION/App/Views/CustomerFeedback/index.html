@@ -1,0 +1,569 @@
+﻿<link rel="stylesheet" href="App/Views/CustomerFeedback/style.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<div class="cf-wrap">
+  <div class="row">
+    <div class="col"></div>
+  </div>
+
+  <div ng-controller="CustFeedbackCtrl" ng-cloak>
+
+    <!-- Stats -->
+    <div class="cf-stats-row" ng-if="stats.total">
+      <div class="cf-stat-card cf-stat-card-blue">
+        <div class="cf-stat-card-label"><i class="ti ti-message-star"></i> Total</div>
+        <div class="cf-stat-card-value">{{ stats.total }}</div>
+        <i class="ti ti-message-star cf-stat-card-icon"></i>
+      </div>
+      <div class="cf-stat-card cf-stat-card-amber">
+        <div class="cf-stat-card-label"><i class="ti ti-star-filled"></i> Avg Rating</div>
+        <div class="cf-stat-card-value">{{ stats.avgRating | number:1 }}</div>
+        <i class="ti ti-star-filled cf-stat-card-icon"></i>
+      </div>
+      <div class="cf-stat-card cf-stat-card-red">
+        <div class="cf-stat-card-label"><i class="ti ti-alert-triangle"></i> Complaints</div>
+        <div class="cf-stat-card-value">{{ stats.complaints }}</div>
+        <i class="ti ti-alert-triangle cf-stat-card-icon"></i>
+      </div>
+      <div class="cf-stat-card cf-stat-card-neutral">
+        <div class="cf-stat-card-label"><i class="ti ti-phone-x"></i> No Answer</div>
+        <div class="cf-stat-card-value">{{ stats.noAnswer }}</div>
+        <i class="ti ti-phone-x cf-stat-card-icon"></i>
+      </div>
+      <div class="cf-stat-card cf-stat-card-green">
+        <div class="cf-stat-card-label"><i class="ti ti-clock-pause"></i> Busy</div>
+        <div class="cf-stat-card-value">{{ stats.busy }}</div>
+        <i class="ti ti-clock-pause cf-stat-card-icon"></i>
+      </div>
+      <div class="cf-stat-card cf-stat-card-pink">
+        <div class="cf-stat-card-label"><i class="ti ti-users"></i> Customers</div>
+        <div class="cf-stat-card-value">{{ stats.customers }}</div>
+        <i class="ti ti-users cf-stat-card-icon"></i>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="cf-toolbar">
+      <div class="cf-toolbar-info">
+        <div class="cf-toolbar-icon"><i class="ti ti-message-star"></i></div>
+        <div>
+          <h2 class="cf-toolbar-title">Customer Feedback</h2>
+          <p class="cf-toolbar-subtitle">Log the call, hand it to the right team, and keep every follow-up in one trail.
+          </p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg" ng-click="newFeedback()">
+        <i class="ti ti-plus"></i> New Feedback
+      </button>
+    </div>
+
+    <!-- History -->
+    <div class="cf-history">
+      <div class="cf-history-header">
+        <h3 class="cf-history-title">Feedback History</h3>
+        <div class="cf-search">
+          <i class="ti ti-search"></i>
+          <input type="text" ng-model="historySearch" placeholder="Search by customer, CID, or comment">
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-success btn-sm" ng-click="exportExcel()">
+            <i class="ti ti-file-spreadsheet"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Follow-up queue filter -->
+      <div class="cf-queue">
+        <button type="button" class="cf-chip" ng-repeat="q in queues" ng-class="{active: queue === q.key}"
+          ng-click="setQueue(q.key)">
+          <i class="ti" ng-class="q.icon"></i> {{ q.label }}
+          <span class="cf-chip-count">{{ queueCount(q.key) }}</span>
+        </button>
+      </div>
+
+      <div class="cf-table-wrap">
+        <table class="cf-table cf-feedback-grid" ng-if="!historyLoading && pagedHistory().length">
+
+          <thead>
+            <tr>
+              <th class="cf-col-no">No.</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Rating</th>
+              <th>Internet</th>
+              <th>Pricing</th>
+              <th>Service</th>
+              <th>Customer Feedback</th>
+              <th>Issue</th>
+              <th>Follow-up</th>
+              <th>Created By</th>
+              <th class="cf-th-actions">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr ng-repeat="item in pagedHistory() track by item.FeedbackID">
+              <td class="cf-col-no">
+                {{ (historyPage - 1) * historyPageSize + $index + 1 }}
+              </td>
+              <td>
+                {{ item.DateFeedback | date:'dd MMM yyyy h:mm a' }}
+              </td>
+              <td>
+                {{ item.CustomerName || 'Unknown Customer' }}
+              </td>
+              <td>
+                <div class="cf-rating-cell" title="{{ item.Ratingus || 0 }} out of 5">
+                  <span class="cf-rating" ng-if="item.Ratingus">
+                    <i class="ti ti-star-filled" ng-repeat="s in [1,2,3,4,5]"
+                      ng-class="{'cf-star-off': s > item.Ratingus}">
+                    </i>
+                  </span>
+                  <span class="cf-text-muted" ng-if="!item.Ratingus">Not rated</span>
+                </div>
+              </td>
+
+              <td>
+                <span class="cf-badge" ng-class="badgeClass('speed', item.InternetSpeed)">
+                  {{ item.InternetSpeed || '—' }}
+                </span>
+              </td>
+
+              <td>
+                <span class="cf-badge" ng-class="badgeClass('price', item.Pricing)">
+                  {{ item.Pricing || '—' }}
+                </span>
+              </td>
+
+              <td>
+                <span class="cf-badge" ng-class="badgeClass('service', item.CustomerServices)">
+                  {{ item.CustomerServices || '—' }}
+                </span>
+              </td>
+
+              <td class="cf-feedback-comment" title="{{ item.CustomerComment }}">
+                <span>{{ item.CustomerComment || 'No comment provided' }}</span>
+              </td>
+
+              <td>
+                <span class="cf-badge cf-badge-danger"
+                  ng-if="!item.IsNoAnswer && !item.IsBusy && item.Complaint === 'Complaint'">
+                  <i class="ti ti-alert-triangle"></i>
+                  Complaint
+                </span>
+
+                <span class="cf-badge cf-badge-success"
+                  ng-if="!item.IsNoAnswer && !item.IsBusy && item.Complaint === 'No Complaint'">
+                  <i class="ti ti-check"></i>
+                  No Complaint
+                </span>
+
+                <span class="cf-badge cf-badge-neutral" ng-if="item.IsNoAnswer">
+                  <i class="ti ti-phone-x"></i>
+                  No Answer
+                </span>
+
+                <span class="cf-badge cf-badge-warning" ng-if="!item.IsNoAnswer && item.IsBusy">
+                  <i class="ti ti-clock-pause"></i>
+                  Busy
+                </span>
+
+                <span class="cf-text-muted" ng-if="!item.IsNoAnswer && !item.IsBusy &&
+                                 item.Complaint !== 'Complaint' &&
+                                 item.Complaint !== 'No Complaint'">
+                  —
+                </span>
+              </td>
+
+              <td>
+                <div class="cf-followup-cell">
+                  <span class="cf-followup-team" ng-if="item.FollowUpByTeam">
+                    <i class="ti ti-users"></i>
+                    {{ item.FollowUpByTeam }}
+                  </span>
+
+                  <span class="cf-badge cf-badge-warning" ng-if="item.FollowUpStatus === 'Pending'">
+                    Pending
+                  </span>
+
+                  <span class="cf-badge cf-badge-info" ng-if="item.FollowUpStatus === 'In Progress'">
+                    In Progress
+                  </span>
+
+                  <span class="cf-badge cf-badge-success" ng-if="item.FollowUpStatus === 'Done'">
+                    Done
+                  </span>
+
+                  <span class="cf-text-muted" ng-if="!item.FollowUpStatus">
+                    Not assigned
+                  </span>
+                </div>
+              </td>
+
+              <td>
+                <span class="cf-created-by">
+                  {{ item.CreateBy || '—' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="cf-td-actions">
+                  <button type="button" class="cf-icon-btn cf-btn-followup" ng-click="openFollowUp(item, 'update')"
+                    title="Follow up">
+                    <i class="ti ti-route"></i>
+                  </button>
+                  <button type="button" class="cf-icon-btn" ng-click="openFollowUp(item, 'history')"
+                    title="Step history">
+                    <i class="ti ti-history"></i>
+                    <span class="cf-icon-count" ng-if="item.StepCount">{{ item.StepCount }}</span>
+                  </button>
+                  <button type="button" class="cf-icon-btn cf-btn-edit" ng-click="editFeedback(item)" title="Edit">
+                    <i class="ti ti-pencil"></i>
+                  </button>
+                  <button type="button" class="cf-icon-btn cf-btn-delete" ng-click="deleteFeedback(item)"
+                    title="Delete">
+                    <i class="ti ti-trash"></i>
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cf-pagination" ng-show="filteredHistory().length > 0">
+        <div class="cf-pagination-left">
+          <span class="cf-pagination-info">
+            Showing {{ (historyPage-1)*historyPageSize + 1 }}–{{ historyRangeEnd() }} of {{ filteredHistory().length }}
+          </span>
+          <div class="cf-page-size">
+            <label for="pageSizeSelect">Rows:</label>
+            <select id="pageSizeSelect" ng-model="historyPageSize" ng-options="size for size in pageSizes"
+              ng-change="historyPage = 1"></select>
+          </div>
+        </div>
+        <div class="cf-pagination-controls">
+          <button type="button" class="cf-icon-btn" ng-click="prevPage()" ng-disabled="historyPage==1"><i
+              class="ti ti-chevron-left"></i></button>
+          <span class="cf-pagination-page">{{ historyPage }} / {{ totalHistoryPages() }}</span>
+          <button type="button" class="cf-icon-btn" ng-click="nextPage()"
+            ng-disabled="historyPage==totalHistoryPages()"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================================
+             FOLLOW-UP / STEP-HISTORY MODAL
+             ============================================================= -->
+    <div class="cf-backdrop" ng-show="flow.open" ng-click="closeFollowUp()"></div>
+
+    <div class="cf-modal-root" ng-show="flow.open">
+      <div class="cf-card cf-card-wide" ng-click="$event.stopPropagation()">
+        <div class="cf-modal-header">
+          <div class="cf-modal-icon"><i class="ti ti-route"></i></div>
+          <div class="cf-modal-heading">
+            <h3>{{ flow.item.Customer }} <span class="cf-text-muted">· CID {{ flow.item.CID }}</span></h3>
+            <p>Follow-up workflow and step history for this feedback.</p>
+          </div>
+          <button type="button" class="cf-close" ng-click="closeFollowUp()" aria-label="Close"><i
+              class="ti ti-x"></i></button>
+        </div>
+
+        <!-- Progress stepper -->
+        <div class="cf-stepper" ng-class="'cf-stage-' + stage(flow.item)">
+          <div class="cf-step done">
+            <span class="cf-step-dot"><i class="ti ti-check"></i></span>
+            <span class="cf-step-label">Logged<small>Sales Team</small></span>
+          </div>
+          <span class="cf-step-line"></span>
+          <div class="cf-step" ng-class="{done: stage(flow.item) === 2, current: stage(flow.item) === 1}">
+            <span class="cf-step-dot"><i class="ti"
+                ng-class="flow.item.FollowUpByTeam ? teamIcon(flow.item.FollowUpByTeam) : 'ti-user-question'"></i></span>
+            <span class="cf-step-label">Follow-up
+              <small>{{ flow.item.FollowUpByTeam || 'Not assigned' }}
+                <span ng-if="flow.item.FollowUpStatus"> · {{ flow.item.FollowUpStatus }}</span></small>
+            </span>
+          </div>
+          <span class="cf-step-line"></span>
+          <div class="cf-step" ng-class="{done: stage(flow.item) === 2}">
+            <span class="cf-step-dot"><i class="ti ti-flag-check"></i></span>
+            <span class="cf-step-label">Resolved<small>Done</small></span>
+          </div>
+        </div>
+
+        <div class="cf-tabs">
+          <button type="button" class="cf-tab" ng-class="{active: flow.tab === 'update'}"
+            ng-click="flow.tab = 'update'">
+            <i class="ti ti-edit"></i> Update
+          </button>
+          <button type="button" class="cf-tab" ng-class="{active: flow.tab === 'history'}"
+            ng-click="flow.tab = 'history'">
+            <i class="ti ti-history"></i> History <span class="cf-chip-count">{{ flow.logs.length }}</span>
+          </button>
+        </div>
+
+        <div class="cf-modal-body">
+
+          <!-- UPDATE TAB -->
+          <form name="followUpForm" ng-submit="submitFollowUp(followUpForm)" novalidate ng-show="flow.tab === 'update'">
+
+            <div class="cf-notice" ng-if="!canAct(flow.item)">
+              <i class="ti ti-lock"></i>
+              This follow-up belongs to <b>{{ flow.item.FollowUpByTeam }}</b>. Only that team (or Sales) can update it.
+            </div>
+
+            <fieldset class="cf-fieldset" ng-disabled="!canAct(flow.item) || isSaving">
+              <div class="cf-section">
+                <label class="cf-label"><i class="ti ti-users-group"></i> Responsible team</label>
+                <div class="cf-pill-group">
+                  <span ng-repeat="t in teams">
+                    <input class="cf-pill-input" type="radio" name="AssignTo" id="fuT{{$index}}"
+                      ng-model="flow.assignTo" ng-value="t" ng-change="onTeamChange()">
+                    <label class="cf-pill" for="fuT{{$index}}"><i class="ti" ng-class="teamIcon(t)"></i>&nbsp;{{ t
+                      }}</label>
+                  </span>
+                </div>
+                <div class="cf-hint" ng-if="isHandover()">
+                  <i class="ti ti-arrows-exchange"></i> Handing over to <b>{{ flow.assignTo }}</b> — status resets to
+                  Pending for them.
+                </div>
+              </div>
+
+              <div class="cf-section">
+                <label class="cf-label"><i class="ti ti-progress-check"></i> Status</label>
+                <div class="cf-pill-group">
+                  <span ng-repeat="s in statuses">
+                    <input class="cf-pill-input" type="radio" name="FollowUpStatus" id="fuS{{$index}}"
+                      ng-model="flow.status" ng-value="s" ng-disabled="isHandover()">
+                    <label class="cf-pill" for="fuS{{$index}}">{{ s }}</label>
+                  </span>
+                </div>
+              </div>
+
+              <div class="cf-section">
+                <label class="cf-label" for="FollowUpComment"><i class="ti ti-message"></i> Comment
+                  <span class="cf-req" ng-if="commentRequired()">required</span></label>
+                <textarea id="FollowUpComment" name="FollowUpComment" class="cf-textarea" rows="4" maxlength="1000"
+                  ng-model="flow.message"
+                  ng-class="{'cf-input-invalid': flow.showErrors && commentRequired() && !flow.message}"
+                  placeholder="{{ commentPlaceholder() }}"></textarea>
+                <div class="cf-counter">{{ flow.message.length || 0 }}/1000</div>
+                <div class="cf-field-error" ng-if="flow.showErrors && commentRequired() && !flow.message">
+                  <i class="ti ti-alert-circle"></i> {{ commentError() }}
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="cf-modal-footer cf-inline-footer">
+              <div class="cf-footer-right">
+                <button class="cf-btn cf-btn-outline" type="button" ng-click="closeFollowUp()">Close</button>
+                <button class="cf-btn cf-btn-primary" type="submit"
+                  ng-disabled="isSaving || !canAct(flow.item) || !hasChange()">
+                  <ng-container ng-if="!isSaving"><i class="ti" ng-class="actionIcon()"></i> {{ actionLabel()
+                    }}</ng-container>
+                  <ng-container ng-if="isSaving"><i class="ti ti-loader-2 cf-spin"></i> Saving...</ng-container>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- HISTORY TAB -->
+          <div ng-show="flow.tab === 'history'">
+            <div class="cf-timeline-loading" ng-if="flow.loadingLogs">
+              <div class="cf-skeleton-row" ng-repeat="n in [1,2,3]"></div>
+            </div>
+            <div class="cf-empty-state" ng-if="!flow.loadingLogs && !flow.logs.length">
+              <i class="ti ti-history-off"></i>
+              <p>No steps yet</p>
+            </div>
+            <ol class="cf-timeline" ng-if="!flow.loadingLogs && flow.logs.length">
+              <li class="cf-tl-item" ng-repeat="log in flow.logs track by log.LogID"
+                ng-class="'cf-tl-' + log.ActionType">
+                <span class="cf-tl-dot"><i class="ti" ng-class="tlIcon(log.ActionType)"></i></span>
+                <div class="cf-tl-card">
+                  <div class="cf-tl-head">
+                    <span class="cf-tl-step">Step {{ log.StepNo }}</span>
+                    <span class="cf-badge cf-badge-neutral"><i class="ti" ng-class="teamIcon(log.Team)"></i> {{ log.Team
+                      }}</span>
+                    <span class="cf-tl-action">{{ tlLabel(log) }}</span>
+                    <span class="cf-badge" ng-if="log.Status" ng-class="statusClass(log.Status)">{{ log.Status }}</span>
+                  </div>
+                  <p class="cf-tl-comment" ng-if="log.Comment">{{ log.Comment }}</p>
+                  <div class="cf-tl-meta">
+                    <i class="ti ti-user"></i> {{ log.CreatedBy }}
+                    <i class="ti ti-clock"></i> {{ log.CreatedDate | date:'MMM d, y h:mm a' }}
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================================
+             NEW / EDIT FEEDBACK MODAL
+             ============================================================= -->
+    <div class="cf-backdrop" ng-show="modalOpen" ng-click="closeFeedback()"></div>
+
+    <div class="cf-modal-root" ng-show="modalOpen">
+      <div class="cf-card" ng-click="$event.stopPropagation()">
+        <div class="cf-modal-header">
+          <div class="cf-modal-icon"><i class="ti ti-star"></i></div>
+          <div class="cf-modal-heading">
+            <h3>{{ isEditMode ? 'Edit Customer Feedback' : 'New Customer Feedback' }}</h3>
+            <p>Record the customer's experience so the team can follow up if needed.</p>
+          </div>
+          <button type="button" class="cf-close" ng-click="closeFeedback()" aria-label="Close"><i
+              class="ti ti-x"></i></button>
+        </div>
+
+        <form name="feedbackForm" ng-submit="saveFeedback(feedbackForm)" novalidate>
+          <div class="cf-modal-body cf-grid-2">
+            <div class="cf-section">
+              <label class="cf-label" for="CustomerName">Customer</label>
+              <div class="position-relative">
+                <input type="text" class="cf-select tt-input"
+                  ng-class="{'cf-input-invalid': feedbackForm.CustomerName.$error.required && feedbackForm.$submitted}"
+                  id="CustomerName" name="CustomerName" ng-model="feedback.CustomerName" required
+                  placeholder="Select Customer" />
+                <input type="hidden" id="CustomerID" />
+                <input type="hidden" id="CustomerCode" />
+              </div>
+              <div class="cf-field-error" ng-if="feedbackForm.CustomerName.$error.required && feedbackForm.$submitted">
+                <i class="ti ti-alert-circle"></i> Customer is required.
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label" for="ContactBy">Contact By</label>
+              <div class="position-relative">
+                <input type="text" class="cf-select tt-input" id="ContactBy" ng-model="feedback.ContactBy"
+                  placeholder="Select Contact Via" />
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label" for="Complaint">Complaint</label>
+              <div class="position-relative">
+                <input type="text" class="cf-select tt-input" id="Complaint" ng-model="feedback.Complaint"
+                  placeholder="Select Complaint" />
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label"><i class="ti ti-star"></i> Overall Rating</label>
+              <div class="cf-star-row" ng-mouseleave="clearRatingPreview()">
+                <button type="button" class="cf-star-btn" ng-repeat="s in stars"
+                  ng-class="{active: s <= displayedRating()}" ng-mouseenter="previewRating(s)" ng-click="setRating(s)">
+                  <i class="ti" ng-class="s <= displayedRating() ? 'ti-star-filled' : 'ti-star'"></i>
+                </button>
+                <span class="cf-star-value" ng-if="displayedRating()">{{ displayedRating() }}/5</span>
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label"><i class="ti ti-wifi"></i> Internet Speed</label>
+              <div class="cf-pill-group">
+                <input class="cf-pill-input" type="radio" id="Smoothly" name="InternetSpeed"
+                  ng-model="feedback.InternetSpeed" value="Smoothly">
+                <label class="cf-pill" for="Smoothly">Smoothly</label>
+                <input class="cf-pill-input" type="radio" id="Slow" name="InternetSpeed"
+                  ng-model="feedback.InternetSpeed" value="Slow">
+                <label class="cf-pill" for="Slow">Slow</label>
+                <input class="cf-pill-input" type="radio" id="NotStable" name="InternetSpeed"
+                  ng-model="feedback.InternetSpeed" value="Not Stable">
+                <label class="cf-pill" for="NotStable">Not Stable</label>
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label"><i class="ti ti-tag"></i> Pricing</label>
+              <div class="cf-pill-group">
+                <input class="cf-pill-input" type="radio" id="Reasonable" name="Pricing" ng-model="feedback.Pricing"
+                  value="Reasonable">
+                <label class="cf-pill" for="Reasonable">Reasonable</label>
+                <input class="cf-pill-input" type="radio" id="Cheap" name="Pricing" ng-model="feedback.Pricing"
+                  value="Cheap">
+                <label class="cf-pill" for="Cheap">Cheap</label>
+                <input class="cf-pill-input" type="radio" id="Expensive" name="Pricing" ng-model="feedback.Pricing"
+                  value="Expensive">
+                <label class="cf-pill" for="Expensive">Expensive</label>
+              </div>
+            </div>
+
+            <div class="cf-section">
+              <label class="cf-label"><i class="ti ti-headset"></i> Customer Service</label>
+              <div class="cf-pill-group">
+                <input class="cf-pill-input" type="radio" id="VeryGood" name="CustomerServices"
+                  ng-model="feedback.CustomerServices" value="Very Good">
+                <label class="cf-pill" for="VeryGood">Very Good</label>
+                <input class="cf-pill-input" type="radio" id="Good" name="CustomerServices"
+                  ng-model="feedback.CustomerServices" value="Good">
+                <label class="cf-pill" for="Good">Good</label>
+                <input class="cf-pill-input" type="radio" id="Bad" name="CustomerServices"
+                  ng-model="feedback.CustomerServices" value="Bad">
+                <label class="cf-pill" for="Bad">Bad</label>
+              </div>
+            </div>
+
+            <!-- NEW: send to a team right away (new feedback only) -->
+            <div class="cf-section" ng-if="!isEditMode">
+              <label class="cf-label"><i class="ti ti-route"></i> Needs follow-up by</label>
+              <div class="cf-pill-group">
+                <span>
+                  <input class="cf-pill-input" type="radio" id="nfNone" name="NewAssignTo" ng-model="feedback.AssignTo"
+                    ng-value="''">
+                  <label class="cf-pill" for="nfNone">No follow-up</label>
+                </span>
+                <span ng-repeat="t in teams">
+                  <input class="cf-pill-input" type="radio" id="nfT{{$index}}" name="NewAssignTo"
+                    ng-model="feedback.AssignTo" ng-value="t">
+                  <label class="cf-pill" for="nfT{{$index}}"><i class="ti" ng-class="teamIcon(t)"></i>&nbsp;{{ t
+                    }}</label>
+                </span>
+              </div>
+            </div>
+
+            <div class="cf-section cf-span-2">
+              <label class="cf-label" for="CustomerComment"><i class="ti ti-message"></i> Customer Comment</label>
+              <textarea rows="4" id="CustomerComment" name="CustomerComment" ng-model="feedback.CustomerComment"
+                maxlength="500" placeholder="Enter customer comment" class="cf-textarea"
+                ng-class="{'cf-input-invalid': feedbackForm.CustomerComment.$error.required && feedbackForm.$submitted}"
+                required></textarea>
+              <div class="cf-counter">{{ feedback.CustomerComment.length || 0 }}/500</div>
+              <div class="cf-field-error"
+                ng-if="feedbackForm.CustomerComment.$error.required && feedbackForm.$submitted">
+                <i class="ti ti-alert-circle"></i> Customer comment is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="cf-modal-footer">
+            <div class="cf-footer-left d-none">
+              <button class="cf-btn cf-btn-soft-warning" ng-click="onNoAnswer()" type="button"><i
+                  class="ti ti-phone-x"></i> No Answer</button>
+              <button class="cf-btn cf-btn-soft-warning" ng-click="onBusy()" type="button"><i
+                  class="ti ti-clock-pause"></i> Busy</button>
+            </div>
+            <div class="cf-footer-right">
+              <button class="cf-btn cf-btn-outline" ng-click="closeFeedback()" type="button"
+                ng-disabled="isSaving">Cancel</button>
+              <button class="cf-btn cf-btn-primary" type="submit" ng-disabled="isSaving">
+                <ng-container ng-if="!isSaving">
+                  <i class="ti" ng-class="isEditMode ? 'ti-device-floppy' : 'ti-check'"></i> {{ isEditMode ? 'Update' :
+                  'Save' }}
+                </ng-container>
+                <ng-container ng-if="isSaving">
+                  <i class="ti ti-loader-2 cf-spin"></i> {{ isEditMode ? 'Updating...' : 'Saving...' }}
+                </ng-container>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>

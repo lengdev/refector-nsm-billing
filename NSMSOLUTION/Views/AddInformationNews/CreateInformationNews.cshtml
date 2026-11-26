@@ -1,0 +1,530 @@
+@{
+    Layout = null;
+}
+@Html.Raw((string)ViewBag.DrawHTMLForm)
+
+<style>
+    .video-upload-card {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #f8fafc;
+        padding: 22px 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.25s ease-in-out;
+        position: relative;
+    }
+    .video-upload-card:hover, .video-upload-card.drag-over {
+        border-color: #6366f1;
+        background: #f1f5f9;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
+        transform: translateY(-1px);
+    }
+    .video-upload-card .video-icon-circle {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+    .video-upload-card .video-prompt-title {
+        font-weight: 600;
+        color: #334155;
+        font-size: 14px;
+        margin-bottom: 3px;
+    }
+    .video-upload-card .video-prompt-sub {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+    .video-file-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        padding: 8px 16px;
+        border-radius: 24px;
+        margin-top: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e293b;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .video-file-badge .badge-icon {
+        color: #6366f1;
+        font-size: 16px;
+    }
+    .video-file-badge .badge-name {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .video-file-badge .badge-size {
+        color: #64748b;
+        font-size: 11px;
+    }
+    .video-file-badge .badge-remove {
+        color: #ef4444;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        padding: 2px 6px;
+        border-radius: 50%;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .video-file-badge .badge-remove:hover {
+        background: #fee2e2;
+        transform: scale(1.15);
+    }
+</style>
+
+<script>
+    $(function () {
+        var uploadHtml = `
+        <div class="p-2" id="UploadContainer">
+            <div class="row mb-3" id="VideoContainer" style="display:none;">
+                <div class="col-sm">
+                    <label class="form-label font-weight-bold" style="font-size: 14px; color: #334155;">Upload Video:</label>
+                    <div class="video-upload-card" id="VideoDropZone">
+                        <input type="file" name="VideoUpload" id="FileUpload_VideoNews"
+                               accept="video/*" style="display:none;">
+                        
+                        <div id="VideoPromptState">
+                            <div class="video-icon-circle">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div class="video-prompt-title">Click or drag a video file here to upload</div>
+                            <div class="video-prompt-sub">Supports MP4, WebM, MOV (Max: 100MB)</div>
+                        </div>
+
+                        <div id="VideoSelectedState" style="display:none;" onclick="event.stopPropagation();">
+                            <div class="video-preview-wrapper mb-2">
+                                <video id="VideoPreviewPlayer" controls style="max-width:100%; max-height:220px; border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background:#000;"></video>
+                            </div>
+                            <div class="video-file-badge">
+                                <i class="fa-solid fa-file-video badge-icon"></i>
+                                <span class="badge-name" id="VideoFileName">video.mp4</span>
+                                <span class="badge-size" id="VideoFileSize">0 MB</span>
+                                <span class="badge-remove" id="BtnRemoveVideo" title="Remove video">&times;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm align-text-bottom" id="AttachmentContainer">
+                    <label id="LblAttachment" class="form-label font-weight-bold" style="font-size: 14px; color: #334155;">Attachment:</label>
+                    <div>
+                        <input type="file" multiple name="OtherChargeImage" id="FileUpload_InformationNews"
+                               class="jfilestyle" accept="image/*" style="display:none;">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        var $activeForm = $('form[id^="CreateInformationNews"]').last();
+        $activeForm.append(uploadHtml);
+
+        window.GetdTData = new DataTransfer();
+        $activeForm.find('input[name="OtherChargeImage"]').attr('accept', 'image/*');
+        $activeForm.find('input[name="OtherChargeImage"]').imageuploadify();
+
+        // Handle Video Dropzone Interaction & File Selection with Live Preview
+        $(document).on('change', '#FileUpload_VideoNews', function (e) {
+            var file = this.files && this.files[0];
+            if (file) {
+                var sizeMb = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                $('#VideoFileName').text(file.name);
+                $('#VideoFileSize').text('(' + sizeMb + ')');
+
+                // Create blob preview URL for local video file
+                var objectUrl = URL.createObjectURL(file);
+                $('#VideoPreviewPlayer').attr('src', objectUrl);
+
+                $('#VideoPromptState').hide();
+                $('#VideoSelectedState').show();
+            } else {
+                resetVideoUI();
+            }
+        });
+
+        // Remove Video selection
+        $(document).on('click', '#BtnRemoveVideo', function (e) {
+            e.stopPropagation();
+            resetVideoUI();
+        });
+
+        function resetVideoUI() {
+            $('#FileUpload_VideoNews').val('');
+            var player = $('#VideoPreviewPlayer')[0];
+            if (player) {
+                player.pause();
+                $('#VideoPreviewPlayer').removeAttr('src');
+            }
+            $('#VideoPromptState').show();
+            $('#VideoSelectedState').hide();
+        }
+
+        // Drag and drop handlers for Video DropZone
+        $(document).on('dragover dragenter', '#VideoDropZone', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('drag-over');
+        }).on('dragleave drop', '#VideoDropZone', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('drag-over');
+            if (e.type === 'drop' && e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files.length) {
+                var files = e.originalEvent.dataTransfer.files;
+                if (files[0].type.indexOf('video') > -1 || files[0].name.match(/\.(mp4|webm|mov|avi|mkv)$/i)) {
+                    var input = $('#FileUpload_VideoNews')[0];
+                    if (input) {
+                        var dt = new DataTransfer();
+                        dt.items.add(files[0]);
+                        input.files = dt.files;
+                        $(input).trigger('change');
+                    }
+                }
+            }
+        });
+
+        // Show/Hide video upload based on Category selection (by Category Name)
+        function toggleVideoUpload() {
+            var $catSelect = $('#TxtCategoryID');
+            if (!$catSelect.length) return;
+
+            var text = ($catSelect.find('option:selected').text() || '').trim().toLowerCase();
+
+            var isServices = (text === 'services' || text.indexOf('service') > -1);
+
+            // Additional check using Select2 data API if present
+            if (!isServices && $catSelect.hasClass('select2-hidden-accessible')) {
+                try {
+                    var sData = $catSelect.select2('data');
+                    if (sData && sData.length > 0) {
+                        var sText = (sData[0].text || '').trim().toLowerCase();
+                        if (sText === 'services' || sText.indexOf('service') > -1) {
+                            isServices = true;
+                        }
+                    }
+                } catch (e) { }
+            }
+
+            var $videoContainer = $('#VideoContainer');
+            var $lblAttachment = $('#LblAttachment');
+
+            if (isServices) {
+                $videoContainer.show();
+                $lblAttachment.text('Thumbnail:');
+            } else {
+                $videoContainer.hide();
+                $lblAttachment.text('Attachment:');
+            }
+        }
+
+        // Global event delegation to catch select2 changes reliably
+        $(document).off('change.videoToggle select2:select.videoToggle select2:clear.videoToggle', '#TxtCategoryID')
+                   .on('change.videoToggle select2:select.videoToggle select2:clear.videoToggle', '#TxtCategoryID', function () {
+                       toggleVideoUpload();
+                   });
+
+        // Handle clicking VideoDropZone to trigger file browser
+        $(document).off('click.videoDropZone', '#VideoDropZone').on('click.videoDropZone', '#VideoDropZone', function (e) {
+            if ($(e.target).is('#FileUpload_VideoNews') || $(e.target).closest('#BtnRemoveVideo, video, .video-preview-wrapper').length) return;
+            var $fileInput = $(this).find('#FileUpload_VideoNews');
+            if ($fileInput.length) {
+                $fileInput[0].click();
+            }
+        });
+
+        // Run initial checks
+        toggleVideoUpload();
+        setTimeout(toggleVideoUpload, 200);
+        setTimeout(toggleVideoUpload, 500);
+
+        // Load existing images & video from TblOtherChargeImage
+        var pvFromServer = parseInt('@((string)ViewBag.PrimaryFieldValue)') || 0;
+        if (pvFromServer > 0) {
+            $.getJSON('@Url.Action("GetImages", "AddInformationNews")', { id: pvFromServer }, function (data) {
+                if (data) {
+                    if (data.files && data.files.length > 0) {
+                        renderExistingImages(data.files);
+                    }
+                    if (data.video && data.video.length > 0) {
+                        var videoPath = data.video;
+                        var vName = videoPath;
+                        if (vName.indexOf('/') > -1) vName = vName.substring(vName.lastIndexOf('/') + 1);
+                        var cleanVName = vName.indexOf('_') > -1 ? vName.substring(vName.indexOf('_') + 1) : vName;
+                        
+                        $('#VideoFileName').text(cleanVName);
+                        $('#VideoFileSize').text('(Saved Video)');
+
+                        var fullVideoUrl = videoPath.startsWith('/') ? videoPath : ('/Uploads/Services/' + vName);
+                        $('#VideoPreviewPlayer').attr('src', fullVideoUrl);
+
+                        $('#VideoPromptState').hide();
+                        $('#VideoSelectedState').show();
+                    }
+                }
+            });
+        }
+
+        // Initialize Summernote Rich Text Editor on News Content textarea
+        var initialContent = $("#TxtNewsContent").val();
+        $("#TxtNewsContent").summernote({
+            placeholder: 'Please entry your description',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['view', ['fullscreen']]
+            ],
+            callbacks: {
+                onChange: function(contents, $editable) {
+                    $("#TxtNewsContent").val(contents);
+                }
+            }
+        });
+        if (initialContent) {
+            $("#TxtNewsContent").summernote('code', initialContent);
+        }
+
+        // Dynamic Filtering: Cascade Badge Type dropdown based on selected Category
+        var pvForType = parseInt('@((string)ViewBag.PrimaryFieldValue)') || 0;
+        var initialBadgeTypeId = pvForType > 0 ? '@((string)ViewBag.CurrentTypeID)' : '';
+        var allBadgeTypes = [];
+
+        $.getJSON('/api/OtherInformation/GetTypes', function (res) {
+            if (res && res.success) {
+                allBadgeTypes = res.data;
+                filterBadgeTypes();
+            }
+        });
+
+        // Listen on both native 'change' AND select2-specific events
+        $activeForm.find('#TxtCategoryID')
+            .on('change', filterBadgeTypes)
+            .on('select2:select select2:clear', filterBadgeTypes);
+
+        function filterBadgeTypes() {
+            var selectedCatId = parseInt($('#TxtCategoryID').val()) || 0;
+            var filtered = allBadgeTypes.filter(function (x) {
+                return x.categoryID === selectedCatId;
+            });
+
+            var $select = $('#TxtTypeID');
+            var currentVal = initialBadgeTypeId || '';
+            initialBadgeTypeId = null; // clear so subsequent category changes start fresh
+
+            // Find the <td> container cells for Badge Type label and input
+            var $typeInputTd = $select.closest('td');
+            var $typeLabelTd = $typeInputTd.prev('td');
+            if ($typeLabelTd.length === 0 || !$typeLabelTd.text().includes('Badge Type')) {
+                $typeLabelTd = $typeInputTd.closest('tr').find('label:contains("Badge Type:")').closest('td');
+            }
+
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+            $select.empty();
+
+            if (filtered.length === 0) {
+                // Category has NO badge types (e.g. News, Services) -> Hide Badge Type field
+                $typeInputTd.hide();
+                $typeLabelTd.hide();
+                $select.val('');
+            } else {
+                // Category HAS badge types (e.g. Actions) -> Show Badge Type field
+                $typeInputTd.show();
+                $typeLabelTd.show();
+
+                $select.append('<option value="">-- None --</option>');
+                filtered.forEach(function (item) {
+                    var opt = new Option(item.typeName, item.typeID, false, currentVal == item.typeID);
+                    $select.append(opt);
+                });
+
+                if (typeof $.fn.select2 === 'function') {
+                    $select.select2({ placeholder: '-- None --', allowClear: true });
+                }
+
+                $select.val(currentVal || '').trigger('change');
+            }
+        }
+
+
+
+
+        // Capture files AND existing images BEFORE the main form save closes the modal
+        window._pendingOtherChargeFiles = null;
+        window._pendingRemainingFiles = null;
+        window._pendingVideoFile = null;
+        window._pendingTypeId = '';  // capture TypeID before modal closes
+        $(document).off('ajaxSend.InformationNewsImage').on('ajaxSend.InformationNewsImage', function (event, xhr, settings) {
+            if (settings.url && settings.url.indexOf('DoActionData/SaveChange') > -1) {
+                try {
+                    var $activeForm = $('form[id^="CreateInformationNews"]').last();
+
+                    // ── Capture TypeID NOW (modal is still open, DOM element still exists) ──
+                    var $typeSelect = $activeForm.find('#TxtTypeID');
+                    window._pendingTypeId = ($typeSelect.length ? $typeSelect.val() : '') || '';
+
+                    // Capture new video file before modal closes
+                    var vi = $activeForm.find('#FileUpload_VideoNews')[0];
+                    if (vi && vi.files && vi.files.length > 0) {
+                        window._pendingVideoFile = vi.files[0];
+                    } else {
+                        window._pendingVideoFile = null;
+                    }
+
+                    // Capture new files from the active input
+                    var fi = $activeForm.find('input[name="OtherChargeImage"]')[0];
+                    if (fi && fi.files && fi.files.length > 0) {
+                        var dt = new DataTransfer();
+                        for (var i = 0; i < fi.files.length; i++) {
+                            dt.items.add(fi.files[i]);
+                        }
+                        window._pendingOtherChargeFiles = dt;
+                    }
+
+                    // Capture existing images that the user has NOT removed (before modal closes)
+                    var remaining = [];
+                    $activeForm.find('.imageuploadify-container[data-existing-filename]').each(function () {
+                        remaining.push($(this).attr('data-existing-filename'));
+                    });
+                    window._pendingRemainingFiles = remaining;
+                } catch (e) { }
+            }
+        });
+
+        // Trigger upload after save completes
+        $(document).off('ajaxComplete.InformationNewsImage').on('ajaxComplete.InformationNewsImage', function (event, xhr, settings) {
+            if (settings.url && settings.url.indexOf('DoActionData/SaveChange') > -1) {
+                try {
+                    var response = xhr.responseJSON;
+                    if (response && response.Data && parseInt(response.Data) > 0) {
+                        var msg = response.Message || '';
+                        if (msg.indexOf('inserted successful') > -1 || msg.indexOf('updated successful') > -1) {
+                            var savedId = parseInt(response.Data);
+
+                            // ── TypeID update ──
+                            // Use the value captured in ajaxSend (before modal closed and DOM was removed)
+                            var typeIdVal = window._pendingTypeId || '';
+                            $.ajax({
+                                url: '@Url.Action("UpdateTypeID", "AddInformationNews")',
+                                type: 'POST',
+                                data: { id: savedId, typeId: typeIdVal },
+                                async: false  // ensure TypeID is written before image upload
+                            });
+
+                            UploadInformationNewsImage(savedId);
+                        }
+                    }
+                } catch (e) { }
+            }
+        });
+    });
+
+    function renderExistingImages(files) {
+        var $activeForm = $('form[id^="CreateInformationNews"]').last();
+        var $imagesList = $activeForm.find('.imageuploadify-images-list');
+        var width       = $activeForm.find('.imageuploadify').width() || 500;
+        var boxesNb     = Math.floor(width / 100) || 4;
+        var marginSize  = Math.floor((width - (boxesNb * 100)) / (boxesNb + 1)) || 20;
+
+        files.forEach(function (fileName) {
+            if (!fileName || !fileName.trim()) return;
+            fileName = fileName.trim();
+
+            var filePath = fileName;
+            if (fileName.indexOf('http://') !== 0 && fileName.indexOf('https://') !== 0 && fileName.indexOf('/') !== 0) {
+                filePath = '/Uploads/Services/' + fileName;
+            }
+
+            var baseName = fileName.substring(fileName.lastIndexOf('/') + 1);
+            var cleanName = baseName.indexOf('_') !== -1
+                ? baseName.substring(baseName.indexOf('_') + 1)
+                : baseName;
+
+            var $container = $('<div class="imageuploadify-container" data-existing-filename="' + fileName + '">' +
+                '<button type="button" class="btn btn-danger fa-solid fa-circle-xmark" onclick="removeExistingImage(this)"></button>' +
+                '<div class="imageuploadify-details"><span title="' + cleanName + '">' + cleanName + '</span></div>' +
+                '<img src="' + filePath + '" style="max-width:100px;max-height:100px;object-fit:contain;">' +
+                '</div>');
+
+            $container.css('margin-left', marginSize + 'px');
+            $container.find('.imageuploadify-details').hover(
+                function () { $(this).css('opacity', '1'); },
+                function () { $(this).css('opacity', '0'); }
+            );
+            $imagesList.append($container);
+        });
+    }
+
+    function removeExistingImage(btn) {
+        $(btn).closest('.imageuploadify-container').remove();
+    }
+
+    function UploadInformationNewsImage(identityId) {
+        var pvFromServer = parseInt('@((string)ViewBag.PrimaryFieldValue)') || 0;
+        var id = (parseInt(identityId) > 0) ? parseInt(identityId) : pvFromServer;
+
+        if (id <= 0) {
+            $("[id^='CloseModal']").click();
+            return;
+        }
+
+        var filesToUpload = window._pendingOtherChargeFiles ? window._pendingOtherChargeFiles.files : null;
+        window._pendingOtherChargeFiles = null; // reset after use
+
+        // Use video file captured before modal closed
+        var videoFile = window._pendingVideoFile;
+        window._pendingVideoFile = null; // reset after use
+
+        // Use the remaining files captured before modal closed
+        var remainingFiles = window._pendingRemainingFiles || [];
+        window._pendingRemainingFiles = null; // reset after use
+        var remainingFilesStr = remainingFiles.join(',');
+
+        var hasNewFiles = filesToUpload && filesToUpload.length > 0;
+
+        var formData = new FormData();
+        formData.append('id', id);
+        formData.append('remainingFiles', remainingFilesStr);
+        if (hasNewFiles) {
+            for (var i = 0; i < filesToUpload.length; i++) {
+                formData.append('files', filesToUpload[i]);
+            }
+        }
+        if (videoFile) {
+            formData.append('VideoUpload', videoFile);
+        }
+
+        $.ajax({
+            url: '/AddInformationNews/UploadImage',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Result !== 1) {
+                    alert('Save error: ' + response.Message);
+                }
+                $("[id^='CloseModal']").click();
+            },
+            error: function (xhr) {
+                alert('Image upload failed to reach server. Status: ' + xhr.status + ' - ' + xhr.responseText);
+                $("[id^='CloseModal']").click();
+            }
+        });
+    }
+</script>

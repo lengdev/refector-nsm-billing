@@ -1,0 +1,13 @@
+﻿@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.eot") /* EOT file for IE */
+}
+
+@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.ttf") /* TTF file for CSS3 browsers */
+}
+
+.barcodeFont {
+    font-size: 50px;
+}

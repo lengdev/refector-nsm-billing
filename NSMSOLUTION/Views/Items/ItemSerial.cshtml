@@ -1,0 +1,8 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowItemSerial(ItemSerialID, ReceiveNoteNumber) {
+        var URL = "Items/ShowFormItemSerial?itemSerialID=" + ItemSerialID;
+        //ShowDialogBox("Preview Item Serial: " + ReceiveNoteNumber, "Auto", "500", URL);
+    }
+</script>

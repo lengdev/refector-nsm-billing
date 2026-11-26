@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="appInventory">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Login Page</title>
+    <link rel="stylesheet" href="~/Templates/Animated-Login-Form-using-html-css-main/CSS/style.css" />
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script type="module" src="~/Templates/Animated-Login-Form-using-html-css-main/JS/ioniconsesm.js"></script>
+    <script nomodule src="~/Templates/Animated-Login-Form-using-html-css-main/JS/ionicons.js"></script>
+</head>
+<body ng-controller="LoginController">
+    <!-- particles.js container -->
+    <div id="particles-js" style="position:absolute; width: 100%; height:100%; overflow:hidden;"></div>
+    <!-- BACKGROUND-WRAPPER -->
+    <main class="background_wrapper">
+
+        <div class="login_form_wrapper">
+            <!-- FORM -->
+            <form id="loginForm" method="post" class="login__form">
+                <h1 class="title">Login</h1>
+
+                <div class="login_form_content">
+                    <!-- LOGIN-CONTENT-BOX-1 -->
+                    <div class="login_content_box">
+                        <ion-icon name="person-outline"></ion-icon>
+
+                        <div class="login_content_box--input">
+                            <input type="text"
+                                   placeholder=" "
+                                   class="login__input email--input"
+                                   autofocus id="username" name="username" data-ng-model="LoginData.UserName" required />
+                            <label for="username" class="login__label">User Name</label>
+                        </div>
+                    </div>
+                    <!-- LOGIN-CONTENT-BOX-2 -->
+                    <div class="login_content_box">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+
+                        <div class="login_content_box--input">
+                            <input type="password"
+                                   class="login__input password--input"
+                                   placeholder=" " name="password" id="password" data-ng-model="LoginData.Password" required />
+                            <label for="password" class="login__label">Password</label>
+                            <ion-icon class="password__hidden"
+                                      id="password_hidden"
+                                      name="eye-off-outline"></ion-icon>
+                        </div>
+                    </div>
+                    <!-- REMEMBER-LOGIN -->
+                    <div class="remember_login" style="display:none">
+                        <div class="remember_login_content">
+                            <input type="checkbox" class="remember_login_input" />
+                            <label for="remember" class="remember_login_label text--sm">Remember me</label>
+                        </div>
+                        <!-- FORGET PASSWORD -->
+                        <a href="#" class="forget__login text--sm">Forget password?</a>
+                    </div>
+                    <br /><br />
+                    <!-- LOGIN BUTTON -->
+                    <button type="submit" id="Login" class="button__login">Login</button>
+                    <!-- REGISTER LOGIN -->
+                    <p class="register__login text--sm" style="display:none">
+                        Don't have an account ? <a href="#">Register</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- SCRIPT.JS -->
+    <script src="~/Templates/Animated-Login-Form-using-html-css-main/JS/script.js"></script>
+
+    <!-- scripts -->
+    <script src="~/Templates/Animated-Login-Form-using-html-css-main/particles/js/particles.js"></script>
+    <script src="~/Templates/Animated-Login-Form-using-html-css-main/particles/js/app.js"></script>
+
+    <!-- stats.js -->
+    <script src="~/Templates/Animated-Login-Form-using-html-css-main/particles/js/lib/stats.js"></script>
+
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-sanitize.min.js"></script>
+    <script src="~/Scripts/angular-route.min.js"></script>
+    <script src="~/Scripts/angular-cookies.min.js"></script>
+    <script src="~/Scripts/ngStorage.min.js"></script>
+    <script src="~/Scripts/ng-table.js"></script>
+    <script src="~/Scripts/restangular.min.js"></script>
+    <script src="~/Scripts/underscore-min.js"></script>
+    <script src="~/Scripts/loading-bar.min.js"></script>
+    <script src="~/Scripts/angular-local-storage.min.js"></script>
+    <script src="~/Scripts/angular-animate.min.js"></script>
+    <script src="~/Scripts/angular-filter.min.js"></script>
+    <script src="~/Scripts/angular-underscore.min.js"></script>
+    <script src="~/Scripts/ngHtmlCompile.js"></script>
+    <script src="~/Scripts/ng-idle/angular-idle.min.js"></script>
+    <script src="~/App/JScriptForm.js"></script>
+    <script src="~/Scripts/LocalStorage.js"></script>
+    <script src="~/App/app.js"></script>
+    <script src="~/App/services/AuthData.js"></script>
+    <script src="~/App/services/AuthenticationService.js"></script>
+    <script src="~/App/services/LoginService.js"></script>
+    <script src="~/App/controllers/LoginController.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/web-notification.js"></script>
+    <script src="~/Scripts/angular-web-notification-master/angular-web-notification.js"></script>
+    <script src="~/Scripts/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/Scripts/sweetalert2/DialogSweetAlert.js"></script>
+    <script>
+        function validatePassword(p, callback) {
+            var valid = true;
+            var errors = [];
+            if (p.length < 8) {
+                errors.push("Your password must be at least 8 characters");
+            }
+            if (p.length > 32) {
+                errors.push("Your password must be at max 32 characters");
+            }
+            if (p.search(/[a-z]/) < 0) {
+                errors.push("Your password must contain at least one lower case letter.");
+                valid = false;
+            }
+            if (p.search(/[A-Z]/) < 0) {
+                errors.push("Your password must contain at least one upper case letter.");
+            }
+            if (p.search(/[0-9]/) < 0) {
+                errors.push("Your password must contain at least one digit.");
+            }
+            //if (p.search(/[!@@#\$%\^&\*_]/) < 0) {
+            //     errors.push("Your password must contain at least special char from -[ ! @@ # $ % ^ & * _ ]");
+            //      valid = false;
+            // }
+            if (errors.length > 0) {
+                //console.log(errors.join("\n"));
+                valid = false;
+                return callback(valid, errors.join("\n\r<br />"));
+            }
+            return callback(valid, errors);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("loginForm");
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent normal submission
+
+                const username = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                if (!username) {
+                    DialogSweetAlert("error", "Please enter user name.", function () {
+                        document.getElementById("username").focus();
+                    });
+                }
+                else if (!password) {
+                    DialogSweetAlert("error", "Please enter password.", function () {
+                        document.getElementById("password").focus();
+                    });
+                }
+                else {
+                    // If valid, submit the form (optionally with Angular or normal post)
+                    //form.submit();
+                    angular.element(document.getElementById('Login')).scope().Login();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

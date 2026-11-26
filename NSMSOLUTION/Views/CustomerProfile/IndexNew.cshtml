@@ -1,0 +1,3885 @@
+@model int
+@{
+Layout = "";
+ViewBag.Title = "Customer Profile";
+var customerId = Model;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+<style>
+    :root {
+        --bg: #f5f6fa;
+        --bg2: #eef0f7;
+        --surface: #ffffff;
+        --surface2: #f8f9fc;
+        --surface3: #f0f2f8;
+        --border: #e4e7f0;
+        --border2: #cdd2e4;
+        --text: #343a40;
+        --text2: #5a6282;
+        --text3: #9ba3c0;
+        --accent: #3b62f5;
+        --accent2: #2a4fe0;
+        --accent-light: #eff3ff;
+        --green: #0ea871;
+        --green-bg: #edfaf5;
+        --red: #e63c5e;
+        --red-bg: #fff0f3;
+        --amber: #e8910a;
+        --amber-bg: #fff8ec;
+        --purple: #7c51eb;
+        --shadow-sm: 0 1px 3px rgba(20, 25, 40, 0.06), 0 1px 2px rgba(20, 25, 40, 0.04);
+        --shadow: 0 2px 8px rgba(20, 25, 40, 0.08), 0 1px 3px rgba(20, 25, 40, 0.05);
+        --shadow-lg: 0 8px 32px rgba(20, 25, 40, 0.1), 0 2px 8px rgba(20, 25, 40, 0.06);
+        --radius: 10px;
+        --radius-lg: 14px;
+        --font: 'DM Sans', sans-serif !important;
+        --mono: 'DM Mono', monospace !important;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .customer-profile {
+        font-family: var(--font) !important;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 16px !important;
+        line-height: 1.6;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+        text-decoration: none;
+        color: var(--accent);
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text3);
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 1.5rem;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-brand {
+        font-weight: 700;
+        letter-spacing: -0.4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        white-space: nowrap;
+    }
+
+    .brand-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 15px;
+        box-shadow: 0 2px 8px rgba(59, 98, 245, 0.35);
+    }
+
+    .topbar-sep {
+        width: 1px;
+        height: 22px;
+        background: var(--border);
+        flex-shrink: 0;
+    }
+
+    .topbar-search {
+        flex: 1;
+        max-width: 300px;
+        margin-left: .5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 6px 12px;
+        cursor: text;
+        transition: all 0.18s;
+        position: relative;
+    }
+
+    .topbar-search:hover,
+    .topbar-search:focus-within {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .topbar-search i {
+        font-size: 15px;
+        color: var(--text3);
+        flex-shrink: 0;
+    }
+
+    .topbar-search input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 13px;
+        color: var(--text1);
+        font-family: var(--sans);
+    }
+
+    .topbar-search input:focus {
+        box-shadow: none !important;
+    }
+
+    .topbar-search input::placeholder {
+        color: var(--text3);
+    }
+
+    .topbar-search kbd {
+        margin-left: auto;
+        font-size: 10px;
+        color: var(--text3);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 1px 6px;
+        font-family: var(--mono);
+        flex-shrink: 0;
+        transition: opacity 0.15s;
+    }
+
+    .topbar-search kbd.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* spinner */
+    .ts-spinner {
+        width: 13px;
+        height: 13px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: ts-spin 0.6s linear infinite;
+        flex-shrink: 0;
+        display: none;
+    }
+
+    .ts-spinner.active {
+        display: block;
+    }
+
+    @@keyframes ts-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* dropdown */
+    .ts-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        width: 320px;
+        background: var(--surface, #fff);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
+        z-index: 999;
+        overflow: hidden;
+    }
+
+    .ts-dropdown.open {
+        display: block;
+    }
+
+    .ts-section {
+        padding: 6px 10px 3px;
+        font-size: 10px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .ts-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: background 0.1s;
+    }
+
+    .ts-item:hover,
+    .ts-item.focused {
+        background: var(--accent-light, #fdf6ea);
+    }
+
+    .ts-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: var(--surface3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .ts-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ts-meta {
+        font-size: 11px;
+        color: var(--text3);
+        margin-top: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ts-id {
+        margin-left: auto;
+        font-size: 10px;
+        font-family: var(--mono);
+        color: var(--text3);
+        background: var(--surface3);
+        border-radius: 4px;
+        padding: 2px 5px;
+        flex-shrink: 0;
+    }
+
+    .ts-empty {
+        padding: 18px 12px;
+        font-size: 13px;
+        color: var(--text3);
+        text-align: center;
+    }
+
+    .ts-highlight {
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
+        border-radius: 2px;
+        padding: 0 1px;
+    }
+
+    .topbar-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text2);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 17px;
+        position: relative;
+    }
+
+    .icon-btn:hover {
+        background: var(--surface3);
+        border-color: var(--border);
+        color: var(--text);
+    }
+
+    .notif-dot {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--red);
+        border: 2px solid var(--surface);
+    }
+
+    .topbar-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #dbe4ff, #ede9ff);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+        letter-spacing: 0.3px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        /*        position: relative;*/
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 500px;
+        height: 100%;
+        background: linear-gradient(135deg, transparent 60%, rgba(59, 98, 245, 0.03) 100%);
+        pointer-events: none;
+    }
+
+    .hero-inner {
+        /*max-width: 1340px;*/
+        margin: 0 auto;
+        padding: 1.5rem 1.5rem 0;
+        position: relative;
+        z-index: 1;
+        animation: fadeUp 0.3s ease both;
+    }
+
+    .hero-top {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 1.25rem;
+    }
+
+    .avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #dbe4ff 0%, #ede9ff 100%);
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s;
+        letter-spacing: -1px;
+        box-shadow: var(--shadow);
+    }
+
+    .avatar:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-light);
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(59, 98, 245, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.18s;
+        color: #fff;
+        font-size: 18px;
+    }
+
+    .avatar:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 8px 3px 6px !important;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        cursor: default;
+        transition: opacity .15s;
+    }
+
+    .pill:hover {
+        opacity: .75;
+    }
+
+    .pill .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .pill .count {
+        font-size: 10px;
+        font-weight: 600;
+        min-width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+    }
+
+    /* Green — Active */
+    .pill-green {
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid rgba(14, 168, 113, 0.3);
+    }
+
+    .pill-green .dot {
+        background: var(--green);
+    }
+
+    .pill-green .count {
+        background: rgba(14, 168, 113, 0.15);
+        color: var(--green);
+    }
+
+    /* Red — Locked */
+    .pill-red {
+        background: var(--red-bg);
+        color: var(--red);
+        border: 1px solid rgba(230, 60, 94, 0.2);
+    }
+
+    .pill-red .dot {
+        background: var(--red);
+    }
+
+    .pill-red .count {
+        background: rgba(230, 60, 94, 0.12);
+        color: var(--red);
+    }
+
+    /* Gray — Inactive / fallback */
+    .pill-gray {
+        background: var(--surface-2, rgba(0, 0, 0, .04));
+        color: var(--text2);
+        border: 1px solid var(--border);
+    }
+
+    .pill-gray .dot {
+        background: var(--text2);
+    }
+
+    .pill-gray .count {
+        background: rgba(0, 0, 0, .07);
+        color: var(--text2);
+    }
+
+    .status-pill {
+        position: absolute;
+        bottom: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 8px;
+        border-radius: 99px;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pill-green {
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid rgba(14, 168, 113, 0.3);
+    }
+
+    .status-pill-red {
+        background: var(--red-bg);
+        color: var(--red);
+        border: 1px solid rgba(230, 60, 94, 0.2);
+    }
+
+    .status-pulse-green,
+    .status-pulse-red {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+    }
+
+    .status-pulse-green {
+        background: var(--green);
+        animation: pulseGreen 2s infinite;
+    }
+
+    .status-pulse-red {
+        background: var(--red);
+        animation: pulseRed 2s infinite;
+    }
+
+    /* GREEN */
+    @@keyframes pulseGreen {
+        0% {
+            box-shadow: 0 0 0 0 rgba(14, 168, 113, 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 5px rgba(14, 168, 113, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(14, 168, 113, 0);
+        }
+    }
+
+    /* RED */
+    @@keyframes pulseRed {
+        0% {
+            box-shadow: 0 0 0 0 rgba(230, 60, 94, 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 5px rgba(230, 60, 94, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(230, 60, 94, 0);
+        }
+    }
+
+    .hero-meta {
+        flex: 1;
+        min-width: 0;
+        padding-top: 4px;
+    }
+
+    .hero-name {
+        font-family: Inter, 'Moul', sans-serif !important;
+        font-size: 20px;
+        text-transform: uppercase;
+        font-weight: 500;
+        color: var(--text);
+        letter-spacing: -0.3px;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .cust-id,
+    .conn-id,
+    .s-id {
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--text3);
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 8px;
+        letter-spacing: 0.5px;
+        font-family: var(--mono);
+    }
+
+    .hero-sub {
+        color: var(--text2);
+        margin-top: 4px;
+        font-size: 14.5px;
+    }
+
+    .hero-badges {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13.5px;
+        padding: 3px 9px;
+        border-radius: 7px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    .badge-blue {
+        background: var(--accent-light);
+        color: var(--accent);
+        border-color: rgba(59, 98, 245, 0.2);
+    }
+
+    .badge-green {
+        background: var(--green-bg);
+        color: var(--green);
+        border-color: rgba(14, 168, 113, 0.2);
+    }
+
+    .badge-red {
+        background: var(--red-bg);
+        color: var(--red);
+        border-color: rgba(230, 60, 94, 0.2);
+    }
+
+    .badge-amber {
+        background: var(--amber-bg);
+        color: var(--amber);
+        border-color: rgba(232, 145, 10, 0.2);
+    }
+
+    .badge-neutral {
+        background: var(--surface3);
+        color: var(--text2);
+        border-color: var(--border);
+    }
+
+    .badge-purple {
+        background: #f3f0ff;
+        color: var(--purple);
+        border-color: rgba(124, 81, 235, 0.2);
+    }
+
+    .hero-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .exrate {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 8px;
+        background: var(--amber-bg);
+        border: 1px solid rgba(232, 145, 10, 0.2);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--amber);
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 6px;
+    }
+
+    .stat {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        text-align: center;
+        min-width: 80px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .stat:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .stat-val {
+        font-size: 17px;
+        font-weight: 500;
+        font-family: var(--mono);
+        letter-spacing: -0.5px;
+        color: var(--text);
+    }
+
+    .stat-val.green {
+        color: var(--green);
+    }
+
+    .stat-val.red {
+        color: var(--red);
+    }
+
+    .stat-lbl {
+        font-size: 12px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+        font-weight: 600;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    /* ── INFO STRIP ── */
+    .info-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid var(--border);
+        margin-top: .25rem;
+    }
+
+    .info-cell {
+        padding: 11px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-right: 1px solid var(--border);
+        transition: background 0.15s;
+        cursor: default;
+    }
+
+    .info-cell:last-child {
+        border-right: none;
+    }
+
+    .info-cell:hover {
+        background: var(--surface2);
+    }
+
+    .info-cell-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        color: var(--text3);
+        flex-shrink: 0;
+    }
+
+    .info-cell-lbl {
+        font-size: 12px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-bottom: 1px;
+    }
+
+    .info-cell-val {
+        font-size: 14px;
+        color: var(--text);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ── TABS BAR ── */
+    .tabs-bar-wrap {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 56px;
+        z-index: 100;
+        box-shadow: var(--shadow-sm);
+        animation: fadeUp 0.3s 0.05s ease both;
+    }
+
+    .tabs-bar {
+        /*max-width: 1340px;*/
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        gap: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .tabs-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab {
+        font-size: 15px;
+        padding: 12px 14px;
+        color: var(--text3);
+        cursor: pointer;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+        font-weight: 500;
+    }
+
+    .tab:hover {
+        color: var(--text2);
+    }
+
+    .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+    }
+
+    .tab.active i {
+        color: var(--accent);
+    }
+
+    .tab-badge {
+        background: var(--red);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 0 5px;
+        border-radius: 99px;
+        min-width: 16px;
+        text-align: center;
+        line-height: 16px;
+    }
+
+    /* ── BODY ── */
+    .body {
+        /*max-width: 1340px;*/
+        margin: 0 auto;
+        padding: 1.5rem;
+        animation: fadeUp 0.3s 0.1s ease both;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .panel {
+        display: none;
+    }
+
+    .panel.active {
+        display: block;
+        animation: fadeUp 0.2s ease both;
+    }
+
+    /* ── CARD ── */
+    .customer-profile .card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .customer-profile .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        gap: .5rem;
+    }
+
+    .customer-profile .card-header::after {
+        content: none !important;
+    }
+
+    .customer-profile .card-title {
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        letter-spacing: -0.3px;
+    }
+
+    .customer-profile .card-title i {
+        font-size: 16px;
+        color: var(--text3);
+    }
+
+    .card-title-sm {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text3);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: .75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .card-title-sm i {
+        font-size: 14px;
+    }
+
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .four-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 1rem 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        border: none !important;
+    }
+
+    /* ── SUB TABS ── */
+    .sub-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1.5px solid var(--border);
+        margin-bottom: 1rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .sub-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sub-tab {
+        font-size: 14.5px;
+        padding: 8px 13px;
+        font-weight: 500;
+        color: var(--text3);
+        cursor: pointer;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: all 0.12s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding-bottom: 10px;
+    }
+
+    .sub-tab:hover {
+        color: var(--text2);
+    }
+
+    .sub-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+    }
+
+    .sub-panel {
+        display: none;
+    }
+
+    .sub-panel.active {
+        display: block;
+    }
+
+    /* ── TABLE ── */
+    .tbl-wrap {
+        overflow-x: auto;
+        border-radius: var(--radius-lg);
+        border: 1.5px solid var(--border);
+    }
+
+    .customer-profile table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14.5px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .customer-profile thead th {
+        padding: 10px 14px;
+        text-align: left;
+        font-weight: 700;
+        color: var(--text3);
+        border-bottom: 1.5px solid var(--border);
+        background: var(--surface2);
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        font-size: 13.5px;
+    }
+
+    .customer-profile tbody td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        vertical-align: middle;
+    }
+
+    .customer-profile tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .customer-profile tbody tr {
+        transition: background 0.1s;
+    }
+
+    .customer-profile tbody tr:hover td {
+        background: var(--surface2);
+    }
+
+    .td-mono {
+        font-family: var(--mono);
+        color: var(--text2);
+    }
+
+    .td-link {
+        color: var(--accent) !important;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: var(--mono);
+    }
+
+    .td-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ── FIELDS ── */
+    .field {
+        margin-bottom: .85rem;
+    }
+
+    .field-lbl {
+        font-size: 10.5px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .field-val {
+        font-size: 13px;
+        color: var(--text);
+        font-weight: 400;
+    }
+
+    .field-val.mono {
+        font-family: var(--mono);
+        font-size: 12.5px;
+    }
+
+    /* ── SERVICE CARDS ── */
+    .svc-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: .9rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .svc-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--accent), var(--purple));
+        border-radius: 4px 0 0 4px;
+    }
+
+    .svc-card.suspended::before {
+        background: var(--red);
+    }
+
+    .svc-card.suspended:hover {
+        border-color: var(--red);
+    }
+
+    .svc-card:hover {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .svc-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: .65rem;
+    }
+
+    .svc-plan {
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: -0.3px;
+    }
+
+    .svc-detail {
+        color: var(--text2);
+        margin-top: 2px;
+        font-size: 14px !important;
+    }
+
+    .svc-ids {
+        display: flex;
+        gap: 13px;
+        flex-wrap: wrap;
+        font-size: 14px;
+        color: var(--text3);
+        font-family: var(--mono);
+        margin-top: 5px;
+    }
+
+    .svc-ids a {
+        color: var(--accent);
+    }
+
+    .conn-info {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        padding: 9px 12px;
+        margin-bottom: .75rem;
+    }
+
+    .conn-info span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13.5px;
+        color: var(--text2);
+    }
+
+    .conn-info span b {
+        color: var(--text);
+        font-family: var(--mono);
+        font-weight: 500;
+    }
+
+    .progress {
+        height: 5px;
+        background: var(--surface3);
+        border-radius: 99px;
+        overflow: hidden;
+        margin: 6px 0 4px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg,
+                #00c6ff 0%,
+                #0072ff 25%,
+                #7b61ff 50%,
+                #c44dff 75%,
+                #ff4fd8 100%);
+        background-size: 200% 200%;
+        box-shadow:
+            0 0 12px rgba(0, 198, 255, 0.45),
+            0 0 24px rgba(196, 77, 255, 0.35);
+        transition: width 0.8s ease;
+        animation: gradientMove 6s ease infinite;
+    }
+
+    .progress-fill-blue {
+        background: linear-gradient(90deg,
+                #00d2ff 0%,
+                #3a7bff 35%,
+                #6a5cff 70%,
+                #8f5bff 100%);
+        box-shadow:
+            0 0 10px rgba(0, 210, 255, 0.45),
+            0 0 18px rgba(106, 92, 255, 0.4);
+    }
+
+    .progress-fill-red {
+        background: linear-gradient(90deg,
+                #ff4b4b 0%,
+                #ff0066 35%,
+                #ff4d9d 70%,
+                #ff8a5b 100%);
+        box-shadow:
+            0 0 10px rgba(255, 0, 102, 0.45),
+            0 0 18px rgba(255, 75, 75, 0.4);
+    }
+
+    @@keyframes gradientMove {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .svc-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: var(--text2);
+        margin-top: 6px;
+        align-items: center;
+    }
+
+    .svc-meta span b {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .svc-actions {
+        flex-wrap: wrap;
+        margin-top: .8rem;
+        padding-top: .8rem;
+        border-top: 1.5px solid var(--border);
+        align-items: center;
+    }
+
+    .auto-lock {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--text2);
+        margin-left: auto;
+    }
+
+    .toggle {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+        margin-bottom: 0;
+    }
+
+    .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: var(--border2);
+        border-radius: 20px;
+        transition: .2s;
+    }
+
+    .toggle input:checked+.toggle-slider {
+        background: var(--accent);
+    }
+
+    .toggle-slider:before {
+        content: "";
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: .2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle input:checked+.toggle-slider:before {
+        transform: translateX(16px);
+    }
+
+    /* ── TICKETS ── */
+    .ticket-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .ticket-item:last-child {
+        border-bottom: none;
+    }
+
+    .ticket-dot {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 17px;
+    }
+
+    .ticket-dot.open {
+        background: var(--red-bg);
+        color: var(--red);
+    }
+
+    .ticket-dot.inprogress {
+        background: var(--amber-bg);
+        color: var(--amber);
+    }
+
+    .ticket-dot.closed {
+        background: var(--green-bg);
+        color: var(--green);
+    }
+
+    .ticket-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .ticket-meta {
+        font-size: 11.5px;
+        color: var(--text3);
+        margin-top: 3px;
+        font-family: var(--mono);
+    }
+
+    /* ── FILE GRID ── */
+    .file-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+
+    .file-thumb {
+        aspect-ratio: 1;
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: var(--text3);
+        cursor: pointer;
+        transition: all 0.15s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .file-thumb:hover {
+        border-color: var(--accent);
+        background: var(--accent-light);
+        color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .file-thumb i {
+        font-size: 26px;
+    }
+
+    .file-thumb.add {
+        border-style: dashed;
+        border-color: var(--border2);
+    }
+
+    .file-dl {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.15s;
+    }
+
+    .file-dl i {
+        font-size: 13px;
+    }
+
+    .file-thumb:hover .file-dl {
+        opacity: 1;
+    }
+
+    /* ── ALERT BANNER ── */
+    .alert-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--red-bg);
+        border: 1.5px solid rgba(230, 60, 94, 0.2);
+        border-radius: 11px;
+        padding: 11px 16px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-banner i {
+        font-size: 17px;
+        color: var(--red);
+        flex-shrink: 0;
+    }
+
+    .alert-banner .alert-text {
+        font-size: 15px;
+        color: var(--text2);
+        flex: 1;
+    }
+
+    .alert-banner .alert-text strong {
+        color: var(--text);
+    }
+
+    /* ── MAP ── */
+    .map-placeholder {
+        background: var(--surface2);
+        border: 1.5px dashed var(--border2);
+        border-radius: var(--radius-lg);
+        height: 240px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .map-placeholder i {
+        font-size: 48px;
+        color: var(--text3);
+    }
+
+    .map-coords {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 12.5px;
+        color: var(--text2);
+        font-family: var(--mono);
+        margin-top: 4px;
+    }
+
+    /* ── NOTES ── */
+    textarea.note-area {
+        width: 100%;
+        min-height: 110px;
+        padding: .85rem;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface2);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        resize: vertical;
+        transition: border-color 0.15s;
+        outline: none;
+    }
+
+    textarea.note-area:focus {
+        border-color: var(--accent);
+        background: var(--surface);
+        box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text3);
+    }
+
+    .empty-state i {
+        font-size: 40px;
+        margin-bottom: .75rem;
+        display: block;
+    }
+
+    .empty-state p {
+        font-size: 13px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text3);
+        margin-bottom: .65rem;
+        padding-bottom: .4rem;
+        border-bottom: 1.5px solid var(--border);
+    }
+
+    /* ── CHIP ── */
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 11px;
+        color: var(--text2);
+        font-family: var(--mono);
+    }
+
+    .chip-green {
+        background: var(--green-bg);
+        border-color: rgba(14, 168, 113, 0.25);
+        color: var(--green) !important;
+    }
+
+    .chip-red {
+        background: var(--red-bg);
+        border: 1px solid rgba(230, 60, 94, 0.2);
+        color: var(--red) !important;
+    }
+
+    .chip-blue {
+        background: var(--accent-light);
+        border-color: rgba(59, 98, 245, 0.25);
+        color: var(--accent);
+    }
+
+    /* ── ACTIVITY ── */
+    .activity-item {
+        display: flex;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .activity-icon.pay {
+        background: var(--green-bg);
+        color: var(--green);
+    }
+
+    .activity-icon.ticket {
+        background: var(--red-bg);
+        color: var(--red);
+    }
+
+    .activity-icon.info {
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    .activity-text {
+        flex: 1;
+        font-size: 13px;
+        color: var(--text2);
+    }
+
+    .activity-text strong {
+        color: var(--text);
+    }
+
+    .activity-time {
+        font-size: 11px;
+        color: var(--text3);
+        font-family: var(--mono);
+        white-space: nowrap;
+    }
+
+    .fw-500 {
+        font-weight: 500;
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    .fw-700 {
+        font-weight: 600;
+    }
+
+    .total-badge {
+        width: 25px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 99px;
+        font-size: 13px;
+        font-weight: 700;
+        margin-left: 4px;
+    }
+
+    .btn-sync-mismatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 5px;
+        border: 1px solid rgba(234, 179, 8, 0.4);
+        background: rgba(234, 179, 8, 0.08);
+        color: var(--yellow, #ca8a04);
+        cursor: pointer;
+        transition: all .15s;
+        vertical-align: middle;
+        margin-left: 6px;
+    }
+
+    .btn-sync-mismatch:hover {
+        background: rgba(234, 179, 8, 0.18);
+        border-color: rgba(234, 179, 8, 0.7);
+    }
+
+    .btn-sync-mismatch i {
+        font-size: 13px;
+    }
+
+    /* Spin icon while syncing */
+    .btn-sync-mismatch.syncing i {
+        animation: spin .6s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media(max-width:900px) {
+        .stats-row {
+            flex-wrap: wrap;
+        }
+
+        .hero-top {
+            flex-wrap: wrap;
+        }
+
+        .info-strip {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .info-cell:nth-child(2) {
+            border-right: none;
+        }
+
+        .info-cell:nth-child(3) {
+            border-top: 1px solid var(--border);
+        }
+
+        .info-cell:nth-child(4) {
+            border-top: 1px solid var(--border);
+            border-right: none;
+        }
+
+        .four-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .three-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .topbar-search {
+            display: none;
+        }
+    }
+
+    @@media(max-width:600px) {
+
+        .hero-inner,
+        .body {
+            padding: 1rem;
+        }
+
+        .two-col,
+        .three-col,
+        .four-col {
+            grid-template-columns: 1fr;
+        }
+
+        .info-strip {
+            grid-template-columns: 1fr;
+        }
+
+        .info-cell {
+            border-right: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .info-cell:first-child {
+            border-top: none;
+        }
+
+        .file-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .hero-right {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .exrate {
+            display: none;
+        }
+    }
+</style>
+
+<div class="customer-profile d-none">
+    <div class="profile-scale">
+        <div class="topbar">
+            <div class="topbar-brand">
+                <div class="brand-icon"><i class="ti ti-building-community"></i></div>
+                Customer Manager
+            </div>
+            <div class="topbar-search" id="tsWrap">
+                <i class="ti ti-search"></i>
+                <input id="search" type="text" placeholder="Quick search…" autocomplete="off" />
+                <input type="hidden" ​​ id="CustomerID" name="CustomerID" value="0" />
+                <kbd id="tsKbd">⌘K</kbd>
+                <div class="ts-dropdown" id="tsDropdown" role="listbox"></div>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn" title="Notifications">
+                    <i class="ti ti-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <button class="icon-btn d-none" title="Print"><i class="ti ti-printer"></i></button>
+                <button class="btn btn-primary" style="gap:5px" id="editProfile"><i class="ti ti-edit"></i> Edit
+                    Profile</button>
+            </div>
+        </div>
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-inner">
+                <div class="hero-top">
+                    <div class="avatar-wrap">
+                        <div class="avatar" title="Change photo">
+                            <span id="nameProfile">SC</span>
+                            <div class="avatar-overlay"><i class="ti ti-camera"></i></div>
+                        </div>
+                        <div id="online-offline" class="status-pill status-pill-green d-none"></div>
+                    </div>
+
+                    <div id="heroMeta" class="hero-meta"></div>
+
+                    <div id="total-amount" class="hero-right">
+                        <div class="exrate"><i class="ti ti-currency-dollar"></i> <span id="exrate"></span></div>
+                        <div class="stats-row">
+                            <div class="stat">
+                                <div id="total-amount-balance" class="stat-val">$0</div>
+                                <div class="stat-lbl">Balance</div>
+                            </div>
+                            <div class="stat" data-sub="inv-paid">
+                                <div id="total-amount-paid" class="stat-val green">$0</div>
+                                <div class="stat-lbl">Paid</div>
+                            </div>
+                            <div class="stat" data-sub="inv-unpaid">
+                                <div id="total-amount-unpaid" class="stat-val red">$0</div>
+                                <div class="stat-lbl">Unpaid</div>
+                            </div>
+                            <div class="stat" data-sub="inv-deposit">
+                                <div id="total-amount-deposit" class="stat-val">$0</div>
+                                <div class="stat-lbl">Deposit</div>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn btn-sm btn-warning" id="delayPayment"><i
+                                    class="ti ti-calendar-dollar"></i> Delay Payment</button>
+                            <button class="btn btn-sm btn-secondary" id="telegramNotification"><i
+                                    class="ti ti-brand-telegram"></i> Telegram</button>
+                            <button class="btn btn-sm btn-primary" id="customerFeedback"><i
+                                    class="ti ti-message-reply"></i> Feedback</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="infoStrip" class="info-strip"></div>
+            </div>
+        </div>
+
+        <!-- Service Slider -->
+        <div id="all-connection" style="display: done; flex-direction: column; gap: .55rem; padding: 1.5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div class="card-title-sm" style="margin:0;font-size:13px;">
+                    <i class="ti ti-server"></i> All Connection
+                    <span id="total-connection" class="total-badge pill-info">0</span>
+                </div>
+                <div id="svc-navication" style="display:flex;align-items:center;gap:6px">
+                    <div style="display:flex;gap:4px;align-items:center" id="svcDots"></div>
+                    <button onclick="goSvc(svcIdx - 1)"
+                        style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:12px"><i
+                            class="ti ti-chevron-left"></i></button>
+                    <button onclick="goSvc(svcIdx + 1)"
+                        style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:12px"><i
+                            class="ti ti-chevron-right"></i></button>
+                </div>
+            </div>
+            <div id="count-device-status" class="d-flex gap-6 m-3"></div>
+            <div style="overflow:hidden;border-radius:11px">
+                <div id="svcTrackHero" style="display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1)"></div>
+            </div>
+        </div>
+
+        <!-- TABS BAR -->
+        <div class="tabs-bar-wrap">
+            <div class="tabs-bar" id="mainTabs">
+                <div class="tab active" data-panel="pan-invoice"><i class="ti ti-file-invoice"></i> Invoices <span
+                        id="total-unpaid-badge" class="tab-badge">0</span></div>
+                <div class="tab" data-panel="pan-services"><i class="ti ti-server"></i> Services &amp; Products</div>
+                <div class="tab" data-panel="pan-device"><i class="ti ti-router"></i> Devices</div>
+                <div class="tab" data-panel="pan-info"><i class="ti ti-user"></i> Customer Info</div>
+                <div class="tab" data-panel="pan-billing"><i class="ti ti-building"></i> Billing &amp; Contact</div>
+                <div class="tab" data-panel="pan-agency"><i class="ti ti-users"></i> Agency Commission</div>
+                <div class="tab" data-panel="pan-files"><i class="ti ti-paperclip"></i> Files</div>
+                <div class="tab" data-panel="pan-serviceform"><i class="ti ti-file-description"></i> Service Form</div>
+                <div class="tab" data-panel="pan-map"><i class="ti ti-map-pin"></i> Map</div>
+                <div class="tab" data-panel="pan-ticket"><i class="ti ti-ticket"></i> Tickets <span class="tab-badge"
+                        style="background:var(--amber)">1</span></div>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="body">
+
+            <!-- INVOICES -->
+            <div class="panel active" id="pan-invoice">
+                <div class="alert-banner">
+                    <i class="ti ti-alert-circle"></i>
+                    <div class="alert-text"><strong id="alert-overdue">0 overdue invoices</strong> totalling <span
+                            id="total-overdue">$220.00</span> — the most recent was due <span id="latest-due-date">15
+                            Apr 2026</span>.</div>
+                    <button class="btn btn-danger btn-sm"><i class="ti ti-credit-card"></i> Pay All</button>
+                </div>
+
+                <div class="sub-tabs" id="invoiceSubTabs">
+                    <div class="sub-tab" data-sub="inv-pi"><i class="ti ti-file-text"></i> PI</div>
+                    <div class="sub-tab" data-sub="inv-quotation"><i class="ti ti-quote"></i> Quotation</div>
+                    <div class="sub-tab active" data-sub="inv-unpaid"><i class="ti ti-clock"></i> Unpaid</div>
+                    <div class="sub-tab" data-sub="inv-paid"><i class="ti ti-circle-check"></i> Paid</div>
+                    <div class="sub-tab" data-sub="inv-transaction"><i class="ti ti-transfer"></i> Transactions</div>
+                    <div class="sub-tab" data-sub="inv-rollback"><i class="ti ti-history"></i> Rollback</div>
+                    <div class="sub-tab" data-sub="inv-creditnotes"><i class="ti ti-receipt-refund"></i> Credit Notes
+                    </div>
+                    <div class="sub-tab" data-sub="inv-history"><i class="ti ti-history"></i> History</div>
+                    <div class="sub-tab" data-sub="inv-attachment"><i class="ti ti-paperclip"></i> Attachments</div>
+                    <div class="sub-tab" data-sub="inv-bankslip"><i class="ti ti-receipt"></i> Bank Slips</div>
+                    <div class="sub-tab" data-sub="inv-cancel"><i class="ti ti-ban"></i> Cancelled</div>
+                    <div class="sub-tab" data-sub="inv-deposit"><i class="ti ti-wallet"></i> Deposits</div>
+                    <div class="sub-tab" data-sub="inv-returndeposit"><i class="ti ti-corner-down-left"></i> Return
+                        Deposit</div>
+                    <div class="sub-tab" data-sub="inv-noted"><i class="ti ti-note"></i> Customer Notes</div>
+                </div>
+
+                <div class="sub-panel" id="inv-pi">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-file-text"></i> Proforma Invoices</div>
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New PI</button>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>PI #</th>
+                                        <th>Date</th>
+                                        <th>Service Plan</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="td-link">PI-2026-0012</td>
+                                        <td>15 Mar 2026</td>
+                                        <td>Fiber 100 Mbps</td>
+                                        <td class="td-mono">$120.00</td>
+                                        <td><span class="badge badge-amber">Pending</span></td>
+                                        <td><button class="btn btn-sm"><i class="ti ti-file-export"></i> To
+                                                Official</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-link">PI-2026-0009</td>
+                                        <td>10 Feb 2026</td>
+                                        <td>Fiber 100 Mbps</td>
+                                        <td class="td-mono">$120.00</td>
+                                        <td><span class="badge badge-green">Approved</span></td>
+                                        <td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-quotation">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-quote"></i> Quotations</div>
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Create Quotation</button>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Quotation #</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel active" id="inv-unpaid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-clock"></i> Unpaid Invoices</div>
+                            <div style="display:flex;gap:6px">
+                                <button class="btn btn-ghost btn-sm btn-secondary"><i class="ti ti-filter"></i>
+                                    Filter</button>
+                                <button class="btn btn-ghost btn-sm btn-secondary"><i class="ti ti-download"></i>
+                                    Export</button>
+                            </div>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Invoice Date</th>
+                                        <th>Invoice #</th>
+                                        <th>Invoice Age</th>
+                                        <th>Package Name</th>
+                                        <th>Due Date</th>
+                                        <th>Due Period</th>
+                                        <th>Amount</th>
+                                        <th>Paid</th>
+                                        <th>Unpaid</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-paid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-circle-check"></i> Paid Invoices</div>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Invoice Date</th>
+                                        <th>Invoice #</th>
+                                        <th>Receipt #</th>
+                                        <th>Package</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Account Name</th>
+                                        <th>Paid By</th>
+                                        <th>Paid Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-transaction">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-transfer"></i> Transaction History</div>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Transaction #</th>
+                                        <th>Date</th>
+                                        <th>Invoice #</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Balance</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="td-mono">TXN-2026-0099</td>
+                                        <td>05 Feb 2026</td>
+                                        <td class="td-link">INV-2026-0018</td>
+                                        <td><span class="badge badge-green">Payment</span></td>
+                                        <td class="td-mono" style="color:var(--green);font-weight:600">+$120.00</td>
+                                        <td class="td-mono">$0.00</td>
+                                        <td>ABA Bank Transfer</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-mono">TXN-2026-0082</td>
+                                        <td>03 Jan 2026</td>
+                                        <td class="td-link">INV-2026-0005</td>
+                                        <td><span class="badge badge-green">Payment</span></td>
+                                        <td class="td-mono" style="color:var(--green);font-weight:600">+$120.00</td>
+                                        <td class="td-mono">$0.00</td>
+                                        <td>Cash</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td-mono">TXN-2025-0210</td>
+                                        <td>10 Nov 2025</td>
+                                        <td>—</td>
+                                        <td><span class="badge badge-blue">Deposit</span></td>
+                                        <td class="td-mono" style="color:var(--accent);font-weight:600">+$50.00</td>
+                                        <td class="td-mono">$50.00</td>
+                                        <td>Initial deposit</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-rollback">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-history"></i> Rollback Invoices</div>
+                        </div>
+                        <div class="empty-state"><i class="ti ti-circle-off"></i>
+                            <p>No rollback invoices for this customer.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-creditnotes">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-receipt-refund"></i> Credit Notes</div><button
+                                class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Credit Note</button>
+                        </div>
+                        <div class="empty-state"><i class="ti ti-receipt-refund"></i>
+                            <p>No credit notes issued for this customer.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-history">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-history"></i> Payment History</div>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Invoice #</th>
+                                        <th>Amount Paid</th>
+                                        <th>Method</th>
+                                        <th>Reference</th>
+                                        <th>Collected By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>05 Feb 2026</td>
+                                        <td class="td-link">INV-2026-0018</td>
+                                        <td class="td-mono">$120.00</td>
+                                        <td>Bank Transfer</td>
+                                        <td class="td-mono">TXN-2026-0099</td>
+                                        <td>Dara Sok</td>
+                                    </tr>
+                                    <tr>
+                                        <td>03 Jan 2026</td>
+                                        <td class="td-link">INV-2026-0005</td>
+                                        <td class="td-mono">$120.00</td>
+                                        <td>Cash</td>
+                                        <td class="td-mono">TXN-2026-0082</td>
+                                        <td>Dara Sok</td>
+                                    </tr>
+                                    <tr>
+                                        <td>02 Dec 2025</td>
+                                        <td class="td-link">INV-2025-0091</td>
+                                        <td class="td-mono">$120.00</td>
+                                        <td>ABA Bank</td>
+                                        <td class="td-mono">TXN-2025-0311</td>
+                                        <td>Khoem Vannak</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-attachment">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-paperclip"></i> Attachments</div><button
+                                class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload</button>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-thumb"><i class="ti ti-photo"></i><span>Receipt Jan</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-photo"></i><span>Receipt Feb</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add file</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-bankslip">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-receipt"></i> Bank Slip Files</div><button
+                                class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload</button>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Jan 2026</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Feb 2026</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add slip</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-cancel">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-ban"></i> Cancelled Invoices</div>
+                        </div>
+                        <div class="empty-state"><i class="ti ti-ban"></i>
+                            <p>No cancelled invoices for this customer.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-deposit">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-wallet"></i> Deposit List</div>
+                        </div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Deposit #</th>
+                                        <th>Amount (USD)</th>
+                                        <th>Invoice #</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>12 Jan 2023</td>
+                                        <td class="td-mono">DEP-001</td>
+                                        <td class="td-mono">$50.00</td>
+                                        <td class="td-link">INV-2023-0001</td>
+                                        <td>Initial deposit on registration</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-returndeposit">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-corner-down-left"></i> Return Deposit</div><button
+                                class="btn btn-danger btn-sm"><i class="ti ti-corner-down-left"></i> Process
+                                Return</button>
+                        </div>
+                        <div class="empty-state"><i class="ti ti-corner-down-left"></i>
+                            <p>No deposit returns processed for this customer.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-panel" id="inv-noted">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-note"></i> Customer Notes</div>
+                        </div>
+                        <textarea
+                            class="note-area">Customer prefers WhatsApp contact. Has 2nd unit at same address requesting separate billing. VIP client — handle with priority.</textarea>
+                        <div style="display:flex;justify-content:flex-end;margin-top:.75rem">
+                            <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save Notes</button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /pan-invoice -->
+            <!-- SERVICES & PRODUCTS -->
+            <div class="panel" id="pan-services">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                    <div class="sub-tabs" style="margin:0" id="svcSubTabs">
+                        <div class="sub-tab active" data-sub="svc-services"><i class="ti ti-server"></i> Services</div>
+                        <div class="sub-tab" data-sub="svc-products"><i class="ti ti-package"></i> Products</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Service &amp; Product</button>
+                </div>
+                <div class="sub-panel active" id="svc-services">
+                    <div class="svc-card">
+                        <div class="svc-card-top">
+                            <div>
+                                <div class="svc-plan">Fiber 100 Mbps — Unlimited</div>
+                                <div class="svc-detail">Premium Fiber · 100 Mbps down / 50 Mbps up</div>
+                                <div class="svc-ids">
+                                    <span>ConnID: CONN-0042</span>
+                                    <span>SID: SVC-183</span>
+                                    <span>Invoice: INV-2026-0044</span>
+                                    <span>Ticket: <a href="#" class="td-link">TKT-2026-0088</a></span>
+                                </div>
+                            </div>
+                            <span class="badge badge-green"><i class="ti ti-wifi"></i> Active</span>
+                        </div>
+                        <div class="conn-info">
+                            <span><span style="color:var(--text3)">PPPoE:</span>&nbsp;<b>sopheap.chan@isp</b></span>
+                            <span><span style="color:var(--text3)">VLAN:</span>&nbsp;<b>VLAN-230</b>&nbsp;<span
+                                    class="chip chip-green">Active</span></span>
+                            <span><span style="color:var(--text3)">IP:</span>&nbsp;<b>10.10.42.15</b></span>
+                        </div>
+                        <div style="font-size:13.5px;color:var(--text2)">01 Apr 2026 → 30 Apr 2026 · 5 days used, 25
+                            days remaining</div>
+                        <div class="progress">
+                            <div class="progress-fill" style="width:17%"></div>
+                        </div>
+                        <div class="svc-meta">
+                            <span>Cycle: <b>Monthly</b></span>
+                            <span>Used: <b>5 days</b></span>
+                            <span>Remain: <b style="color:var(--red)">25 days</b></span>
+                            <span>Due: <b style="color:var(--red)">15 Apr 2026</b></span>
+                            <span>Next invoice: <b style="color:var(--accent)">01 May 2026</b></span>
+                            <div class="auto-lock">
+                                <label class="toggle"><input type="checkbox" checked><span
+                                        class="toggle-slider"></span></label>
+                                Auto Lock
+                            </div>
+                        </div>
+                        <div class="svc-actions">
+                            <button class="btn btn-danger btn-sm"><i class="ti ti-recycle"></i> Renew</button>
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-switch-3"></i> Change Plan</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-router"></i> Devices</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-history"></i> Log</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-ticket"></i> New Ticket</button>
+                        </div>
+                    </div>
+                    <div class="svc-card suspended" style="opacity:.85">
+                        <div class="svc-card-top">
+                            <div>
+                                <div class="svc-plan">Fiber 50 Mbps — Standard</div>
+                                <div class="svc-detail">Secondary connection · Backup line</div>
+                                <div class="svc-ids"><span>ConnID: CONN-0018</span><span>SID:
+                                        SVC-084</span><span>Invoice: INV-2025-0091</span></div>
+                            </div>
+                            <span class="badge badge-red"><i class="ti ti-wifi-off"></i> Suspended</span>
+                        </div>
+                        <div class="svc-meta">
+                            <span>Cycle: <b>Monthly</b></span>
+                            <span>Status: <b style="color:var(--red)">Expired</b></span>
+                            <span>Last due: <b style="color:var(--red)">01 Dec 2025</b></span>
+                        </div>
+                        <div class="svc-actions">
+                            <button class="btn btn-danger btn-sm"><i class="ti ti-recycle"></i> Renew</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-router"></i> Devices</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-history"></i> Log</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-panel" id="svc-products">
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Huawei EG8145V5 ONT</td>
+                                    <td>1</td>
+                                    <td class="td-mono">$45.00</td>
+                                    <td class="td-mono">$45.00</td>
+                                    <td>12 Jan 2023</td>
+                                    <td><span class="badge badge-green">Delivered</span></td>
+                                </tr>
+                                <tr>
+                                    <td>TP-Link Archer C6 Router</td>
+                                    <td>1</td>
+                                    <td class="td-mono">$35.00</td>
+                                    <td class="td-mono">$35.00</td>
+                                    <td>12 Jan 2023</td>
+                                    <td><span class="badge badge-green">Delivered</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEVICES -->
+            <div class="panel" id="pan-device">
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:1rem">
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-package-import"></i> Receive Return</button>
+                    <button class="btn btn-sm"><i class="ti ti-switch-horizontal"></i> Change Device</button>
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Device Type</th>
+                                <th>Serial Number</th>
+                                <th>MAC Address</th>
+                                <th>Brand / Model</th>
+                                <th>Assigned</th>
+                                <th>Condition</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ONT / ONU</td>
+                                <td class="td-mono">SN-20241130-042</td>
+                                <td class="td-mono">A4:C3:F0:12:8B:22</td>
+                                <td>Huawei EG8145V5</td>
+                                <td>30 Nov 2024</td>
+                                <td><span class="badge badge-green">Good</span></td>
+                                <td><span class="badge badge-green">In Use</span></td>
+                            </tr>
+                            <tr>
+                                <td>Router</td>
+                                <td class="td-mono">SN-20241130-099</td>
+                                <td class="td-mono">E8:48:B8:44:1C:09</td>
+                                <td>TP-Link Archer C6</td>
+                                <td>30 Nov 2024</td>
+                                <td><span class="badge badge-green">Good</span></td>
+                                <td><span class="badge badge-green">In Use</span></td>
+                            </tr>
+                            <tr>
+                                <td>Splitter</td>
+                                <td class="td-mono">SPL-00218</td>
+                                <td class="td-mono">—</td>
+                                <td>Generic 1:4 Splitter</td>
+                                <td>12 Jan 2023</td>
+                                <td><span class="badge badge-green">Good</span></td>
+                                <td><span class="badge badge-green">In Use</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CUSTOMER INFO -->
+            <div class="panel" id="pan-info">
+                <div class="two-col">
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="ti ti-user"></i> Personal Information</div>
+                                <button class="btn bg-primary btn-sm"><i class="ti ti-edit"></i> Edit</button>
+                            </div>
+                            <div class="four-col">
+                                <div class="field">
+                                    <div class="field-lbl">Type</div>
+                                    <div class="field-val">Corporate</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Code</div>
+                                    <div class="field-val mono">CUST-2024-00183</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Group</div>
+                                    <div class="field-val">Premium</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Gender</div>
+                                    <div class="field-val">Male</div>
+                                </div>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="two-col">
+                                <div class="field">
+                                    <div class="field-lbl">Full Name (Khmer)</div>
+                                    <div class="field-val">សុភ័ព ចាន់</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Full Name (Latin)</div>
+                                    <div class="field-val">Sopheap Chan</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Mobile</div>
+                                    <div class="field-val mono">+855 12 345 678</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Email</div>
+                                    <div class="field-val">sopheap.chan@company.com</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Nationality</div>
+                                    <div class="field-val">Cambodian</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">ID / Passport</div>
+                                    <div class="field-val mono">PP-123456789</div>
+                                </div>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="three-col">
+                                <div class="field">
+                                    <div class="field-lbl">Address</div>
+                                    <div class="field-val">No. 42, St. 310</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Commune</div>
+                                    <div class="field-val">Tonle Bassac</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">District</div>
+                                    <div class="field-val">Chamkar Mon</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Province / City</div>
+                                    <div class="field-val">Phnom Penh</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="ti ti-briefcase"></i> Business Details</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-lbl">Business Type</div>
+                                <div class="field-val">IT / Technology</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-lbl">Sale Representative</div>
+                                <div class="field-val">Dara Sok</div>
+                            </div>
+                            <div class="field">
+                                <div class="field-lbl">Contact Person</div>
+                                <div class="field-val">Chanra Pich</div>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="card-title-sm"><i class="ti ti-calendar"></i> Registration</div>
+                            <div class="two-col">
+                                <div class="field">
+                                    <div class="field-lbl">Register Date</div>
+                                    <div class="field-val">12 January 2023</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Registered By</div>
+                                    <div class="field-val">Dara Sok</div>
+                                </div>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="card-title-sm"><i class="ti ti-chart-pie"></i> Summary</div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                                <div class="stat">
+                                    <div class="stat-val">24</div>
+                                    <div class="stat-lbl">Months</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-val green">$980</div>
+                                    <div class="stat-lbl">Total paid</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-val red">$0</div>
+                                    <div class="stat-lbl">Outstanding</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-val">3</div>
+                                    <div class="stat-lbl">Tickets</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title-sm"><i class="ti ti-activity"></i> Recent Activity</div>
+                            <div class="activity-item">
+                                <div class="activity-icon ticket"><i class="ti ti-ticket"></i></div>
+                                <div class="activity-text"><strong>New ticket opened</strong> — No internet after power
+                                    outage</div>
+                                <div class="activity-time">2 May</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon info"><i class="ti ti-bell"></i></div>
+                                <div class="activity-text">Invoice <strong>INV-2026-0044</strong> generated — $120.00
+                                </div>
+                                <div class="activity-time">1 Apr</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                                <div class="activity-text"><strong>Payment received</strong> — INV-2026-0018 · $120.00
+                                </div>
+                                <div class="activity-time">5 Feb</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                                <div class="activity-text"><strong>Payment received</strong> — INV-2026-0005 · $120.00
+                                </div>
+                                <div class="activity-time">3 Jan</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BILLING & CONTACT -->
+            <div class="panel" id="pan-billing">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-building"></i> Billing Information — INV-2026-0044</div>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-device-floppy"></i> Save</button>
+                    </div>
+                    <div class="section-title">Company</div>
+                    <div class="three-col">
+                        <div class="field">
+                            <div class="field-lbl">Company Name (EN)</div>
+                            <div class="field-val">Chan Technology Co., Ltd.</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Company Name (KH)</div>
+                            <div class="field-val">ចាន់ ធ្នូឡូជី ខូ អិលធីឌី</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">VAT TIN</div>
+                            <div class="field-val mono">K001-234567</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Desk Phone</div>
+                            <div class="field-val mono">+855 23 456 789</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Mobile</div>
+                            <div class="field-val mono">+855 12 345 678</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Billing Email</div>
+                            <div class="field-val">billing@chantechnology.com</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="two-col">
+                        <div>
+                            <div class="section-title">Company Address</div>
+                            <div class="field">
+                                <div class="field-lbl">Address</div>
+                                <div class="field-val">No. 42, St. 310</div>
+                            </div>
+                            <div class="three-col">
+                                <div class="field">
+                                    <div class="field-lbl">Commune</div>
+                                    <div class="field-val">Tonle Bassac</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">District</div>
+                                    <div class="field-val">Chamkar Mon</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Province</div>
+                                    <div class="field-val">Phnom Penh</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="section-title">Bill To Address</div>
+                            <div class="field">
+                                <div class="field-lbl">Address</div>
+                                <div class="field-val">No. 42, St. 310</div>
+                            </div>
+                            <div class="three-col">
+                                <div class="field">
+                                    <div class="field-lbl">Commune</div>
+                                    <div class="field-val">Tonle Bassac</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">District</div>
+                                    <div class="field-val">Chamkar Mon</div>
+                                </div>
+                                <div class="field">
+                                    <div class="field-lbl">Province</div>
+                                    <div class="field-val">Phnom Penh</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section-title">Installation Address</div>
+                    <div class="field">
+                        <div class="field-lbl">Full Address</div>
+                        <div class="field-val">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom Penh</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <div class="field" style="flex:1">
+                            <div class="field-lbl">Latitude</div>
+                            <div class="field-val mono">11.5468</div>
+                        </div>
+                        <div class="field" style="flex:1">
+                            <div class="field-lbl">Longitude</div>
+                            <div class="field-val mono">104.9282</div>
+                        </div>
+                        <div class="field" style="flex:2">
+                            <div class="field-lbl">Google Map Address</div>
+                            <div class="field-val">No. 42, Street 310, Phnom Penh, Cambodia</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section-title">Contact Person</div>
+                    <div class="three-col">
+                        <div class="field">
+                            <div class="field-lbl">Name</div>
+                            <div class="field-val">Chanra Pich</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Position</div>
+                            <div class="field-val">Finance Manager</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Contact Number</div>
+                            <div class="field-val mono">+855 17 654 321</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AGENCY -->
+            <div class="panel" id="pan-agency">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-users"></i> Agency Commission</div>
+                        <button class="btn bg-primary btn-sm"><i class="ti ti-device-floppy"></i> Save</button>
+                    </div>
+                    <div class="section-title">Agent Details</div>
+                    <div class="three-col">
+                        <div class="field">
+                            <div class="field-lbl">Agency Name</div>
+                            <div class="field-val">Mekong Digital Agency</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Phone</div>
+                            <div class="field-val mono">+855 11 222 333</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Address</div>
+                            <div class="field-val">St. 598, Phnom Penh</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Commission Type</div>
+                            <div class="field-val"><span class="badge badge-blue">Monthly</span></div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Commission (USD)</div>
+                            <div class="field-val mono" style="color:var(--green)">$10.00</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Commission (%)</div>
+                            <div class="field-val mono" style="color:var(--green)">8%</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section-title">Bank Details</div>
+                    <div class="three-col">
+                        <div class="field">
+                            <div class="field-lbl">Bank Name</div>
+                            <div class="field-val">ABA Bank</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Account Name</div>
+                            <div class="field-val">Mekong Digital Agency</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-lbl">Account Number</div>
+                            <div class="field-val mono">000 123 456 7</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section-title">Commission History</div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Invoice #</th>
+                                    <th>Service</th>
+                                    <th>Commission</th>
+                                    <th>Rate</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>April 2026</td>
+                                    <td class="td-link">INV-2026-0044</td>
+                                    <td>Fiber 100 Mbps</td>
+                                    <td class="td-mono">$10.00</td>
+                                    <td class="td-mono">8%</td>
+                                    <td><span class="badge badge-amber">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>March 2026</td>
+                                    <td class="td-link">INV-2026-0031</td>
+                                    <td>Fiber 100 Mbps</td>
+                                    <td class="td-mono">$10.00</td>
+                                    <td class="td-mono">8%</td>
+                                    <td><span class="badge badge-green">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td>February 2026</td>
+                                    <td class="td-link">INV-2026-0018</td>
+                                    <td>Fiber 100 Mbps</td>
+                                    <td class="td-mono">$10.00</td>
+                                    <td class="td-mono">8%</td>
+                                    <td><span class="badge badge-green">Paid</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILES -->
+            <div class="panel" id="pan-files">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                    <div class="sub-tabs" style="border:none;margin:0" id="fileSubTabs">
+                        <div class="sub-tab active" data-sub="file-id"><i class="ti ti-id-badge"></i> ID Documents</div>
+                        <div class="sub-tab" data-sub="file-bank"><i class="ti ti-receipt"></i> Bank Slips</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload File</button>
+                </div>
+                <div class="sub-panel active" id="file-id">
+                    <div class="card">
+                        <div class="file-grid">
+                            <div class="file-thumb"><i class="ti ti-id-badge-2"></i><span>ID Front</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-id-badge-2"></i><span>ID Back</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-file-text"></i><span>Passport</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-file-text"></i><span>Contract.pdf</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add file</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-panel" id="file-bank">
+                    <div class="card">
+                        <div class="file-grid">
+                            <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Jan 2026</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Feb 2026</span>
+                                <div class="file-dl"><i class="ti ti-download"></i></div>
+                            </div>
+                            <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add slip</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SERVICE FORM -->
+            <div class="panel" id="pan-serviceform">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload Form</button>
+                </div>
+                <div class="card">
+                    <div class="card-title-sm"><i class="ti ti-file-description"></i> Service Form Files</div>
+                    <div class="file-grid">
+                        <div class="file-thumb"><i class="ti ti-file-description"></i><span>ServiceForm_Jan23.pdf</span>
+                            <div class="file-dl"><i class="ti ti-download"></i></div>
+                        </div>
+                        <div class="file-thumb"><i class="ti ti-file-description"></i><span>ChangeForm_Nov24.pdf</span>
+                            <div class="file-dl"><i class="ti ti-download"></i></div>
+                        </div>
+                        <div class="file-thumb add"><i class="ti ti-plus"></i><span>Upload form</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP -->
+            <div class="panel" id="pan-map">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-map-2"></i> Customer Location</div>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Set Location</button>
+                    </div>
+                    <div class="field">
+                        <div class="field-lbl">Full Address</div>
+                        <div class="field-val">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom Penh, Cambodia</div>
+                    </div>
+                    <div class="map-coords"><span><strong>Lat:</strong> 11.5468°N</span><span><strong>Lng:</strong>
+                            104.9282°E</span></div>
+                    <div class="map-placeholder" style="margin-top:1rem">
+                        <i class="ti ti-map-2"></i>
+                        <span style="font-size:13px;color:var(--text2)">Interactive map renders here</span>
+                        <span style="font-size:11.5px;color:var(--text3)">Integrate Google Maps or OpenStreetMap via API
+                            key</span>
+                        <div style="display:flex;gap:8px;margin-top:8px">
+                            <button class="btn btn-sm"
+                                onclick="window.open('https://maps.google.com/?q=11.5468,104.9282','_blank')"><i
+                                    class="ti ti-external-link"></i> Open in Google Maps</button>
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Update
+                                Coordinates</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title-sm"><i class="ti ti-list"></i> All Registered Locations</div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                        <div
+                            style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px">
+                            <span style="font-weight:700;color:var(--accent);font-family:var(--mono)">1.</span>
+                            <i class="ti ti-map-pin" style="color:var(--red);font-size:15px"></i>
+                            <a href="#" style="color:var(--accent)">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom
+                                Penh</a>
+                            <span class="badge badge-blue" style="margin-left:auto">Main</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TICKETS -->
+            <div class="panel" id="pan-ticket">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                    <div style="display:flex;gap:6px">
+                        <span class="badge badge-neutral"><i class="ti ti-stack-2"></i> All: 3</span>
+                        <span class="badge badge-red"><i class="ti ti-circle"></i> Open: 1</span>
+                        <span class="badge badge-amber"><i class="ti ti-loader"></i> In Progress: 1</span>
+                        <span class="badge badge-green"><i class="ti ti-circle-check"></i> Closed: 1</span>
+                    </div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Ticket</button>
+                </div>
+                <div class="card">
+                    <div class="ticket-item">
+                        <div class="ticket-dot open"><i class="ti ti-alert-circle"></i></div>
+                        <div class="ticket-body" style="flex:1">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                                <div class="ticket-title">#TKT-2026-0088 — No internet connection after power outage
+                                </div>
+                                <span class="badge badge-red">Open</span>
+                            </div>
+                            <div class="ticket-meta">Opened: 02 May 2026 · ConnID: CONN-0042 · Assigned: Khoem Vannak ·
+                                Priority: High</div>
+                            <div style="margin-top:8px;display:flex;gap:6px">
+                                <button class="btn btn-primary btn-sm"><i class="ti ti-eye"></i> View</button>
+                                <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticket-item">
+                        <div class="ticket-dot inprogress"><i class="ti ti-loader"></i></div>
+                        <div class="ticket-body" style="flex:1">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                                <div class="ticket-title">#TKT-2026-0071 — Request for IP address change</div>
+                                <span class="badge badge-amber">In Progress</span>
+                            </div>
+                            <div class="ticket-meta">Opened: 20 Apr 2026 · ConnID: CONN-0042 · Assigned: Dara Sok ·
+                                Priority: Medium</div>
+                            <div style="margin-top:8px;display:flex;gap:6px">
+                                <button class="btn btn-primary btn-sm"><i class="ti ti-eye"></i> View</button>
+                                <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticket-item">
+                        <div class="ticket-dot closed"><i class="ti ti-circle-check"></i></div>
+                        <div class="ticket-body" style="flex:1">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                                <div class="ticket-title">#TKT-2026-0051 — Slow speed complaint during peak hours</div>
+                                <span class="badge badge-green">Closed</span>
+                            </div>
+                            <div class="ticket-meta">Opened: 10 Mar 2026 · Closed: 12 Mar 2026 · ConnID: CONN-0042 ·
+                                Resolution: Network congestion fixed</div>
+                            <div style="margin-top:8px"><button class="btn btn-ghost btn-sm"><i class="ti ti-eye"></i>
+                                    View</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var customerId = '@customerId';
+    var customerCode = '';
+    var customerName = '';
+    var totalSvc = 0;
+    var svcIdx = 0;
+
+    $(function () {
+        // ── Sidebar: collapse on first visit, persist state across pages ──
+        const sidebarKey = 'sidebarCollapsed';
+
+        if (sessionStorage.getItem(sidebarKey) === null) {
+            // very first load — collapse and remember
+            $('body').addClass('sidebar-collapse');
+            sessionStorage.setItem(sidebarKey, 'true');
+        } else if (sessionStorage.getItem(sidebarKey) === 'true') {
+            // subsequent loads — restore collapsed state silently
+            $('body').addClass('sidebar-collapse');
+        }
+
+        // track manual toggle
+        $("[data-widget=pushmenu]").on('click', function () {
+            const willBeOpen = $('body').hasClass('sidebar-collapse');
+            sessionStorage.setItem(sidebarKey, willBeOpen ? 'false' : 'true');
+        });
+
+        // Go to unpaid tab
+        $('.stat[data-sub]').click(function () {
+            const subTarget = $(this).data('sub');
+            const $target = $(`[data-sub="${subTarget}"]`, '#invoiceSubTabs');
+
+            if (!$target.length) return;
+
+            $('.tab').removeClass('active');
+            $('#invoiceSubTabs > .sub-tab').removeClass('active');
+
+            const $targetParent = $('[data-panel="pan-invoice"]');
+            $targetParent.addClass('active').trigger('click');
+
+            $target.addClass('active').trigger('click');
+
+            $target[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // Main tab switching
+        $('#mainTabs').on('click', '.tab', function () {
+            var $tab = $(this);
+            $('#mainTabs .tab').removeClass('active');
+            $tab.addClass('active');
+            var pid = $tab.data('panel');
+            $('.body > .panel').removeClass('active');
+            $('#' + pid).addClass('active');
+            //$('html, body').animate({ scrollTop: 56 }, 200);
+        });
+
+        // Generic sub-tab handler factory
+        function initSubTabs(tabContainerId, panelParentId) {
+            $('#' + tabContainerId).on('click', '.sub-tab', function () {
+                var $tab = $(this);
+                $('#' + tabContainerId + ' .sub-tab').removeClass('active');
+                $tab.addClass('active');
+                var sid = $tab.data('sub');
+                $('#' + panelParentId + ' .sub-panel').removeClass('active');
+                $('#' + sid).addClass('active');
+
+                if (sid === 'inv-quotation') getQuotation();
+                if (sid === 'inv-unpaid') getInvoiceUnpaid();
+                if (sid === 'inv-paid') getInvoicePaid();
+            });
+        }
+
+        initSubTabs('invoiceSubTabs', 'pan-invoice');
+        initSubTabs('svcSubTabs', 'pan-services');
+        initSubTabs('fileSubTabs', 'pan-files');
+
+        getCustomerById();
+        loadTotalAmount();
+        getAllConnection();
+        getInvoiceUnpaid();
+        quickSearch();
+
+        // Do search customer 
+        $(document).off('typeahead:select', '#search')
+            .on('typeahead:select', '#search', function () {
+                const custId = $('input[name="CustomerID"]').val();
+                const url = `${ServerRoot}#!/CustomerProfile?ID=${custId}`;
+                window.location.href = url;
+            });
+
+        // Sync service status router to system
+        $(document).on('click', '.btn-sync-mismatch', async function () {
+            const btn = $(this);
+            const activateId = btn.data('activate-id');
+            const statusId = btn.data('status-id');
+            const endDate = btn.data('end-date');
+            const routerId = btn.data('router-id');
+            const pppoe = btn.data('pppoe');
+            const vlan = btn.data('vlan');
+
+            btn.addClass('syncing').prop('disabled', true);
+
+            try {
+                await $.ajax({
+                    url: `api/Customer/UpdateStatus`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        CustomerID: customerId,
+                        ActivateCustomerID: activateId,
+                        EndDate: endDate,
+                        StatusID: statusId,
+                        RouterID: routerId,
+                        PPPoEUserName: pppoe,
+                        VLanName: vlan
+                    })
+                });
+
+                btn.closest('.svc-card')
+                    .addClass(`${statusId == 41 ? 'suspended' : ''}`);
+                btn.closest('.svc-card')
+                    .find('.conn-id, .s-id')
+                    .removeClass(`${statusId == 40 ? 'text-red' : 'text-purple'} `)
+                    .addClass(`${statusId == 40 ? 'text-purple' : 'text-red'} `);
+                btn.closest('.svc-card')
+                    .find('.progress-fill')
+                    .removeClass(`${statusId == 40 ? 'progress-fill-red' : 'progress-fill-green'} `)
+                    .addClass(`${statusId == 40 ? 'progress-fill-green' : 'progress-fill-red'} `);
+                btn.closest('.svc-card')
+                    .find('#system-status')
+                    .removeClass(`${statusId == 40 ? 'badge-danger' : 'badge-green'} `)
+                    .addClass(`${statusId == 40 ? 'badge-green' : 'badge-danger'} `)
+                    .html(`
+                        <i class="ti ${statusId === 40 ? 'ti-wifi' : 'ti-wifi-off'}"></i>
+                        ${statusId == 40 ? 'Active' : 'Locked'}
+                    `);
+
+                btn.remove();
+                DialogSweetAlert('success', 'Done Sync 🎉');
+            } catch (e) {
+                console.error('Sync failed', e);
+                btn.removeClass('syncing').prop('disabled', false);
+            }
+        });
+
+        // Delay Payment
+        $("#delayPayment").click(function () {
+            ShowDialogBox2("Delay Payment", "", "", "CustomerProfile/DelayPayment", customerId, "DialogDelayPayment", function () {
+
+            });
+        });
+
+        // Telegram Notification
+        $("#telegramNotification").click(function () {
+            ShowDialogBox2("Customer Telegram", "auto", 500, "CustomerProfile/TelegramNotification/?CustomerName=" + encodeURIComponent(customerName) + "&CustomerCode=" + customerCode, customerId, "DialogCustTelegram", function () {
+                $("#DialogCustTelegram").find('#SaveChange2').html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+                $("#DialogCustTelegram").find('#SaveChange2').hide();
+                $("#custom-tabs-five-messages-tab").click(function () {
+                    $("#DialogCustTelegram").find('#SaveChange2').show();
+                    $("#DialogCustTelegram").find('#SaveChange2').click(function () {
+                        $("#CustInvoice").printThis();
+                    });
+                })
+                $("#custom-tabs-four-home-tab, #custom-tabs-four-profile-tab, #custom-tabs-four-messages-tab").click(function () {
+                    $("#DialogCustTelegram").find('#SaveChange2').hide();
+                });
+            });
+        });
+
+        // Cutomer Feedback 
+        $("#customerFeedback").click(function () {
+            ShowDialogBox2("Customer Feedback", "auto", "", "CustomerFeedBack/?CustomerCode=" + customerCode, "", "", function () {
+                $("#SaveChange2").remove();
+            });
+        });
+
+        // Edit Profile Cutomer 
+        $("#editProfile").click(function () {
+            EditCustomerWithRefNumber(customerId, '', 'NewRegister');
+        });
+
+        // Change device router
+        $("#ChangeDevice").click(function () {
+            var URL = "CustomerProfile/ChangeDevice?CustomerID=" + Customer_ID;
+            ShowDialogBox2("Change Device", "auto", "500", URL, 0, "DialogChangeDevice", function () {
+                $("#DialogChangeDevice").on('hide.bs.modal', function () {
+                    //loadItem();
+                });
+            });
+        });
+
+        // Return device
+        $("#ReceivedDevice").click(function () {
+            var URL = "CustomerProfile/ReceivedDevice?CustomerID=" + Customer_ID;
+            ShowDialogBox2("Receive Device", "auto", "500", URL, 0, "DialogReceivedDevice", function () {
+                $("#DialogReceivedDevice").on('hide.bs.modal', function () {
+                    //loadItem();
+                });
+            });
+        });
+    });
+
+    function getCustomerById() {
+
+        LoadData(`api/Customer/Profile?CustomerID=${customerId}`, function (response) {
+
+            if (response.length == 0) {
+                $('.customer-profile').removeClass('d-none')
+                    .html(`<span class="text-red">Not found customer!</span>`)
+            }
+
+            const res = response[0];
+            const heroMeta = $('#heroMeta');
+            const infoStrip = $('#infoStrip');
+
+            let heroMetaContent = `
+                <div class="hero-name">
+                    ${stripHtml(res.CustomerName)}
+                    <span class="cust-id text-primary" data-toggle="tooltip" data-placement="top" title="CID">${res.CustomerCode}</span>
+                </div>
+                <div class="hero-sub">
+                    ${res.CustomerType} &nbsp;·&nbsp;
+                    ${res.CustomerProvinceCity} &nbsp;·&nbsp;
+                    Registered ${convertFormatDate(res.RegisterDate, 'dd MMM yyyy')} by ${res.RegisterBy}
+                </div>
+                <div class="hero-badges">
+                    <!-- ATTName -->
+                    ${res.ATTName ? `
+                    <span class="badge badge-info" data-toggle="tooltip" data-placement="top" title="ATTName">
+                        <i class="ti ti-door"></i> ${res.ATTName}
+                    </span>` : ''}
+
+                    <!-- Industry -->
+                    ${res.IndustryType ? `
+                    <span class="badge badge-blue" data-toggle="tooltip" data-placement="top" title="Bussiness Type">
+                        <i class="ti ti-briefcase"></i> ${res.IndustryType}
+                    </span>` : ''}
+
+                    <!-- National ID -->
+                    ${res.CustomerIdentification ? `
+                    <span class="badge badge-neutral" data-toggle="tooltip" data-placement="top" title="National ID / Passport">
+                        <i class="ti ti-id-badge"></i> ${res.CustomerIdentification}
+                    </span>` : ''}
+                </div>
+            `;
+
+            let infoStripContent = `
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-phone-ringing"></i></div>
+                    <div><div class="info-cell-lbl">Mobile</div><div class="info-cell-val">${res.CustomerMobile}</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-mail"></i></div>
+                    <div><div class="info-cell-lbl">Email</div><div class="info-cell-val">${res.CustomerEmail || `N/A`}</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-map-pin"></i></div>
+                    <div><div class="info-cell-lbl">Address</div><div class="info-cell-val">${res.CustomerAddress}</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-globe"></i></div>
+                    <div><div class="info-cell-lbl">Nationality</div><div class="info-cell-val">${res.CustomerNationality}</div></div>
+                </div>
+            `;
+
+            $('.customer-profile').removeClass('d-none');
+
+            heroMeta.html(heroMetaContent);
+            infoStrip.html(infoStripContent);
+
+            var shortName = getShortNameProfile(res.CustomerName);
+            $("#nameProfile").text(shortName);
+
+            customerCode = res.CustomserCode;
+            customerName = res.CustomerName;
+        }, undefined, 'json');
+    }
+
+    async function getAllConnection() {
+        LoadData(`api/Customer/AllConnection?CustomerID=${customerId}`, async function (response) {
+            if (!response || response.length === 0) return;
+
+            totalSvc = response.length;
+            if (totalSvc === 1) $('#svc-navication').hide();
+
+            const svcDots = $('#svcDots');
+            svcDots.html(response.map((_, index) => `
+                <div onclick="goSvc(${index})" style="
+                    width:${index === 0 ? '14px' : '5px'};
+                    height:5px;
+                    border-radius:${index === 0 ? '3px' : '50%'};
+                    background:var(${index === 0 ? '--accent' : '--border2'});
+                    cursor:pointer;
+                    transition:all .25s">
+                </div>
+            `).join(''));
+
+            let activeCount = 0;
+            let disableCount = 0;
+
+            const svcHtml = await Promise.all(
+                response.map(async (val, index) => {
+                    const statusText = getStatusText(val.ConnectivityStatus);
+
+                    const router = val.ConnectionType === 'PPPoE'
+                        ? await getUserPPPoE(val.RouterID, val.PPPoEUserName)
+                        : await getUserVlan(val.RouterID, val.VLanName, val.VLanID);
+
+                    activeCount += router?.disabled === 'false' ? 1 : 0;
+                    disableCount += router?.disabled === 'true' ? 1 : 0;
+
+                    const isActive = val.ConnectivityStatus === 40;
+                    const isSuspended = val.ConnectivityStatus === 41;
+
+                    const isMismatch = (isActive && router?.disabled === 'true')
+                        || (isSuspended && router?.disabled === 'false');
+
+                    const statusId = (isActive && router?.disabled === 'true') ? 41 : 40;
+
+                    const isExpired = new Date(val.EndDate) < new Date();
+
+                    return `
+                    <div style="min-width:100%">
+                        <div class="svc-card ${!isActive ? 'suspended' : ''}" data-activate-id="${val.ActivateCustomerID}">
+                            <div class="svc-card-top">
+                                <div>
+                                    <div class="svc-plan">${val.PackageName} - ${val.Bandwidth} Mbps - ${val.UM}</div>
+                                    <div class="svc-detail">${val.PackageName} · ${val.DowSpeed} Mbps down / ${val.UpSpeed} Mbps up</div>
+                                    <div class="svc-ids">
+                                        ConnectionID: <span class="conn-id ${isActive ? 'text-purple' : 'text-danger'}">${val.ConnectionID}</span>
+                                        SID: <span class="s-id ${isActive ? 'text-purple' : 'text-danger'}" data-toggle="tooltip" data-placement="top" title="SID">${val.SID}</span>
+                                        Inv #: <span class="td-link">${val.InvoiceNo}</span>
+                                        Ticket #: <span class="td-link">${val.TicketNumber}</span>
+                                    </div>
+                                </div>
+                                <span id="system-status-${index}" class="badge ${isActive ? 'badge-green' : 'badge-danger'}" data-toggle="tooltip" data-placement="top" title="System Status">
+                                    <i class="ti ${isActive ? 'ti-wifi' : 'ti-wifi-off'}"></i>
+                                    ${statusText}
+                                </span>
+                            </div>
+
+                            <div class="conn-info">
+                                <span><span style="color:var(--text3)">Connection Type:</span>&nbsp;<b>${val.ConnectionType || 'N/A'}</b></span>
+                                <span><span style="color:var(--text3)">Router:</span>&nbsp;<b data-toggle="tooltip" data-placement="top" title="${val.RouterID}">${val.RouterName || 'N/A'}</b></span>
+                                ${val.ConnectionType === 'PPPoE' ? `<span><span style="color:var(--text3)">PPPoE Username:</span>&nbsp;<b>${val.PPPoEUserName || 'N/A'}</b></span>` : ''}
+                                ${val.ConnectionType === 'Static' ? `
+                                    <span><span style="color:var(--text3)">VLAN:</span>&nbsp;<b>${val.VLanName || 'N/A'}</b></span>
+                                    <span><span style="color:var(--text3)">IP Address:</span>&nbsp;<b>${val.IPAddress || 'N/A'}</b></span>
+                                ` : ''}
+                                <span>
+                                    ${router.success ? `<span style="color:var(--text3)">Device Status:</span>&nbsp;
+                                        <span class="chip ${router.disabled === 'false' ? 'chip-green' : 'chip-red'} fw-500"
+                                            data-toggle="tooltip" data-placement="top" title="Router Status">
+                                            ${router.disabled === 'false'
+                                ? '<i class="status-pulse-green"></i> Active'
+                                : '<i class="status-pulse-red"></i> Disabled'}
+                                        </span>` : `<span style="color:var(--text3)" data-toggle="tooltip" data-placement="top" title="${router.message}">Device Status: N/A</span>`}
+                                    ${isMismatch ? `
+                                        <button class="btn-sync-mismatch"
+                                            data-toggle="tooltip" data-placement="top"
+                                            title="System is Active but router is Disabled — click to sync"
+                                            data-activate-id="${val.ActivateCustomerID}"
+                                            data-status-id="${statusId}"
+                                            data-end-date="${val.EndDate}"
+                                            data-router-id="${val.RouterID}"
+                                            data-pppoe="${val.PPPoEUserName || ''}"
+                                            data-vlan="${val.VLanName || ''}">
+                                            <i class="ti ti-refresh-alert"></i> Sync
+                                        </button>` : ''}
+                                </span>
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;font-size:13.5px;color:var(--text2);margin-bottom:3px">
+                                <span class="d-flex align-items-center gap-6"><i class="ti ti-access-point" style="font-size: 16px;"></i><span>Start: ${convertFormatDate(val.StartDate, 'dd MMM yyyy')} → End: ${convertFormatDate(val.EndDate, 'dd MMM yyyy')}</span></span>
+                                ${!isExpired
+                            ? `<span>
+                                        <span style="color:var(--red);font-weight:600">${val.DayUsed} ${val.DayUsed === 1 ? 'day' : 'days'} used</span>
+                                            · <span style="color:var(--accent);font-weight:600">${val.DayLeft} ${val.DayLeft === 1 ? 'day' : 'days'} left</span>
+                                    </span>` : `<span class="text-red fw-500">Expired</span>`
+                        }
+                            </div>
+
+                            <div class="progress" data-toggle="tooltip" data-placement="top" title="${val.TotalUsedPercent}%">
+                                <div class="progress-fill ${val.TotalUsedPercent >= 100 && !isActive ? 'progress-fill-red' : 'progress-fill-green'}" style="width:${val.TotalUsedPercent}%"></div>
+                            </div>
+
+                            <div class="svc-meta">
+                                <span>Cycle: <b>${val.UM}</b></span>
+                                <span>Due: <b style="color:var(--red)">${convertFormatDate(val.PaymentDueDate, 'dd MMM yyyy')}</b></span>
+                                <span>Next: <b style="color:var(--accent)">${convertFormatDate(val.NextInvoiceDate, 'dd MMM yyyy')}</b></span>
+                                <div class="auto-lock">
+                                    <label class="toggle">
+                                        <input type="checkbox" ${val.AutoLock ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </label>Auto Lock
+                                </div>
+                            </div>
+
+                            <div class="svc-actions">
+                                <div class="d-flex justify-content-between">
+                                    <div class="d-flex gap-6">
+                                        <button class="btn btn-success btn-sm" onclick="RenewDialog(${customerId}, '${stripHtml(val.InvoiceNo)}')"><i class="ti ti-recycle"></i> Renew</button>
+                                        <button class="btn btn-primary btn-sm" onclick="ChangePlanDialog(${customerId}, '${stripHtml(val.InvoiceNo)}')"><i class="ti ti-switch-3"></i> Change Plan</button>
+                                        <button class="btn btn-secondary btn-sm" onclick="ActivateCustomerService(${val.BillingInvoiceID}, '${val.PPPoEUserName}', ${val.PackageDetailID}, ${val.ActivateCustomerID}, ${val.ServiceID}, ${val.RouterID}, '${stripHtml(val.InvoiceNo)}', ${val.PackageTypeID})">
+                                            <i class="ti ti-router"></i> Activate Service
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="GetPPPeEUser_Online(true, '${val.PPPoEUserName}', '${val.ConnectionID}')"><i class="ti ti-history"></i> Log</button>
+                                        <button class="btn btn-secondary btn-sm" onclick="NewTicket(0, '${val.ConnectionID}')"><i class="ti ti-ticket"></i> Ticket</button>
+                                    </div>
+                                    ${isExpired && router?.disabled === 'false' ? `
+                                        <div><span class="badge badge-warning">
+                                          <i class="ti ti-alert-triangle"></i> Expired — still active on router
+                                        </span></div>
+                                      ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                })
+            );
+
+            $('#all-connection').show();
+            $('#total-connection').text(totalSvc);
+            $('#svcTrackHero').html(svcHtml.join(''));
+
+            if (response[0].ConnectionType === 'PPPoE') {
+                trackingUserOnline(response[0].RouterID, response[0].PPPoEUserName);
+            }
+
+            const sActive = response.filter(x => x.ConnectivityStatus === 40).length;
+            const sInactive = response.filter(x => x.ConnectivityStatus === 43).length;
+            const sLocked = response.filter(x => x.ConnectivityStatus === 41).length;
+            const sTerminate = response.filter(x => x.ConnectivityStatus === 42).length;
+
+            $('#count-device-status').html(`
+            ${activeCount > 0 ? `
+                <span class="pill pill-green fw-500" data-toggle="tooltip" data-placement="top" title="Router Status">
+                    <span class="dot"></span> Active <span class="count">${activeCount}</span>
+                </span>` : ''}
+                ${disableCount > 0 ? `
+                <span class="pill pill-red fw-500" data-toggle="tooltip" data-placement="top" title="Router Status">
+                    <span class="dot"></span> Disabled <span class="count">${disableCount}</span>
+                </span>` : ''}
+            `);
+
+            // ✅ moved outside Promise.all — only bind once, not per card
+            $(document).off('change', '.auto-lock input[type="checkbox"]').on('change', '.auto-lock input[type="checkbox"]', function () {
+                const isChecked = $(this).is(':checked');
+                const activateId = $(this).closest('.svc-card').data('activate-id');
+                console.log(activateId, isChecked);
+            });
+
+        }, undefined, 'json');
+    }
+
+    function getUserPPPoE(routerId, username) {
+        return new Promise((resolve, reject) => {
+            const url = `api/mikrotik/pppoe/users/${username}/status?routerId=${routerId}`;
+
+            LoadData(url, function (response) {
+                resolve(response);
+            }, undefined, 'json');
+        });
+    }
+
+    function getUserVlan(routerId, vlanName, vlanId) {
+        return new Promise((resolve, reject) => {
+            const url = `api/mikrotik/vlans/${vlanName}/status?routerId=${routerId}&vlanId=${vlanId}`;
+
+            LoadData(url, function (response) {
+                resolve(response);
+            }, function (err) {
+                reject(err);
+            }, 'json');
+        });
+    }
+
+    function trackingUserOnline(routerId, username) {
+        const userActive = $('#online-offline');
+        const url = `api/mikrotik/sessions/${username}/history?routerId=${routerId}`;
+
+        LoadData(url, function (response) {
+
+            const sessions = response.data || [];
+
+            let lastSession = sessions.find(x => x.active === "true");
+
+            if (!lastSession) {
+                lastSession = sessions.sort((a, b) =>
+                    new Date(b.started) - new Date(a.started)
+                )[0];
+            }
+            console.log(lastSession)
+            if (!lastSession) return;
+
+            const isOnline = lastSession.active === "true";
+
+            userActive.html(`
+                <span class="${isOnline ? 'status-pulse-green' : 'status-pulse-red'}"></span>
+                ${isOnline ? 'Online' : 'Offline'}
+            `);
+
+            userActive
+                .removeClass('d-none status-pill-green status-pill-red')
+                .addClass(isOnline ? 'status-pill-green' : 'status-pill-red');
+
+        }, undefined, 'json');
+    }
+
+    function loadTotalAmount() {
+        LoadData(`api/Customer/CustomerTotalBalance?CustomerID=${customerId}`,
+            function (response) {
+                const res = response[0];
+                const exrate = res.ExchangeRate;
+                const dateExrate = res.DateEntry;
+                const totalBalance = res.Balance;
+                const totalPaid = res.Paid;
+                const totalUnpaid = res.Unpaid;
+                const totalDeposit = res.Deposit;
+
+                $('#exrate').html(`1 USD = ${accounting.formatNumber(exrate)} KHR &nbsp;·&nbsp; ${convertFormatDate(dateExrate, 'dd MMM yyyy')}`);
+
+                $('#total-amount-balance').html(`${accounting.formatMoney(totalBalance)}`);
+                $('#total-amount-paid').html(`${accounting.formatMoney(totalPaid)}`);
+                $('#total-amount-unpaid').html(`${accounting.formatMoney(totalUnpaid)}`);
+                $('#total-amount-deposit').html(`${accounting.formatMoney(totalDeposit)}`);
+            },
+            undefined,
+            'json'
+        );
+    }
+
+    function getInvoiceUnpaid() {
+
+        LoadData(`api/Customer/Unpaid?CustomerID=${customerId}`, function (response) {
+
+            const $tbody = $('#inv-unpaid tbody').empty();
+
+            if (!response || response.length === 0) {
+                $tbody.html(`
+                    <tr>
+                        <td colspan="12" class="td-mono text-center fw-500">
+                            No Data
+                        </td>
+                    </tr>
+                `);
+
+                $('#total-unpaid-badge').css('display', 'none');
+                $('#alert-overdue').closest('.alert-banner').hide();
+                $('#total-amount-unpaid').html('$ 0');
+                $('#total-overdue').html('$ 0');
+                $('#latest-due-date').html('-');
+
+                return;
+            }
+
+            let overdueCount = 0;
+            let totalOverdueAmount = 0;
+            let totalAmount = 0;
+            let totalUnpaid = 0;
+            let totalPaid = 0;
+            let latestDueDate = null;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = response.map((val, index) => {
+
+                const dueDate = new Date(val.PaymentDueDate);
+                dueDate.setHours(0, 0, 0, 0);
+
+                let status = 'Unpaid';
+                let badgeClass = 'badge-red';
+
+                // PAID
+                if (val.Unpaid <= 0) {
+                    status = 'Paid';
+                    badgeClass = 'badge-green';
+                }
+                // OVERDUE
+                else if (dueDate < today) {
+                    status = 'Overdue';
+                    badgeClass = 'badge-red';
+
+                    overdueCount++;
+                    totalOverdueAmount += val.Unpaid;
+
+                    if (!latestDueDate || dueDate > latestDueDate) {
+                        latestDueDate = dueDate;
+                    }
+                }
+                // DUE TODAY
+                else if (dueDate.getTime() === today.getTime()) {
+                    status = 'Due Today';
+                    badgeClass = 'badge-warning';
+                }
+                // PARTIAL
+                else if (val.Paid > 0) {
+                    status = 'Partial';
+                    badgeClass = 'badge-blue';
+                }
+
+                totalAmount += val.GrandTotal;
+                totalUnpaid += val.Unpaid;
+                totalPaid += val.Paid;
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${convertFormatDate(val.InvoiceDate, 'dd MMM yyyy')}</td>
+                        <td class="td-link">${val.InvoiceNo}</td>
+                        <td class="td-mono text-red">${val.InvoiceAge} ${val.InvoiceAge > 1 ? 'Days' : 'Day'}</td>
+                        <td>${val.PackageName}</td>
+                        <td style="color:var(--red);font-weight:600">${convertFormatDate(val.PaymentDueDate, 'dd MMM yyyy')}</td>
+                        <td class="td-mono text-red">${val.DuePeriod} ${val.DuePeriod > 1 ? 'Days' : 'Day'}</td>
+                        <td class="td-mono fw-500">${accounting.formatMoney(val.GrandTotal)}</td>
+                        <td class="td-mono text-success fw-500">${accounting.formatMoney(val.Paid)}</td>
+                        <td class="td-mono text-danger fw-500">${accounting.formatMoney(val.Unpaid)}</td>
+                        <td>
+                            <span class="badge ${badgeClass}">
+                                ${status}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:4px">
+                                <button class="btn bg-primary btn-sm">
+                                    <i class="ti ti-credit-card"></i>
+                                    Pay Now
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            html += `
+                <tr class="fw-500">
+                   7<td colspan="7" align="right">Total:</td>
+                    <td class="td-mono">${accounting.formatMoney(totalAmount)}</td>
+                    <td class="td-mono">${accounting.formatMoney(totalPaid)}</td>
+                    <td class="td-mono">${accounting.formatMoney(totalUnpaid)}</td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+
+            // TABLE RENDER
+            $tbody.html(html);
+
+            // TOTALS
+            $('#total-unpaid-badge').html(response.length);
+
+            // OVERDUE ALERT (ONLY OVERDUE)
+            if (overdueCount > 0) {
+
+                $('#alert-overdue').text(
+                    `${overdueCount} ${overdueCount > 1 ? 'overdue invoices' : 'overdue invoice'}`
+                );
+
+                $('#total-overdue').text(`$${totalOverdueAmount.toFixed(2)}`);
+
+                $('#latest-due-date').text(
+                    latestDueDate ? convertFormatDate(latestDueDate, 'dd MMM yyyy') : '-'
+                );
+
+                $('.alert-banner').show();
+
+            } else {
+                $('.alert-banner').hide();
+            }
+
+        }, undefined, 'json');
+    }
+
+    function getInvoicePaid() {
+        LoadData(`api/Customer/Paid?CustomerID=${customerId}`, function (response) {
+            const $tbody = $('#inv-paid tbody').empty();
+
+            if (!response || response.length === 0) {
+                $tbody.html(`<tr><td colspan="6" class="td-mono text-center fw-500">No Data</td></tr>`);
+                return;
+            }
+
+            let totalPaid = 0;
+            let html = response.map((val, index) => {
+                totalPaid += val.Paid;
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${convertFormatDate(val.InvoiceDate, 'dd MMM yyyy')}</td>
+                        <td class="td-link">${val.InvoiceNo}</td>
+                        <td class="td-link">${val.OfficialReceiptNo}</td>
+                        <td>${val.PackageName}</td>
+                        <td class="td-mono text-primary">${accounting.formatMoney(val.Paid)}</td>
+                        <td>${val.PaymentMethod}</td>
+                        <td>${val.AccountName || ''}</td>
+                        <td>${val.PaidBy}</td>
+                        <td>${convertFormatDate(val.PaymentDate, 'dd MMM yyyy')}</td>
+                        <td><button class="btn btn-sm btn-secondary"><i class="ti ti-printer"></i> Print</button></td>
+                    </tr>`
+            }).join('');
+
+            html += `
+                <tr class="fw-500">
+                    <td colspan="5" align="right">Total:</td>
+                    <td class="td-mono">${accounting.formatMoney(totalPaid)}</td>
+                    <td colspan="5"></td>
+                </tr>
+            `;
+
+            // TABLE RENDER
+            $tbody.html(html);
+        }, undefined, 'json');
+    }
+
+    function getQuotation() {
+        LoadData(`api/Customer/Quotation?CustomerID=${customerId}`, function (response) {
+            const $tbody = $('#inv-quotation tbody').empty();
+
+            if (!response || response.length === 0) {
+                $tbody.html(`<tr><td colspan="6" class="td-mono text-center fw-500">No Data</td></tr>`);
+                return;
+            }
+
+            let totalAmount = 0;
+            let html = response.map((val, index) => {
+                totalAmount += val.Amount;
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="td-link">${val.InvoiceNo}</td>
+                        <td>${convertFormatDate(val.InvoiceDate, 'dd MMM yyyy')}</td>
+                        <td class="td-mono text-primary">${accounting.formatMoney(val.Amount)}</td>
+                        <td>${val.ToInvoice ? val.ToInvoice : '<span class="badge badge-blue">Done</span>'}</td>
+                        <td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td>
+                    </tr>`
+            }).join('');
+
+            html += `
+                <tr class="fw-500">
+                    <td colspan="3" align="right">Total:</td>
+                    <td class="td-mono">${accounting.formatMoney(totalAmount)}</td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+
+            // TABLE RENDER
+            $tbody.html(html);
+        }, undefined, 'json');
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────
+    function getShortNameProfile(name) {
+        if (!name) return "";
+
+        name = name.trim();
+        const enTitles = ["mr", "mrs", "ms", "dr", "miss"];
+        const khTitles = ["លោក", "អ្នកស្រី", "អ្នកនាង"];
+
+        let words = name.split(/\s+/).filter(w => {
+            let clean = w.toLowerCase().replace('.', '');
+            return !enTitles.includes(clean) && !khTitles.includes(w);
+        });
+
+        const isKhmer = /[\u1780-\u17FF]/.test(name);
+        if (words.length === 0) return "";
+
+        if (isKhmer) {
+            if (words.length >= 2) {
+                return words[0].charAt(0) + words[words.length - 1].charAt(0);
+            } else {
+                return words[0].charAt(0);
+            }
+        } else {
+            if (words.length >= 2) {
+                return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+            } else {
+                return words[0].substring(0, 2).toUpperCase();
+            }
+        }
+    }
+
+    function goSvc(n) {
+        const maxIdx = Math.max(0, totalSvc - 1);
+        svcIdx = isNaN(n) ? 0 : Math.max(0, Math.min(maxIdx, Math.round(n)));
+
+        document.getElementById('svcTrackHero').style.transform = 'translateX(-' + svcIdx * 100 + '%)';
+
+        var dots = document.querySelectorAll('#svcDots > div');
+        dots.forEach(function (d, i) {
+            if (i === svcIdx) {
+                d.style.width = '14px';
+                d.style.borderRadius = '3px';
+                d.style.background = 'var(--accent)';
+            } else {
+                d.style.width = '5px';
+                d.style.borderRadius = '50%';
+                d.style.background = 'var(--border2)';
+            }
+        });
+    }
+
+    function getStatusText(status) {
+        return status === 40 ? 'Active'
+            : status === 41 ? 'Locked'
+                : status === 43 ? 'Inactivate'
+                    : 'Terminate';
+    }
+
+    function quickSearch() {
+        LoadData(`api/Customer/GetCustomerLists`, function (response) {
+            ApplyTypeahead("search", response,
+                { CustomerID: "CustomerID" },
+                { Name: "CustomerName" }, "", "", "", "", "", "", "", false, 1
+            );
+        }, undefined, 'json');
+    }
+
+    function ActivateCustomerService(BillingInvoiceID, PPPoEUserName, PackageDetail_ID, ActivateCustomerID, Service_ID, RouterID, ConnectionName, InvoiceNo, ConnectionTypeID) {
+        const data = {
+            PPPoEUserName: PPPoEUserName ?? '',
+            ConnectionName: ConnectionName ?? '',
+            InvoiceNo: InvoiceNo ?? '',
+            CID: customerCode,
+            CustomerID: customerId,
+            CustomerName: `${customerName} [${customerCode}]`,
+            ServiceID: Service_ID,
+            ConnectionTypeID: ConnectionTypeID,
+            PackageDetailID: PackageDetail_ID,
+            BillingInvoiceID: BillingInvoiceID,
+            IsOnCustProfile: true,
+            ActivateCustomerID: ActivateCustomerID,
+            RouterID: RouterID,
+        };
+
+        ShowDialogBox('Activation Customer', 'Auto', '500', 'ActivateCustomer/Activate', data);
+    }
+
+    function GetPPPeEUser_Online(ShowDetail, PPPoEUserName, ConnectionID) {
+        ShowDetail = ShowDetail ?? false;
+        PPPoEUserName = PPPoEUserName ?? '';
+
+        const url = `CustomerProfile/ShowCustActivateLog?CustomerID=${customerId}&ShowDetail=${ShowDetail}&PPPoEUserName=${PPPoEUserName}&ConnectionID=${ConnectionID}`;
+
+        ShowDialogBox2('User History', 'Auto', '500', url, 0, 'DialogShowUserHistory', () => {
+            $('#SaveChange2').remove();
+        });
+    }
+
+</script>

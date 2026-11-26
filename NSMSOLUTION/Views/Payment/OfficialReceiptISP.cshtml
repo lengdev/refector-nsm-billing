@@ -1,0 +1,609 @@
+﻿@{
+    Layout = null;
+
+    string receiptDate = ViewData["ReceiptDate"] != null ? ViewData["ReceiptDate"].ToString() : "";
+    if (!string.IsNullOrEmpty(receiptDate))
+    {
+        DateTime dt;
+        if (DateTime.TryParseExact(receiptDate, new[] { "dd.MM.yy", "dd.MM.yyyy", "dd/MM/yy", "dd/MM/yyyy", "d.M.yy", "d.M.yyyy", "yyyy-MM-dd" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+        {
+            receiptDate = dt.ToString("dd.MM.yyyy");
+        }
+        else if (DateTime.TryParse(receiptDate, out dt))
+        {
+            receiptDate = dt.ToString("dd.MM.yyyy");
+        }
+        ViewData["ReceiptDate"] = receiptDate;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Official Receipt - @ViewData["ReceiptNo"]</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @@font-face {
+            font-family: 'Khmer OS Battambang';
+            src: url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --nsm-blue: #0073B7;
+            --nsm-gold: #D4A017;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent !important;
+        }
+
+        /* ── Full modal layout: body scrolls, footer sticks to bottom ── */
+        .modal-full {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .modal-body-receipt {
+            flex: 1;
+            overflow: auto;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ── Footer ── */
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px 16px;
+            gap: 8px;
+            border-top: 2px solid #e9ecef;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+            .modal-footer .btn-print {
+                color: #0d6efd;
+                border: 1.5px solid #0d6efd;
+                background: #fff;
+                border-radius: 8px;
+                padding: 6px 18px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: background .15s, color .15s;
+            }
+
+                .modal-footer .btn-print:hover {
+                    background: #0d6efd;
+                    color: #fff;
+                }
+
+            .modal-footer .btn-close-modal {
+                color: #dc3545;
+                border: 1.5px solid #dc3545;
+                background: #fff;
+                border-radius: 8px;
+                padding: 6px 18px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: background .15s, color .15s;
+            }
+
+                .modal-footer .btn-close-modal:hover {
+                    background: #dc3545;
+                    color: #fff;
+                }
+
+        /* ══════════════════════════════════
+           Receipt Styles (original, unchanged)
+        ══════════════════════════════════ */
+        #receipt-wrapper {
+   
+            display: flex;
+            background-color: #fff;
+/*            margin: 20px;*/
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Khmer OS Battambang', Arial, Helvetica, sans-serif;
+            color: #000;
+           margin: 0;
+        }
+
+        .receipt-container {
+            margin:10px;
+            width: 250mm;
+            height: 118mm;
+            background: #fff;
+            position: relative;
+            box-sizing: border-box;
+            padding: 0mm 8mm;
+/*            box-shadow: 0 5px 15px rgba(0,0,0,0.15);*/
+            display: flex;
+            flex-direction: column;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130mm;
+            opacity: 0.1;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            flex: 0 0 120px;
+            padding-top: 2px;
+        }
+
+            .header-logo img {
+                width: 100%;
+                height: auto;
+            }
+
+        .header-company {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-left: 15px;
+        }
+
+        .company-banner {
+            background: linear-gradient(to right, #0073B7, #004e92);
+            padding: 6px 10px;
+        }
+
+        .khmer-name {
+            color: #fff;
+            font-size: 15px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .english-name-row {
+            display: flex;
+            align-items: center;
+            margin-top: 3px;
+        }
+
+        .english-name {
+            color: #1E4E8C;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            font-style: italic;
+            position: relative;
+            z-index: 2;
+        }
+
+        .yellow-line {
+            flex: 1;
+            height: 4px;
+            background: linear-gradient(to right, #e19d29, #f3b344);
+            margin-top: 2px;
+            margin-left: -2.3px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 8px;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            flex: 1;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #1E4E8C;
+            margin: 0;
+            padding-top: 5px;
+            padding-left: 80px;
+        }
+
+        .receipt-info {
+            margin-right: 40px;
+            font-size: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 5px;
+        }
+
+        .info-label {
+            display: inline-block;
+            width: 45px;
+            text-align: left;
+        }
+
+        .info-value {
+            border-bottom: 1px solid #000;
+            flex: 1;
+            text-align: center;
+            margin-left: 5px;
+            height: 22px;
+        }
+
+        .fields-area {
+            margin-top: 5px;
+            margin-right: 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            font-size: 15px;
+            white-space: nowrap;
+            color: #000;
+            padding-right: 5px;
+        }
+
+        .field-line {
+            flex: 1;
+            border-bottom: 1px solid #000;
+            position: relative;
+            height: 22px;
+        }
+
+        .short-line {
+            flex: 0 0 130px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            justify-content: space-around;
+        }
+
+        .cheque-line {
+            flex: 0 0 150px;
+            border-bottom: 1px solid #000;
+            position: relative;
+            height: 22px;
+            margin-left: 10px;
+        }
+
+        .dynamic-data {
+            font-family: 'Khmer OS Battambang', Arial, sans-serif;
+            font-size: 20px;
+            color: #00008b;
+            position: absolute;
+            bottom: 2px;
+            left: 10px;
+            white-space: nowrap;
+            line-height: .8;
+        }
+
+        .red-number {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: red;
+            font-weight: bold;
+            letter-spacing: 1px;
+            position: relative;
+            top: -2px;
+        }
+
+        .checkbox-label {
+            font-size: 15px;
+            margin-right: 5px;
+        }
+
+        .checkbox-box {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #000;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            line-height: 1;
+            color: #00008b;
+            font-family: 'Battambang', Arial, sans-serif;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+/*            padding-bottom: 5px;*/
+            margin-right: 40px;
+            font-size: 15px;
+        }
+
+        .sig-block {
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+        }
+
+        .sig-line {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        @@media print {
+            @@page {
+                size: 240mm 120mm;
+                margin: 0;
+            }
+
+            html, body {
+                height: auto !important; /* ← add this */
+            }
+
+            .modal-full {
+                height: auto !important; /* ← add this */
+            }
+
+            .modal-footer {
+                display: none !important;
+            }
+
+            .modal-body-receipt {
+                padding: 0;
+                background: white;
+                display: block !important; /* ← change from flex to block */
+                overflow: visible !important; /* ← add this */
+            }
+
+            .receipt-container {
+                width: 240mm !important; /* ← keep fixed width, don't use auto */
+                max-width: 240mm !important;
+                height: auto !important; /* ← was 105mm, change to auto */
+                position: static !important;
+                margin: 1mm auto !important; /* center it */
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    @{
+        string payMethod = ViewData["PaymentMethod"] != null ? ViewData["PaymentMethod"].ToString().ToLower() : "";
+        bool isCash     = payMethod.Contains("cash");
+        bool isCheque   = payMethod.Contains("cheque") || payMethod.Contains("check");
+        bool isTT       = !isCash && !isCheque; // Bank Transfer, TT, Wing, e-Money, etc.
+        bool isChequeOrBank = !isCash;
+
+        string defaultLogo = Url.Content("~/Content/CompanyLogo/NSM Logo_1784101994.png");
+        string logoSrc = ViewData["CompanyLogo"] != null
+            ? ViewData["CompanyLogo"].ToString()
+            : defaultLogo;
+
+        if (logoSrc.StartsWith("~"))
+        {
+            logoSrc = Url.Content(logoSrc);
+        }
+    }
+
+    <div class="modal-full">
+
+        <!-- ═══════════════════════════
+             Modal Body — Receipt
+        ═══════════════════════════ -->
+        <div class="modal-body-receipt">
+            <div id="receipt-wrapper">
+                <div class="receipt-container" id="receipt-container">
+
+                    <!-- Watermark removed for ISP -->
+
+                    <div class="content-layer">
+
+                        <!-- Header (Removed for ISP) -->
+
+                        <!-- Title & Number -->
+                        <div class="title-wrapper">
+                            <h3 class="title">OFFICIAL RECEIPTS</h3>
+                            <div class="receipt-info">
+                                <div class="info-row">
+                                    <span class="info-label">No</span> :
+                                    <span class="info-value">
+                                        <span class="red-number">@ViewData["ReceiptNo"]</span>
+                                    </span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Date</span> :
+                                    <span class="info-value" style="position: relative;">
+                                        <span class="dynamic-data" style="left: 0; right: 0; text-align: center; font-size: 18px;">@receiptDate</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fields -->
+                        <div class="fields-area">
+                            <div class="field-row">
+                                <div class="field-label">Received from:</div>
+                                <div class="field-line">
+                                    <span class="dynamic-data">@ViewData["Payer"]</span>
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field-label">The sum of dollars:</div>
+                                <div class="field-line">
+                                    <span class="dynamic-data">@ViewData["SumOfDollars"]</span>
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field-label">Being Payment for:</div>
+                                <div class="field-line">
+                                    <span class="dynamic-data">@ViewData["InvoiceNo"]</span>
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field-label">Total amount</div>
+                                <div class="field-line">
+                                    <span class="dynamic-data">@ViewData["Amount"] $</span>
+                                </div>
+                            </div>
+                          
+                        @*<div class="checkbox-item">
+                            <span class="checkbox-label">Cheque</span>
+                            <span class="checkbox-box">@if (isCheque) { <text>&#10003;</text> }</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <span class="checkbox-label">TT</span>
+                            <span class="checkbox-box">@if (isTT) { <text>&#10003;</text> }</span>
+                        </div>*@
+                    <div class="field-row" style="margin-top: 15px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;gap:20px">
+                        <div style="display: flex; align-items: center;">
+                            <span class="checkbox-label" style="margin-right: 10px;">Cash</span>
+                            <span class="checkbox-box">@if (isCash) { <text>&#10003;</text> }</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <span class="checkbox-label" style="margin-right: 10px;">Cheque</span>
+                            <span class="checkbox-box" style="margin-right: 10px;">@if (isCheque) { <text>&#10003;</text> }</span>
+                            <div class="cheque-line" style="width: 100px; border-bottom: 1px solid #000; height: 22px; position: relative; margin-left: 0;">
+                                @if (isChequeOrBank)
+                                {
+                                    <span class="dynamic-data" style="font-size: 18px;"></span>
+                                }
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <span class="checkbox-label" style="margin-right: 10px;">Direct transfer</span>
+                            <span class="checkbox-box" style="margin-right: 10px;">@if (isTT) { <text>&#10003;</text> }</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="checkbox-label" style="margin-right: 10px;">A/C</span>
+                            <div class="cheque-line" style="width: 100px; border-bottom: 1px solid #000; height: 22px; position: relative; margin-left: 0;">
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                        </div>
+
+                        <!-- Signatures -->
+                        <div class="signatures">
+                            <div class="sig-block">
+                                Payee 
+                                <span class="sig-line" style="width: 130px;"></span>
+                            </div>
+                            <div class="sig-block">
+                                Receiver 
+                                <span class="sig-line" style="width: 130px;">
+                                    @if (!string.IsNullOrEmpty(ViewBag.ReceiverSignature))
+                                    {
+                                        <img src="@Url.Content("~/Uploads/Users/" + ViewBag.ReceiverSignature)" style="position: absolute; bottom: 2px; left: 10px; max-height: 40px; max-width: 170px;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="dynamic-data" style="bottom: 2px; left: 10px; font-size: 18px;">@ViewData["Receiver"]</span>
+                                    }
+                                </span>
+                            </div>
+                            <div class="sig-block">
+                                Accounting Department <span class="sig-line" style="width: 120px;"></span>
+                            </div>
+                        </div>
+
+                    </div><!-- /content-layer -->
+                </div><!-- /receipt-container -->
+            </div><!-- /receipt-wrapper -->
+        </div><!-- /modal-body-receipt -->
+        <!-- ═══════════════════════════
+             Modal Footer
+        ═══════════════════════════ -->
+        <div class="modal-footer">
+            <button type="button" id="SaveChange2" name="SaveChange2" class="btn-print" onclick="window.print();">
+                <i class="ti ti-printer"></i> Print
+            </button>
+            <button type="button" id="CloseModal2" name="CloseModal2" class="btn-close-modal btnclose" onclick="window.close();">
+                <i class="ti ti-x"></i> Close
+            </button>
+        </div>
+
+    </div><!-- /modal-full -->
+    <!-- Auto-print when opened as popup; PDF Export Script -->
+    <script>
+    // Auto-trigger print dialog when this page is opened as a popup
+    window.addEventListener('load', function () {
+        // 800ms delay: lets Google Fonts (Khmer/Roboto) and signature images fully render
+        setTimeout(function () {
+            window.focus();
+            window.print();
+        }, 800);
+    });
+
+    function downloadPDF() {
+        const element = document.getElementById('receipt-container');
+        const fileName = 'Receipt_@(ViewData["ReceiptNo"]).pdf';
+
+        const originalBoxShadow = element.style.boxShadow;
+        element.style.boxShadow = 'none';
+
+        const opt = {
+            margin: 1,
+            filename:    fileName,
+            image:       { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2 },
+            jsPDF:       { unit: 'mm', format: 'a5', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function () {
+            element.style.boxShadow = originalBoxShadow;
+        });
+    }
+    </script>
+</body>
+</html>

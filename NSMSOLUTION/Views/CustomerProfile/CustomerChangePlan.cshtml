@@ -1,0 +1,157 @@
+﻿@{
+    Layout = null;
+}
+<section>
+    <div class="row">
+        <div class="col">
+            <div class="card card-outline card-success">
+                <div class="card-header">
+                    <h5 class="card-title">Current Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row p-3">
+                        <div class="col-12">
+                            @Html.Raw(ViewBag.DrawHTMLForm)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card card-outline card-success">
+                <div class="card-header">
+                    <h5 class="card-title">New Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row p-3">
+                        <div class="col-12">
+                            @Html.Raw(ViewBag.NewPlaneForm)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(function () {
+        //var PackageDuration = $("#TxtPackageDuration").val();
+        //var PackageFreeDuration = $("#TxtPackageFreeDuration").val();
+        //var TDurationMonth = parseInt(PackageDuration) + parseInt(PackageFreeDuration);
+        //var ChangeDate = $("#ChangeDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+        //$("#TxtEndDate").data('daterangepicker').setStartDate(moment(ChangeDate).add(TDurationMonth, 'month').format('DD/MM/YYYY'));
+        //var EndDate = $("#TxtEndDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+        //ChangeDate = new Date(ChangeDate);
+        //EndDate = new Date(EndDate);
+        //var Remain = dateDiffInDays(ChangeDate, EndDate);
+        //$("#TxtRemainDuration").val(pluralizeWord("Day", Remain));
+
+        $("#ChangeDate").daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+            minDate: new Date(),
+            maxDate: new Date(StringToDate($("#EndDate").val()))
+        }).on('change', function (event) {  
+            PackageDuration = $("#TxtPackageDuration").val();
+            PackageFreeDuration = $("#TxtPackageFreeDuration").val();
+            TDurationMonth = parseInt(PackageDuration) + parseInt(PackageFreeDuration);
+            ChangeDate = $("#ChangeDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            $("#TxtEndDate").data('daterangepicker').setStartDate(moment(ChangeDate).add(TDurationMonth, 'month').format('DD/MM/YYYY'));
+            var start_Date = $("#ChangeDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            var end_Date = $("#TxtEndDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            CalDuration(start_Date, end_Date);
+            //PackageDuration = $("#TxtPackageDuration").val();
+            //PackageFreeDuration = $("#TxtPackageFreeDuration").val();
+            //TDurationMonth = parseInt(PackageDuration) + parseInt(PackageFreeDuration);
+            //ChangeDate = $("#ChangeDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            //ChangeDate = new Date(ChangeDate);
+            //$("#TxtEndDate").data('daterangepicker').setStartDate(moment(ChangeDate).add(TDurationMonth, 'month').format('DD/MM/YYYY'));
+            //var EndDate = $("#TxtEndDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            //EndDate = new Date(EndDate);
+            //var Remain = dateDiffInDays(ChangeDate, EndDate);
+            //$("#TxtRemainDuration").val(pluralizeWord("Day", Remain));
+        });
+        $("#TxtEndDate").daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+            minDate: new Date(ChangeDate),
+        }).on('change', function () {
+            var start_Date = $("#ChangeDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            var end_Date = $(this).data('daterangepicker').startDate.format('YYYY-MM-DD');
+            CalDuration(start_Date, end_Date);
+        });
+        $("#Cbo_PackageName").on('change', function () {
+            $("#ChangeDate").trigger('change');
+        });
+        $("#ChangeDate").trigger('change');
+    });
+
+    function CalDuration(start_Date, end_Date) {
+        start_Date = moment(start_Date);
+        end_Date = moment(end_Date);
+        var Day_ = end_Date.diff(start_Date, 'days');
+        var Month_ = end_Date.diff(start_Date, 'month');
+
+        var Duration = $("#TxtPackageDuration").val();
+        var FreeDuration = $("#TxtPackageFreeDuration").val();
+        var Period = "";
+        if (Month_ == 0) {
+            if (Day_ == 1) {
+                Period = "1 Day";
+                Duration = Day_;
+                FreeDuration = 0;
+            }
+            else {
+                Period = Day_ + " Days";
+                Duration = Day_;
+                FreeDuration = 0;
+            }
+        }
+        else if (Month_ == 1) {
+            Period = Month_ + " Month";
+            Duration = Month_;
+            FreeDuration = 0;
+        }
+        else {
+            Period = Month_ + " Months";
+            if (parseInt(Month_) == (parseInt(Duration) + parseInt(FreeDuration))) {
+                Period = (parseInt(Month_) - parseInt(FreeDuration)) + " Months";
+                Duration = (parseInt(Month_) - parseInt(FreeDuration));
+            }
+            else if (parseInt(Month_) < (parseInt(Duration) + parseInt(FreeDuration))) {
+                FreeDuration = 0;
+                Duration = Month_;
+            }
+            else {
+                Duration = Month_;
+            }
+        }
+        //$("#TxtPackageFreeDuration").val(FreeDuration);
+        //$("#TxtPackageDuration").val(Duration);
+        $("#TxtRemainDuration").val(Period);
+    }
+
+    function SaveChangeCustomerChangePlan() {
+        var Amount = $("#TxtAmount").val();
+        var ReasonForChagne = $("#ReasonForChagne").val();
+        if (Amount == "") {
+            MessageBox("Please enter Amount.");
+            $("#TxtAmount").focus();
+            return false;
+        }
+        else if (ReasonForChagne == "") {
+            MessageBox("Please enter Reason For Chagne Plan.");
+            $("#ReasonForChagne").focus();
+            return false;
+        }
+        //MessageBox
+    }
+
+</script>

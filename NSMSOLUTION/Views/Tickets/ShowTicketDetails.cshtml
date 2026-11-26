@@ -1,0 +1,623 @@
+﻿@{ Layout = null;}
+<style>
+    .highlight {
+        -moz-animation: highlight 2s ease 0s 1 alternate;
+        -webkit-animation: highlight 2s ease 0s 1 alternate;
+        animation: highlight 2s ease 0s 1 alternate;
+    }
+
+    @@-webkit-keyframes highlight {
+        from {
+            background-color: #F6F6BC;
+        }
+
+        to {
+            background-color: white;
+        }
+    }
+
+    }
+
+    @@-moz-keyframes highlight {
+        from {
+            background-color: #F6F6BC;
+        }
+
+        to {
+            background-color: white;
+        }
+    }
+
+    @@-keyframes highlight {
+        from {
+            background-color: #F6F6BC;
+        }
+
+        to {
+            background-color: white;
+        }
+    }
+    .auto_height { /* CSS */
+        width: 100%;
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="timeline">
+                    <div class="time-label">
+                        <span class="bg-red" id="CreatedDate"></span>
+                    </div>
+                    <div>
+                        <i class="fas fa-user bg-green"></i>
+                        <div class="timeline-item">
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <span class="time badge badge-primary text-white"><i class="fas fa-clock"></i> <span name="Time"></span></span>
+                                </div>
+                            </div>
+                            <div class="timeline-header no-border">
+                                <div class="row">
+                                    <div class="col-auto"><a href="javascript:void(0);"><span id="Assigned"></span></a> <span id="Assigned_Description"></span></div>
+                                    <div class="col text-right" id="divBtnEditTicket">
+                                        <div class="btn-group">
+                                            <button id="btnEditTicket" type="button" class="btn btn-success btn-sm"><i class="fa fa-edit" title="Edit"></i> Edit</button>
+                                            <button id="btnDeleteTicket" type="button" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash" title="Delete"></i> Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <i class="fas fa-envelope bg-blue"></i>
+                        <div class="timeline-item">
+                            <span style="display:none" class="time badge badge-primary text-white"><i class="fas fa-clock"></i> <span name="Time"></span></span>
+                            <h3 class="timeline-header">
+                                @*<a href="javascript:void(0)"><span id="CreatedBy"></span></a>*@
+                                <span id="Subject"></span>
+                            </h3>
+
+                            <div class="timeline-body">
+                                <div class="direct-chat direct-chat-info">
+                                    <div class="card-body p-4">
+                                        <div id="DivShowMessage" class="">
+                                            @*direct-chat-messages*@
+                                            <div id="Description"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="input-group">
+                                    @*<input id="message" type="text" name="message" placeholder="Type Message ..." class="form-control">*@
+                                    @*<textarea id="message" class="form-control" rows="3" style="resize:none"></textarea>
+                                        <span class="input-group-append">
+                                            <button onclick="sendMessage();" id="sendmessage" type="button" class="btn btn-primary">Send</button>
+                                        </span>*@
+                                </div>
+                                <textarea id="message"></textarea>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn bg-olive active">
+                                                <input type="radio" name="Status" value="1" id="option_b1" autocomplete="off" checked="checked" data-name="Open"> Open
+                                            </label>
+                                            <label class="btn bg-olive">
+                                                <input type="radio" name="Status" value="2" id="option_b2" autocomplete="off" data-name="In Progress"> In Progress
+                                            </label>
+                                            <label class="btn bg-olive">
+                                                <input type="radio" name="Status" value="3" id="option_b3" autocomplete="off" data-name="Resolved"> Resolved
+                                            </label>
+                                            <label class="btn bg-olive">
+                                                <input type="radio" name="Status" value="4" id="option_b3" autocomplete="off" data-name="Feedback"> Feedback
+                                            </label>
+                                            <label class="btn bg-olive">
+                                                <input type="radio" name="Status" value="6" id="option_b3" autocomplete="off" data-name="Rejected"> Rejected
+                                            </label>
+                                            <label class="btn bg-olive">
+                                                <input type="radio" name="Status" value="5" id="option_b3" autocomplete="off" data-name="Closed"> Closed
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-right">
+                                            <button onclick="sendMessage();" id="sendmessage" type="button" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <i class="fas fa-clock bg-gray"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.timeline -->
+
+</section>
+<script>
+
+    //var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    //connection.start()
+    //    .then(() => console.log('connected!'))
+    //    .catch(console.error);
+
+    var Data = `@Html.Raw(@ViewBag.Data)`;
+    var OpenTicketID = "";
+    var UserLoginID = "";
+    var FullName = "";
+    var TicketStatus = "";
+    var TicketStatusID = "";
+    var Priority = "";
+    var PriorityID = "";
+    var EditCommentTextID = "";
+    var CommentTextInex = "";
+    var ReplyFromUserLoginID = "";
+    var projectName = "";
+    var TicketNumber = "";
+    var SupportProjectID = "";
+    $(function () {
+        $("#SaveChange2").remove();
+        Data = JSON.parse(Data.replace(/(^"|"$)/g, ''));
+        var Table = Data.Table;
+        $.each(Table, function (key, val) {            
+            OpenTicketID = val.OpenTicketID;
+            UserLoginID = val.UserLoginID;
+            FullName = val.CreateByFullName;
+            TicketStatusID = val.StatusID;
+            TicketStatus = val.Status;
+            Priority = val.Priority;
+            PriorityID = val.PriorityID;
+            projectName = val.ProjectName;
+            TicketNumber = val.TicketNumber;
+            SupportProjectID = val.SupportProjectID;
+            var CreatedDate = moment(new Date(val.CreateDate)).format('DD-MMM-yyyy');
+            var Time = val.CreateTime;
+            $("#CreatedDate").html(CreatedDate);
+            $("#CreatedBy").html(val.CreateByFullName);
+            $("span[name=Time]").html(Time);
+            var Subject = "<h5 class=\"text-uppercase\">" + val.ProjectName + " - " + TicketNumber + " - " + val.Subject;
+            //var Subject = "<h5 class=\"text-uppercase\">" + TicketNumber + " - " + val.Subject;
+            if (val.ConnectionID != "") {
+                Subject += " [CID: " + val.CID + ", Con.ID: " + val.ConnectionID + "]";
+            }
+            Subject += "</h5>";
+            Subject += "<small>Team Member: " + val.TeamMembers + "</small>";
+            Subject += "<br /><br />";
+            Subject += "<div class=\"btn-group btn-sm\"><button type=\"button\" class=\"btn btn-primary btn-sm\">" + val.PostAudience + "</button></div>";
+            //Subject += "Status: <span class=\"badge badge-warning text-white\">" + val.Status + "</span>";
+            //Subject += `<div class="btn-group btn-sm">
+            //        <button type="button" class="btn btn-`+ (TicketStatusID == 5 ? "danger" : "primary") + ` btn-sm">` + val.Status + `</button>
+            //      </div>`;
+            //var valuesStatusID = ["1", "2", "3", "4", "5"];
+            var btnStatus = (TicketStatusID == 1 ? "primary" : TicketStatusID == 2 ? "warning text-white" : "danger");
+            Subject += `<div class="btn-group btn-sm">
+                    <button id="Status" type="button" class="btn btn-`+ btnStatus +` btn-sm">`+ val.Status +`</button>
+                    <button type="button" class="btn btn-`+ btnStatus +` dropdown-toggle dropdown-icon btn-sm" data-toggle="dropdown">
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu" role="menu">
+                      <a class="dropdown-item" data-value="1" onclick="ChangeStatus(this);" href="javascript:void(0);">Open</a>
+                      <a class="dropdown-item" data-value="2" onclick="ChangeStatus(this);" href="javascript:void(0);">In Progress</a>
+                      <a class="dropdown-item" data-value="3" onclick="ChangeStatus(this);" href="javascript:void(0);">Resolved</a>
+                      <a class="dropdown-item" data-value="4" onclick="ChangeStatus(this);" href="javascript:void(0);">Feedback</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" data-value="5" onclick="ChangeStatus(this);" href="javascript:void(0);">Closed</a>
+                      <a class="dropdown-item" data-value="6" onclick="ChangeStatus(this);" href="javascript:void(0);">Rejected</a>
+                    </div>
+                  </div>`;
+            //Subject += "Priority: <span class=\"badge badge-warning text-white\">" + val.Priority + "</span>";
+            //Subject += `<div class="btn-group btn-sm">
+            //        <button type="button" class="btn btn-warning text-white btn-sm">`+ val.Priority + `</button>
+            //      </div>`;
+            btnStatus = (PriorityID == 1 ? "primary" : PriorityID == 2 ? "warning text-white" : "danger");
+            Subject += `<div class="btn-group btn-sm">
+                    <button id="PriorityStatus" type="button" class="btn btn-`+ btnStatus +` btn-sm">`+ val.Priority + `</button>
+                    <button type="button" class="btn btn-`+ btnStatus +` dropdown-toggle dropdown-icon btn-sm" data-toggle="dropdown">
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu" role="menu">
+                      <a class="dropdown-item" data-value="1" onclick="ChangePriorityStatus(this);" href="javascript:void(0);">Normal</a>
+                      <a class="dropdown-item" data-value="2" onclick="ChangePriorityStatus(this);" href="javascript:void(0);">High</a>
+                      <a class="dropdown-item" data-value="3" onclick="ChangePriorityStatus(this);" href="javascript:void(0);">Urgent</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" data-value="4" onclick="ChangePriorityStatus(this);" href="javascript:void(0);">Immediate</a>
+                    </div>
+                  </div>`;
+            $("#Subject").html(Subject);
+
+            $("#Assigned").html(val.CreateByFullName.toUpperCase());
+            Subject = "Assigned Ticket Number: " + val.TicketNumber + " To: <span class=\"text-uppercase\"><a href=\"javascript:void(0);\">" + val.Assignee + "</a></span>" + (val.CoWorkerName != "" ? " And Co-Worker: <span class=\"text-uppercase\"><a href=\"javascript:void(0);\">" + val.CoWorkerName + "</a></span>" : "");
+            $("#Assigned_Description").html(Subject);
+            var row = "";
+            var colcustInfo = "", colserviceInfo = "", colcustAddInfo = "", Description = "";
+            if (val.SaleRepresentative != "")
+                colcustInfo += '<div class="col-sm-auto mb-3">Sale Representative: ' + val.SaleRepresentative + '</div>';
+            if (val.SID != "")
+                colcustInfo += '<div class="col-sm-auto">SID: ' + val.SID + '</div>';
+            if (val.ConnectionID != "")
+                colcustInfo += '<div class="col-sm-auto">Connection ID: ' + val.ConnectionID + '</div>';
+            if (val.CID != "")
+                colcustInfo += '<div class="col-sm-auto">CID: ' + val.CID + '</div>';
+            if (val.CustomerName != "")
+                colcustInfo += '<div class="col-sm-auto">Customer Name: ' + val.CustomerName + '</div>';
+            if (val.Phone != "")
+                colcustInfo += '<div class="col-sm-auto">Phone: ' + val.Phone + '</div>';
+            if (val.ServiceName != "")
+                colserviceInfo += '<div class="col-sm-auto">Service Name: ' + val.ServiceName + '</div>';
+            if (val.PackageName != "")
+                colserviceInfo += '<div class="col-sm-auto">Package Name: ' + val.PackageName + '</div>';
+            if (val.StartDate != "" && val.StartDate != null)
+                colserviceInfo += '<div class="col-sm-auto">Start Date: ' + moment(new Date(val.StartDate)).format("DD-MM-YYYY") + '</div>';
+            if (val.EndDate != "" && val.EndDate != null)
+                colserviceInfo += '<div class="col-sm-auto">End Date: ' + moment(new Date(val.EndDate)).format("DD-MM-YYYY") + '</div>';
+            if (val.Address != "" && val.Address != null)
+                colcustAddInfo += '<div class="col-sm-auto">Address: ' + val.Address + '</div>';
+            if (val.Commune != "" && val.Commune != null)
+                colcustAddInfo += '<div class="col-sm-auto">Commune: ' + val.Commune + '</div>';
+            if (val.District != "" && val.District != null)
+                colcustAddInfo += '<div class="col-sm-auto">District: ' + val.District + '</div>';
+            if (val.ProvinceCity != "" && val.ProvinceCity != null)
+                colcustAddInfo += '<div class="col-sm-auto">Province/City: ' + val.ProvinceCity + '</div>';
+            if (val.LOTSwitch != "" && val.LOTSwitch != null)
+                colcustAddInfo += '<div class="col-sm-auto">LOT / Switch: ' + val.LOTSwitch + '</div>';
+            if (val.PONPort != "" && val.PONPort != null)
+                colcustAddInfo += '<div class="col-sm-auto">PON / Port: ' + val.PONPort + '</div>';
+            if (val.ONTID != "" && val.ONTID != null)
+                colcustAddInfo += '<div class="col-sm-auto">ONT ID: ' + val.ONTID + '</div>';
+            if (val.ONTDeviceModel != "" && val.ONTDeviceModel != null)
+                colcustAddInfo += '<div class="col-sm-auto">ONT Device Model: ' + val.ONTDeviceModel + '</div>';
+            if (val.SerialNumber != "" && val.SerialNumber != null)
+                colcustAddInfo += '<div class="col-sm-auto">Serial Number: ' + val.SerialNumber + '</div>';
+            if (val.Description != "")
+                Description += val.Description;
+
+            if (colcustInfo != "")
+                row += '<div class="chat-text">' + colcustInfo + "</div>";
+            if (colserviceInfo != "")
+                row += '<div class="chat-text">' + colserviceInfo + "</div>";
+            if (colcustAddInfo != "")
+                row += '<div class="chat-text">' + colcustAddInfo + "</div>";
+
+            var render = "";
+            if (row != "") {                
+                if (UserLoginID == User_ID) {
+                    render = `<div class="chat-messages">
+                    <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-left">`+ val.CreateByFullName.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-right">`+ moment(new Date(val.CreateDate)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ val.UserPicture+`" alt="message user image" />
+                        <div class="direct-chat-text">
+                            <div class="card-header p-0 mb-3">Customer Information</div>
+                            `+ row + `
+                        </div>
+                    </div>
+                    </div>`;
+                }
+                else {                    
+                    $("#divBtnEditTicket").remove();
+                    render = `<div class="chat-messages">
+                    <div class="direct-chat-msg right">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-right">`+ val.CreateByFullName.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-left">`+ moment(new Date(val.CreateDate)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                        <div class="direct-chat-text">
+                            <div class="card-header p-0 mb-3">Customer Information</div>
+                            `+ row + `
+                        </div>
+                    </div>
+                    </div>`;
+                }
+            }
+            if (UserLoginID == User_ID) {
+                render += `<div class="chat-messages" name="messages">
+            <div class="direct-chat-msg">
+                <div class="direct-chat-infos clearfix">
+                    <span class="direct-chat-name float-left">`+ val.CreateByFullName.toUpperCase() + `</span>
+                    <span class="direct-chat-timestamp float-right">`+ moment(new Date(val.CreateDate)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                    </div>
+                    <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                    <div class="direct-chat-text"><div name="CommentText">`+ Description + `</div>
+                    <div style="display:none;" name="SupportOpenTicketCommentID">`+ val.SupportOpenTicketCommentID +`</div>
+                    <div style="display:none;" class="ReplyAction"><i onclick="EditComment(this);" name="Edit" class="fas fa-edit" title="Edit"></i> <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                    </div>
+                </div>
+                </div>`;
+            }
+            else {
+                if (UserLoginID != User_ID)
+                    $("#divBtnEditTicket").remove();
+                render += `<div class="chat-messages" name="messages">
+                <div class="direct-chat-msg right">
+                    <div class="direct-chat-infos clearfix">
+                        <span class="direct-chat-name float-right">`+ val.CreateByFullName.toUpperCase() + `</span>
+                        <span class="direct-chat-timestamp float-left">`+ moment(new Date(val.CreateDate)).format("DD-MM-YYYY hh:mm:ss") + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                        <div class="direct-chat-text">
+                        <div name="CommentText">`+ Description + `</div>
+                        <div style="display:none;" name="SupportOpenTicketCommentID">`+ val.SupportOpenTicketCommentID +`</div>
+                        <div style="display:none;" class="ReplyAction"><i onclick="EditComment(this);" name="Edit" class="fas fa-edit" title="Edit"></i> <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                        </div>
+                    </div>
+                    </div>`;
+            }
+            $("#Description").html(render);            
+        });
+        var Table1 = Data.Table1;
+        $.each(Table1, function (key, val) {
+            ReplyFromUserLoginID = val.ReplyFromUserLoginID;
+            var row = "";
+            if (User_ID == ReplyFromUserLoginID) {
+                row += `<div class="chat-messages" name="messages">
+                    <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-left">`+ val.ReplyFromUserName.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-right">`+ moment(new Date(val.Date)).format('DD-MM-YYYY hh:mm:ss') + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                        <div class="direct-chat-text">
+                        <div name="CommentText">`+ val.Comment + `</div>
+                        <div style="display:none;" name="SupportOpenTicketCommentID">`+ val.SupportOpenTicketCommentID +`</div>
+                        <div class="ReplyAction"><i onclick="EditComment(this);" name="Edit" class="fas fa-edit" title="Edit"></i> <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                        </div>
+                    </div>
+                    </div>`;
+            }
+            else if (User_ID != ReplyFromUserLoginID) {
+                row += `<div class="chat-messages" name="messages"><div class="direct-chat-msg right">
+                    <div class="direct-chat-infos clearfix">
+                      <span class="direct-chat-name float-right">`+ val.ReplyFromUserName.toUpperCase() + `</span>
+                      <span class="direct-chat-timestamp float-right mr-2">`+ moment(new Date(val.Date)).format('DD-MM-YYYY hh:mm:ss') + `</span>
+                    </div>
+                    <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                    <div class="direct-chat-text float-right mr-2">
+                    <div name="CommentText">`+ val.Comment + `</div>
+                    <div style="display:none;" name="SupportOpenTicketCommentID">`+ val.SupportOpenTicketCommentID +`</div>
+                    <div style="display:none;" class="ReplyAction"><i onclick="EditComment(this);" name="Edit" class="fas fa-edit" title="Edit"></i> <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                    </div>
+                  </div></div>`;
+            }
+            else {
+                row += `<div class="chat-messages" name="messages">
+                    <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-left">`+ val.FromUserName.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-right">`+ moment(new Date(val.Date)).format('DD-MM-YYYY hh:mm:ss') + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ val.UserPicture +`" alt="message user image" />
+                        <div class="direct-chat-text">
+                        <div name="CommentText">`+ val.Comment + `</div>
+                        <div style="display:none;" name="SupportOpenTicketCommentID">`+ val.SupportOpenTicketCommentID +`</div>
+                        <div style="display:none;" class="ReplyAction"><i onclick="EditComment(this);" name="Edit" class="fas fa-edit" title="Edit"></i> <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                        </div>
+                    </div>
+                    </div>`;
+            }
+            $("div[name=messages]:last").after(row);
+        });
+
+        $("input[name=Status]").removeAttr("checked");
+        $("input[name=Status]").attr("checked", false);
+        $("input[name=Status]").each(function (key, val) {
+            if ($(val).val() == TicketStatusID)
+                $(this).attr("checked", true).click();
+        });
+
+        $("#btnEditTicket").click(function () {
+            NewTicket(OpenTicketID);
+        });
+        $("#btnDeleteTicket").click(function () {
+            DeleteTicket(OpenTicketID);
+        });
+        $("i[name=Edit]").tooltip();
+        $("i[name=Delete]").tooltip();
+
+        //setTimeout(function () {
+            //$("#message").summernote('code', '');
+            $("#message").summernote({
+                //height: 100,
+                code:'',
+                placeholder: 'Please entry your description',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['fullscreen']]
+                ]
+            });            
+        //}, 1000);
+
+        //connection.on("ReceiveMessage", function (user, message) {
+        //chat.ReceiveMessage = function (name, message) {
+        //    var row = "";
+        //    row += `<div class="chat-messages" name="messages">
+        //    <div class="direct-chat-msg">
+        //        <div class="direct-chat-infos clearfix">
+        //            <span class="direct-chat-name float-left">`+ user.toUpperCase() + `</span>
+        //            <span class="direct-chat-timestamp float-right">+ TimeNow + </span>
+        //        </div>
+        //        <img class="direct-chat-img" src="+ UserProfilePicture + " alt="message user image" />
+        //        <div class="direct-chat-text"><div name="CommentText">`+ message + `</div>
+        //        <div class="ReplyAction"><i name="Edit" class="fas fa-edit" title="Edit"></i>  <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+        //        </div>
+        //    </div>
+        //    </div>`;
+        //    $("div[name=messages]:last").after(row);
+        //};
+        //chat.client.ReceiveMessage = function (user, message) {
+        //    if (user != User_Full_Name) {
+        //        if (window.sentNotification) {
+        //            window.sentNotification();
+        //        }
+        //        $("div[name=messages]:last").after(message);
+        //    }
+        //    //if (user == User_Full_Name) {
+        //    //    $("div[name=messages]:last").after(message);
+        //    //}
+        //    //else {
+        //    //    message = message.replace(' float-left', ' float-right')
+        //    //    $("div[name=messages]:last").after(message);
+        //    //    $("div.direct-chat-msg").addClass("right");
+        //    //}
+        //};
+    });
+    function sendMessage() {
+        var TimeNow = moment(new Date()).format("DD-MM-YYYY hh:mm:ss");
+        var ReplyMessage = $("#message").val();
+        if (ReplyMessage != "") {
+            IsCommented = true;
+            var UpdateStatus = false;
+            if (TicketStatusID != $("input[name=Status]:checked").val()) {
+                UpdateStatus = true;
+                TicketStatusID = $("input[name=Status]:checked").val();
+                TicketStatus = $("input[name=Status]:checked").data('name');
+            }
+            ReplyMessage = $("#message").summernote('code').replace(/&nbsp;|<br>/g, ' ');
+                //$("#message").summernote('code').replace(/&nbsp;|<br>/g, ' ').text().trim() == '';
+            var ReplyFromUserName = User_Full_Name;
+            Data = {
+                Data: JSON.stringify({
+                    SupportProjectID: SupportProjectID,
+                    StatusID: TicketStatusID,
+                    Status: TicketStatus,
+                    PriorityID: PriorityID,
+                    Priority: Priority,
+                    OpenTicketID: OpenTicketID,
+                    FromUserLoginID: UserLoginID,
+                    FromUserName: FullName,
+                    ReplyFromUserLoginID: User_ID,
+                    ReplyFromUserName: ReplyFromUserName,
+                    Comment: encodeURIComponent(nl2br(ReplyMessage)),
+                    UpdateStatus: UpdateStatus,
+                    EditCommentTextID: EditCommentTextID
+                })
+            };
+            $("#message").summernote('code', '');
+            $("#message").summernote('focus');
+            PostData("Tickets/SaveChangeOpenTicketComment", Data, function (response) {
+                var SupportOpenTicketCommentID = JSON.parse(response).Data;
+                if (EditCommentTextID == "") {
+                    var row = "";
+                    row += `<div class="chat-messages" name="messages">
+                    <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-left">`+ User_Full_Name.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-right">`+ TimeNow + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ UserProfilePicture + `" alt="message user image" />
+                        <div class="direct-chat-text"><div name="CommentText">`+ ReplyMessage + `</div>
+                        <div style="display:none;" name="SupportOpenTicketCommentID">`+ SupportOpenTicketCommentID + `</div>
+                        <div class="ReplyAction"><i name="Edit" class="fas fa-edit" title="Edit"></i>  <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                        </div>
+                    </div>
+                    </div>`;
+                    $("div[name=messages]:last").after(row);
+                }
+                else {
+                    $("div[name=CommentText]").eq(CommentTextInex).html(ReplyMessage);
+                    $('#modalTicketDetailmodalbody').animate({ scrollTop: $("div[name=messages]").eq(CommentTextInex).position().top }, 'slow');
+                    $("div[name=CommentText]").eq(CommentTextInex).parent().toggleClass("highlight");
+                    setTimeout(function () {
+                        $("div[name=CommentText]").eq(CommentTextInex).parent().removeClass("highlight");
+                    }, 2000);
+                }
+                $.connection.hub.start().done(function () {
+                    row = `<div class="chat-messages" name="messages">
+                    <div class="direct-chat-msg right">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-right">`+ User_Full_Name.toUpperCase() + `</span>
+                            <span class="direct-chat-timestamp float-right mr-2">`+ TimeNow + `</span>
+                        </div>
+                        <img class="direct-chat-img" src="`+ UserProfilePicture + `" alt="message user image" />
+                        <div class="direct-chat-text float-right mr-2"><div name="CommentText">`+ ReplyMessage + `</div>
+                        <div style="display:none;" class="ReplyAction"><i name="Edit" class="fas fa-edit" title="Edit"></i>  <i onclick="DeleteComment(this);" name="Delete" class="fa-solid fa-trash" title="Delete"></i></div>
+                        </div>
+                    </div>
+                    </div>`;
+                    if (EditCommentTextID == "") {
+                        CurrentTicketIDOpened = OpenTicketID;
+                        chatHub.server.sendMessage(User_Full_Name, UserProfilePicture, row, projectName, ReplyMessage, OpenTicketID, TicketNumber, SupportProjectID, System_ID, Warehouse_ID);
+                    }
+                });
+                EditCommentTextID = "";
+                $("i[name=Edit]").tooltip();
+                $("i[name=Delete]").tooltip();
+            });
+        }
+        else {
+            DialogSweetAlert('error', "Please entry your description.");
+        }
+    }
+    function ChangeStatus(Status) {
+        var StatusID = Status.getAttribute("data-value");
+        var OldStatus = $("button#Status").html();
+        $("button#Status").html(Status.innerHTML);
+        $("input[name=Status]").each(function (key, val) {
+            if (StatusID == $(this).val()) {
+                $(this).attr("checked", true).click();
+                var CommentText = "Change Status From: <b class=\"text-red\">" + OldStatus + "</b> To: <b class=\"text-red\">" + Status.innerHTML+"</b>";
+                CommentText += " By: <b class=\"text-primary\">" + User_Full_Name+"</b>";
+                $("#message").summernote('code', CommentText);
+                $("#message").summernote('focus');
+                sendMessage();
+                return false;
+            }
+        });
+    }
+    function ChangePriorityStatus(Status) {
+        var StatusID = Status.getAttribute("data-value");
+        var OldStatus = $("button#PriorityStatus").html();
+        PriorityID = StatusID;
+        Priority = Status.innerHTML;
+        $("button#PriorityStatus").html(Status.innerHTML);
+        var CommentText = "Change Priority Status From: <b class=\"text-red\">" + OldStatus + "</b> To: <b class=\"text-red\">" + Status.innerHTML + "</b>";
+        CommentText += " By: <b class=\"text-primary\">" + User_Full_Name + "</b>";
+        $("#message").summernote('code', CommentText);
+        $("#message").summernote('focus');
+        sendMessage();
+    }
+    function EditComment(THIS) {
+        var index = $("i[name=Edit]").index($(THIS));
+        var CommentText = $("div[name=CommentText]").eq(index).html();
+        $("#message").summernote('code', CommentText);
+        $("#message").summernote('focus');
+        EditCommentTextID = $("div[name=SupportOpenTicketCommentID]").eq(index).html();
+        CommentTextInex = index;
+    }
+    function DeleteComment(THIS) {
+        var index = $("i[name=Delete]").index($(THIS));
+        var ID = $("div[name=SupportOpenTicketCommentID]").eq(index).html();
+        var Data = { TicketCommentID: ID }
+        DoDelete("Tickets/DeleteComment", Data, function (response) {
+            $("div[name=messages]").eq(index).remove();
+        });
+    }
+    function DeleteTicket(OpenTicketID) {
+        var Data = { ID: OpenTicketID }
+        DoDelete("Tickets/DeleteTicket", Data, function (response) {
+            $("#modalTicketDetail").modal('hide');
+            ShowTicket('MyTicket');
+        });
+    }
+
+    //$("input[name=Status]").click(function () {
+    //    var ReplyMessage = $("#message").val();
+    //    if (ReplyMessage == "")
+    //        DialogSweetAlert('error', "Please entry your description.");
+    //});
+
+    function auto_height(elem) {  /* javascript */
+        elem.style.height = "1px";
+        elem.style.height = (elem.scrollHeight) + "px";
+    }
+</script>

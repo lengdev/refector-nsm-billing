@@ -1,0 +1,1007 @@
+﻿@{ Layout = null; }
+
+<div class="row mb-3">
+    <div class="col-3">
+        @Html.Raw(ViewBag.DrawHTMLForm)
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" onclick="Login();">Login</button>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-danger" onclick="LogOut();">Logout</button>
+    </div>
+    <div class="col-auto d-none">
+        <button class="btn btn-primary" onclick="GetCompanyInfo();">Get Company Info</button>
+    </div>
+</div>
+<div class="row mb-3 pl-3">
+    <div class="col-auto">
+        <label for="CompanyName">Company Name:</label>
+    </div>
+    <div class="col-2">
+        <select class="form-control" id="CompanyName"></select>
+    </div>
+    <div class="col-auto">
+        <label for="selectType">Type:</label>
+    </div>
+    <div class="col-2">
+        <select class="form-control" id="selectType">
+            <option value="1">ការទិញទំនិញ និងសេវា(ធាតុចូល)</option>
+            <option value="2">ការលក់ទំនិញ និងសេវា(ធាតុចេញ)</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <label for="selectSheetName">Sheet Name:</label>
+    </div>
+    <div class="col-2">
+        <select class="form-control" id="selectSheetName"><option value=""></option></select>
+    </div>
+    <div class="col-3">
+        @Html.Raw(ViewBag.ColTMP)
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="tab_cominfo" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Company Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Data will export</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="NonTaxablePerson-tab" data-toggle="pill" href="#forNonTaxablePerson" role="tab" aria-controls="forNonTaxablePerson" aria-selected="false">បុគ្គលមិនជាប់អាករ</a>
+                        @*<div class="nav-link"><button class="btn btn-sm btn-info" onclick="AddNonTaxablePerson()">បន្ថែមបុគ្គលមិនជាប់អាករ</button></div>*@
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="NotYetHaveNonTaxablePerson-tab" data-toggle="pill" href="#forNonTaxablePersonnotyethave" role="tab" aria-controls="forNonTaxablePerson" aria-selected="false">បុគ្គលមិនជាប់អាករ មិនទាន់មាន TAX System</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="GetPurchasingGoodTab1" data-toggle="pill" href="#GetPurchasingGood-tab1" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">ទាញទិន្នន័យបានបញ្ចូលរួច ការទិញទំនិញ និងសេវា(ធាតុចូល)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="GetPurchasingGoodTab" data-toggle="pill" href="#GetPurchasingGood-tab" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">ទាញទិន្នន័យបានបញ្ចូលរួច ការលក់ទំនិញ និងសេវា(ធាតុចេញ)</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="custom-tabs-four-tabContent">
+                    <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="showcomInof">
+                                    <div id="tblComInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="grid_willexpot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="forNonTaxablePerson" role="tabpanel" aria-labelledby="forNonTaxablePerson">
+                        <div class="row">
+                            <div class="col">
+                                <div id="grid_forNonTaxablePerson">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <input class="form-control" name="textserach" id="textserach" placeholder="ស្វែងរកលេខសម្គាល់អត្តសញ្ញាណ ឬ ឈ្មោះ ..." />
+                                        </div>
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary" onclick="SearchNonTaxablePerson()">Search</button>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary" onclick="AddNonTaxablePerson()">Add New</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col">
+                                            <div id="gridNonTaxablePerson"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="forNonTaxablePersonnotyethave" role="tabpanel" aria-labelledby="forNonTaxablePersonnotyethave">
+                        <div class="row">
+                            <div class="col">
+                                <div id="grid_notyethaveNonTaxablePerson"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="GetPurchasingGood-tab1" role="tabpanel" aria-labelledby="GetPurchasingGood-tab1">
+                        <div class="row">
+                            <div class="col">
+                                <div id="div_GetPurchasingGood1">
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <label for="txtDateGetPurchasingGood1">Date:</label>
+                                        </div>
+                                        <div class="col-auto">
+                                            <input type="text" name="txtDateGetPurchasingGood1" id="txtDateGetPurchasingGood1" value="" class="form-control">
+                                            <script type="text/javascript">
+                                                $(function () {
+                                                    $("#txtDateGetPurchasingGood1").kendoDatePicker({
+                                                        start: "year",            // Calendar starts with the year view
+                                                        depth: "year",            // Calendar navigates down to the month view only
+                                                        format: "MM/yyyy",        // Display format: Month/Year
+                                                        dateInput: true,          // Allows the user to type the date
+                                                        change: function () {
+                                                            // Extract month and year from selected date
+                                                            //var value = this.value();
+                                                            //var selectedMonth = kendo.toString(value, "MM");
+                                                            //var selectedYear = kendo.toString(value, "yyyy");
+                                                            //console.log("Selected Month: " + selectedMonth);
+                                                            //console.log("Selected Year: " + selectedYear);
+                                                        }
+                                                    });
+                                                });
+                                            </script>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" id="btnGetPurchasingGood1" onclick="GetPurchasingGoodsandServices(1)" class="btn btn-primary" value="Search">Search</button>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" id="btndellallPurchasingGood1" onclick="DellPurchasingGoodsandServices(1)" class="btn btn-danger" value="Search">Delete All</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col">
+                                            <div id="divShowRstGetPurchasingGood1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+</div>
+                    <div class="tab-pane fade" id="GetPurchasingGood-tab" role="tabpanel" aria-labelledby="GetPurchasingGood-tab">
+                        <div class="row">
+                            <div class="col">
+                                <div id="div_GetPurchasingGood">
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <label for="txtDateGetPurchasingGood">Date:</label>
+                                        </div>
+                                        <div class="col-auto">
+                                            <input type="text" name="txtDateGetPurchasingGood" id="txtDateGetPurchasingGood" value="" class="form-control">
+                                            <script type="text/javascript">
+                                                $(function () {
+                                                    $("#txtDateGetPurchasingGood").kendoDatePicker({
+                                                        start: "year",            // Calendar starts with the year view
+                                                        depth: "year",            // Calendar navigates down to the month view only
+                                                        format: "MM/yyyy",        // Display format: Month/Year
+                                                        dateInput: true,          // Allows the user to type the date
+                                                        change: function () {
+                                                            // Extract month and year from selected date
+                                                            //var value = this.value();
+                                                            //var selectedMonth = kendo.toString(value, "MM");
+                                                            //var selectedYear = kendo.toString(value, "yyyy");
+                                                            //console.log("Selected Month: " + selectedMonth);
+                                                            //console.log("Selected Year: " + selectedYear);
+                                                        }
+                                                    });
+                                                });
+                                            </script>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" id="btnGetPurchasingGood" onclick="GetPurchasingGoodsandServices(2)" class="btn btn-primary" value="Search">Search</button>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" id="btndellallPurchasingGood" onclick="DellPurchasingGoodsandServices(2)" class="btn btn-danger" value="Search">Delete All</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col">
+                                            <div id="divShowRstGetPurchasingGood"></div>
+                                        </div>
+                                    </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+
+    </div>
+</div>
+
+<script>
+        var sessionId = "";
+        var sessionList = [], kendoData_1726893507 = [];
+
+        $(function () {
+            $("#tab_cominfo a").click(function (e) {
+                e.preventDefault();
+            });
+
+            setTimeout(function () {
+                $("#TxtUserName").on("change", function () {
+                    var Id = $("#TxtUserName").val();
+                    var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+                    if (storedData.length > 0) {
+                        var sID = storedData.filter(function (item) {
+                            return item.Id === Id;
+                        })[0];
+                        if (sID) {
+                            //$("#showcomInof").html(sID.GridData);
+                            DrawGrid(sID.GridData);
+                        }
+                        else {
+                            kendoData_1726893507 = [];
+                            $("#tblComInfo").html('');
+                        }
+                    }
+                });
+                $("#TxtUserName").trigger("change");
+
+                var row = '';
+                $.each(SheetsName, function (key, value) {
+                    row += `<option value="${key}">${value.sheetName}</option>`;
+                });
+                $("#selectSheetName").append(row);
+                var $select2Elm = $('#selectSheetName, #selectType');
+                $select2Elm.select2({
+                    allowClear: true,
+                    theme: "bootstrap4",
+                    dropdownParent: $("#selectSheetName").parent(),
+                    placeholder: ``,
+                    escapeMarkup: function (m) {
+                        return m;
+                    }
+                }).on('change', function (e) {
+                    var selectedValue = $(this).val();
+                    var selectedText = $("#selectSheetName option:selected").text();
+                    onChangeSheetName(selectedValue, selectedText);
+                    $("#custom-tabs-four-profile-tab").click();
+                });
+
+                $("#TxtColumnTemplateName").on('change', function (e) {
+                    var selectedValue = $(this).val();
+                    var selectedText = $("#TxtColumnTemplateName option:selected").text();
+                    $("#selectSheetName").trigger("change");
+                });
+
+                $("#SaveChange").html('<i class="fa fa-save"></i> EXPORT');
+                $("#SaveChange").off();
+                $("#SaveChange").on("click", function () {
+                    doExport();
+                });
+            }, 500);
+        });
+
+    function Login() {
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        var Id = $("#TxtUserName").val();        
+        var session_Id = "";
+        var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+        if (sessionId)
+            session_Id = sessionId;
+
+        var DATA = { sessionId: session_Id, Id: Id };       
+
+        DialogSweetAlert('load', 'Login...');
+        setTimeout(function () {
+            PostData("Taxs/StartSeleniumAsync", DATA, function (response) {
+                var rst = JSON.parse(response);
+                if (rst.Result == 1) {
+                    DialogSweetAlert('error', rst.Message);
+                    return false;
+                }
+
+                //$("#showcomInof").html(rst.GridData);
+                DrawGrid(rst.GridData);
+                sessionId = rst.sessionId;
+                var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+                if (storedData.length > 0) {
+                    // Filter out the item with Id = "5"
+                    var updatedData = storedData.filter(function (item) {
+                        return item.Id != Id; // Keep only the items where Id is not "5"
+                    });
+                    if (updatedData)
+                        sessionList = updatedData;
+                    else
+                        sessionList = storedData;
+                }
+                var obj = { Id: Id, sessionId: sessionId, GridData: rst.GridData };
+                sessionList.push(obj);
+                // Store the list in localStorage as a JSON string
+                localStorage.setItem("SeleniumDatasessionList", JSON.stringify(sessionList));
+
+                DialogSweetAlert('message', "Logged Successful!");
+            });
+        }, 200);
+    }
+
+    function LogOut() {
+        DialogSweetCofirm(function () {
+            var Id = $("#TxtUserName").val();
+            var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+            if (storedData.length > 0) {
+                var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+                if (sessionId) {
+                    var DATA = { sessionId: sessionId };
+                    DialogSweetAlert('load', 'Logout...');
+                    setTimeout(function () {
+                        PostData("Taxs/LogOut", DATA, function (response) {
+                            var rst = JSON.parse(response);
+                            if (rst.Result == 1) {
+                                DialogSweetAlert('error', rst.Message);
+                                return false;
+                            }
+                            storedData = storedData.filter(function (item) {
+                                return item.Id !== Id;  // Assuming Id is a string, adjust if it's a number
+                            });
+
+                            // Store the updated data back into localStorage
+                            localStorage.setItem("SeleniumDatasessionList", JSON.stringify(storedData));
+                            DialogSweetAlert('message', "Logout successful.");
+                        });
+                    }, 200);
+                }
+                else {
+                    DialogSweetAlert('message', "No session for logout.");
+                }
+            }
+            else {
+                DialogSweetAlert('message', "No session for logout.");
+            }
+
+        }, "", "Are you sure for logout?", "Yes Logout");
+    }
+
+    function GetCompanyInfo() {
+        var Id = $("#TxtUserName").val();
+        var sessionId = "";
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        if (storedData) {
+            var mysession = storedData.filter(function (item) {
+                return item.Id === Id;
+            });
+            sessionId = mysession.sessionId;
+
+            // If a session is found, get the sessionId
+            if (mysession.length > 0) {
+                console.log(mysession[0]); // First matching item
+                sessionId = mysession[0].sessionId; // Get the session ID
+            } else {
+                DialogSweetAlert('error', "No session found with the given ID. Please Login First.");
+                return false;
+            }
+        }
+
+        var DATA = { sessionId: sessionId };
+        DialogSweetAlert('load');
+        setTimeout(function () {
+            PostData("Taxs/GetMyCompanyInof", DATA, function (response) {
+                var rst = JSON.parse(response);
+                console.log(rst);
+                if (rst.Result == 1) {
+                    DialogSweetAlert('error', rst.Message);
+                    return false;
+                }
+                DialogSweetAlert('message', "Get Successful!");
+            });
+        }, 200);
+    }
+
+    function DrawGrid(GData) {
+        GData = JSON.parse(GData);
+        kendoData_1726893507 = GData;//[{ "Id": 0, "UserName": "anle_ya@yahoo.com", "ComID": "vlkNxOxRmAwn", "CompanyName": "អិនអេសអិម សឹលូសិន អេន មេថឹណិន ឯ.ក", "CompanyNameEN": "NSM SOLUTION AND MAINTENANCE CO., LTD.", "ComType": 2, "VatNo": "K007-901805035", "TaxType": "ពន្ធមធ្យម", "Location": "ចាក់អង្រែលើ", "ComStatus": "CA", "TaxBranchID": 2014005, "TaxBranchKH": "សាខាពន្ធដារខណ្ឌមានជ័យ" }, { "Id": 0, "UserName": "anle_ya@yahoo.com", "ComID": "RDaEXKoPXpmM", "CompanyName": "ប៊ីអេស ព្រីនធីង អេន អេតវើថាយស៊ីង ឯ.ក", "CompanyNameEN": "BS PRINTING AND ADVERTISING CO., LTD.", "ComType": 2, "VatNo": "K007-902103322", "TaxType": "ពន្ធមធ្យម", "Location": "ចាក់អង្រែលើ", "ComStatus": "CA", "TaxBranchID": 2014005, "TaxBranchKH": "សាខាពន្ធដារខណ្ឌមានជ័យ" }];
+
+        $("#tblComInfo").kendoGrid({
+            toolbar: ["excel", "pdf", "search"],
+            excel: { allPages: true }, messages: { commands: { pdf: "Print" } },
+            pdf: {
+                autoPrint: false, allPages: true, repeatHeaders: true, title: "", fileName: "PrintGrid.pdf.pdf",
+                repeatHeaders: true,
+                font: "MyFont",
+            },
+            pdfExport: function (e) {
+                e.preventDefault();
+                $("#tblComInfo .k-toolbar, #tblComInfo .k-grouping-header, #tblComInfo .k-grid-pager").hide();
+                var grid = $("#tblComInfo").data("kendoGrid"); var pageSize = grid.dataSource.pageSize(); grid.dataSource.pageSize(grid.dataSource.total()); var gridContent = `<div class="k-grid k-widget k-grid-display-block k-reorderable khmerFont1">` + $("div#tblComInfo").html() + `</div>`; console.log(gridContent);
+                gridContent = PrintHTML(gridContent, '', true, false, 'hello.pdf', false);  //HTMLDataToPDF(gridContent,"hello.pdf");
+                e.promise.done(function () { grid.dataSource.pageSize(pageSize); });
+                setTimeout(function () {
+                    $("#tblComInfo .k-toolbar, #tblComInfo .k-grouping-header, #tblComInfo .k-grid-pager").show();
+                }, 500);
+            },
+            excelExport: function (e) {
+                $("span.k-button-text").eq(0).html('Export...'); setTimeout(function () { $("span.k-button-text").eq(0).html('Export to Excel'); }, 1000); var rows = e.workbook.sheets[0].rows; var grid = e.sender; var fields = grid.dataSource.options.fields; for (var ri = 0; ri < rows.length; ri++) {
+                    var row = rows[ri];
+                    for (var ci = 0; ci < row.cells.length; ci++) {
+                        var cell = row.cells[ci];
+                        if (fields[ci].type) {
+                            if (fields[ci].type == "date") {
+                                var timestamp = Date.parse(cell.value)
+                                if (isNaN(timestamp) == false)
+                                    cell.value = moment(cell.value).format(fields[ci].format);
+                            }
+                            else if (fields[ci].type == 'number')
+                                cell.value = detectType(decodeEntities(cell.value));
+                            else cell.value = decodeEntities(cell.value);
+                        }
+                        else cell.value = decodeEntities(cell.value);
+                    }
+                }
+            },
+            groupable: true,
+            selectable: "single",
+            resizable: true,
+            reorderable: true,
+            pageable: { alwaysVisible: true, pageSizes: [10, 20, 30, 50, 100, "All"] },
+            columnMenu: { filterable: true },
+            filterable: true,
+            sortable: {
+                mode: "single",
+                allowUnsort: false
+            },
+            columns: [
+                {
+                    field: "UserName",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "User Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "CompanyName",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "Company Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "CompanyNameEN",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "Company Name", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "VatNo",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "VAT", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "TaxType",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "Tax Type", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "Location",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "Location", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+                {
+                    field: "TaxBranchKH",
+                    hideOnGroup: true,
+                    headerAttributes: { "class": "k-text-center !k-justify-content-center" },
+                    hidden: false,
+                    title: "Tax Branch", encoded: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            suggestionOperator: "contains",
+                            operator: "contains"
+                        }
+                    }
+                },
+            ],
+            dataSource: {
+                data: kendoData_1726893507,
+                pageSize: 30,
+            },
+            dataBound: function (e) {
+                $('[title="Clear"]').remove();
+            },
+        });
+        $("#tblComInfo").addClass('khmerFont1');
+        //$("#tblComInfo > div.k-grid-header").css({
+        //    "position": "sticky",
+        //    "top": "60px",
+        //    "z-index": 999
+        //});
+
+        var filteredData = kendoData_1726893507.map(function (item) {
+            return {
+                ComID: item.ComID,
+                CompanyName: item.CompanyName
+            };
+        });
+        var row = '';
+        $.each(filteredData, function (key, value) {
+            row += `<option value="${value.ComID}">${value.CompanyName}</option>`;
+        });
+        // Clear existing options before adding new ones
+        $("#CompanyName").empty().append(row);
+        var $select2Elm = $('#CompanyName');
+        $select2Elm.select2({
+            allowClear: true,
+            theme: "bootstrap4",
+            dropdownParent: $("#CompanyName").parent(),
+            placeholder: ``,
+            escapeMarkup: function (m) {
+                return m;
+            }
+        });
+    }
+
+    function doExport() {
+        var TYPE = $("#selectType").val();
+        var COM_ID = $("#CompanyName").val();
+        var SheetName = $("#selectSheetName option:selected").text();
+        if (kendoData_1726893507.length > 0) {
+            var GData = kendoData_1726893507.filter(function (item) {
+                return item.ComID === COM_ID;
+            })[0];
+            if (GData) {
+                var TAX_BRANCH = GData.TaxBranchID;
+                var IS_BRANCH = false;
+                var COM_TYPE = GData.ComType;
+
+                if ($("#grid_willexpot").data("kendoGrid")) {
+                    var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+                    var userID = $("#TxtUserName").val();
+                    // Filter the array and return only the sessionId for the object with Id
+                    var sessionId = storedData.filter(item => item.Id === userID)[0]?.sessionId;
+
+                    var data = $("#grid_willexpot").data("kendoGrid").dataSource.view();//.dataSource.data();
+
+                    // Filter numeric keys only to ignore other non-data entries
+                    var filteredData = Object.keys(data).filter(key => !isNaN(key)).map(key => data[key]);
+
+                    // Apply filter where both TID and VAT are non-empty
+                    var validEntries = filteredData.filter(item => $.trim(item.TID) !== "" || $.trim(item.VAT) !== "");
+
+
+                    // Create an array of invoices to send as JSON
+                    var invoiceArray = [];
+                    var allowInsert = true;
+                    for (var i = 0; i < validEntries.length; i++) {
+                        var invoice = validEntries[i];
+                        if (invoice.Name === null || invoice.Name === "") {
+                            allowInsert = false;
+                            DialogSweetAlert('error', "Please enter Name.");
+                            return false;
+                        }
+                        // Replace null VATPrice with an empty string
+                        var VAT = invoice.VAT === null ? "0" : invoice.VAT;
+                        var vatPrice = invoice.VATPrice === null ? "0" : invoice.VATPrice;
+                        var TID = invoice.TID === null ? "0" : invoice.TID;
+
+                        VAT = VAT === "" ? "0" : VAT;
+                        vatPrice = vatPrice === "" ? "0" : vatPrice;
+                        TID = TID === "" ? "0" : TID;
+
+                        // Build an object for each invoice
+                        var invoiceObject = {
+                            TYPE: `${TYPE}`,
+                            SheetName: `${SheetName}`,
+                            TRANSACTION: `${TYPE}`,
+                            sessionId: `${sessionId}`,
+                            COM_ID: `${COM_ID}`,
+                            TAX_BRANCH: `${TAX_BRANCH}`,
+                            IS_BRANCH: `false`,
+                            COMPANY_BRANCH: `0`,
+                            MONTH: `${moment(formatDate(invoice.InvoiceDate)).format('MM')}`,
+                            YEAR: `${moment(formatDate(invoice.InvoiceDate)).format('YYYY')}`,
+                            INV_DATE: `${formatDate(invoice.InvoiceDate)}`,
+                            INV_NO: `${invoice.InvoiceNumber}`,
+                            TOTAL_AMT: accounting.unformat(`${invoice.InvoiceAmount}`),
+                            Name: `${invoice.Name}`,
+                            VAT: `${VAT}`,
+                            VATPrice: `${vatPrice}`,
+                            INV_REMARK: `${invoice.Descript}`,
+                            TID: `${TID}`,
+                            COM_TYPE: `${COM_TYPE}`,
+                            insertedInvoice: invoice
+                        };
+                        // Add to the array
+                        invoiceArray.push(invoiceObject);
+                    }
+
+                    if (!allowInsert)
+                        return false;
+                    // Convert the array to a JSON string
+                    var jsonData = JSON.stringify(invoiceArray);
+
+                    DialogSweetAlert('load', 'Exporting...');
+                    setTimeout(function () {
+                        $.ajax({
+                            url: '@Url.Action("DoExport", "Taxs")', // Action and Controller
+                            type: 'POST',
+                            contentType: 'application/json',
+                            //processData: false,
+                            //contentType: false,
+                            data: jsonData,
+                            success: function (response) {
+                                var myrst = response.EFillingNonTaxPayerStatus;
+                                if (myrst != "") {
+                                    myrst = JSON.parse(response.EFillingNonTaxPayerStatus);
+                                    $("#NotYetHaveNonTaxablePerson-tab").click();
+                                    $("#grid_notyethaveNonTaxablePerson").kendoGrid({
+                                        dataSource: {
+                                            data: myrst,
+                                            schema: {
+                                                model: {
+                                                    fields: {
+                                                        PHONE: { type: "string" },
+                                                        NAME_KH: { type: "string" }
+                                                    }
+                                                }
+                                            },
+                                            pageSize: 100000 // Optional: set page size
+                                        },
+                                        pageable: false, // Optional: enable paging
+                                        //height: 550,
+                                        //toolbar: ["create"], // Enable the create button in the toolbar
+                                        columns: [
+                                            { field: "PHONE", title: "Phone" },
+                                            { field: "NAME_KH", title: "Name" },
+                                            {
+                                                command: {
+                                                    text: "Add New",
+                                                    click: function (e) {
+                                                        e.preventDefault();
+                                                        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                                                        AddNonTaxablePerson();
+                                                        setTimeout(function () {
+                                                            $("#TxtIdentificationNumber").val(dataItem.PHONE);
+                                                            $("#TxtNameInKhmer").focus();
+                                                        }, 1000);
+                                                        
+                                                        // Perform action for adding a new record based on this row's data
+                                                        //alert("Adding new entry based on: " + dataItem.PHONE + " - " + dataItem.NAME_KH);
+                                                    }
+                                                },
+                                                title: "&nbsp;", // Empty title for the command column
+                                                width: "150px"
+                                            }
+                                        ],
+                                        editable: "inline" // Optional: set the grid to be editable inline
+                                    });
+                                    console.log(myrst);
+                                    //myrst = JSON.parse(response).EFillingNonTaxPayerStatus;
+                                }
+                                console.log(myrst);
+                                var rst = response;
+                                if (rst.Result == 1) {
+                                    DialogSweetAlert('error', rst.Message);
+                                    return false;
+                                }
+                                // Handle success
+                                DialogSweetAlert('message', "Export Successful!");
+                            },
+                            error: function (xhr, status, error) {
+                                // Handle error
+                                DialogSweetAlert('error', error);
+                            }
+                        });
+                    }, 200);
+
+
+                    //var requestBody =
+                    //{
+                    //    COM_ID = COM_ID,
+                    //    TAX_BRANCH = GData.TaxBranchID,
+                    //    IS_BRANCH = false,
+                    //    COMPANY_BRANCH = 0,
+                    //    EXCHANGE_RATE = GData.EXCHANGE_RATE,
+                    //    MONTH = "9",
+                    //    YEAR = "2024",
+                    //    TAXPAYER_TYPE = 1,
+                    //    ITEM_ID = "v97NQDVdAn0r",
+                    //    INV_DATE = "2024-09-19",
+                    //    INV_NO = "B20241091774",
+                    //    TOTAL_AMT = 204027,
+                    //    TRANSACTION = 1,
+                    //    VAT_TYPE = 3,
+                    //    CATEGORY = 1,
+                    //    NONE_VAT_AMT = 0,
+                    //    PLT_AMT = 0,
+                    //    SPEC_AMT = 0,
+                    //    ACCOM_AMT = 0,
+                    //    COM_TYPE = 2,
+                    //    PPT_RATE = 1,
+                    //    SECTOR_TYPE = 0,
+                    //    TREASURY_INV_NO = "",
+                    //    INV_REMARK = "Being exp for Postpaid service monthly fee",
+                    //    STCS_AMT = 0
+                    //};
+
+                    //console.log(GData);
+
+                    //console.log(COM_ID);
+                }
+                else {
+                    DialogSweetAlert('error', "No data for export.");
+                }
+            }
+        }
+    }
+
+        // Helper function to format date as YYYY/MM/DD
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+
+    function AddNonTaxablePerson() {
+        ShowDialogBox2("បន្ថែមបុគ្គលមិនជាប់អាករ", 800, "", "Taxs/AddNonTaxablePerson", 0, "DialogAddNonTaxablePerson", function () {
+            $("#SaveChange2").click(function () {
+                SaveChangeNonTaxablePerson();
+            });
+        });
+    }
+
+    function SaveChangeNonTaxablePerson() {
+        var IdentificationNumber = $("form[name=CreateNonTaxablePerson] #TxtIdentificationNumber").val();
+        var NameInKhmer = $("form[name=CreateNonTaxablePerson] #TxtNameInKhmer").val();
+        var NameInLatin = $("form[name=CreateNonTaxablePerson] #TxtNameInLatin").val();
+        var PhoneNumber = $("form[name=CreateNonTaxablePerson] #TxtPhoneNumber").val();
+        if (IdentificationNumber == "") {
+            DialogSweetAlert('error', "សូមបញ្ចូល លេខសម្គាល់​អត្តសញ្ញាណ", function () {
+                $("form[name=CreateNonTaxablePerson] #TxtIdentificationNumber").focus();
+            });
+            return false;
+        }
+        if (IdentificationNumber == "") {
+            DialogSweetAlert('error', "សូមបញ្ចូល លេខសម្គាល់​អត្តសញ្ញាណ", function () {
+                $("form[name=CreateNonTaxablePerson] #TxtIdentificationNumber").focus();
+            });
+            return false;
+        }
+        else if (NameInKhmer == "") {
+            DialogSweetAlert('error', "ឈ្មោះជាភាសាខ្មែរ(សូមវាយបញ្ចូលជាអក្សរខ្មែរ)", function () {
+                $("form[name=CreateNonTaxablePerson] #TxtNameInKhmer").focus();
+            });
+            return false;
+        }
+        else if (NameInLatin == "") {
+            DialogSweetAlert('error', "ឈ្មោះជាឡាតាំង​", function () {
+                $("form[name=CreateNonTaxablePerson] #TxtNameInLatin").focus();
+            });
+            return false;
+        }
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        var userID = $("#TxtUserName").val();
+        // Filter the array and return only the sessionId for the object with Id
+        var sessionId = storedData.filter(item => item.Id === userID)[0]?.sessionId;
+
+        var frm = $("form[name=CreateNonTaxablePerson]").serializeObject();
+        frm.sessionId = sessionId; // Add sessionId to the object
+
+        var jsonData = JSON.stringify({ Data: JSON.stringify(frm) });
+        DialogSweetAlert('load', 'Login...');
+        setTimeout(function () {
+            $.ajax({
+                url: '@Url.Action("SaveChagneAddNonTaxablePerson", "Taxs")', // Action and Controller
+                type: 'POST',
+                contentType: 'application/json',
+                data: jsonData,
+                success: function (response) {
+                    var rst = response;
+                    if (rst.Result == 1) {
+                        DialogSweetAlert('error', rst.Message);
+                        return false;
+                    }
+                    $("form[name=CreateNonTaxablePerson]")[0].reset();
+                    // Handle success
+                    DialogSweetAlert('message', "Add Successful!");
+                },
+                error: function (xhr, status, error) {
+                    // Handle error
+                    DialogSweetAlert('error', error);
+                }
+            });
+        }, 200);
+    }
+
+    function SearchNonTaxablePerson() {
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        var Id = $("#TxtUserName").val();
+        var textserach = $("#textserach").val();
+        if (textserach == "") {
+            DialogSweetAlert('error', "Please enter text for serach.", function () {
+                $("#textserach").focus();
+                return false;
+            });
+            return false;
+        }
+        var session_Id = "";
+        var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+        if (sessionId)
+            session_Id = sessionId;
+        var DATA = { sessionId: session_Id, Keyword: textserach };
+        DialogSweetAlert('load', 'Login...');
+        setTimeout(function () {
+            PostData("Taxs/SearchNonTaxablePerson", DATA, function (response) {
+                var rst = JSON.parse(response);
+                if (rst.Result == 1) {
+                    DialogSweetAlert('error', rst.Message);
+                    return false;
+                }
+                rst = JSON.parse(JSON.parse(JSON.parse(response).Message).result);
+                DialogSweetAlert('message', 'Load Successful.');
+                $("#gridNonTaxablePerson").kendoGrid({
+                    dataSource: {
+                        data: rst,
+                        pageSize: 100000
+                    },
+                    pageable: false,
+                    columns: [
+                        { field: "NAME_EN", title: "Name (English)" },
+                        { field: "PHONE", title: "Phone" },
+                        { field: "ADDRESS", title: "Address" },
+                        { field: "TIN", title: "TIN" },
+                        { field: "ID", title: "ID" },
+                        { field: "NAME_KH", title: "Name (Khmer)" }
+                    ]
+                });
+            });
+        }, 200);
+    }
+
+    function GetPurchasingGoodsandServices(Type) {
+        var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+        var Id = $("#TxtUserName").val();
+        var session_Id = "";
+        var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+        if (sessionId)
+            session_Id = sessionId;
+
+        var COM_ID = $("#CompanyName").val();
+        if (COM_ID == null) {
+            DialogSweetAlert('error', "Please login first.");
+            return false;
+        }
+        var datePicker = $("#txtDateGetPurchasingGood").data("kendoDatePicker");
+        if (Type == 1)
+            datePicker = $("#txtDateGetPurchasingGood1").data("kendoDatePicker");
+        var selectedDate = datePicker.value(); // Get the selected date
+
+        // Extract the month and year from the selected date
+        var MONTH = kendo.toString(selectedDate, "MM");  // Get the selected month (MM)
+        var YEAR = kendo.toString(selectedDate, "yyyy"); // Get the selected year (YYYY)
+
+        var DATA = {
+            sessionId: session_Id,
+            Type: Type,
+            COM_ID: COM_ID,
+            MONTH: MONTH,
+            YEAR: YEAR
+        }
+        DialogSweetAlert('load');
+        setTimeout(function () {
+            PostData("Taxs/GetPurchasingGoodsandServicesAsync", DATA, function (response) {
+                Swal.close();
+                if (Type == 1)
+                    $("#divShowRstGetPurchasingGood1").html(response);
+                else
+                    $("#divShowRstGetPurchasingGood").html(response);
+            });
+        }, 200);
+    }
+
+    function DellPurchasingGoodsandServices(Type) {
+        if ($("#gridGetPo_" + Type).data("kendoGrid")) {
+            var data = $("#gridGetPo_" + Type).data("kendoGrid").dataSource.data();
+            // Extract IDs
+            const ids = data.map(item => item.ID);
+            var storedData = JSON.parse(localStorage.getItem("SeleniumDatasessionList")) || [];
+            var Id = $("#TxtUserName").val();
+            var session_Id = "";
+            var sessionId = storedData.filter(item => item.Id === Id)[0]?.sessionId;
+            if (sessionId)
+                session_Id = sessionId;
+
+            var COM_ID = $("#CompanyName").val();
+            if (COM_ID == null) {
+                DialogSweetAlert('error', "Please login first.");
+                return false;
+            }
+            var datePicker = $("#txtDateGetPurchasingGood").data("kendoDatePicker");
+
+            if (Type == 1)
+                datePicker = $("#txtDateGetPurchasingGood1").data("kendoDatePicker");
+            var selectedDate = datePicker.value(); // Get the selected date
+
+            // Extract the month and year from the selected date
+            var MONTH = kendo.toString(selectedDate, "MM");  // Get the selected month (MM)
+            var YEAR = kendo.toString(selectedDate, "yyyy"); // Get the selected year (YYYY)
+
+            var DATA = {
+                sessionId: session_Id,
+                Type: Type,
+                COM_ID: COM_ID,
+                MONTH: MONTH,
+                YEAR: YEAR,
+                ids: JSON.stringify(ids)
+            }
+            DoDelete("Taxs/DeletePurchasingGoodsandServicesAsync", DATA, function () {
+                grid.dataSource.remove(dataItem); // Remove the data item
+                grid.dataSource.sync(); // Sync with the data source
+            });
+        }
+    }
+
+    $.fn.serializeObject = function () {
+        var obj = {};
+        var arr = this.serializeArray();
+        $.each(arr, function () {
+            if (obj[this.name]) {
+                if (!Array.isArray(obj[this.name])) {
+                    obj[this.name] = [obj[this.name]];
+                }
+                obj[this.name].push(this.value || '');
+            } else {
+                obj[this.name] = this.value || '';
+            }
+        });
+        return obj;
+    };
+
+</script>

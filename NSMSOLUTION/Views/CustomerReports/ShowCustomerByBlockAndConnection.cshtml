@@ -1,0 +1,154 @@
+﻿@{ Layout = null;}
+<div id="chart"></div>
+<script>
+    var Data = `@Html.Raw(ViewBag.Data)`;
+    $(function () {
+        if (Data != "") {
+            Data = JSON.parse(Data);
+
+            var CustomerType = Data.map(function (item) {
+                return item.CustomerType + ' - ' + item.DistrictCode;
+            });
+            var Customer = Data.map(function (item) {
+                return item.Customer;
+            });
+            var Connection = Data.map(function (item) {
+                return item.Connection;
+            });
+            var NewConnection = Data.map(function (item) {
+                return item.NewConnectionID;
+            });
+            var Renew = Data.map(function (item) {
+                return item.Renew;
+            });
+            var LockedConnection = Data.map(function (item) {
+                return item.LockedConnectionID;
+            });
+            var TerminatedConnection = Data.map(function (item) {
+                return item.TerminatedConnectionID;
+            });
+
+            var sumCustomer = Customer.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumConnection = Connection.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumNewConnection = NewConnection.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumLockedConnection = LockedConnection.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumTerminatedConnection = TerminatedConnection.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumRenewConnection = Renew.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+            var options = {
+                series: [
+                    {
+                        type: 'line',
+                        name: 'CUSTOMER: ' + accounting.formatNumber(sumCustomer),
+                        data: Customer//[44, 55, 41, 67, 22, 43]
+                    },
+                    {
+                        type: 'column',
+                        name: 'CONNECTION: ' + accounting.formatNumber(sumConnection),
+                        data: Connection//[44, 55, 41, 67, 22, 43]
+                    },
+                    {
+                        type: 'column',
+                        name: 'NEW CONNECTION: ' + accounting.formatNumber(sumNewConnection),
+                        data: NewConnection//[44, 55, 41, 67, 22, 43]
+                    },
+                    {
+                        type: 'column',
+                        name: 'RENEW CONNECTION: ' + accounting.formatNumber(sumRenewConnection),
+                        data: Renew//[44, 55, 41, 67, 22, 43]
+                    },
+                    {
+                        type: 'column',
+                        name: 'LOCKED CONNECTION: ' + accounting.formatNumber(sumLockedConnection),
+                        data: LockedConnection//[13, 23, 20, 8, 13, 27]
+                    },
+                    {
+                        type: 'column',
+                        name: 'TERMINATED CONNECTION: ' + accounting.formatNumber(sumTerminatedConnection),
+                        data: TerminatedConnection//[11, 17, 15, 15, 21, 14]
+                    }
+                ],
+                chart: {
+                    type: 'line',
+                    height: 400,
+                    //stacked: true,
+                    //toolbar: {
+                    //    show: true
+                    //},
+                    zoom: {
+                        enabled: true
+                    }
+                },
+                dataLabels: {
+                    //enabledOnSeries: [1],
+                    enabled: true,
+                    //textAnchor: 'start',
+                    style: {
+                        colors: ['#3A4752']
+                    },
+                    //formatter: function (val, opt) {
+                    //    return val;//opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+                    //},
+                    offsetY: -20,
+                    offsetX: 0,
+                    dropShadow: {
+                        enabled: true
+                    }
+                },
+                stroke: {
+                    width: 2,
+                    //colors: ['#007BFF']
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0
+                        }
+                    }
+                }],
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        borderRadius: 10,
+                        borderRadiusApplication: 'end', // 'around', 'end'
+                        borderRadiusWhenStacked: 'last', // 'all', 'last',
+                        dataLabels: {
+                            position: 'top', // top, center, bottom
+                        },
+                        //dataLabels: {
+                        //    total: {
+                        //        enabled: true,
+                        //        style: {
+                        //            fontSize: '13px',
+                        //            fontWeight: 900
+                        //        }
+                        //    }
+                        //}
+                    },
+                },
+                xaxis: {
+                    //type: 'datetime',
+                    //categories: [
+                    //    '01/01/2011 GMT', '01/02/2011 GMT', '01/03/2011 GMT', '01/04/2011 GMT',
+                    //    '01/05/2011 GMT', '01/06/2011 GMT'
+                    //],
+                    categories: CustomerType
+                },
+                legend: {
+                    position: 'right',
+                    offsetY: 40
+                },
+                colors: ["var(--bs-primary)", "var(--bs-success)", "#0000fffa", "#6610f2","var(--bs-warning)", "var(--bs-danger)"],
+                fill: {
+                    opacity: 1
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+    });
+</script>

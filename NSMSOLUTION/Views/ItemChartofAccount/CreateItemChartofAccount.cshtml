@@ -1,0 +1,119 @@
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    function saveChange() {
+        var form = $("form[name=CreateItemChartofAccount]");
+        if (form.length && typeof form.valid === 'function' && !form.valid()) {
+            return false;
+        }
+
+        var itemIdVal = $("#ItemID").val();
+        var extraData = {};
+        if (itemIdVal && itemIdVal !== "0") {
+            extraData["ItemID"] = itemIdVal;
+        } else {
+            extraData["ItemID"] = "@ViewBag.PrimaryFieldValue";
+        }
+
+        var getKendoValue = function(id) {
+            var combo = $("#" + id).data("kendoMultiColumnComboBox");
+            if (!combo) combo = $("#" + id).data("kendoComboBox");
+            if (combo) {
+                var val = combo.value();
+                return (val !== "" && val !== "0" && val != null) ? val : null;
+            }
+            var rawVal = $("#" + id).val();
+            return (rawVal !== "" && rawVal !== "0" && rawVal != null) ? rawVal : null;
+        };
+
+        var ids = [
+            "InventoryChartOfAccountID", "PurchaseChartOfAccountID",
+            "SaleChartOfAccountID", "DeferredRevenueAccountID",
+            "InputVATAccountID", "OutputVATAccountID", "ARAccountID",
+            "PurchaseDiscountAccountID", "SalesDiscountAccountID"
+        ];
+        ids.forEach(function(id) {
+            extraData[id] = getKendoValue(id);
+        });
+
+        DoSaveChageAjaxForm("CreateItemChartofAccount", "ItemChartofAccount/SaveChange", extraData, "Saving...", function (response) {
+            if (response.Result == 2) {
+                // Close modal
+                $("#CloseModal").click();
+                $(".btnclose").click();
+                
+                // Refresh grid
+                if (typeof LoadTableGrid === 'function') {
+                    LoadTableGrid(typeof CurrentPage !== 'undefined' ? CurrentPage : 1);
+                }
+            }
+        });
+    }
+
+    // Helper: set a Kendo MultiColumnComboBox/ComboBox value.
+    // Passing null / undefined / 0 clears the combo.
+    function setKendoCombo(controlId, value) {
+        var combo = $("#" + controlId).data("kendoMultiColumnComboBox");
+        if (!combo) combo = $("#" + controlId).data("kendoComboBox");
+        if (!combo) return;
+        // Use empty string to clear; otherwise set the numeric/string value
+        combo.value(value != null ? value : "");
+        combo.trigger("change");
+    }
+
+    function clearAllAccountCombos() {
+        var ids = [
+            "InventoryChartOfAccountID", "PurchaseChartOfAccountID",
+            "SaleChartOfAccountID", "DeferredRevenueAccountID",
+            "InputVATAccountID", "OutputVATAccountID", "ARAccountID",
+            "PurchaseDiscountAccountID", "SalesDiscountAccountID"
+        ];
+        ids.forEach(function(id) { setKendoCombo(id, null); });
+    }
+
+    // When running in "new item" mode (PrimaryFieldValue = 0),
+    // watch the ItemID dropdown and load existing chart-of-account values
+    @if (ViewBag.PrimaryFieldValue == "0")
+    {
+        <text>
+        $(document).ready(function () {
+            $(document).on("change", "#ItemID", function () {
+                var selectedItemId = $(this).val();
+                if (!selectedItemId || selectedItemId === "0" || selectedItemId === "") {
+                    clearAllAccountCombos();
+                    return;
+                }
+
+                $.ajax({
+                    url: "@Url.Action("GetItemChartOfAccount", "ItemChartofAccount")",
+                    type: "GET",
+                    data: { itemId: selectedItemId },
+                    headers: { "Authorization": "Bearer " + (typeof access_Token !== "undefined" ? access_Token : "") },
+                    success: function (response) {
+                        // Always clear first, then fill only what exists
+                        setTimeout(function () {
+                            clearAllAccountCombos();
+                            if (response.Result === 2 && response.Data) {
+                                var d = response.Data;
+                                setKendoCombo("InventoryChartOfAccountID", d.InventoryChartOfAccountID);
+                                setKendoCombo("PurchaseChartOfAccountID",  d.PurchaseChartOfAccountID);
+                                setKendoCombo("SaleChartOfAccountID",       d.SaleChartOfAccountID);
+                                setKendoCombo("DeferredRevenueAccountID",   d.DeferredRevenueAccountID);
+                                setKendoCombo("InputVATAccountID",           d.InputVATAccountID);
+                                setKendoCombo("OutputVATAccountID",          d.OutputVATAccountID);
+                                setKendoCombo("ARAccountID",                 d.ARAccountID);
+                                setKendoCombo("PurchaseDiscountAccountID",   d.PurchaseDiscountAccountID);
+                                setKendoCombo("SalesDiscountAccountID",      d.SalesDiscountAccountID);
+                            }
+                        }, 600);
+                    }
+                });
+            });
+        });
+        </text>
+    }
+</script>
+

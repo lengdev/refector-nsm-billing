@@ -1,0 +1,42 @@
+﻿@{ Layout = null;}
+
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    function AddNewStatus() {
+        var URL = "AddRouterDeviceStatus/AddRouterDeviceStatus?PrimaryFieldValue=0&Type=NewItem";
+        ShowDialogBox2("Add Router Device Status", "", "", URL, 0, "AddNewStatus", function () {
+            $("#AddNewStatus").on('hide.bs.modal', function () {
+                Reload_cboStatus();
+            });
+        });
+    }
+    function CallBackSaveChangeDevice() {
+        $("#DialogChangeDevice").modal('hide');
+        $("#Customer-Connection-tab").click();
+        $("#deviceinfo-tabs").click();
+    }
+    $(function () {
+        //$("#Cbo_CurrentItemName").change(function () {
+        //    if ($("#IName").val() != "") {
+        //        var CurrentItemName = $("#IName").val();
+        //        var data = $(this).select2('data');
+        //        if (data[0]) {
+        //            data = data[0].text;
+        //            $("#Txt_Remark").val("Change Device Name: " + CurrentItemName + " To: " + data); $("#TxtItemName").val()
+        //        }
+        //    }
+        //});
+
+        //$("#cboItemName").change(function () {
+        //    if ($("#IName").val() != "") {
+        //        var CurrentItemName = $("#IName").val();
+        //        var data = $(this).select2('data');
+        //        if (data[0]) {
+        //            data = data[0].text;
+        //            $("#Txt_Remark").val("Change Device Name: " + CurrentItemName + " To: " + data);// $("#TxtItemName").val()
+        //        }
+        //    }
+        //});
+    });
+</script>

@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <section style="font-family:'Khmer';" class="content" id="CustInvoice">
+        <div class="container-fluid p-1">
+            <div class="row">
+                <div class="col-12">
+                    <p class="text-center khmerFontMoul" style="color:#F89C39; font-size: 26px; padding:0; margin:0">សម្រង់តម្លៃ</p>
+                </div><div class="col-12">
+                    <p class="text-center text-uppercase" style="color:#F89C39; font-size: 26px; padding:0; margin:0">Quotation</p>
+                </div>
+                <div class="col-12"><hr style="height:2px;width:100%; border-width:0; color:#F89C39; background-color:#F89C39; ; padding:0; margin:0"></div>
+            </div>
+            <div class="row"><div class="col-12">&nbsp;</div></div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-7">
+                            <table>
+                                <tbody>
+                                    <tr><td>អតិថិជន/Customer៖ </td><td>{ContactName}</td></tr>
+                                    <tr><td>ទូរស័ព្ទ/Telephone៖</td><td>{ContactPhone}</td></tr>
+                                    <tr class="align-text-top"><td class="text-nowrap">អាសយដ្ឋាន/Address៖ </td><td class="">{ContactAddress}</td></tr>
+                                    <tr><td>ATT:</td><td>{ATTName}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-5">
+                            <table class="float-right">
+                                <tbody>
+                                    <tr><td class="text-nowrap">លេខរៀងសម្រង់តម្លៃ/Quotation No.៖</td><td>{InvoiceNo}</td></tr>
+                                    <tr><td>កាលបរិច្ឆេទ/Date៖</td><td>{InvoiceDate}</td></tr>
+                                    <tr><td class="text-nowrap">ថ្ងៃផុតកំណត់/Expired Date៖</td><td>{PaymentDueDate}</td></tr>
+                                    <tr><td class="text-nowrap">អ្នកលក់/Sale's Name៖</td><td title="{SaleName}">{LeadCode}</td></tr>
+                                    <tr><td class="text-nowrap">ទូរស័ព្ទអ្នកលក់/Sale's Phone៖</td><td></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-4">
+                <div class="col-12">
+                    <table class="table table-bordered text-nowrap" cellpadding="0" cellspacing="0">
+                        <thead style="color:white!important; text-align:center!important; background-color:#F89C39">
+                            <tr>
+                                <th>ល.រ</th>
+                                <th class="col-6">បរិយាយ</th>
+                                <th class="col-1">ខ្នាត</th>
+                                <th class="col-1">បរិមាណ</th>
+                                <th>ឯកតា</th>
+                                <th>បញ្ចុះតម្លៃ</th>
+                                <th class="col-1">សរុប$</th>
+                            </tr>
+                            <tr>
+                                <th>No.</th>
+                                <th>Description</th>
+                                <th>UM</th>
+                                <th>QTY</th>
+                                <th>UnitPrice</th>
+                                <th>Dis$</th>
+                                <th>Amount$</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td valign="top" align="center">1</td>
+                                <td>Business Package-UV15 Mbps6 Months<br><br><b>Feature:</b><br><div class="row"><div class="col-auto ml-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"></path></svg></div><div class="col"><p class="text-justify">Download Bandwidth 15Mbps</p></div></div> <div class="row"><div class="col-auto ml-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"></path></svg></div><div class="col"><p class="text-justify">Upload Bandwidth 15Mbps</p></div></div> <div class="row"><div class="col-auto ml-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"></path></svg></div><div class="col"><p class="text-justify">Facebook &amp; YouTube Speed 20Mbps </p></div></div></td>
+                                <td valign="top" align="center" class="text-nowrap">6 Months</td>
+                                <td valign="top" align="center">1</td>
+                                <td valign="top" align="center">$180.00</td>
+                                <td valign="top" align="center">$0.00</td>
+                                <td valign="top" align="center">$180.00</td>
+                            </tr>
+                            <tr>
+                                <td valign="top" align="center">2</td>
+                                <td>&nbsp;</td>
+                                <td valign="top" align="center">&nbsp;</td>
+                                <td valign="top" align="center">&nbsp;</td>
+                                <td valign="top" align="center">&nbsp;</td>
+                                <td valign="top" align="center">&nbsp;</td>
+                                <td valign="top" align="center">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" rowspan="6" class="p-2" valign="top">
+                                    <div class="row">
+                                        <div class="col">
+                                            <pre class="text-nowrap-pre p-0" style="font-family:'Khmer'; height:auto !important; overflow: hidden;">Term &amp; Conditions
+1. All Goods bought delivered are not returnable and refundable.
+2. Payment terms are due to 7 days from date of invoice.
+3. All quote need to deposit 50 % first
+</pre>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="right">
+                                    <label class="col-form-label text-nowrap">សរុប / Total:</label>
+                                </td>
+                                <td align="center"><label class="col-form-label" name="Total">$180.00</label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="right"><label class="col-form-label text-nowrap">ប្រាក់កក់ / Deposit:</label></td>
+                                <td align="center"><label class="col-form-label">$0.00</label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="right"><label class="col-form-label text-nowrap">បញ្ចុះតម្លៃ / Discount $:</label></td>
+                                <td align="center"><label class="col-form-label">$0.00</label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="right"><label class="col-form-label text-nowrap">សរុបទឹកប្រាក់រួម / Grand Total USD:</label></td>
+                                <td align="center"><label class="col-form-label" name="GrandTotal">$180.00</label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="right"><label class="col-form-label text-nowrap">សរុបទឹកប្រាក់រួមជាលុយរៀល / Grand Total KHR:</label></td>
+                                <td align="center"><label class="col-form-label" name="GrandTotal">៛730,980</label></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <footer>
+                <div id="divFooterPrint">
+                    <div class="row" style="margin-top:50px">
+                        <div class="col-4">
+                            <div class="text-center" style="height:90px"></div>
+                            <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <label class="col-form-label text-uppercase text-nowrap">Customer Received By</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="col-form-label text-nowrap">Name:</label><br><label class="col-form-label text-nowrap">Date:</label><br><label class="col-form-label text-nowrap">Phone:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <label class="col-form-label text-uppercase"></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <label class="col-form-label"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center" style="height:90px">
+                                <img id="Signature" src="../Uploads/Users/8c04e831-324c-43e1-af31-478e10007ffe_UNTITLED1_12255PNG-168871491405216PNG-168871984980167PNG-169096996263226.png" height="90">
+                            </div>
+                            <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                            <div class="row">
+                                <div class="col text-center">
+                                    <label class="col-form-label text-uppercase text-nowrap">Issued By</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="col-form-label text-nowrap">Name: <span class="d-print-none">Mr. Touch Chan Sothea</span></label><br><label class="col-form-label text-nowrap">Date: <span class="d-print-none">05/11/2024</span></label><br><label class="col-form-label text-nowrap">Phone:</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </section>
+</body>
+</html>

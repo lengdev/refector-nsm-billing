@@ -1,0 +1,116 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    function onEnter(e, THIS) {
+        e.preventDefault();
+        if (e.which === 13) {
+            var index = $(THIS).closest("tr").index();
+            $("input[name=SerialNumber]").eq((index + 1)).focus();
+            return true;
+        }
+    }
+
+    function addCategoryToItem() {
+        var Data = [], iCostPrice = {}, iSellingPrice = {}, objDatas = [], ItemCategory = {}, objDataOpeningStock = [];
+        ItemCategory = SaveChangeResponse.filter(function (item) {
+            return item.name == 'StockName';
+        });
+        Data = SaveChangeResponse['Data'].IDENTITYValue.split("~");
+        var Datas = Data[0].split("|");
+        //var PurchasePrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'PurchasePrice'
+        //})[0].value;
+        //var SellingPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'SellingPrice'
+        //})[0].value;
+        var objs = [];
+        for (var i = 0; i < Data.length; i++) {
+            var dt = Data[i].split("|")
+            var obj = {};
+            if (dt[0] == "ParentItemID") {
+                obj = { ItemID: dt[1] };
+                objs.push(obj);
+            }
+        }
+        Datas = {
+            ItemID: Datas[1],
+            //CostPrice: PurchasePrice,
+            //SellingPrice: SellingPrice
+        };
+        //iCostPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iCostPrice' && item.value != "";
+        //});
+        //iSellingPrice = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iSellingPrice' && item.value != "";
+        //});
+        for (var j = 0; j < objs.length; j++) {
+            var objData = {
+                ItemID: objs[j].ItemID,
+                CostPrice: accounting.unformat(iCostPrice[j].value),
+                SellingPrice: accounting.unformat(iSellingPrice[j].value)
+            }
+            objDatas.push(objData);
+        }
+        objDatas.push(Datas);
+        var ojbCat = [];
+        for (var i = 0; i < ItemCategory.length; i++) {
+            var Category = ItemCategory[i].value;
+            var obj = {};
+            $.each(objDatas, function (key, value) {
+                obj = {
+                    ItemID: value.ItemID,
+                    CategoryID: Category
+                }
+                ojbCat.push(obj);
+            });
+        }
+        //var OpeningStock = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "OpeningStock";
+        //})[0].value;
+        //var OpeningStockRatePerUnit = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "OpeningStockRatePerUnit";
+        //})[0].value;
+        var ItemExpirationDate = SaveChangeResponse.filter(function (item) {
+            return item.name == "ItemExpirationDate";
+        })[0].value;
+        var VendorName = SaveChangeResponse.filter(function (item) {
+            return item.name == "VendorName_Reference_VendorName";
+        })[0].value;
+        var VendorID = SaveChangeResponse.filter(function (item) {
+            return item.name == "VendorName_VendorID";
+        })[0].value;
+        var Warehouse = SaveChangeResponse.filter(function (item) {
+            return item.name == "Warehouse";
+        })[0].value;
+        var WID = SaveChangeResponse.filter(function (item) {
+            return item.name == "Warehouse_WID";
+        })[0].value;
+        var ItemName = SaveChangeResponse.filter(function (item) {
+            return item.name == "Txt_ItemName";
+        })[0].value;
+        //var UM = SaveChangeResponse.filter(function (item) {
+        //    return item.name == "Txt_UMName";
+        //})[0].value;
+
+        objDataOpeningStock.push({
+            ItemID: Datas.ItemID,
+            //OpeningStock: accounting.unformat((OpeningStock == "" ? "0" : OpeningStock)),
+            //OpeningStockRatePerUnit: accounting.unformat((OpeningStockRatePerUnit == "" ? "0" : OpeningStockRatePerUnit)),
+            VendorName: encodeURIComponent(VendorName),
+            VendorID: VendorID,
+            Warehouse: encodeURIComponent(Warehouse),
+            WID: WID,
+            ItemName: encodeURIComponent(ItemName),
+            /*UM: UM,*/
+            ItemExpirationDate: (ItemExpirationDate == "" ? "" : StringToDate(ItemExpirationDate))
+        });
+        var DATA = {
+            ItemCategory: JSON.stringify(ojbCat),
+            //ItemPriceList: JSON.stringify(objDatas),
+            OpeningStock: JSON.stringify(objDataOpeningStock),
+            Status: "AddItemSerial"
+        };
+        //console.log(ItemCategory)
+        PostData("AddItem/SaveChangeItem", DATA);
+    }
+</script>

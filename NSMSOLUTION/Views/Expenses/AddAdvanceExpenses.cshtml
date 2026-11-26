@@ -1,0 +1,128 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    var AdvanceExpenseID = "@ViewBag.PrimaryFieldValue";
+    var IsClone = "@ViewBag.IsClone";
+    $(function () {
+        if (IsClone == "True") {
+            ClassChange();
+        }
+    });
+
+    function ClassChange() {
+        var ClassID = $("#ClassName_ClassNameID").val();
+        console.log(ClassID)
+        LoadData("Expenses/GetAdvNumber?ClassID=" + ClassID, function (response) {
+            $("#AdvNo").val(response);
+        });
+    }
+
+    function SaveChangeAdvanceExpense() {
+        var PayeeID = $.trim($("#PayeeID").val());
+        var PayeeType = $("#PayeeID").data("kendoMultiColumnComboBox");
+        var selectedDataItem = PayeeType.dataItem(PayeeType.select());
+        var PayeeName = "";
+        if (selectedDataItem) {
+            PayeeName = selectedDataItem.Name;
+            PayeeType = selectedDataItem.Type; // Access the 'Type' field of the selected item
+        }
+        var VendorID = $.trim($("#VendorID").val());
+        var VendorType = $("#VendorID").data("kendoMultiColumnComboBox");
+        selectedDataItem = VendorType.dataItem(VendorType.select());
+        var VendorName = "";
+        if (selectedDataItem) {
+            VendorName = selectedDataItem.Name;
+            VendorType = selectedDataItem.Type; // Access the 'Type' field of the selected item
+        }
+        var DepartmentID = $("#UnderOperation_DepartmentID").val();
+        var UnderOperation = $("#UnderOperation").val();
+        var AdvDate = StringToDate($("#PaymentDate").val());
+        var ClassName = $("#ClassName").val();
+        var ClassNameID = $("#ClassName_ClassNameID").val();
+        var AdvNo = $("#AdvNo").val();
+        var CheckedByUserID = $.trim($("#CheckedBy_CheckedByUserID").val());
+        var CheckedBy = $.trim($("#CheckedBy").val());
+        var CheckedByTelegramUserName = $.trim($("#CheckedBy_CheckedByTelegramUserName").val());
+
+        var VerifiedByUserID = $.trim($("#VerifiedBy_VerifiedByUserID").val());
+        var VerifiedBy = $.trim($("#VerifiedBy").val());
+        var VerifiedByTelegramUserName = $.trim($("#VerifiedBy_VerifiedByTelegramUserName").val());
+
+        var ApprovedByUserID = $.trim($("#ApprovedBy_ApprovedByUserID").val());
+        var ApprovedBy = $.trim($("#ApprovedBy").val());
+        var ApprovedByTelegramUserName = $.trim($("#ApprovedBy_ApprovedByTelegramUserName").val());
+        var AdvExpenseData = [];
+        var obj = {
+            AdvanceExpenseID: AdvanceExpenseID,
+            IsClone: IsClone,
+            PayeeID: PayeeID,
+            PayeeType: PayeeType,
+            PayeeName: PayeeName,
+            VendorID: VendorID,
+            VendorName: VendorName,
+            VendorType: typeof VendorType === 'object' ? null : VendorType,
+            DepartmentID: DepartmentID,
+            UnderOperation: UnderOperation,
+            AdvDate: AdvDate,
+            ClassNameID: ClassNameID,
+            ClassName: ClassName,
+            AdvNo: AdvNo,
+            CheckedByUserID: CheckedByUserID,
+            CheckedBy: CheckedBy,
+            CheckedByTelegramUserName: CheckedByTelegramUserName,
+            VerifiedByUserID: VerifiedByUserID,
+            VerifiedBy: VerifiedBy,
+            VerifiedByTelegramUserName: VerifiedByTelegramUserName,
+            ApprovedByUserID: ApprovedByUserID,
+            ApprovedBy: ApprovedBy,
+            ApprovedByTelegramUserName: ApprovedByTelegramUserName
+        }
+
+        AdvExpenseData.push(obj);
+
+        var AdvExpenseDataDetail = [];
+
+        $("#TblExpensesItem tr[name=TR_No]").each(function (key, value) {
+            var ItemName = $.trim(nl2br($("#TblExpensesItem textarea[name=ItemName]").eq(key).val()));
+            var AmountBank = accounting.unformat($("#TblExpensesItem input[name=AmountBank]").eq(key).val());
+            var AmountCase = accounting.unformat($("#TblExpensesItem input[name=AmountCase]").eq(key).val());
+            if (ItemName != "") {
+                obj = {
+                    Description: ItemName,
+                    AmountBank: AmountBank,
+                    AmountCase: AmountCase
+                }
+                AdvExpenseDataDetail.push(obj);
+            }
+        });
+        var DATA = {
+            DATA: JSON.stringify({
+                AdvExpenseData: AdvExpenseData,
+                AdvExpenseDataDetail: AdvExpenseDataDetail
+            })
+        };
+
+
+        DoSaveChageAjaxForm("FrmAddExpense", "Expenses/SaveChangeAdvanceExpense", DATA, "", function (response) {
+            if (response.Result == 2) {
+                var Data = JSON.parse(response.Data).Table[0];
+                var AdvanceExpenseID = Data.AdvanceExpenseID;
+                var AdvNo = Data.AdvNo;
+                var CheckedByTelegramUserName = Data.CheckedByTelegramUserName === "0" ? "" : Data.CheckedByTelegramUserName;
+                var UserFullName = Data.UserFullName;
+                Data = { AdvanceExpenseID: AdvanceExpenseID, AdvNo: AdvNo, CheckedByTelegramUserName: CheckedByTelegramUserName, UserFullName: UserFullName };
+                $("div#modal-default").remove();
+                $('.modal').remove();
+                $('.modal-backdrop').remove();
+                $('body').removeClass("modal-open");
+                $("#BunSearch").click();
+                PostData("Expenses/SendNotificationAdvExpense", Data, function (response) {
+                    //console.log(response);
+                });
+            }
+        });
+    }
+
+</script>
+

@@ -1,0 +1,984 @@
+@{
+Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+
+<script>
+    var CONFIG = {
+        systemId: Number('@ViewBag.SystemID'),
+        itemName: '@ViewBag.ItemName',
+        itemId: '@ViewBag.ItemID',
+        clone: '@ViewBag.Clone.ToString().ToLower()' === 'true',
+        type: '@ViewBag.Type',
+        vendorName: '@ViewBag.VendorName',
+        primaryFieldValue: '@ViewBag.PrimaryFieldValue',
+        saleNote: '@ViewBag.SaleNote',
+        isCommercialInvoice:
+            '@ViewBag.IsCommercialINV.ToString().ToLower()' === 'true'
+    };
+
+    var SELECTORS = {
+        invoiceType: 'input[name="TypeOfInvoice"]',
+        vatRate: 'input[name="VATRate"]',
+        itemRow: 'table[name="TblItemInfo"] tbody tr',
+        itemName: 'input[name="ItemName"]',
+        quantity: 'input[name="QTY"]',
+        unitPrice: 'input[name="UnitPrice"]',
+        discountPercent: 'input[name="DisP"]',
+        discountUSD: 'input[name="DisUSD"]',
+        discountKHR: 'input[name="DisKHR"]',
+        deposit: 'input[name="TxtDeposit"]',
+        exchangeRate: 'input[name="ExchangeRate"]',
+        dimension: 'input[name="Dimension"]',
+        unit: 'input[name="UM"]',
+        uomId: 'input[name="UomID"]',
+        itemId: 'input[name="ItemID"]',
+        itemStatus: 'input[name="ItemStatus"]',
+        instock: 'input[name="Instock"]'
+    };
+
+    var INVOICE_TYPE = {
+        VAT: 'VAT',
+        COMMERCIAL: 'CM',
+        NON_VAT: 'NonVAT'
+    };
+
+    var CLASS_ID = {
+        DEFAULT: 10,
+        NON_VAT: 11,
+        BS_COMPANY: 12
+    };
+
+    $(function () {
+        initializeVATField();
+        initializeInvoiceTypeOptions();
+        initializeBankInfo();
+        initializeTermsAndConditions();
+        initializeClone();
+        initializeEvents();
+
+        if (CONFIG.primaryFieldValue) {
+            handleClassNameChange();
+        }
+
+        loadCompanyInfo();
+        loadExchangeRate();
+        calculateTotals();
+    });
+
+    function initializeVATField() {
+        const $label = $('label[name="VAT"]');
+
+        if (!$label.length) {
+            return;
+        }
+
+        const $input = $('<input>', {
+            type: 'hidden',
+            name: 'VATRate',
+            class: 'input2 text-center text-bold',
+            value: 0
+        });
+
+        const $wrapper = $('<div>', {
+            class: 'wrap-input3'
+        });
+
+        const $focus = $('<span>', {
+            class: 'focus-input2'
+        });
+
+        const $vatAmount = $('<label>', {
+            name: 'VATAmount'
+        });
+
+        $label.replaceWith($input);
+
+        $input.wrap($wrapper);
+
+        $input.parent()
+            .append($focus)
+            .append($vatAmount);
+    }
+
+    function initializeInvoiceTypeOptions() {
+        const $customerNotes = $('#Customer_Notes');
+
+        if (!$customerNotes.length || $('#divTypeOfInvoice').length) {
+            return;
+        }
+
+        const html = `
+            <div class="row mt-3 mb-4" id="divTypeOfInvoice">
+                <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input
+                            type="checkbox"
+                            name="TypeOfInvoice"
+                            id="IncludedVAT"
+                            data-value="${INVOICE_TYPE.VAT}"
+                        >
+                        <label for="IncludedVAT">Included VAT</label>
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input
+                            type="checkbox"
+                            name="TypeOfInvoice"
+                            id="CommercialINV"
+                            data-value="${INVOICE_TYPE.COMMERCIAL}"
+                        >
+                        <label for="CommercialINV">Commercial Inv.</label>
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input
+                            type="checkbox"
+                            name="TypeOfInvoice"
+                            id="NonVAT"
+                            data-value="${INVOICE_TYPE.NON_VAT}"
+                        >
+                        <label for="NonVAT">None VAT</label>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $customerNotes.closest('.row').before(html);
+
+        if (CONFIG.systemId === 25) {
+            $(SELECTORS.invoiceType)
+                .prop({
+                    checked: false,
+                    disabled: true
+                })
+                .val(false);
+        }
+    }
+
+    function initializeBankInfo() {
+        const $bankInfo = $('#BankInfo');
+
+        if (!$bankInfo.length) {
+            return;
+        }
+
+        $bankInfo.attr({
+            id: 'SaleNote',
+            name: 'SaleNote',
+            placeholder: 'Sale Note'
+        });
+
+        $bankInfo
+            .siblings('label')
+            .attr('for', 'SaleNote')
+            .text('Sale Note');
+
+        if (CONFIG.primaryFieldValue) {
+            $('#SaleNote').val(CONFIG.saleNote);
+        }
+    }
+
+    function initializeTermsAndConditions() {
+        const $remark = $('#Customer_Notes').closest('.row');
+        const $terms = $('#TermsConditions').closest('.row');
+
+        if ($remark.length && $terms.length) {
+            $terms.insertBefore($remark);
+        }
+    }
+
+    function initializeClone() {
+        if (CONFIG.clone) {
+            $('#SalesID').val('');
+        }
+    }
+
+    function initializeEvents() {
+        $(document).on(
+            'keyup.sales change.sales',
+            `
+                ${SELECTORS.quantity},
+                ${SELECTORS.unitPrice},
+                ${SELECTORS.discountPercent},
+                ${SELECTORS.discountUSD},
+                ${SELECTORS.discountKHR},
+                ${SELECTORS.deposit}
+            `,
+            calculateTotals
+        );
+
+        $(document).on(
+            'change.sales blur.sales',
+            SELECTORS.itemName,
+            handleItemNameChange
+        );
+
+        $(document).on(
+            'change.sales blur.sales keyup.sales',
+            SELECTORS.quantity,
+            validateQuantity
+        );
+
+        $(document).on(
+            'change.sales',
+            SELECTORS.itemStatus,
+            handleItemStatusChange
+        );
+
+        $(document).on(
+            'change.sales',
+            SELECTORS.uomId,
+            updateDimensionState
+        );
+
+        $(document).on(
+            'keyup.sales',
+            SELECTORS.dimension,
+            handleDimensionChange
+        );
+
+        $(document).on(
+            'typeahead:change.sales',
+            '#ClassName',
+            function () {
+                setTimeout(handleClassNameChange, 0);
+            }
+        );
+
+        $(document).on(
+            'change.sales',
+            SELECTORS.invoiceType,
+            handleInvoiceTypeChange
+        );
+
+        $(document).on(
+            'change.sales',
+            'select[name="SOID"]',
+            handleQuotationChange
+        );
+    }
+
+    function handleItemNameChange() {
+        const $input = $(this);
+        const $row = $input.closest('tr');
+        const warehouseId = $('#WarehouseName_LocationID').val();
+
+        if (CONFIG.systemId === 25 && !warehouseId) {
+            DialogSweetAlert(
+                'error',
+                'Please select location!'
+            );
+
+            $input.val('');
+            return;
+        }
+
+        if ($.trim($input.val()) === '') {
+            $row.find(SELECTORS.instock).val('');
+        }
+    }
+
+    function validateQuantity() {
+        const $input = $(this);
+        const $row = $input.closest('tr');
+
+        if (CONFIG.systemId !== 25) {
+            return;
+        }
+
+        const itemName = $.trim(
+            $row.find(SELECTORS.itemName).val() || ''
+        );
+
+        if (!itemName) {
+            return;
+        }
+
+        const quantity = parseFloat($input.val()) || 0;
+        const instock =
+            parseFloat($row.find(SELECTORS.instock).val()) || 0;
+
+        if (instock > 0 && quantity > instock) {
+            const warehouseName =
+                $('#WarehouseName').val() || '';
+
+            DialogSweetAlert(
+                'error',
+                `បរិមាណស្តុកមិនគ្រប់គ្រាន់នៅក្នុងឃ្លាំង ${warehouseName}`,
+                function () {
+                    $input.val('1.00');
+                    calculateTotals();
+                }
+            );
+        }
+    }
+
+    function handleItemStatusChange() {
+        const $row = $(this).closest('tr');
+        const itemId = $row.find(SELECTORS.itemId).val();
+        const itemStatus = $(this).val();
+
+        if (!itemId) {
+            return;
+        }
+
+        LoadData(
+            `Sales/LoadItemInfo?ItemID=${itemId}&ItemStatus=${itemStatus}`,
+            function (response) {
+                const result = parseNestedJson(response);
+
+                if (!result || !result.length) {
+                    return;
+                }
+
+                const item = result[0];
+
+                $row
+                    .find('textarea[name="ItemName_Description"]')
+                    .val(item.OtherField);
+
+                $row
+                    .find('input[name="UM"]')
+                    .val(item.UM);
+
+                $row
+                    .find('input[name="UomID"]')
+                    .val(item.UomID);
+
+                $row
+                    .find('input[name="UnitPrice"]')
+                    .val(
+                        accounting.formatMoney(
+                            item.SalePrice,
+                            ''
+                        )
+                    );
+
+                updateDimensionState.call(
+                    $row.find(SELECTORS.uomId)
+                );
+
+                calculateTotals();
+            }
+        );
+    }
+
+    function updateDimensionState() {
+        const $row = $(this).closest('tr');
+        const unit =
+            ($row.find(SELECTORS.unit).val() || '')
+                .toLowerCase();
+
+        const $dimension =
+            $row.find(SELECTORS.dimension);
+
+        if (unit.includes('m2')) {
+            $dimension.prop('readonly', false);
+        } else {
+            $dimension
+                .val('')
+                .prop('readonly', true);
+        }
+    }
+
+    function handleDimensionChange() {
+        const $input = $(this);
+        const $row = $input.closest('tr');
+
+        const unit =
+            ($row.find(SELECTORS.unit).val() || '')
+                .toLowerCase();
+
+        if (!unit) {
+            DialogSweetAlert(
+                'error',
+                'Please select unit!'
+            );
+            return;
+        }
+
+        if (!unit.includes('m2')) {
+            DialogSweetAlert(
+                'error',
+                'Allow only unit "m2"'
+            );
+            return;
+        }
+
+        const area = calculateArea($input.val());
+
+        $row
+            .find(SELECTORS.quantity)
+            .val(accounting.toFixed(area, 3));
+
+        calculateTotals();
+    }
+
+    function resetInvoiceType() {
+        $(SELECTORS.invoiceType)
+            .prop({
+                checked: false,
+                disabled: false
+            })
+            .val(false);
+
+        $(SELECTORS.vatRate).val(0);
+    }
+
+    function selectInvoiceType(type) {
+        resetInvoiceType();
+
+        const $target = $(
+            `input[name="TypeOfInvoice"][data-value="${type}"]`
+        );
+
+        if (!$target.length) {
+            return;
+        }
+
+        $target
+            .prop('checked', true)
+            .val(true);
+
+        $(SELECTORS.vatRate).val(
+            type === INVOICE_TYPE.VAT ? 10 : 0
+        );
+    }
+
+    function handleInvoiceTypeChange() {
+        const $current = $(this);
+
+        if (!$current.is(':checked')) {
+            calculateTotals();
+            return;
+        }
+
+        const type = $current.data('value');
+
+        $(SELECTORS.invoiceType)
+            .not($current)
+            .prop('checked', false)
+            .val(false);
+
+        $current.val(true);
+
+        switch (type) {
+            case INVOICE_TYPE.VAT:
+                $current.prop('disabled', true);
+                $('#CommercialINV')
+                    .prop('disabled', false);
+                $('#NonVAT')
+                    .prop('disabled', true);
+
+                $(SELECTORS.vatRate).val(10);
+                restoreSONumber();
+                break;
+
+            case INVOICE_TYPE.COMMERCIAL:
+                saveSONumber();
+
+                $current.prop('disabled', true);
+                $('#IncludedVAT')
+                    .prop('disabled', false);
+                $('#NonVAT')
+                    .prop('disabled', true);
+
+                $(SELECTORS.vatRate).val(0);
+
+                getPrefixNumber(
+                    getClassId(),
+                    true
+                );
+                break;
+
+            case INVOICE_TYPE.NON_VAT:
+                $current.prop('disabled', false);
+
+                $('#IncludedVAT, #CommercialINV')
+                    .prop('disabled', true);
+
+                $(SELECTORS.vatRate).val(0);
+                break;
+        }
+
+        calculateTotals();
+    }
+
+    function handleClassNameChange(isCommercial = false) {
+        const classID = getClassId();
+
+        const isCm =
+            isCommercial === true ||
+            CONFIG.isCommercialInvoice === true;
+
+        resetInvoiceType();
+
+        switch (classID) {
+            case CLASS_ID.BS_COMPANY:
+                selectInvoiceType(
+                    isCm
+                        ? INVOICE_TYPE.COMMERCIAL
+                        : INVOICE_TYPE.VAT
+                );
+
+                $('#NonVAT')
+                    .prop('disabled', true);
+
+                $('#IncludedVAT, #CommercialINV')
+                    .prop('disabled', false);
+                break;
+
+            case CLASS_ID.NON_VAT:
+                selectInvoiceType(
+                    INVOICE_TYPE.NON_VAT
+                );
+
+                $('#IncludedVAT, #CommercialINV')
+                    .prop('disabled', true);
+
+                $('#NonVAT')
+                    .prop('disabled', false);
+                break;
+
+            case CLASS_ID.DEFAULT:
+            default:
+                resetInvoiceType();
+                break;
+        }
+
+        if (shouldGeneratePrefix()) {
+            getPrefixNumber(classID, isCm);
+        }
+
+        calculateTotals();
+    }
+
+    function getClassId() {
+        return Number(
+            $('#ClassName_ClassID').val()
+        ) || 0;
+    }
+
+    function shouldGeneratePrefix() {
+        return (
+            CONFIG.clone ||
+            CONFIG.primaryFieldValue === '0' ||
+            CONFIG.primaryFieldValue === ''
+        );
+    }
+
+    function getPrefixNumber(
+        classID,
+        isCommercial = false
+    ) {
+        if (!classID) {
+            return;
+        }
+
+        LoadData(
+            `Sales/GetPrefixCallBack?ClassID=${classID}&Module=SO&IsCM=${isCommercial}`,
+            function (response) {
+                const result = parseNestedJson(response);
+
+                if (!result || !result.length) {
+                    return;
+                }
+
+                $('#SONumber')
+                    .val(result[0].PrefixNumber);
+
+                $('#PrefixSO')
+                    .val(result[0].Prefix);
+            }
+        );
+    }
+
+    function handleQuotationChange() {
+        const quoteNumbers = [];
+        const salesIDs = [];
+
+        $('select[name="SOID"] option:selected')
+            .each(function () {
+                quoteNumbers.push($(this).text());
+                salesIDs.push($(this).val());
+            });
+
+        $('#QuoteNumber')
+            .val(quoteNumbers.join(','));
+
+        if (!salesIDs.length) {
+            $('#TableItemInformation tbody').empty();
+            calculateTotals();
+            return;
+        }
+
+        changeQuoteNumber(
+            salesIDs.join(',')
+        );
+    }
+
+    function changeQuoteNumber(salesIDs) {
+        if (!salesIDs) {
+            return;
+        }
+
+        PostData(
+            'Sales/LoadQuotations',
+            { SalesIDs: salesIDs },
+            function (response) {
+                const data = parseNestedJson(response);
+
+                if (!data || !data.length) {
+                    return;
+                }
+
+                const first = data[0];
+
+                populateQuotationData(first);
+
+                handleClassNameChange(
+                    first.IsCommercialINV === true ||
+                    first.IsCommercialINV === 1 ||
+                    first.IsCommercialINV === '1'
+                );
+
+                $('#TableItemInformation tbody')
+                    .empty();
+
+                setTimeout(function () {
+                    SetValueTableRow(
+                        data,
+                        'ItemName',
+                        'TableItemInformation',
+                        'TRNo',
+                        rowData_TableItemInformation,
+                        'TDNo',
+                        this,
+                        'CallSetAutoComplete_ItemName',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        RowFields2_TableItemInformation
+                    );
+
+                    calculateTotals();
+                }, 300);
+            }
+        );
+    }
+
+    function populateQuotationData(data) {
+        const fields = {
+            '#ClassName': data.ClassName,
+            '#ClassName_ClassID': data.ClassID,
+            '#SallerName': data.SellerName,
+            '#SallerName_SellerID': data.SellerID,
+            '#CustomerName': data.CustomerName,
+            '#CustomerName_CustomerID': data.CustomerID,
+            '#CustomerCode': data.CustomerCode,
+            '#CustomerType': data.CustomerType,
+            '#CustomerMobile': data.CustomerMobile,
+            '#WarehouseName': data.WarehouseName,
+            '#WarehouseName_LocationID': data.LocationID,
+            '#Customer_Notes': data.Remark,
+            '#SaleNote': data.SaleNote
+        };
+
+        Object.keys(fields).forEach(function (selector) {
+            $(selector).val(fields[selector] ?? '');
+        });
+    }
+
+    function calculateRow($row) {
+        const calculator = new TotalCalculator({
+            qty: getNumber(
+                $row.find(SELECTORS.quantity).val()
+            ),
+            unitPrice: getNumber(
+                $row.find(SELECTORS.unitPrice).val()
+            ),
+            discountUSD: getNumber(
+                $row.find(SELECTORS.discountUSD).val()
+            ),
+            discountKHR: getNumber(
+                $row.find(SELECTORS.discountKHR).val()
+            ),
+            discountPercent: getNumber(
+                $row.find(SELECTORS.discountPercent).val()
+            ),
+            exchangeRate:
+                $(SELECTORS.exchangeRate).val()
+        });
+
+        const result = calculator.calculate();
+
+        $row
+            .find('input[name="Amount"]')
+            .val(
+                accounting.formatMoney(
+                    result.total,
+                    ''
+                )
+            );
+
+        return result;
+    }
+
+    function calcSubtotal() {
+        let subtotal = 0;
+        let totalDiscount = 0;
+
+        $(SELECTORS.itemRow).each(function () {
+            const result = calculateRow($(this));
+
+            subtotal += parseFloat(
+                accounting.toFixed(
+                    result.subtotal,
+                    2
+                )
+            );
+
+            totalDiscount += result.totalDiscount;
+        });
+
+        $('label[name="SubTotal"]')
+            .text(
+                accounting.formatMoney(
+                    subtotal,
+                    ''
+                )
+            );
+
+        $('input[name="TxtDisUSD"]')
+            .val(
+                accounting.formatMoney(
+                    totalDiscount,
+                    ''
+                )
+            );
+
+        return {
+            subtotal,
+            totalDiscount
+        };
+    }
+
+    function calculateTotals() {
+        setTimeout(function () {
+            const {
+                subtotal,
+                totalDiscount
+            } = calcSubtotal();
+
+            const calculator = new TotalCalculator({
+                qty: 1,
+                unitPrice: subtotal - totalDiscount,
+                vatRate: getNumber(
+                    $(SELECTORS.vatRate).val()
+                ),
+                deposit: getNumber(
+                    $(SELECTORS.deposit).val()
+                ),
+                exchangeRate:
+                    $(SELECTORS.exchangeRate).val()
+            });
+
+            const result = calculator.calculate();
+
+            $('label[name="VATAmount"]')
+                .text(
+                    accounting.formatMoney(
+                        result.amtVAT,
+                        ''
+                    )
+                );
+
+            $('label[name="Total"]')
+                .text(
+                    accounting.formatMoney(
+                        result.total,
+                        ''
+                    )
+                );
+
+            $('label[name="GrandTotal"]')
+                .text(
+                    accounting.formatMoney(
+                        result.grandTotal,
+                        ''
+                    )
+                );
+
+            $('input[name="TxtBalance"]')
+                .val(
+                    accounting.formatMoney(
+                        result.balanceUSD,
+                        ''
+                    )
+                );
+        }, 10);
+    }
+
+    function getNumber(value) {
+        return parseFloat(
+            accounting.unformat(value || 0)
+        ) || 0;
+    }
+
+    function parseNestedJson(response) {
+        try {
+            let data =
+                typeof response === 'string'
+                    ? JSON.parse(response)
+                    : response;
+
+            if (data && data.data) {
+                data = data.data;
+            }
+
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+
+            return data;
+        } catch (error) {
+            console.error(
+                'Failed to parse response:',
+                error
+            );
+            return null;
+        }
+    }
+
+    function calculateArea(expression) {
+        try {
+            const value = String(expression || '')
+                .replace(/\s+/g, '')
+                .replace(/[^0-9.*\/]/g, '');
+
+            if (!value) {
+                return 1;
+            }
+
+            const sanitizedValue = value.replace(/[*\/.]+$|\.(?=[*/]|$)/g, '');
+
+            if (!sanitizedValue) {
+                return 1;
+            }
+
+            if (
+                !/^\d+(?:\.\d+)?(?:[*/]\d+(?:\.\d+)?)*$/.test(sanitizedValue)
+            ) {
+                throw new Error(
+                    'Invalid area expression.'
+                );
+            }
+
+            const parts = sanitizedValue.match(
+                /(\d+(?:\.\d+)?|[*/])/g
+            );
+
+            let result = parseFloat(parts[0]);
+
+            for (let i = 1; i < parts.length; i += 2) {
+                const operator = parts[i];
+                const number = parseFloat(parts[i + 1]);
+
+                if (operator === '*') {
+                    result *= number;
+                } else if (operator === '/') {
+                    result /= number;
+                }
+            }
+
+            return result.toFixed(4);
+        } catch (error) {
+            DialogSweetAlert(
+                'error',
+                error.message
+            );
+
+            return 1;
+        }
+    }
+
+    function saveSONumber() {
+        const value = $('#SONumber').val() || '';
+
+        if (value) {
+            localStorage.setItem(
+                'SONumber',
+                value
+            );
+        }
+    }
+
+    function restoreSONumber() {
+        const value =
+            localStorage.getItem('SONumber') || '';
+
+        $('#SONumber').val(value);
+    }
+
+    function loadCompanyInfo() {
+        LoadData(
+            'Sales/LoadCompanyInfo',
+            function (response) {
+                const data = parseNestedJson(response);
+
+                if (!data || !data.length) {
+                    return;
+                }
+
+                $('#TermsConditions').val(
+                    decode(
+                        data[0].TermConditionNonVAT
+                    )
+                );
+            }
+        );
+    }
+
+    function loadExchangeRate() {
+        LoadData(
+            'Sales/LoadExchangeRate',
+            function (response) {
+                const data = parseNestedJson(response);
+
+                if (!data || !data.length) {
+                    return;
+                }
+
+                $('#ExchangeRate').val(
+                    data[0].ExchangeRate
+                );
+            }
+        );
+    }
+
+    window.SaveChangeCallbackFunction = function (response) {
+        const data =
+            JSON.parse(response.Data)[0];
+
+        if (!data || !data.SalesID) {
+            return;
+        }
+
+        PostData(
+            'Sales/SendNotificationToTelegram',
+            {
+                SalesID: data.SalesID
+            }
+        );
+    };
+
+</script>

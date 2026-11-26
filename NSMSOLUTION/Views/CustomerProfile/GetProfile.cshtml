@@ -1,0 +1,22 @@
+﻿@{ Layout = null;}
+<div class="form-floating mb-3">
+    <input type="text" class="form-control" id="TxtPPPoEUserName" value="@Html.Raw(ViewBag.PPPoEUserName)" readonly required name="TxtPPPoEUserName" placeholder="Enter PPPoE User Name">
+    <label for="TxtPPPoEUserName">PPPo EUser Name</label>
+</div>
+<div class="form-floating mb-3">
+    @Html.Raw(ViewBag.Cbo)
+</div>
+<div class="form-floating mb-3">
+    <textarea class="form-control" placeholder="Leave a comment here" id="Comments" style="height: 100px"></textarea>
+    <label for="Comments">Comments</label>
+</div>
+<script>
+    $(function () {
+        $("#CboProfileName").select2({
+            //minimumResultsForSearch: Infinity,
+            theme: 'bootstrap4',
+            dropdownParent: $("#CboProfileName").parent().parent()
+        });
+        $("#Comments").focus();
+    });
+</script>

@@ -1,0 +1,477 @@
+﻿@{ Layout = null; }
+<div class="cfr-page">
+    <style>
+        .cfr-page {
+            --cfr-bg: #f4f5f7;
+            --cfr-surface: #ffffff;
+            --cfr-border: #e7e9ee;
+            --cfr-text: #1f2430;
+            --cfr-text-muted: #6b7280;
+            --cfr-text-faint: #9ca3af;
+            --cfr-accent: #16a34a;
+            --cfr-accent-dim: #e7f7ed;
+            --cfr-star: #f59e0b;
+            --cfr-warning-bg: #fffbeb;
+            --cfr-warning-fg: #b45309;
+            --cfr-radius-lg: 18px;
+            --cfr-radius-md: 12px;
+            background: var(--cfr-bg);
+            color: var(--cfr-text);
+            padding: 20px;
+        }
+
+        body.dark-mode .cfr-page {
+            --cfr-bg: #0e1512;
+            --cfr-surface: #161f1b;
+            --cfr-border: rgba(255, 255, 255, 0.06);
+            --cfr-text: #f3f6f4;
+            --cfr-text-muted: #8a968f;
+            --cfr-text-faint: #5c6862;
+            --cfr-accent: #4ade80;
+            --cfr-accent-dim: rgba(74, 222, 128, 0.12);
+            --cfr-star: #fbbf24;
+            --cfr-warning-bg: rgba(245, 158, 11, 0.14);
+            --cfr-warning-fg: #fbbf24;
+        }
+
+        .cfr-page * {
+            box-sizing: border-box;
+        }
+
+        .cfr-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        @@media (max-width: 760px) {
+            .cfr-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== Left: customer card ===== */
+        .cfr-profile-card {
+            background: var(--cfr-surface);
+            border: 1px solid var(--cfr-border);
+            border-radius: var(--cfr-radius-lg);
+            padding: 28px 20px;
+            text-align: center;
+        }
+
+        .cfr-avatar {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: var(--cfr-accent-dim);
+            color: var(--cfr-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .cfr-profile-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .cfr-profile-cid {
+            font-size: 12.5px;
+            color: var(--cfr-text-muted);
+            margin: 0;
+        }
+
+        .cfr-profile-type {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--cfr-text-faint);
+            background: var(--cfr-bg);
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+
+        .cfr-btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 18px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid var(--cfr-border);
+            background: var(--cfr-bg);
+            color: var(--cfr-text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.12s ease, color 0.12s ease;
+        }
+
+            .cfr-btn-view:hover {
+                border-color: var(--cfr-accent);
+                color: var(--cfr-accent);
+            }
+
+        /* ===== Right column ===== */
+        .cfr-right {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .cfr-info-card {
+            background: var(--cfr-surface);
+            border: 1px solid var(--cfr-border);
+            border-radius: var(--cfr-radius-lg);
+            overflow: hidden;
+        }
+
+        .cfr-info-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--cfr-border);
+        }
+
+            .cfr-info-row:last-child {
+                border-bottom: none;
+            }
+
+        .cfr-info-label {
+            flex: 0 0 110px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--cfr-text-muted);
+        }
+
+        .cfr-info-value {
+            flex: 1;
+            font-size: 13.5px;
+            color: var(--cfr-text);
+        }
+
+            .cfr-info-value:empty::before {
+                content: "—";
+                color: var(--cfr-text-faint);
+            }
+
+        /* ===== Feedback entry card ===== */
+        .cfr-feedback-card {
+            background: var(--cfr-surface);
+            border: 1px solid var(--cfr-border);
+            border-radius: var(--cfr-radius-lg);
+            overflow: hidden;
+        }
+
+        .cfr-feedback-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 14px 20px;
+            background: var(--cfr-bg);
+            border-bottom: 1px solid var(--cfr-border);
+        }
+
+        .cfr-feedback-no {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--cfr-text);
+        }
+
+        .cfr-feedback-date {
+            font-size: 12px;
+            color: var(--cfr-text-muted);
+        }
+
+        .cfr-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--cfr-border);
+        }
+
+            .cfr-detail-row:last-child {
+                border-bottom: none;
+            }
+
+        .cfr-detail-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: var(--cfr-accent-dim);
+            color: var(--cfr-accent);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .cfr-detail-label {
+            flex: 1;
+            font-size: 13.5px;
+            color: var(--cfr-text);
+        }
+
+        .cfr-detail-value {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--cfr-text);
+            text-align: right;
+        }
+
+            .cfr-detail-value:empty::before {
+                content: "—";
+                font-weight: 400;
+                color: var(--cfr-text-faint);
+            }
+
+        /* Comment block (full width, own row) */
+        .cfr-comment-row {
+            padding: 13px 20px;
+        }
+
+        .cfr-comment-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            color: var(--cfr-text);
+        }
+
+        .cfr-comment-box {
+            background: var(--cfr-bg);
+            border: 1px solid var(--cfr-border);
+            border-radius: var(--cfr-radius-md);
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--cfr-text);
+            white-space: pre-wrap;
+        }
+
+            .cfr-comment-box:empty::before {
+                content: "—";
+                color: var(--cfr-text-faint);
+            }
+
+        /* No Answer / Busy flag row */
+        .cfr-flag-row .cfr-detail-icon {
+            background: var(--cfr-warning-bg);
+            color: var(--cfr-warning-fg);
+        }
+
+        /* ===== Star rating (display only) ===== */
+        .cfr-stars {
+            display: inline-flex;
+            gap: 2px;
+            font-size: 15px;
+        }
+
+        .cfr-star-on {
+            color: var(--cfr-star);
+        }
+
+        .cfr-star-off {
+            color: var(--cfr-border);
+        }
+
+        /* ===== Close button (top bar) ===== */
+        .cfr-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 4px;
+        }
+
+        .cfr-close-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid #fecaca;
+            background: transparent;
+            color: #dc2626;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .cfr-close-btn:hover {
+                background: #fef2f2;
+            }
+    </style>
+
+    <div class="cfr-grid">
+
+        <!-- ===== Customer profile card ===== -->
+        <div class="cfr-profile-card">
+            <div class="cfr-avatar"><i class="ti ti-user"></i></div>
+            <h5 class="cfr-profile-name" id="h5CutName"></h5>
+            <p class="cfr-profile-cid" id="pCID"></p>
+            <span class="cfr-profile-type" id="pIndustryType"></span>
+            <div>
+                <button type="button" class="cfr-btn-view d-print-none" id="viewProfile">
+                    <i class="ti ti-external-link"></i> View Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Right column ===== -->
+        <div class="cfr-right">
+
+            <div class="cfr-info-card">
+                <div class="cfr-info-row">
+                    <div class="cfr-info-label"><i class="ti ti-id"></i> Full Name</div>
+                    <div class="cfr-info-value" id="pcustFullName"></div>
+                </div>
+                <div class="cfr-info-row">
+                    <div class="cfr-info-label"><i class="ti ti-mail"></i> Email</div>
+                    <div class="cfr-info-value" id="pcustEmail"></div>
+                </div>
+                <div class="cfr-info-row">
+                    <div class="cfr-info-label"><i class="ti ti-phone"></i> Phone</div>
+                    <div class="cfr-info-value" id="pcustPhone"></div>
+                </div>
+                <div class="cfr-info-row">
+                    <div class="cfr-info-label"><i class="ti ti-map-pin"></i> Address</div>
+                    <div class="cfr-info-value" id="pcustAddress"></div>
+                </div>
+            </div>
+
+            @foreach (var dt in ViewBag.Data.Rows)
+            {
+                <div class="cfr-feedback-card">
+                    <div class="cfr-feedback-header">
+                        <span class="cfr-feedback-no">#@dt["FeedbackNo"].ToString()</span>
+                        <span class="cfr-feedback-date">
+                            <i class="ti ti-clock"></i>
+                            @DateTime.Parse(dt["DateFeedback"].ToString()).ToString("dd-MM-yy HH:mm:ss tt")
+                        </span>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-user"></i></div>
+                        <div class="cfr-detail-label">Contacted By</div>
+                        <div class="cfr-detail-value">@dt["UserContact"]</div>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-message-circle"></i></div>
+                        <div class="cfr-detail-label">Type</div>
+                        <div class="cfr-detail-value">@dt["Complaint"]</div>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-gauge"></i></div>
+                        <div class="cfr-detail-label">Internet Speed</div>
+                        <div class="cfr-detail-value">@dt["InternetSpeed"]</div>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-currency-dollar"></i></div>
+                        <div class="cfr-detail-label">Pricing</div>
+                        <div class="cfr-detail-value">@dt["Pricing"]</div>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-headset"></i></div>
+                        <div class="cfr-detail-label">Customer Services</div>
+                        <div class="cfr-detail-value">@dt["CustomerServices"]</div>
+                    </div>
+
+                    @{
+                        int ratingVal = 0;
+                        int.TryParse(dt["Ratingus"].ToString(), out ratingVal);
+                    }
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-star"></i></div>
+                        <div class="cfr-detail-label">Rating us</div>
+                        <div class="cfr-detail-value">
+                            <span class="cfr-stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= ratingVal)
+                                    {
+                                        <i class="ti ti-star-filled cfr-star-on"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="ti ti-star cfr-star-off"></i>
+                                    }
+                                }
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="cfr-detail-row">
+                        <div class="cfr-detail-icon"><i class="ti ti-arrow-back-up"></i></div>
+                        <div class="cfr-detail-label">Contact By</div>
+                        <div class="cfr-detail-value">@dt["ContactBy"]</div>
+                    </div>
+
+                    <div class="cfr-comment-row">
+                        <div class="cfr-comment-heading">
+                            <i class="ti ti-message"></i> Customer Comment
+                        </div>
+                        <div class="cfr-comment-box" id="pCustomerComment">@dt["CustomerComment"]</div>
+                    </div>
+
+                    @if (dt["IsNoAnswer"] || dt["IsBusy"])
+                    {
+                        <div class="cfr-detail-row cfr-flag-row">
+                            <div class="cfr-detail-icon"><i class="ti ti-alert-triangle"></i></div>
+                            <div class="cfr-detail-label">
+                                @if (dt["IsNoAnswer"])
+                                {
+                                    <text>No Answer</text>
+                                }
+                                else if (dt["IsBusy"])
+                                {
+                                    <text>Busy</text>
+                                }
+                            </div>
+                        </div>
+                        <div class="cfr-comment-row">
+                            <div class="cfr-comment-box">@dt["CommentNoAnswerOrBusy"]</div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var CustInfo = JSON.parse(`@Html.Raw(ViewBag.CustInfo)`);
+    $(function () {
+        if (CustInfo != "") {
+            CustInfo = CustInfo[0];
+            $("#h5CutName").html(CustInfo.CustomerName);
+            $("#pcustFullName").html(CustInfo.CustomerName);
+            $("#pcustEmail").html(CustInfo.CustomerEmail);
+            $("#pCID").html(CustInfo.CustomerCode);
+            $("#pIndustryType").html(CustInfo.IndustryType);
+            $("#pcustPhone").html(CustInfo.CustomerContactMobileNumber);
+            $("#pcustAddress").html(CustInfo.CustomerAddress);
+        }
+
+        $("#viewProfile").click(function () {
+            OpenNewTap("#!/CustomerProfile?ID=" + CustInfo.CustomerID);
+        });
+    });
+</script>

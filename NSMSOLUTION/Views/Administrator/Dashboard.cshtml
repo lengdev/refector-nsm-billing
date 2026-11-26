@@ -1,0 +1,78 @@
+﻿@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Administrator Dashboard</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-12 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Dashboard</h2>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm">Profile</button>
+                        <button class="btn btn-primary btn-sm">Create</button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card p-3 card-stats">
+                            <div class="text-muted">Active Users</div>
+                            <div class="metric">1,254</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card p-3 card-stats">
+                            <div class="text-muted">New Signups</div>
+                            <div class="metric text-success">87</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card p-3 card-stats">
+                            <div class="text-muted">Invoices</div>
+                            <div class="metric">342</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card p-3 card-stats">
+                            <div class="text-muted">Revenue</div>
+                            <div class="metric text-primary">$12.4k</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <div class="card p-3">
+                            <h5>Recent Activity</h5>
+                            <ul class="list-group list-group-flush mt-2">
+                                <li class="list-group-item">User <strong>jane.doe</strong> updated billing info</li>
+                                <li class="list-group-item">Invoice #435 paid</li>
+                                <li class="list-group-item">New user <strong>bob.smith</strong> registered</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card p-3">
+                            <h5>Quick Actions</h5>
+                            <div class="d-grid gap-2 mt-2">
+                                <button class="btn btn-outline-primary">Create Invoice</button>
+                                <button class="btn btn-outline-secondary">Export Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

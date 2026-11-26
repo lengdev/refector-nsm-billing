@@ -1,0 +1,1183 @@
+@using System.Data
+@{
+    Layout = null;
+    DataRow header = ViewBag.PaymentHeader as DataRow;
+    DataTable details = ViewBag.PaymentDetails as DataTable;
+    DataTable journal = ViewBag.PaymentJournal as DataTable;
+    DateTime printDate = ViewBag.PrintDate == null ? DateTime.Now : (DateTime)ViewBag.PrintDate;
+    decimal totalAmount = 0;
+    decimal totalDebit = 0;
+    decimal totalCredit = 0;
+    decimal billTotal = 0;
+    decimal paidBeforeTotal = 0;
+    decimal amountApplied = 0;
+    decimal remainingTotal = 0;
+
+    if (header != null && header["TotalPaymentAmount"] != DBNull.Value)
+    {
+        decimal.TryParse(header["TotalPaymentAmount"].ToString(), out totalAmount);
+    }
+    if (details != null)
+    {
+        foreach (DataRow row in details.Rows)
+        {
+            decimal originalAmount = 0;
+            decimal priorPaid = 0;
+            decimal paymentAmount = 0;
+            decimal remainingBalance = 0;
+            decimal.TryParse(row["GrandTotal"].ToString(), out originalAmount);
+            decimal.TryParse(row["PriorPaid"].ToString(), out priorPaid);
+            decimal.TryParse(row["PaymentAmount"].ToString(), out paymentAmount);
+            decimal.TryParse(row["RemainBalance"].ToString(), out remainingBalance);
+            billTotal += originalAmount;
+            paidBeforeTotal += priorPaid;
+            amountApplied += paymentAmount;
+            remainingTotal += remainingBalance;
+        }
+    }
+    if (journal != null)
+    {
+        foreach (DataRow row in journal.Rows)
+        {
+            decimal debit = 0;
+            decimal credit = 0;
+            decimal.TryParse(row["Debit"].ToString(), out debit);
+            decimal.TryParse(row["Credit"].ToString(), out credit);
+            totalDebit += debit;
+            totalCredit += credit;
+        }
+    }
+
+    string amountInWords = ViewBag.AmountInWords as string;
+    if (string.IsNullOrWhiteSpace(amountInWords))
+    {
+        amountInWords = NumberToWords(totalAmount);
+    }
+
+    string fontBase64 = "";
+    try
+    {
+        string fontPath = Server.MapPath("~/Content/fonts/Khmer OS Content Regular.ttf");
+        if (System.IO.File.Exists(fontPath))
+        {
+            fontBase64 = Convert.ToBase64String(System.IO.File.ReadAllBytes(fontPath));
+        }
+    }
+    catch { }
+}
+
+@if (header != null)
+{
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Payment Voucher - @header["PaymentNo"]</title>
+        <link href="~/Content/fontawesome-free-6.5.1-web/css/all.css" rel="stylesheet" />
+        <link href="~/Content/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
+        <link href="~/Content/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+        <style>
+            @if (!string.IsNullOrEmpty(fontBase64))
+            {
+                <text>
+                @@font-face {
+                    font-family: 'KhmerOSContentRegular';
+                    src: url('data:font/truetype;base64,@fontBase64') format('truetype');
+                }
+                </text>
+            }
+
+            :root {
+                --pb-theme-color: #2072b2;
+            }
+
+            #paybill-voucher {
+                --pb-theme-color: #2072b2;
+            }
+
+            .info-value, .info-label, .company-name, table, td, div, span {
+                font-family: 'KhmerOSContentRegular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+            }
+
+            body {
+                font-family: 'KhmerOSContentRegular', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+                color: #1e293b;
+                margin: 0;
+                padding: 0;
+                font-size: 13px;
+                line-height: 1.5;
+                background: #ffffff;
+            }
+
+            /* STANDARD ERP VOUCHER CONTAINER */
+            .voucher-container {
+                width: 100%;
+                background: #ffffff;
+                padding: 24px 32px 32px 32px;
+                box-sizing: border-box;
+                position: relative;
+                color: #1e293b;
+                margin: 0 auto;
+                border: none;
+                box-shadow: none;
+            }
+
+            /* TOP BAR - LOGO & COMPANY NAME ON LEFT, PRINT DATE ON RIGHT (SAME OTHER) */
+            .company-header-bar {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding-top: 8px;
+                margin-bottom: 12px;
+            }
+
+            .company-brand-left {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .company-logo {
+                max-width: 55px;
+                max-height: 48px;
+                object-fit: contain;
+                vertical-align: middle;
+            }
+
+            .company-name {
+                font-size: 19px;
+                font-weight: 800;
+                text-transform: uppercase;
+                color: #0f172a;
+                letter-spacing: 0.4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 1.2;
+            }
+
+            .company-print-date {
+                text-align: right;
+                white-space: nowrap;
+                margin-left: 16px;
+                font-size: 11px;
+                color: #64748b;
+            }
+
+            /* DOCUMENT TITLE BLOCK - CENTERED */
+            .voucher-title-block {
+                text-align: center;
+                margin: 8px 0 18px 0;
+            }
+
+            .voucher-title {
+                font-size: 22px;
+                font-weight: 800;
+                text-transform: uppercase;
+                color: #0f172a;
+                letter-spacing: 2px;
+                line-height: 1.2;
+            }
+
+            .voucher-subtitle {
+                font-size: 11.5px;
+                color: #64748b;
+                margin-top: 3px;
+                letter-spacing: 0.4px;
+            }
+
+            .pv-number {
+                font-weight: 800;
+                font-size: 15px;
+                color: #0f172a;
+            }
+
+            .pv-status-badge {
+                display: inline-block;
+                padding: 3px 10px;
+                font-size: 11px;
+                font-weight: 700;
+                border-radius: 4px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .pv-status-draft {
+                background-color: #f1f5f9;
+                color: #475569;
+            }
+
+            .pv-status-checked {
+                background-color: #f0f9ff;
+                color: #0369a1;
+            }
+
+            .pv-status-verified {
+                background-color: #eff6ff;
+                color: #1d4ed8;
+            }
+
+            .pv-status-approved {
+                background-color: #ecfdf5;
+                color: #047857;
+            }
+
+            .pv-status-confirmed {
+                background-color: #f0fdf4;
+                color: #15803d;
+            }
+
+            .pv-status-posted {
+                background-color: #f8fafc;
+                color: #0f172a;
+            }
+
+            .pv-status-rejected, .pv-status-disapproved {
+                background-color: #fef2f2;
+                color: #b91c1c;
+            }
+
+            /* SECTION TITLES - READABLE, BOLD & ACCENTED */
+            .section-title {
+                font-size: 13px;
+                font-weight: 800;
+                color: var(--pb-theme-color, #2072b2);
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                margin-top: 18px;
+                margin-bottom: 8px;
+                padding: 0;
+                border: none;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+
+            .info-label {
+                font-weight: 600;
+                color: #64748b;
+                font-size: 13px;
+                display: inline-block;
+            }
+
+            .info-value {
+                display: inline-block;
+                color: #0f172a;
+                font-size: 13px;
+            }
+
+            .highlight {
+                font-weight: 700;
+                color: #0f172a;
+                background: transparent;
+                padding: 0;
+            }
+
+            /* STANDARD ERP TABLES - BORDERLESS COLUMNS, COMFORTABLE PADDING */
+            .pv_tbl {
+                width: 100%;
+                table-layout: fixed;
+                border-collapse: collapse;
+                margin: 8px 0;
+                font-size: 12.5px;
+                border: none;
+            }
+
+            .pv_tbl th,
+            .accounting-table thead th {
+                background-color: var(--pb-theme-color, #2072b2) !important;
+                color: #ffffff !important;
+                font-weight: 700;
+                font-size: 12px;
+                padding: 10px 10px;
+                border: none !important;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            .pv_tbl th.text-left, .accounting-table thead th.text-left { text-align: left !important; }
+            .pv_tbl th.text-center, .accounting-table thead th.text-center { text-align: center !important; }
+            .pv_tbl th.text-right, .accounting-table thead th.text-right { text-align: right !important; }
+
+            .pv_tbl th:first-child,
+            .accounting-table thead th:first-child {
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+            }
+
+            .pv_tbl th:last-child,
+            .accounting-table thead th:last-child {
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+            }
+
+            .pv_tbl td,
+            .accounting-table tbody td {
+                padding: 9px 10px;
+                border: none !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                vertical-align: middle;
+                color: #1e293b;
+                font-size: 12.5px;
+            }
+
+            .pv_tbl tbody tr:hover td,
+            .accounting-table tbody tr:hover td {
+                background: #f8fafc;
+            }
+
+            .text-right { text-align: right; }
+            .text-center { text-align: center; }
+
+            .amount-cell {
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+                font-family: Consolas, "Courier New", monospace;
+                white-space: nowrap;
+                color: #0f172a;
+                font-size: 12.5px;
+            }
+
+            /* TOTALS - PROMINENT & CLEAR */
+            .grand-total, .grand-total td {
+                background: transparent !important;
+                font-weight: 800 !important;
+                font-size: 13px !important;
+                color: #0f172a !important;
+                border: none !important;
+                border-top: 1px solid #cbd5e1 !important;
+                border-bottom: 2px solid #0f172a !important;
+                padding: 10px 10px !important;
+            }
+
+            /* SUMMARY WRAPPER - BALANCED 50% / 50% EQUAL COLUMNS */
+            .summary-wrapper {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-top: 6px;
+                box-sizing: border-box;
+            }
+
+            .summary-memo-col {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 14px;
+                box-sizing: border-box;
+            }
+
+            .memo-card {
+                background: #f8fafc;
+                border-radius: 6px;
+                padding: 12px 16px;
+                font-size: 12.5px;
+                min-height: 95px;
+                box-sizing: border-box;
+                border: none;
+            }
+
+            .summary-table-wrapper {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-left: 14px;
+                box-sizing: border-box;
+            }
+
+            .summary-table {
+                width: 100%;
+                table-layout: fixed;
+                font-size: 12.5px;
+                margin: 0;
+                border: none;
+                border-collapse: collapse;
+            }
+
+            .summary-table td {
+                padding: 6px 10px;
+                border: none !important;
+                border-bottom: 1px solid #f8fafc !important;
+            }
+
+            .summary-table td:first-child {
+                width: 58%;
+            }
+
+            .summary-table td:last-child {
+                width: 42%;
+            }
+
+            .summary-table tr.grand-total td {
+                border-top: 1.5px solid #94a3b8 !important;
+                border-bottom: 2.5px solid #0f172a !important;
+                background: transparent !important;
+                font-weight: 800 !important;
+                font-size: 13.5px !important;
+            }
+
+            /* AMOUNT IN WORDS */
+            .amount-in-words {
+                background-color: #f8fafc;
+                padding: 10px 16px;
+                border-radius: 4px;
+                margin: 10px 0;
+                font-size: 12.5px;
+                color: #334155;
+                border: none;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .amount-in-words strong {
+                color: #0f172a;
+                font-weight: 700;
+            }
+
+            /* ACCOUNTING ENTRIES */
+            .accounting-section {
+                margin-top: 8px;
+            }
+
+            .accounting-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 12.5px;
+                border: none;
+            }
+
+            .account-name-cell {
+                color: #0f172a;
+            }
+
+            .account-code-cell {
+                font-family: Consolas, "Courier New", monospace;
+                color: #475569;
+                font-size: 12.5px;
+            }
+
+            .account-code-col {
+                width: 18%;
+            }
+
+            .amount-col {
+                width: 16%;
+            }
+
+            .debit-cell, .credit-cell {
+                font-weight: 700;
+            }
+
+            /* APPROVAL SECTION - GENEROUS, REALISTIC SIGNATURE BOXES */
+            .approval-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin-top: 24px;
+            }
+
+            .approval-grid {
+                display: table;
+                width: 100%;
+                margin-top: 6px;
+                table-layout: fixed;
+            }
+
+            .approval-box {
+                display: table-cell;
+                width: 20%;
+                text-align: center;
+                vertical-align: top;
+                padding: 0 8px;
+            }
+
+            .approver-title {
+                font-size: 11px;
+                color: #475569;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 6px;
+            }
+
+            .signature-line {
+                height: 48px;
+                margin-bottom: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                border-bottom: 1px solid #cbd5e1;
+            }
+
+            .signature-line img {
+                max-height: 44px;
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+            .approver-name {
+                font-weight: 600;
+                color: #0f172a;
+                font-size: 12px;
+                min-height: 18px;
+                margin-top: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .approval-date {
+                font-size: 11px;
+                color: #64748b;
+                margin-top: 3px;
+            }
+
+            /* FOOTER */
+            .footer {
+                margin-top: 20px;
+                padding-top: 6px;
+                text-align: center;
+                font-size: 10px;
+                color: #94a3b8;
+                border: none;
+            }
+
+            /* PRINT STYLING - STANDARD A4 WITH 15MM BALANCED MARGINS */
+            @@media print {
+                html, body {
+                    width: 210mm;
+                    height: auto;
+                    margin: 0;
+                    padding: 0;
+                    background: #ffffff !important;
+                    font-size: 12.5px !important;
+                }
+
+                @@page {
+                    size: A4 portrait;
+                    margin: 14mm 14mm 16mm 14mm;
+                }
+
+                #paybill-voucher, .voucher-container {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    padding: 6mm 0 0 0 !important;
+                    margin: 0 !important;
+                    background: #ffffff !important;
+                }
+
+                .company-header-bar {
+                    padding-top: 0 !important;
+                    margin-bottom: 12px !important;
+                }
+
+                .voucher-title-block {
+                    margin: 6px 0 16px 0 !important;
+                }
+
+                tr {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+
+                thead {
+                    display: table-header-group;
+                }
+
+                .approval-section {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                }
+
+                .pv_tbl th, .accounting-table thead th {
+                    background-color: var(--pb-theme-color, #2072b2) !important;
+                    color: #ffffff !important;
+                    border: none !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .pv_tbl td, .accounting-table tbody td {
+                    border: none !important;
+                    border-bottom: 1px solid #e2e8f0 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .grand-total, .grand-total td {
+                    background-color: transparent !important;
+                    color: #0f172a !important;
+                    border: none !important;
+                    border-top: 1.5px solid #94a3b8 !important;
+                    border-bottom: 2.5px solid #0f172a !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .amount-in-words, .memo-card {
+                    background-color: #f8fafc !important;
+                    border: none !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .highlight {
+                    background-color: transparent !important;
+                    color: #0f172a !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+
+                .pv-status-badge {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+            }
+        </style>
+    </head>
+    <body class="body">
+
+        <div id="paybill-voucher" class="voucher-container">
+
+            <!-- Top Header: Logo & Company Name on LEFT, Print Date on RIGHT (Same Other) -->
+            <div class="company-header-bar">
+                <div class="company-brand-left">
+                    @if (!string.IsNullOrWhiteSpace(header["CompanyLogo"].ToString()))
+                    {
+                        <img class="company-logo" src="@Url.Content("~/Uploads/ClassLogo/" + header["CompanyLogo"])" alt="Company logo" />
+                    }
+                    <span class="company-name">@header["CompanyName"]</span>
+                </div>
+                <div class="company-print-date">
+                    <span>Print Date: @(printDate.ToString("dd-MMM-yyyy hh:mm:ss"))</span>
+                </div>
+            </div>
+
+            <!-- Document Title Block (Centered) -->
+            <div class="voucher-title-block">
+                <div class="voucher-title">Payment Voucher</div>
+                <div class="voucher-subtitle">Official Document for Payment Authorization</div>
+            </div>
+
+            <!-- Voucher Details (Clear, Standard 13px font) -->
+            <div class="info-section">
+                <div class="section-title">Voucher Details</div>
+                <table style="width:100%; table-layout: fixed; border-collapse: collapse;">
+                    <tr>
+                        <td valign="top" style="width: 50%; padding: 0; padding-right: 12px; box-sizing: border-box;">
+                            <table cellpadding="3" cellspacing="0" style="border-collapse: collapse;">
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Vendor Name:</div>
+                                        <div class="info-value"><strong>@header["VendorName"]</strong></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Company:</div>
+                                        <div class="info-value">@header["VendorCompanyName"]</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Paid Account:</div>
+                                        <div class="info-value">@header["PaymentAccount"]</div>
+                                    </td>
+                                </tr>
+                                @if (!string.IsNullOrWhiteSpace(header["BankName"].ToString()) || !string.IsNullOrWhiteSpace(header["BankAccountNo"].ToString()))
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrWhiteSpace(header["BankName"].ToString()))
+                                            {
+                                                <div class="info-label">Bank Name:</div>
+                                                <div class="info-value">@header["BankName"]</div>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(header["BankAccountNo"].ToString()))
+                                            {
+                                                <span style="margin: 0 6px; color:#cbd5e1;">•</span>
+                                                <div class="info-label">Account Nº:</div>
+                                                <div class="info-value">@header["BankAccountNo"]</div>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </td>
+                        <td align="right" valign="top" style="width: 50%; padding: 0; padding-left: 12px; box-sizing: border-box;">
+                            <table cellpadding="3" cellspacing="0" style="margin-left: auto; border-collapse: collapse;">
+                                <tr>
+                                    <td>
+                                        <div class="info-label">
+                                            <div class="pv-number">
+                                                PV Nº: <span style="font-weight:800;">@header["PaymentNo"]</span>
+                                            </div>
+                                            @{
+                                                string voucherStatus = header.Table.Columns.Contains("Status") && header["Status"] != DBNull.Value && !string.IsNullOrEmpty(header["Status"].ToString()) ? header["Status"].ToString() : "Draft";
+                                                string badgeClass = "pv-status-draft";
+                                                if (voucherStatus == "Checked") {
+                                                    badgeClass = "pv-status-checked";
+                                                } else if (voucherStatus == "Confirm Verified" || voucherStatus == "Verified") {
+                                                    badgeClass = "pv-status-verified";
+                                                } else if (voucherStatus == "Approved") {
+                                                    badgeClass = "pv-status-approved";
+                                                } else if (voucherStatus == "Posted") {
+                                                    badgeClass = "pv-status-posted";
+                                                } else if (voucherStatus.IndexOf("Reject", StringComparison.OrdinalIgnoreCase) >= 0 || voucherStatus.IndexOf("Disapprov", StringComparison.OrdinalIgnoreCase) >= 0) {
+                                                    badgeClass = "pv-status-rejected";
+                                                }
+                                            }
+                                            <div style="margin-top: 4px;">
+                                                <span class="pv-status-badge @badgeClass">@voucherStatus</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Voucher Date:</div>
+                                        <div class="info-value highlight">
+                                            @header["PaymentDateFormatted"]
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="info-label">Payment Method:</div>
+                                        <div class="info-value">@header["PaymentMethod"]</div>
+                                    </td>
+                                </tr>
+                                @if (!string.IsNullOrWhiteSpace(header["ChequeNumber"].ToString()))
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="info-label">Cheque No:</div>
+                                            <div class="info-value">@header["ChequeNumber"]</div>
+                                        </td>
+                                    </tr>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(header["Reference"].ToString()))
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="info-label">Ref Nº:</div>
+                                            <div class="info-value">@header["Reference"]</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Bills Paid (Generous padding, standard 12.5px font) -->
+            <div class="info-section">
+                <div class="section-title">Bills Paid</div>
+                <table class="pv_tbl" id="tblBills_detail">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 4%;">No</th>
+                            <th class="text-left" style="width: 17%;">Bill Nº</th>
+                            <th class="text-left" style="width: 13%;">PO Nº</th>
+                            <th class="text-center" style="width: 11%;">Bill Date</th>
+                            <th class="text-center" style="width: 11%;">Due Date</th>
+                            <th class="text-right" style="width: 11%;">Bill Amount</th>
+                            <th class="text-right" style="width: 11%;">Paid Before</th>
+                            <th class="text-right" style="width: 11%;">This Payment</th>
+                            <th class="text-right" style="width: 11%;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (details != null && details.Rows.Count > 0)
+                        {
+                            int rowNumber = 1;
+                            foreach (DataRow row in details.Rows)
+                            {
+                                decimal originalAmount = 0;
+                                decimal priorPaid = 0;
+                                decimal paymentAmount = 0;
+                                decimal remainingBalance = 0;
+                                decimal.TryParse(row["GrandTotal"].ToString(), out originalAmount);
+                                decimal.TryParse(row["PriorPaid"].ToString(), out priorPaid);
+                                decimal.TryParse(row["PaymentAmount"].ToString(), out paymentAmount);
+                                decimal.TryParse(row["RemainBalance"].ToString(), out remainingBalance);
+                                string billStatus = remainingBalance <= 0 ? "FULL PAID" : (priorPaid + paymentAmount > 0 ? "PARTIAL" : "OUTSTANDING");
+                                string badgeBg = remainingBalance <= 0 ? "#e8f5e9" : (priorPaid + paymentAmount > 0 ? "#fff3e0" : "#ffebee");
+                                string badgeColor = remainingBalance <= 0 ? "#2e7d32" : (priorPaid + paymentAmount > 0 ? "#ef6c00" : "#c62828");
+                                <tr>
+                                    <td class="text-center">@(rowNumber++)</td>
+                                    <td>
+                                        <strong>@row["BillNumber"]</strong>
+                                        <span style="display:inline-block; margin-left:6px; font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:3px; background:@badgeBg; color:@badgeColor;">@billStatus</span>
+                                    </td>
+                                    <td>@(!string.IsNullOrEmpty(row["PONumber"].ToString()) ? row["PONumber"].ToString() : "-")</td>
+                                    <td class="text-center">@row["BillDateFormatted"]</td>
+                                    <td class="text-center">@row["DueDateFormatted"]</td>
+                                    <td class="text-right amount-cell">@FormatAccounting(originalAmount)</td>
+                                    <td class="text-right amount-cell">@(priorPaid == 0 ? "-" : FormatAccounting(priorPaid))</td>
+                                    <td class="text-right amount-cell"><strong>@FormatAccounting(paymentAmount)</strong></td>
+                                    <td class="text-right amount-cell">@(remainingBalance == 0 ? "-" : FormatAccounting(remainingBalance))</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center" style="padding: 18px; color: #777;">No bill details were recorded for this payment.</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="grand-total">
+                            <td colspan="7" class="text-right"><strong>TOTAL DISBURSED AMOUNT (USD):</strong></td>
+                            <td colspan="2" class="text-right amount-cell"><strong>$@totalAmount.ToString("N2")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="info-section">
+                <div class="section-title">Payment Summary</div>
+                <div class="summary-wrapper">
+                    <!-- LEFT: Memo / Remarks (50% equal column) -->
+                    <div class="summary-memo-col">
+                        <div class="memo-card">
+                            <div class="info-label" style="margin-bottom:4px; color:#475569; font-weight:700;">Memo / Remarks:</div>
+                            <div class="info-value" style="display:block; color:#0f172a; white-space:pre-wrap;">@(!string.IsNullOrWhiteSpace(header["Memo"].ToString()) ? header["Memo"].ToString() : "-")</div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Summary Table (50% equal column) -->
+                    <div class="summary-table-wrapper">
+                        <table class="summary-table">
+                            <tr>
+                                <td>Number of Bills Paid</td>
+                                <td class="text-right amount-cell">@(details == null ? 0 : details.Rows.Count)</td>
+                            </tr>
+                            <tr>
+                                <td>Bill Total</td>
+                                <td class="text-right amount-cell">$@billTotal.ToString("N2")</td>
+                            </tr>
+                            @if (paidBeforeTotal > 0)
+                            {
+                                <tr>
+                                    <td>Paid Before</td>
+                                    <td class="text-right amount-cell">$@paidBeforeTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                            @if (remainingTotal > 0)
+                            {
+                                <tr>
+                                    <td>Remaining Balance</td>
+                                    <td class="text-right amount-cell">$@remainingTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>Payment Status</td>
+                                <td class="text-right">
+                                    @if (details != null && details.Rows.Count > 0 && remainingTotal <= 0)
+                                    {
+                                        <span style="background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px;">FULL PAID</span>
+                                    }
+                                    else if (amountApplied > 0)
+                                    {
+                                        <span style="background:#fff3e0; color:#ef6c00; padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px;">PARTIAL PAID</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="background:#ffebee; color:#c62828; padding:3px 10px; border-radius:12px; font-weight:700; font-size:11px;">OUTSTANDING</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr class="grand-total">
+                                <td><strong>Total Amount Paid (USD)</strong></td>
+                                <td class="text-right amount-cell"><strong>$@totalAmount.ToString("N2")</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amount in Words -->
+            <div class="amount-in-words">
+                <strong>Amount in Words:</strong> @amountInWords
+            </div>
+
+            <!-- Accounting Entries -->
+            @if (journal != null && journal.Rows.Count > 0)
+            {
+                <div class="info-section accounting-section">
+                    <div class="section-title">Accounting Entries</div>
+                    <table class="accounting-table">
+                        <thead>
+                            <tr>
+                                <th class="text-left" style="width: 50%;">Account Name</th>
+                                <th class="account-code-col text-center" style="width: 18%;">Account Code</th>
+                                <th class="amount-col text-right" style="width: 16%;">Debit (USD)</th>
+                                <th class="amount-col text-right" style="width: 16%;">Credit (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in journal.Rows)
+                            {
+                                decimal debit = 0;
+                                decimal credit = 0;
+                                decimal.TryParse(row["Debit"].ToString(), out debit);
+                                decimal.TryParse(row["Credit"].ToString(), out credit);
+                                <tr class="payment-row">
+                                    <td class="account-name-cell">@row["AccountName"]</td>
+                                    <td class="account-code-cell text-center">@row["AccountNo"]</td>
+                                    <td class="text-right amount-cell debit-cell">@(debit == 0 ? "-" : FormatAccounting(debit))</td>
+                                    <td class="text-right amount-cell credit-cell">@(credit == 0 ? "-" : FormatAccounting(credit))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="grand-total">
+                                <td colspan="2" class="text-right"><strong>TOTAL:</strong></td>
+                                <td class="text-right amount-cell"><strong>@totalDebit.ToString("N2")</strong></td>
+                                <td class="text-right amount-cell"><strong>@totalCredit.ToString("N2")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+
+            <!-- Approval Section (Spacious 48px Signature Line) -->
+            <div class="approval-section">
+                <div class="section-title">Approval & Authorization</div>
+                <div class="approval-grid">
+                    <div class="approval-box">
+                        <div class="approver-title">Prepared By</div>
+                        <div class="signature-line">
+                            @if (!string.IsNullOrEmpty(ViewBag.PreparedSignatureHtml as string))
+                            {
+                                @Html.Raw(ViewBag.PreparedSignatureHtml)
+                            }
+                        </div>
+                        <div class="approver-name">@(!string.IsNullOrEmpty(header["PreparedByName"]?.ToString()) ? header["PreparedByName"].ToString() : (!string.IsNullOrEmpty(header["PaidBy"].ToString()) ? header["PaidBy"].ToString() : "Cashier / Accounting"))</div>
+                        <div class="approval-date">@header["PaymentDateFormatted"]</div>
+                    </div>
+
+                    <div class="approval-box">
+                        <div class="approver-title">Checked By</div>
+                        <div class="signature-line"></div>
+                        <div class="approver-name">@(header.Table.Columns.Contains("CheckedByName") && !string.IsNullOrEmpty(header["CheckedByName"]?.ToString()) ? header["CheckedByName"].ToString() : "\u00A0")</div>
+                        <div class="approval-date">@(header.Table.Columns.Contains("CheckedDateFormatted") && !string.IsNullOrEmpty(header["CheckedDateFormatted"]?.ToString()) ? header["CheckedDateFormatted"].ToString() : "Date:______/______/________")</div>
+                    </div>
+
+                    <div class="approval-box">
+                        <div class="approver-title">Verified By</div>
+                        <div class="signature-line"></div>
+                        <div class="approver-name">@(header.Table.Columns.Contains("VerifiedByName") && !string.IsNullOrEmpty(header["VerifiedByName"]?.ToString()) ? header["VerifiedByName"].ToString() : "\u00A0")</div>
+                        <div class="approval-date">@(header.Table.Columns.Contains("VerifiedDateFormatted") && !string.IsNullOrEmpty(header["VerifiedDateFormatted"]?.ToString()) ? header["VerifiedDateFormatted"].ToString() : "Date:______/______/________")</div>
+                    </div>
+
+                    <div class="approval-box">
+                        <div class="approver-title">Approved By</div>
+                        <div class="signature-line"></div>
+                        <div class="approver-name">Finance Manager</div>
+                        <div class="approval-date">Date:______/______/________</div>
+                    </div>
+
+                    <div class="approval-box">
+                        <div class="approver-title">Approved By</div>
+                        <div class="signature-line"></div>
+                        <div class="approver-name">COO</div>
+                        <div class="approval-date">Date:______/______/________</div>
+                    </div>
+                </div>
+
+                <div class="approval-grid" style="margin-top: 14px;">
+                    <div class="approval-box" style="width: 20%;">
+                        <div class="approver-title">Posted By</div>
+                        @if (header.Table.Columns.Contains("IsPosted") && header["IsPosted"].ToString() == "1" && !string.IsNullOrEmpty(header["PostedByName"]?.ToString()))
+                        {
+                            <div class="signature-line">
+                                @if (!string.IsNullOrEmpty(ViewBag.PostedSignatureHtml as string))
+                                {
+                                    @Html.Raw(ViewBag.PostedSignatureHtml)
+                                }
+                            </div>
+                            <div class="approver-name">@header["PostedByName"]</div>
+                            <div class="approval-date">@header["PostedDateFormatted"]</div>
+                        }
+                        else
+                        {
+                            <div class="signature-line"></div>
+                            <div class="approver-name">&nbsp;</div>
+                            <div class="approval-date">Date:______/______/________</div>
+                        }
+                    </div>
+
+                    <div class="approval-box" style="width: 60%; visibility: hidden;"></div>
+
+                    <div class="approval-box" style="width: 20%;">
+                        <div class="approver-title">Received By</div>
+                        <div class="signature-line"></div>
+                        <div class="approver-name">&nbsp;</div>
+                        <div class="approval-date">Date:______/______/________</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p style="margin: 0;">
+                    Document ID: @header["PaymentNo"] | Generated on: @printDate.ToString("dd-MMM-yyyy hh:mm:ss")
+                </p>
+            </div>
+        </div>
+
+        <!-- DYNAMIC SYSTEM THEME RESOLUTION SCRIPT -->
+        <script>
+            (function () {
+                function resolveSystemTheme() {
+                    var color = '';
+                    try {
+                        // 1. Direct LocalStorage BaseSystemBGColor
+                        color = localStorage.getItem("BaseSystemBGColor");
+                        if (color && color !== 'transparent' && color !== 'rgba(0, 0, 0, 0)') return color;
+
+                        // 2. CSS Root Variable
+                        color = getComputedStyle(document.documentElement).getPropertyValue('--base-bg-color');
+                        if (color && color.trim() && color !== 'transparent') return color.trim();
+
+                        // 3. Parent Window (if modal/iframe)
+                        if (window.parent && window.parent !== window) {
+                            var pColor = window.parent.localStorage.getItem("BaseSystemBGColor");
+                            if (pColor && pColor !== 'transparent') return pColor;
+                            var pRoot = window.parent.getComputedStyle(window.parent.document.documentElement).getPropertyValue('--base-bg-color');
+                            if (pRoot && pRoot.trim()) return pRoot.trim();
+                        }
+
+                        // 4. Active DOM elements on page (AdminLTE navigation)
+                        var $activeNav = $("aside nav ul > li.nav-item > .nav-link.active, .navbar.main-header, .navbar-custom").first();
+                        if ($activeNav.length) {
+                            var bg = $activeNav.css("background-color");
+                            if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'rgb(255, 255, 255)') return bg;
+                        }
+                    } catch (e) { }
+
+                    // 5. SystemID fallback
+                    var sysId = '@(ViewBag.SystemID ?? "")';
+                    if (sysId === '13') return '#2072b2';
+                    if (sysId === '28') return '#2275b9';
+                    return '#2072b2';
+                }
+
+                function applyTheme() {
+                    var theme = resolveSystemTheme();
+                    if (!theme) return;
+                    var el = document.getElementById('paybill-voucher');
+                    if (el) {
+                        el.style.setProperty('--pb-theme-color', theme);
+                    }
+                    document.documentElement.style.setProperty('--pb-theme-color', theme);
+                }
+
+                applyTheme();
+                setTimeout(applyTheme, 50);
+                setTimeout(applyTheme, 300);
+            })();
+        </script>
+    </body>
+    </html>
+}
+
+@functions {
+    public string FormatAccounting(decimal value)
+    {
+        return value < 0 ? $"({Math.Abs(value):N2})" : value.ToString("N2");
+    }
+
+    public static string NumberToWords(decimal amount)
+    {
+        amount = Math.Round(amount, 2);
+
+        if (amount == 0)
+            return "Zero Dollars Only";
+
+        long dollars = (long)amount;
+        int cents = (int)((amount - dollars) * 100);
+
+        string dollarWords = ConvertIntToWords(dollars);
+        string result = "";
+
+        if (dollars > 0)
+        {
+            result += dollarWords + (dollars == 1 ? " Dollar" : " Dollars");
+        }
+
+        if (cents > 0)
+        {
+            if (dollars > 0)
+                result += " and ";
+
+            result += ConvertIntToWords(cents) + (cents == 1 ? " Cent" : " Cents");
+        }
+
+        return result + " Only";
+    }
+
+    private static string ConvertIntToWords(long number)
+    {
+        if (number == 0)
+            return "Zero";
+
+        if (number < 0)
+            return "Minus " + ConvertIntToWords(Math.Abs(number));
+
+        string words = "";
+
+        if (number / 1000000000 > 0)
+        {
+            words += ConvertIntToWords(number / 1000000000) + " Billion ";
+            number %= 1000000000;
+        }
+
+        if (number / 1000000 > 0)
+        {
+            words += ConvertIntToWords(number / 1000000) + " Million ";
+            number %= 1000000;
+        }
+
+        if (number / 100 > 0)
+        {
+            words += ConvertIntToWords(number / 100) + " Hundred ";
+            number %= 100;
+        }
+
+        if (number > 0)
+        {
+            string[] unitsMap =
+            {
+                "Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine",
+                "Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen",
+                "Sixteen","Seventeen","Eighteen","Nineteen"
+            };
+
+            string[] tensMap =
+            {
+                "Zero","Ten","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"
+            };
+
+            if (number < 20)
+                words += unitsMap[number];
+            else
+            {
+                words += tensMap[number / 10];
+                if ((number % 10) > 0)
+                    words += "-" + unitsMap[number % 10];
+            }
+        }
+
+        return words.Trim();
+    }
+}

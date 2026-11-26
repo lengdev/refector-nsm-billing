@@ -1,0 +1,565 @@
+﻿@{
+    Layout = null;
+}
+<section class="content" id="CustomerProfile">
+    <div class="container-fluid" name="CustomerProfile" id="CustomerProfile">
+        <div class="row">
+            <div class="col">
+                <div class="card card-widget widget-user p-1">
+                    <div class="widget-user-header bg-info p-1 m-0">
+                        <div class="row g-2">
+                            <div class="col" id="CustInfo"></div>
+                            <div class="col" id="CustInfo-left"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer p-3">
+                        <div class="row">
+                            <div class="col-sm-6 border-right">
+                                <div id="divCustServices"></div>
+                            </div>
+                            @*<div class="col-sm-1 border-right text-nowrap">
+                                    <div id="billcycle"></div>
+                                </div>*@
+                        <div class="col-sm-6">
+                            <div class="text-right">
+                                <div class="btn-group">
+                                    <label class="btn bg-danger active">
+                                        Survey
+                                    </label>
+                                    <label class="btn bg-cyan">
+                                        Approve Registration
+                                    </label>
+                                    <label class="btn bg-cyan">
+                                        Installing
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="CustomerBalance"></div>
+                            <div class="row"><div class="col-12"><br /></div></div>
+                            <div class="row justify-content-end">
+                                <div class="col-auto"><label class="col-form-label">Exchange Rate:</label></div>
+                                <div class="col-2"><div class="wrap-input3"><input type="text" class="input2 text-right" id="ExchangeRate"><span class="focus-input2"></span></div></div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col p-2">
+                                <h3 class="card-title">
+                                    <i class="fas fa-edit"></i>
+                                    Customer Information
+                                </h3>
+                            </div>
+                            <div class="col">
+                                <div class="row justify-content-end">
+                                    <div class="col-12 text-right">
+                                        <button id="btnCreateInvoice" class="btn btn-outline-info text-uppercase bg-own text-white" style="border-color: #F89C39">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                            Create Invoice
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card card-info card-outline card-outline-tabs">
+                            <div class="card-header p-0 border-bottom-0">
+                                <ul class="nav nav-tabs" id="customer-info-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="Customer-Invoice-tab" data-toggle="pill" href="#Customer-Invoice" role="tab" aria-controls="Customer-Invoice" aria-selected="true">Invoice</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="Customer-Info-tab" data-toggle="pill" href="#Customer-Info" role="tab" aria-controls="Customer-Info" aria-selected="false">Customer Info</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="Customer-Contact-tab" data-toggle="pill" href="#Customer-Contact" role="tab" aria-controls="Customer-Contact" aria-selected="false">Company Info & Contact</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="Customer-Services-tab" data-toggle="pill" href="#Customer-Services" role="tab" aria-controls="Customer-Services" aria-selected="false">Service Plan & Bill Info</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        @*<a class="nav-link" id="Customer-Contract-tab" data-toggle="pill" href="#Customer-Contract" role="tab" aria-controls="Customer-Contract" aria-selected="false">Contract</a>*@
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="Customer-Quotation-tab" data-toggle="pill" href="#Customer-Quotation" role="tab" aria-controls="Customer-Quotation" aria-selected="false">Quotation</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="Customer-Invoice" role="tabpanel" aria-labelledby="Customer-Invoice-tab">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <div class="nav flex-column nav-tabs h-100" id="cust-invoice-tab" role="tablist" aria-orientation="vertical">
+                                                    <a class="nav-link active" id="unpaid-tab" data-toggle="pill" href="#unpaid" role="tab" aria-controls="unpaid" aria-selected="true">Unpaid</a>
+                                                    <a class="nav-link" id="paid-tab" data-toggle="pill" href="#paid" role="tab" aria-controls="paid" aria-selected="false">Paid</a>
+                                                    <a class="nav-link" id="rollback-tab" data-toggle="pill" href="#rollback" role="tab" aria-controls="rollback" aria-selected="false">Rollback</a>
+                                                    <a class="nav-link" id="history-tab" data-toggle="pill" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-10">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane text-left fade active show" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+                                                        <div id="CustInvoice"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="paid" role="tabpanel" aria-labelledby="paid-tab">
+                                                        <div id="showPaidInvoice"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="rollback" role="tabpanel" aria-labelledby="rollback-tab">
+                                                        <div id="showRollbackInvoice"></div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                                                        history
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="Customer-Info" role="tabpanel" aria-labelledby="Customer-Info-tab">
+                                        <div id="showCustomerInformation"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="Customer-Contact" role="tabpanel" aria-labelledby="Customer-Contact-tab">
+                                        <div id="ShowCompanyInformation"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="Customer-Services" role="tabpanel" aria-labelledby="Customer-Services-tab">
+                                        <div id="ShowCustomerServices"></div>
+                                    </div>
+                                    @*<div class="tab-pane fade" id="Customer-Contract" role="tabpanel" aria-labelledby="Customer-Contract-tab">
+                                        Customer Contract
+                                    </div>*@
+                                    <div class="tab-pane fade" id="Customer-Quotation" role="tabpanel" aria-labelledby="Customer-Quotation-tab">
+                                        <div id="CustQuotation"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var Customer_ID = "";
+    var CustInfo = "@ViewBag.CustInfo";
+    var CustDetail = "@ViewBag.CustDetail";
+    var ExchangeRate = "@ViewBag.ExchangeRate";
+    var CustomerTypeID = 0;
+    var CustomerCode = "";
+    var Commune = "", District = "", ProvinceCity = "";
+    var BusinessTypeID = 0;
+
+    function LoadCustInfo(CustomerID) {
+        LoadData("CustomerProfile/LoadCustInfo?ID=" + CustomerID, function (response) {
+            var CustInfo = JSON.parse(JSON.parse(response).data)[0];
+            Customer_ID = CustomerID;
+            var row = '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="far fa-star"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerType + '</div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-user"></i></div>';
+            row += '<div class="col text-left"><label>' + CustInfo.FullCustomerName + '</label></div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-phone"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerMobile + '</div>';
+            row += '</div>';
+            if (CustInfo.CustomerEmail != "") {
+                row += '<div class="row">';
+                row += '<div class="col-auto text-left"><i class="fa fa-envelope"></i></div>';
+                row += '<div class="col text-left">' + CustInfo.CustomerEmail + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-building"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.Address + '.</div>';
+            row += '</div>';
+            $("div#CustInfo").html(row);
+            row = '';
+            if (CustInfo.IndustryType != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">Business Type:</div>';
+                row += '<div class="col-3 text-left">' + CustInfo.IndustryType + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Register Date:</div>';
+            row += '<div class="col-3 text-left">' + CustInfo.RegisterDate + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Nationality:</div>';
+            row += '<div class="col-3 text-left">' + CustInfo.CustomerNationality + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Identification / Passport No:</div>';
+            row += '<div class="col-3 text-left text-truncate" title="' + CustInfo.CustomerIdentification + '">' + CustInfo.CustomerIdentification + '</div>';
+            row += '</div>';
+            if (CustInfo.EmployeeName != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Sale's Name:" + '</div>';
+                row += '<div class="col-3 text-left">' + CustInfo.EmployeeName + '</div>';
+                row += '</div>';
+            }
+            if (CustInfo.ContactName != null && CustInfo.ContactName != "") {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Contact Name:" + '</div>';
+                row += '<div class="col-3 text-left">' + CustInfo.ContactName + '</div>';
+                row += '</div>';
+            }
+            $("div#CustInfo-left").html(row);
+        });
+    }
+    function LoadCustomerServices(CustomerID) {
+        LoadData("CustomerProfile/LoadCustomerServices?CustomerID=" + CustomerID, function (response) {
+            var CustomerServices = JSON.parse(JSON.parse(response).data);
+            var row = '';
+            var rowdata = '<div id="Carousel_CustService" class="carousel slide" data-ride="carousel">';
+            var carousel_indicators = '<ol class="carousel-indicators">';
+            var carousel_inner = '<div class="carousel-inner">';
+            $.each(CustomerServices, function (key, CustDetail) {
+                row = '<div class="description-block text-left">';
+                row += '<h5 class="description-header text-danger">Service Plan: ' + CustDetail.ServiceName + '</h5>';
+                row += '<span class="description-text">' + CustDetail.PackageName + ' - ' + CustDetail.Bandwidth + ' Mbps' + ' - ' + CustDetail.UM + '</span></div>';
+                row += '<div class="row">';
+                row += '<div class="col-auto">';
+                row += '<label class="text-primary">Period ' + CustDetail.Duration + returnMonth(CustDetail.Duration);
+                row += ' From ' + $.format.date(addMonths(new Date(CustDetail.InvoiceDate), 0), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(CustDetail.InvoiceDate), CustDetail.Duration), 'dd-MMMM-yyyy');
+                row += '</label></div>';
+                row += '</div>';
+                if (CustDetail.FreeDuration > 0) {
+                    row += '<div class="row">';
+                    row += '<div class="col-auto">';
+                    row += '<label class="text-danger">Free ' + CustDetail.FreeDuration + returnMonth(CustDetail.FreeDuration);
+                    row += ' Period From ' + $.format.date(addMonths(new Date(CustDetail.InvoiceDate), CustDetail.Duration), 'dd-MMMM-yyyy') + ' To ' + $.format.date(addMonths(new Date(CustDetail.InvoiceDate), (CustDetail.FreeDuration + CustDetail.Duration)), 'dd-MMMM-yyyy');
+                    row += '</label></div></div>';
+                }
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label class="text-info">Bill Cycle: ' + CustDetail.UM + '</label></div>';
+                row += '<div class="col-auto"><label class="text-info">Day: ' + CustDetail.Day + '</label></div>';
+                row += '<div class="col-auto"><label class="text-info">Next Invoice Date: ' + CustDetail.NextInvoiceDate + '</label></div></div>';
+
+                carousel_indicators += '<li data-target="#Carousel_CustService" data-slide-to="' + key + '" ' + (key == 0 ? 'class="active"' : '') + '></li>';
+                carousel_inner += '<div class="carousel-item ' + (key == 0 ? 'active' : '') + '">';
+                carousel_inner += row;
+                carousel_inner += '</div>';
+            });
+            carousel_inner += '</div>';
+            carousel_indicators += '</ol>';
+            if (CustomerServices.length > 1)
+                rowdata += carousel_indicators;
+            rowdata += carousel_inner;
+            if (CustomerServices.length > 1) {
+                rowdata += '<a class="carousel-control-prev" href="#Carousel_CustService" data-slide="prev">';
+                rowdata += '<i class="fa fa-angle-left"></i></a>';
+                rowdata += '<a class="carousel-control-next" href="#Carousel_CustService" data-slide="next">';
+                rowdata += '<i class="fa fa-angle-right"></i></a>';
+            }
+            rowdata += '</div>';
+            $("#divCustServices").html(rowdata);
+            if (CustomerServices.length > 1) {
+                var myCarousel = document.querySelector('#Carousel_CustService')
+                var carousel = new bootstrap.Carousel(myCarousel, {
+                    ride: true
+                });
+                $("#Carousel_CustService a").click(function (e) {
+                    e.preventDefault();
+                });
+            }
+            else {
+                $("#Carousel_CustService").removeClass("carousel slide");
+            }
+        });
+    }
+    function LoadCustomerBalance(CustomerID) {
+        LoadData("CustomerProfile/LoadCustomerBalance?ID=" + CustomerID, function (response) {
+            var data = JSON.parse(JSON.parse(response).data)[0];
+            var row = '<div class="row justify-content-end">';
+            row += '<div class="col-auto text-right"><label class="col-form-label">Deposit:</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label">' + accounting.formatNumber(data.DepositFee, 2) + '</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-primary">Total:</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-primary">' + accounting.formatNumber(data.Total, 2) + '</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-primary">Paid:</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-primary">' + accounting.formatNumber(data.Paid, 2) + '</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-danger">Unpaid:</label></div>';
+            row += '<div class="col-auto"><label class="col-form-label text-danger">' + accounting.formatNumber(data.Unpaid, 2) + '</label></div></div>';
+            $("#CustomerBalance").html(row);
+        });
+    }
+    function LoadCustInvoice(CustomerID) {
+        LoadCustRollBackInvoice(CustomerID);
+        LoadData("CustomerProfile/LoadCustInvoice?ID=" + CustomerID, function (response) {
+            $("#CustInvoice").html(JSON.parse(response).data);
+            LoadCustInfo(CustomerID);
+            LoadCustomerServices(CustomerID);
+            LoadCustomerBalance(CustomerID);
+            //LoadCustPaidInvoice(CustomerID);
+            //setTimeout(function () {
+                                
+            //}, 1500);
+        });
+    }
+    function LoadCustQuotation(CustomerID) {
+        LoadData("CustomerProfile/LoadCustQuotation?ID=" + CustomerID, function (response) {
+            $("#CustQuotation").html(JSON.parse(response).data);
+            setTimeout(function () {
+                $("#tblCustQuotation").DataTable({
+                    "responsive": true,
+                    "lengthChange": false,
+                });
+                var row = '<button type="button" id="btnAddQuotation" class="btn btn-info" onclick=""><i class="far fa-address-book"></i> Createa Quotation</button>';
+                $("#tblCustQuotation_wrapper div.col").append(row);
+                $("#btnAddQuotation").click(function () {
+                    //number 1 for create Quotation...
+                    var Data = [];
+                    var obj = {};
+                    obj = { PrimaryFieldValue: "1", InvoiceNo: "0", CustomerID: "" + CustomerID + "", FormStatus: "CreateQuotation" };//.replace(/"/g, '\'');
+                    Data.push(obj);
+                    AddQuotation(obj, "Create Customer Quotation");
+                });
+            }, 100);
+        });
+    }
+    function EditTblRow(THIS, isRegisterForm) {
+        isRegisterForm = (typeof isRegisterForm == "undefined" ? 0 : isRegisterForm);
+        var url = window.location.hash;
+        var CustomerID = url.substring(url.indexOf('?'));
+        CustomerID = CustomerID.substring(CustomerID.indexOf('=')).replace(/=/g, '');
+        var index = $(THIS).closest("tr").index();
+        var InvoiceNo = $(THIS).attr("id");
+        var obj = {};
+        obj = { PrimaryFieldValue: "1", InvoiceNo: InvoiceNo, CustomerID: CustomerID, FormStatus: "CreateQuotation" };
+        if (isRegisterForm != 0)
+            AddQuotation(obj, "Edit Quotation");
+        else {
+            obj = { PrimaryFieldValue: "0", InvoiceNo: InvoiceNo, CustomerID: CustomerID, FormStatus: "CreateInvoice" };
+            AddQuotation(obj, "Edit Customer Invoice");
+        }
+    }
+    function DeleteTblRow(THIS) {
+        var index = $(THIS).index();
+        alert(index);
+    }
+    function LoadCustomerInformation(CustomerID) {
+        LoadData("AddCustomer/CustomerInformation", function (response) {
+            $("#showCustomerInformation").html(response);
+            LoadData("CustomerProfile/LoadCustInfo?ID=" + CustomerID, function (response) {
+                var CustInfo = JSON.parse(JSON.parse(response).data);
+                $.each(CustInfo, function (key, value) {
+                    CustomerTypeID = value.CustomerTypeID;
+                    CustomerCode = value.CustomerCode;
+                    $.each(value, function (key, val) {
+                        $("input[alt=" + key + "]").val(val);
+                    });
+                });
+            });
+        });
+        LoadData("AddCustomer/CompanyInformation", function (response) {
+            $("#ShowCompanyInformation").html(response);
+            LoadData("CustomerProfile/LoadCompanyInfo?ID=" + CustomerID, function (response) {
+                var CompanyInfo = JSON.parse(JSON.parse(response).data);
+                var CompanyName = "";
+                $.each(CompanyInfo, function (key, value) {
+                    BusinessTypeID = value.BusinessTypeID;
+                    CompanyName = value.CompanyName;
+                    $.each(value, function (key, val) {
+                        $("form[name=FormCompanyInformation] input[alt=" + key + "]").val(val);
+                    });
+                });
+                if (CompanyName == "") {
+                    $("#Company_Address").val('');
+                    $("#Company_Commune").val('');
+                    $("#Company_District").val('');
+                    $("#Company_Province_City").val('');
+                }
+            });
+        });
+    }
+    function LoadCustServices(CustomerID) {
+        LoadData("CustomerProfile/LoadCustServices?ID=" + CustomerID, function (response) {
+            var CustService = JSON.parse(JSON.parse(response).data);
+            var row = '<form id="FormCustomerBillInformation" name="FormCustomerBillInformation" novalidate autocomplete="off">';
+            $.each(CustService, function (key, value) {
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label>Service Plan: ' + value.ServiceName + '</label></div>';
+                row += '</div>';
+                row += '<div class="row">';
+                row += '<div class="col text-left"><label>' + value.PackageName + '</label></div>';
+                row += '</div>';
+                row += '<div class="row">';
+                row += '<div class="col"><input class="input2" name="InvoiceNo" alt="InvoiceNo" type="hidden" value="' + value.Inv + '" /><label>Invoice No.: ' + value.InvoiceNo + '</label></div>';
+                row += '</div>';
+                row += '<div class="p-2" style="background-color:papayawhip">';
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label for="CompanyEmail" class="col-form-label khmerFont1">អ៊ីមែលទូទាត់វិក្កយបត្រ/Billing Email:</label></div>';
+                row += '<div class="col"><div class="wrap-input2">';
+                row += '<input type="email" class="input2 CustInfo" name="Company_Email" alt="CompanyEmail" value="' + value.CompanyEmail + '">';
+                row += '<span class="focus-input2"></span></div></div></div>';
+                row += '<div class="row"><div class="col-auto"><label for="BillToAddress" class="col-form-label khmerFont1">អាសយដ្ឋានទូទាត់វិក្កយបត្រ/Bill Add.:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Bill To Address is required">';
+                row += '<input type="text" class="input2 CustInfo" name="Bill_To_Address" alt="BillToAddress" value="' + value.BillToAddress + '">';
+                row += '<span class="focus-input2"></span></div></div>';
+                row += '<div class="col-auto"><label for="BillToCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Commune is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="BillToCommune" name="Bill_To_Commune" value="' + value.BillToCommune + '">';
+                row += '<span class="focus-input2"></span></div></div></div>';
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label for="BillToDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="District is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="BillToDistrict" name="Bill_To_District" value="' + value.BillToDistrict + '">';
+                row += '<span class="focus-input2"></span></div></div>';
+                row += '<div class="col-auto"><label for="BillToProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Province/City is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="BillToProvinceCity" name="Bill_To_ProvinceCity" value="' + value.BillToProvinceCity + '">';
+                row += '<span class="focus-input2"></span></div></div></div>';
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label for="InstallAddress" class="col-form-label khmerFont1">អាសយដ្ឋានតម្លើង/Installation Add.:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Installation Address is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="InstallAddress" name="Install_Address" value="' + value.InstallAddress + '">';
+                row += '<span class="focus-input2"></span></div></div>';
+                row += '<div class="col-auto"><label for="InstallCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Commune is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="InstallCommune" name="Install_Commune" value="' + value.InstallCommune + '">';
+                row += '<span class="focus-input2"></span></div></div></div>';
+                row += '<div class="row">';
+                row += '<div class="col-auto"><label for="InstallDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="District is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="InstallDistrict" name="Install_District" value="' + value.InstallDistrict + '">';
+                row += '<span class="focus-input2"></span></div></div>';
+                row += '<div class="col-auto"><label for="InstallProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>';
+                row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Province/City is required">';
+                row += '<input type="text" class="input2 CustInfo" alt="InstallProvinceCity" name="Install_ProvinceCity" value="' + value.InstallProvinceCity + '">';
+                row += '<span class="focus-input2"></span></div></div></div>';
+                row += '</div>';
+            });
+            row += '<div class="p-2">';
+            row += '<div class="row p-2 bg-gray-light justify-content-end">';
+            row += '<div class="col-12 text-right">';
+            row += '<button type="button" id="Save_ChangeBillInfo" class="btn btn-outline-primary"><i class="fa fa-save" aria-hidden="true"></i> Save Change</button>';
+            row += '</div></div></div>';
+            row += '</form>';
+            $("#ShowCustomerServices").html(row);
+            ApplyTypeahead("Bill_To_Commune", Commune,
+                {
+                    Bill_To_Commune: 'Name',
+                    Bill_To_District: 'District',
+                    Bill_To_ProvinceCity: 'ProvinceCity',
+                    Install_Commune: 'Name',
+                    Install_District: 'District',
+                    Install_ProvinceCity: 'ProvinceCity'
+                },
+                {
+                    Name: 'Commune',
+                    ID: 'CommuneID',
+                    DistrictID: 'DistrictID',
+                    District: 'District',
+                    ProvinceCityID: 'ProvinceCityID',
+                    ProvinceCity: 'ProvinceCity'
+                }, "Bill_To_Commune"
+            );
+            ApplyTypeahead("Install_Commune", Commune,
+                {
+                    Install_Commune: 'Name',
+                    Install_District: 'District',
+                    Install_ProvinceCity: 'ProvinceCity'
+                },
+                {
+                    Name: 'Commune',
+                    ID: 'CommuneID',
+                    DistrictID: 'DistrictID',
+                    District: 'District',
+                    ProvinceCityID: 'ProvinceCityID',
+                    ProvinceCity: 'ProvinceCity'
+                }, "Install_Commune"
+            );
+
+            $("#Save_ChangeBillInfo").click(function () {
+                var check = validateInput("FormCustomerBillInformation");
+                if (check) {
+                    var URL = "/AddCustomer/SaveChangeCustomerBillInfo";
+                    var obj = {};
+                    var dataobj = [];
+                    var i = 0;
+                    $("#FormCustomerBillInformation input.input2").each(function (key, value) {
+                        var name = (typeof $(value).attr("name") == "undefined" ? "" : $(value).attr("name"));
+                        if (i == 9) {
+                            i = 0;
+                            dataobj.push(obj);
+                            obj = {};
+                        }
+                        if (name != "") {
+                            obj[$(value).attr("alt")] = $(value).val();
+                            i++;
+                        }                        
+                    });
+                    var DATA = { CustomerBillData: JSON.stringify(dataobj) };
+                    DoSaveChangeData(URL, DATA, function (response) {
+                        LoadCustServices(CustomerID);
+                    });
+                }
+                else {
+                    DialogSweetAlert("error", "Please fill data required.");
+                }
+            });
+        });
+    }
+    function LoadCustRollBackInvoice(CustomerID) {
+        LoadData("CustomerProfile/LoadCustRollBackInvoice?ID=" + CustomerID, function (response) {
+            $("#showRollbackInvoice").html(JSON.parse(response).data);
+        });
+    }
+    function LoadCustPaidInvoice(CustomerID) {
+        LoadData("CustomerProfile/LoadCustPaidInvoice?ID=" + CustomerID, function (response) {
+            $("#showPaidInvoice").html(JSON.parse(response).data);
+        });
+    }
+    $(document).ready(function () {
+        $("#customer-info-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#cust-invoice-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+    });
+    $(function () {
+        $("#ExchangeRate").val(ExchangeRate);
+        $("#ExchangeRate").autoNumeric({ vMin: '0.00' });
+        $("#ExchangeRate").on('blur', function () {
+            if ($(this).val() != "")
+                LoadData('CustomerProfile/SaveChangeExchageRate/?Value=' + accounting.unformat($(this).val()), function () { });
+        });
+
+        var url = window.location.hash;
+        var ID = url.substring(url.indexOf('?'));
+        ID = ID.substring(ID.indexOf('=')).replace(/=/g, '');
+        LoadData('/AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            Commune = data;
+            LoadCustServices(ID);
+        });
+        LoadCustInvoice(ID);
+        setTimeout(function () {
+            LoadCustQuotation(ID);
+        }, 500);
+        LoadCustomerInformation(ID);
+        $("#btnCreateInvoice").click(function () {
+            //number 2 for create invoicing...
+            var Data = [];
+            var obj = {};
+            obj = { PrimaryFieldValue: "2", InvoiceNo: "0", CustomerID: "" + Customer_ID + "", FormStatus: "CreateInvoice" };//.replace(/"/g, '\'');
+            Data.push(obj);
+            AddQuotation(obj, "Create Customer Invoice");
+        });
+    });
+</script>

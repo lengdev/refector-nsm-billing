@@ -1,0 +1,56 @@
+﻿@{ Layout = null; }
+<div class="row">
+    <div class="col-3 col-sm-2">
+        <div class="nav flex-column nav-tabs" id="customer-group-tab">
+        </div>
+        <div id="divsumcustomer"></div>
+    </div>
+    <div class="col-9 col-sm-10">
+        <div class="tab-content" id="customer-group-tabContent"></div>
+    </div>
+</div>
+<script>
+    var CustomerID = "@ViewBag.CustomerID";
+    var _Bandwidth = "@ViewBag.Bandwidth";
+    var Data = `@Html.Raw(ViewBag.Data)`;
+    var RouterID = "@ViewBag.RouterID";
+    var ConnectionType = "@ViewBag.ConnectionType";
+
+    var sumCustomer = 0;
+    $(function () {
+        if (Data != "")
+            Data = JSON.parse(Data);
+        var startDate = "@ViewBag.startDate";
+        var endDate = "@ViewBag.endDate";
+        //var startDate = $("#DateSearch").data('daterangepicker').startDate.format('YYMMDD');
+        //var endDate = $("#DateSearch").data('daterangepicker').endDate.format('YYMMDD');
+        $("#customer-group-tab a").click(function (e) {
+            e.preventDefault();
+        });
+        if (Data.length > 0) {
+            Data = Data[0].Table;
+            var row = ``;
+            $.each(Data, function (key, value) {
+                row += `<a onclick="ShowCustomerDetail(` + value.CustomerGroupID + `,'` + startDate + `','` + endDate + `');" class="nav-link` + (key == 0 ? " active" : "") + `" id="` + value.CustomerGroup + `-tab" data-toggle="pill" href="javascript:void(0);" role="tab"><i class="fa-solid fa-user"></i> ` + value.CustomerGroup;
+                row += `&nbsp;<span class="badge badge-info" title="Customer">` + value.Customer + `</span></a>`;
+                if (key == 0) {
+                    ShowCustomerDetail(value.CustomerGroupID, '' + startDate + '', '' + endDate + '');
+                }
+                sumCustomer += value.Customer;
+            });
+            $("#customer-group-tab").append(row);
+            row = `<span class="badge badge-success" title="Customer"><i class="fa-solid fa-user"></i>&nbsp;Customer: ` + accounting.formatNumber(sumCustomer, 0) + `</span>`;
+            $("#divsumcustomer").html(row);
+        }
+    });
+    function ShowCustomerDetail(CustomerGroupID, startDate, endDate) {
+        LoadData("CustomerReports/ShowCustomerDetail?CustomerGroupID=" + CustomerGroupID + "&startDate=" + startDate + "&endDate=" + endDate + "&Bandwidth=" + _Bandwidth + "&CustomerID=" + CustomerID + "&RouterID=" + RouterID + "&ConnectionType=" + ConnectionType, function (response) {
+            $("#customer-group-tabContent").html(response);
+        });
+    }
+    function ShowCustomerByBlock(CustomerGroupID, CustomerTypeID, startDate, endDate) {
+        LoadData("CustomerReports/ShowCustomerByBlock?CustomerGroupID=" + CustomerGroupID + "&CustomerTypeID=" + CustomerTypeID + "&startDate=" + startDate + "&endDate=" + endDate + "&Bandwidth=" + _Bandwidth + "&CustomerID=" + CustomerID + "&RouterID=" + RouterID + "&ConnectionType=" + ConnectionType, function (response) {
+            $("#CustomerByBlock").html(response);
+        });
+    }
+</script>

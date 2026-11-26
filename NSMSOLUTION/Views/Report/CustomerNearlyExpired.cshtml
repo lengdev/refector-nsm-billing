@@ -1,0 +1,473 @@
+﻿@{ Layout = null;}
+
+<!-- Alert → Sale Modal -->
+<style>
+    .ats-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1060;
+        background: rgba(15, 23, 42, 0.5);
+        align-items: center;
+        justify-content: center;
+        animation: ats-fade-in .15s ease;
+    }
+
+    .ats-backdrop.open {
+        display: flex;
+    }
+
+    @@keyframes ats-fade-in {
+        from {
+            opacity: 0
+        }
+
+        to {
+            opacity: 1
+        }
+    }
+
+    @@keyframes ats-slide-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .ats-modal {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 440px;
+        margin: 16px;
+        overflow: hidden;
+        animation: ats-slide-up .2s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .ats-head {
+        padding: 20px 20px 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ats-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #dbeafe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #1d4ed8;
+        flex-shrink: 0;
+    }
+
+    .ats-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 3px;
+    }
+
+    .ats-desc {
+        font-size: 12.5px;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .ats-x {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        border: 1px solid #e2e8f0;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #64748b;
+        font-size: 15px;
+        transition: all .15s;
+    }
+
+    .ats-x:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .ats-strip {
+        margin: 14px 20px 0;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 16px;
+    }
+
+    .ats-strip-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        min-width: 0;
+    }
+
+    .ats-strip-row i {
+        font-size: 14px;
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .ats-strip-lbl {
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .ats-strip-val {
+        color: #0f172a;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+    }
+
+    .ats-body {
+        padding: 16px 20px;
+    }
+
+    .ats-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 7px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ats-req {
+        color: #ef4444;
+    }
+
+    .ats-textarea {
+        width: 100%;
+        min-height: 92px;
+        resize: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-family: inherit;
+        color: #0f172a;
+        background: #f8fafc;
+        outline: none;
+        transition: all .15s;
+        box-sizing: border-box;
+    }
+
+    .ats-textarea:focus {
+        border-color: #93c5fd;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .1);
+    }
+
+    .ats-textarea.error {
+        border-color: #fca5a5;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
+    }
+
+    .ats-hint {
+        font-size: 11.5px;
+        color: #94a3b8;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ats-hint.err {
+        color: #ef4444;
+    }
+
+    .ats-foot {
+        padding: 14px 20px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .ats-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all .15s;
+        border: 1px solid transparent;
+    }
+
+    .ats-btn:active {
+        transform: scale(.98);
+    }
+
+    .ats-btn-cancel {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+        color: #475569;
+    }
+
+    .ats-btn-cancel:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .ats-btn-submit {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .ats-btn-submit:hover {
+        background: #1e293b;
+    }
+
+    .ats-btn-submit:disabled {
+        background: #94a3b8;
+        border-color: #94a3b8;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="tabs-showcase">
+    <div class="tabs-showcase__container">
+        <div class="tabs-showcase__card">
+            <div class="tabs-showcase__grid">
+                <div class="tabs-showcase__item">
+                    <h1 class="tabs-showcase__title d-none">Customer Nearly Expired</h1>
+
+                    <div class="tab-group" data-variant="gray">
+                        <div class="tab-container tab-container--gray">
+                            <div class="tab-list">
+                                <button class="tab-item tab-item--gray active" data-tab-index="0">Customer Nearly
+                                    Expired</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="1">Customer Nearly Expired
+                                    Second</button>
+                            </div>
+                        </div>
+                        <div class="tab-content tab-content--gray"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ats-backdrop" id="atsBackdrop">
+    <div class="ats-modal" role="dialog" aria-modal="true" aria-labelledby="ats-title">
+
+        <div class="ats-head">
+            <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
+                <div class="ats-icon"><i class="ti ti-send"></i></div>
+                <div>
+                    <p class="ats-title" id="ats-title">Send alert to sale team</p>
+                    <p class="ats-desc">Add a reason before forwarding this alert.</p>
+                </div>
+            </div>
+            <button class="ats-x" onclick="atsClose()" aria-label="Close">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+
+        <div class="ats-strip">
+            <div class="ats-strip-row">
+                <i class="ti ti-user"></i>
+                <span class="ats-strip-lbl">Customer</span>
+                <span class="ats-strip-val" id="ats-name">—</span>
+            </div>
+            <div class="ats-strip-row">
+                <i class="ti ti-hash"></i>
+                <span class="ats-strip-lbl">Code</span>
+                <span class="ats-strip-val" id="ats-code">—</span>
+            </div>
+            <div class="ats-strip-row">
+                <i class="ti ti-device-mobile"></i>
+                <span class="ats-strip-lbl">Mobile</span>
+                <span class="ats-strip-val" id="ats-mobile">—</span>
+            </div>
+            <div class="ats-strip-row">
+                <i class="ti ti-file-invoice"></i>
+                <span class="ats-strip-lbl">Exp. Date</span>
+                <span class="ats-strip-val" id="ats-exp-date">—</span>
+            </div>
+        </div>
+
+        <div class="ats-body">
+            <label class="ats-label" for="ats-reason">
+                Reason <span class="ats-req">*</span>
+            </label>
+            <textarea id="ats-reason" class="ats-textarea" maxlength="500"
+                placeholder="Describe the reason for sending this alert to the sale team…"></textarea>
+            <div class="ats-hint" id="ats-hint">
+                <i class="ti ti-info-circle" style="font-size:13px"></i>
+                <span id="ats-char">0 / 500</span>
+            </div>
+        </div>
+
+        <div class="ats-foot">
+            <button class="ats-btn ats-btn-cancel" onclick="atsClose()">
+                <i class="ti ti-x"></i> Cancel
+            </button>
+            <button class="ats-btn ats-btn-submit" id="ats-submit" onclick="atsSubmit()">
+                <i class="ti ti-send"></i> Submit
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // ── Tab logic ─────────────────────────────────────────────────────────────
+    $(document).ready(function () {
+
+        var tab1Content = @Html.Raw(Json.Encode(ViewBag.DrawHTMLSearchForm));
+        var tab2Content = @Html.Raw(Json.Encode(ViewBag.DrawHTMLSearchForm2));
+
+        var tabContents = {
+            0: function () { return Promise.resolve(tab1Content); },
+            1: function () { return Promise.resolve(tab2Content); }
+        };
+
+        var $buttons = $('.tab-item');
+        var $contentDiv = $('.tab-content');
+
+        $buttons.on('click', async function () {
+            $buttons.removeClass('active');
+            $(this).addClass('active');
+
+            var handler = tabContents[$(this).data('tab-index')];
+
+            if (typeof destroyKendoWidgets === 'function') destroyKendoWidgets($contentDiv);
+
+            try {
+                $contentDiv.html('Loading...');
+                $contentDiv.html(await handler());
+            } catch (err) {
+                $contentDiv.html('Error loading content');
+                console.error(err);
+            }
+        });
+
+        // Trigger first tab on load
+        $('.tab-item.active').trigger('click');
+
+        // Handle CID from URL query string
+        setTimeout(function () {
+            var CID = getQueryStringValue(window.location.href, 'CID');
+            if (CID && CID !== '') {
+                var grid = $('#TableGride').data('kendoGrid');
+                if (grid) {
+                    grid.bind('dataBound', function () {
+                        $('#CboSearchText').val(CID).trigger('change');
+                        setTimeout(function () { $('#BunSearch').click(); }, 100);
+                    });
+                }
+            }
+        }, 500);
+    });
+
+    var _atsData = null;
+
+    function AlertToSale(dataItem) {
+        if (!dataItem.Comment) return;
+
+        _atsData = dataItem;
+
+        $('#ats-name').text(dataItem.CustomerName || '—');
+        $('#ats-code').text(dataItem.CustomerCode || '—');
+        $('#ats-mobile').text(dataItem.CustomerMobile || '—');
+        $('#ats-exp-date').text(convertFormatDate(dataItem.ExpireDate, 'dd-MMM-yyyy') || '—');
+
+        const $ta = $('#ats-reason');
+        $ta.val('').removeClass('error');
+        $('#ats-char').text('0 / 500');
+        $('#ats-hint').removeClass('err');
+
+        $('#atsBackdrop').addClass('open');
+        setTimeout(() => $ta.trigger('focus'), 200);
+    }
+
+    function atsClose() {
+        $('#atsBackdrop').removeClass('open');
+        _atsData = null;
+    }
+
+    function atsSubmit() {
+        const $ta = $('#ats-reason');
+        const reason = $.trim($ta.val());
+
+        if (!reason) {
+            $ta.addClass('error');
+            $('#ats-hint').addClass('err').find('span').text('Reason is required.');
+            $ta.trigger('focus');
+            return;
+        }
+
+        const d = _atsData;
+        const userFullName = localStorage.getItem('User_Full_Name');
+        const hub = $.connection.chatHub;
+        console.log(d)
+        const send = () => hub.server.sentAlertToTeamSale(d.CustomerInvoiceID,
+            d.CustomerID, d.CustomerName, d.CustomerCode,
+            d.CustomerMobile, d.ExpireDate, d.Comment,
+            reason,
+            userFullName
+        );
+
+        $.connection.hub.state !== 1
+            ? $.connection.hub.start().done(send)
+            : send();
+
+        atsClose();
+    }
+
+    // Character counter + inline error clear
+    $(document).on('input', '#ats-reason', function () {
+        const len = $(this).val().length;
+        $('#ats-char').text(len + ' / 500');
+        if ($.trim($(this).val())) {
+            $(this).removeClass('error');
+            $('#ats-hint').removeClass('err').find('span').text(len + ' / 500');
+        }
+    });
+
+    // Close on backdrop click
+    $(document).on('click', '#atsBackdrop', function (e) {
+        if ($(e.target).is('#atsBackdrop')) atsClose();
+    });
+
+    // Close on Escape
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') atsClose();
+    });
+
+</script>

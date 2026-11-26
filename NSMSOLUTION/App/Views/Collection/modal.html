@@ -1,0 +1,493 @@
+<div class="cl-root">
+
+  <!-- ================= Full-screen modal ================= -->
+  <div class="cl-modal" ng-show="modal.open" role="dialog" aria-modal="true" aria-labelledby="cl-title"
+    ng-keydown="onKeydown($event)">
+
+    <div class="cl-lightbox" ng-if="slipView.open" ng-click="closeSlip()" role="dialog" aria-modal="true"
+      aria-label="Slip preview">
+      <button class="cl-lb-x" type="button" ng-click="closeSlip()" aria-label="Close preview">
+        <i class="ti ti-x cl-ico" aria-hidden="true"></i>
+      </button>
+      <button class="cl-lb-nav cl-lb-prev" type="button" ng-show="slips.length > 1"
+        ng-click="stepSlip(-1); $event.stopPropagation()" aria-label="Previous slip">‹</button>
+      <figure ng-click="$event.stopPropagation()">
+        <img ng-src="{{slipView.file.url}}" alt="">
+        <figcaption>{{slipView.file.name}} · {{slipView.index + 1}} of {{slips.length}}</figcaption>
+      </figure>
+      <button class="cl-lb-nav cl-lb-next" type="button" ng-show="slips.length > 1"
+        ng-click="stepSlip(1); $event.stopPropagation()" aria-label="Next slip">›</button>
+    </div>
+
+    <div class="cl-saving" ng-if="ui.saving" role="status" aria-live="polite">
+      <div class="cl-saving-card">
+        <div class="cl-orbit" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <i class="ti ti-receipt cl-ico" aria-hidden="true"></i>
+        </div>
+        <b>Saving your collection</b>
+        <div class="cl-steps">
+          <span>Posting payments…</span>
+          <span>Updating invoices…</span>
+          <span>Checking device status…</span>
+          <span ng-if="slips.length">Sending slip to Telegram…</span>
+        </div>
+        <small>Please keep this window open</small>
+      </div>
+    </div>
+
+    <header class="cl-mhead">
+      <span class="cl-mhead-ico"><i class="ti ti-receipt cl-ico" aria-hidden="true"></i></span>
+      <div class="cl-mhead-t">
+        <h2 id="cl-title">{{editing.active ? 'Edit Collection' : 'Add Collection'}}</h2>
+        <small>{{editing.active ? 'Editing receipt · ' : 'Receipt voucher · '}}{{form.number}}</small>
+      </div>
+      <span class="cl-chip">{{editing.active ? 'Editing' : 'New'}}</span>
+      <span class="cl-chip" ng-if="editing.active && editing.deposit > 0">Deposit {{sym()}}{{editing.deposit |
+        number:2}}</span>
+      <span class="cl-grow"></span>
+      <button class="cl-icon-btn" type="button" ng-click="attemptClose()" aria-label="Close"><i class="ti ti-x cl-ico"
+          aria-hidden="true"></i></button>
+    </header>
+
+    <div class="cl-mbody">
+      <div class="cl-wrap">
+
+        <!-- ---------- header fields + summary ---------- -->
+        <section class="cl-form" aria-label="Collection details">
+
+          <!-- Customer & Payment -->
+          <div class="cl-card">
+            <div class="cl-card-h"><span class="cl-card-ico"><i class="ti ti-user cl-ico"
+                  aria-hidden="true"></i></span>Customer &amp; Payment</div>
+            <div class="cl-card-b">
+
+              <div class="cl-field" ng-class="{'cl-bad': errors.customer}">
+                <label for="cl-customer" class="cl-req">Customer</label>
+                <cl-combo input-id="cl-customer" placeholder="Search customer name or code" focus-on="cl-focus-customer"
+                  ng-model="form.customerId" items="lookup.customers" on-search="searchCustomers(text)"
+                  loading="customersLoading" ng-change="onCustomer()" on-add="openAddCustomer(text)"
+                  add-label="Add customer"></cl-combo>
+                <div class="cl-err" ng-show="errors.customer">{{errors.customer}}</div>
+              </div>
+
+              <div class="cl-field" ng-class="{'cl-bad': errors.date}">
+                <label for="cl-date" class="cl-req">Date</label>
+                <div class="cl-ctl">
+                  <input id="cl-date" type="text" inputmode="numeric" placeholder="dd-mm-yyyy" autocomplete="off"
+                    ng-model="form.dateText" ng-change="onDateTyped()" ng-blur="onDateBlur()">
+                  <button class="cl-add cl-go" type="button" cl-open-picker aria-label="Pick a date"><i
+                      class="ti ti-calendar cl-ico" aria-hidden="true"></i></button>
+                  <input class="cl-datehid" type="date" tabindex="-1" aria-hidden="true" ng-model="form.dateObj"
+                    ng-change="onPickDate()">
+                </div>
+                <div class="cl-err" ng-show="errors.date">{{errors.date}}</div>
+              </div>
+
+              <div class="cl-field cl-amount-field">
+                <label for="cl-amount">Amount Paid</label>
+                <div class="cl-ctl">
+                  <input id="cl-amount" class="cl-num" type="text" inputmode="decimal" autocomplete="off" cl-money
+                    ng-model="form.amount" ng-change="onAmount()">
+                  <span class="cl-add">{{sym()}}</span>
+                </div>
+                <div class="cl-hint cl-warn" ng-show="excessMsg()">{{excessMsg()}}</div>
+                <div class="cl-credit-inline" ng-if="hasDeposit()">
+                  <span class="cl-credit-applied">
+                    <i class="ti ti-circle-check cl-ico" aria-hidden="true"></i>
+                    <button class="cl-credit-link" type="button" ng-click="viewDeposit()">
+                      {{creditLabel()}} {{sym()}}{{editing.deposit | number:2}}
+                    </button>
+                    <span class="cl-credit-separator" ng-if="creditNote()">·</span>
+                    <span ng-if="creditNote()">{{creditNote()}}</span>
+                  </span>
+                </div>
+              </div>
+              <div class="cl-field" ng-class="{'cl-bad': errors.method}">
+                <label for="cl-method" class="cl-req">Payment Method</label>
+                <cl-combo input-id="cl-method" placeholder="Select payment method" ng-model="form.method"
+                  items="lookup.methods" ng-change="onMethod()"></cl-combo>
+                <div class="cl-err" ng-show="errors.method">{{errors.method}}</div>
+              </div>
+
+              <div class="cl-field" ng-class="{'cl-bad': errors.deposit}">
+                <label for="cl-deposit" class="cl-req">Deposit To</label>
+                <cl-combo input-id="cl-deposit" placeholder="Select account" ng-model="form.deposit"
+                  items="lookup.deposits" ng-change="errors.deposit = ''"></cl-combo>
+                <div class="cl-err" ng-show="errors.deposit">{{errors.deposit}}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Receipt Details -->
+          <div class="cl-card">
+            <div class="cl-card-h"><span class="cl-card-ico"><i class="ti ti-wallet cl-ico"
+                  aria-hidden="true"></i></span>Receipt Details</div>
+            <div class="cl-card-b">
+              <div class="cl-field" ng-class="{'cl-bad': errors.classId}">
+                <label for="cl-class" class="cl-req">Class</label>
+                <cl-combo input-id="cl-class" placeholder="Select class" focus-on="cl-focus-class"
+                  ng-model="form.classId" items="lookup.classes" ng-change="onClass()"></cl-combo>
+                <div class="cl-err" ng-show="errors.classId">{{errors.classId}}</div>
+              </div>
+
+              <div class="cl-field">
+                <label for="cl-number">RV Number</label>
+                <div class="cl-ctl">
+                  <input id="cl-number" class="cl-mono" type="text" autocomplete="off" ng-model="form.number" readonly>
+                </div>
+              </div>
+
+              <div class="cl-field d-none">
+                <label for="cl-currency" class="cl-req">Currency</label>
+                <cl-combo input-id="cl-currency" ng-model="form.currency" items="lookup.currencies"
+                  ng-change="onCurrency()"></cl-combo>
+              </div>
+
+              <div class="cl-field cl-grow-field">
+                <label for="cl-memo">Memo</label>
+                <textarea id="cl-memo" class="cl-memo" placeholder="Add a note for this collection"
+                  ng-model="form.memo"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Slip -->
+          <div class="cl-card cl-card-slip">
+            <div class="cl-card-h"><span class="cl-card-ico"><i class="ti ti-photo-up cl-ico"
+                  aria-hidden="true"></i></span>Payment Slip</div>
+            <div class="cl-card-b">
+              <div class="cl-slipbox" ng-class="{'cl-bad': errors.files}">
+                <div class="cl-drop" ng-class="{'cl-drop-on': slipDrag}" cl-slips>
+                  <input id="cl-files" type="file" multiple accept="image/jpeg,image/png,image/webp"
+                    aria-label="Payment slip">
+                  <i class="ti ti-upload cl-ico" aria-hidden="true"></i>
+                  <span>Drop slips here or <u>browse</u></span>
+                  <small>JPG, PNG or WEBP · up to {{slipMax}} files · 5 MB each</small>
+                </div>
+
+                <ul class="cl-slips" ng-show="slips.length">
+                  <li ng-repeat="f in slips track by f.id">
+                    <button class="cl-slip-open" type="button" ng-click="viewSlip(f)" tooltip title="View {{f.name}}">
+                      <img ng-src="{{f.url}}" alt="">
+                      <span class="cl-slip-n">{{f.name}}</span>
+                    </button>
+                    <small>{{f.sizeLabel}}</small>
+                    <button class="cl-icon-btn" type="button" ng-click="removeSlip(f)" aria-label="Remove {{f.name}}">
+                      <i class="ti ti-x cl-ico" aria-hidden="true"></i>
+                    </button>
+                  </li>
+                </ul>
+
+                <label class="cl-switch">
+                  <input type="checkbox" ng-model="ui.notify">
+                  <span class="cl-switch-track" aria-hidden="true"></span>
+                  <span class="cl-switch-t">
+                    <b>Send Telegram alert</b>
+                    <small>{{
+                      ui.notify
+                      ? 'Receipt details and slips are sent after saving'
+                      : 'Saved only, no Telegram alert'}}</small>
+                  </span>
+                </label>
+
+                <div class="cl-err" ng-show="errors.files">{{errors.files}}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <aside class="cl-summary" aria-label="Totals">
+            <div class="cl-top"><span class="cl-top-t"><i class="ti ti-receipt cl-ico"
+                  aria-hidden="true"></i>Summary</span><span>{{totals.checked}} of {{rows.length}} invoice{{rows.length
+                === 1 ? '' : 's'}}</span></div>
+            <dl>
+              <div class="cl-row">
+                <dt>Sub Total</dt>
+                <dd>{{totals.sub | number:2}}<i>{{sym()}}</i></dd>
+              </div>
+              <div class="cl-row">
+                <dt>Discount</dt>
+                <dd>{{totals.disc | number:2}}<i>{{sym()}}</i></dd>
+              </div>
+              <div class="cl-row">
+                <dt>Other Charge</dt>
+                <dd>{{totals.chg | number:2}}<i>{{sym()}}</i></dd>
+              </div>
+            </dl>
+            <div class="cl-grand">
+              <span>Grand Total</span>
+              <b>{{totals.grand | number:2}}<i>{{sym()}}</i></b>
+              <div class="cl-meter" ng-show="rows.length" tooltip
+                title="Share of the customer's open balance this receipt pays">
+                <div class="cl-meter-bar"><i ng-style="{width: totals.pct + '%'}"></i></div>
+                <small>{{totals.pct}}% of {{sym()}}{{totals.open | number:2}} open balance</small>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <!-- ---------- Payment Detail / Other Charge ---------- -->
+        <section class="cl-detail" ng-class="{'cl-collapsed': ui.collapsed}" aria-label="Collection lines">
+          <div class="cl-tabs" role="tablist">
+            <button class="cl-tab" type="button" role="tab" aria-selected="{{ui.tab === 'pay'}}"
+              ng-click="setTab('pay')">Payment Detail <span class="cl-count">{{rows.length}}</span></button>
+            <button class="cl-tab" type="button" role="tab" aria-selected="{{ui.tab === 'chg'}}"
+              ng-click="setTab('chg')">Other Charge <span class="cl-count">{{charges.length}}</span></button>
+            <span class="cl-grow"></span>
+            <button class="cl-icon-btn cl-collapse" type="button" ng-click="ui.collapsed = !ui.collapsed"
+              aria-label="Collapse details" aria-expanded="{{!ui.collapsed}}"><i class="ti ti-chevron-up cl-ico"
+                aria-hidden="true"></i></button>
+          </div>
+
+          <div class="cl-panels">
+            <div role="tabpanel" ng-show="ui.tab === 'pay'">
+              <div class="cl-tablewrap">
+                <div class="cl-progress" ng-show="loadingRows" aria-hidden="true"><i></i></div>
+                <div class="cl-hint cl-warn cl-classnote" ng-show="classNote()">{{classNote()}}</div>
+                <table class="cl-grid" aria-busy="{{!!loadingRows}}">
+                  <thead>
+                    <tr>
+                      <th class="cl-c-chk">
+                        <input type="checkbox" class="cl-chk" aria-label="Select all invoices" ng-checked="allChecked()"
+                          cl-indeterminate="someChecked()" ng-disabled="!selectable()" ng-click="toggleAll()">
+                      </th>
+                      <th>Tran Type</th>
+                      <th>Tran Date</th>
+                      <th>Number</th>
+                      <th class="cl-num">Grand Total ({{sym()}})</th>
+                      <th class="cl-num">Open Balance ({{sym()}})</th>
+                      <th class="cl-num">Discount</th>
+                      <th class="cl-num">{{hasDeposit() ? 'Payment Credit' : 'Payment'}} ({{sym()}})</th>
+                    </tr>
+                  </thead>
+                  <tbody ng-if="customer && loadingRows && !rows.length" aria-hidden="true">
+                    <tr class="cl-skel" ng-repeat="n in [1,2,3] track by $index">
+                      <td class="cl-c-chk"><i class="cl-sk cl-sk-box"></i></td>
+                      <td><i class="cl-sk cl-sk-pill"></i></td>
+                      <td><i class="cl-sk cl-sk-m"></i></td>
+                      <td><i class="cl-sk cl-sk-l"></i></td>
+                      <td class="cl-num"><i class="cl-sk cl-sk-s"></i></td>
+                      <td class="cl-num"><i class="cl-sk cl-sk-s"></i></td>
+                      <td class="cl-num"><i class="cl-sk cl-sk-s"></i></td>
+                      <td class="cl-num"><i class="cl-sk cl-sk-s"></i></td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr class="cl-empty" ng-if="!customer">
+                      <td colspan="8">
+                        <div class="cl-empty-in"><span class="cl-empty-ico"><i class="ti ti-user cl-ico"
+                              aria-hidden="true"></i></span><b>No customer selected</b><span>Choose a customer to load
+                            their open invoices.</span></div>
+                      </td>
+                    </tr>
+
+                    <tr class="cl-empty" ng-if="customer && !loadingRows && !rows.length">
+                      <td colspan="8">
+                        <div class="cl-empty-in"><span class="cl-empty-ico"><i class="ti ti-inbox cl-ico"
+                              aria-hidden="true"></i></span><b>No open invoices</b><span>{{customer.name}} has no open
+                            invoice.
+                            Enter an amount to save it as a deposit.</span></div>
+                      </td>
+                    </tr>
+
+                    <tr ng-repeat="r in rows track by r.no" ng-class="{'cl-on': r.checked, 'cl-off': r.disabled}">
+                      <td class="cl-c-chk"><input type="checkbox" class="cl-chk" ng-model="r.checked"
+                          ng-change="onRowCheck(r)" ng-disabled="r.disabled" aria-label="Select {{r.no}}"></td>
+                      <td><span class="cl-type" ng-class="'cl-' + r.kind">{{r.type}}</span></td>
+                      <td class="cl-mono">{{r.date | date:'dd-MM-yyyy'}} <span class="cl-age" ng-class="ageClass(r.age)"
+                          tooltip title="Days since the transaction date">{{r.age}}d</span></td>
+                      <td class="cl-mono">{{r.no}} <span class="cl-cls" ng-show="r.className" tooltip
+                          title="Invoice class">{{r.className}}</span></td>
+                      <td class="cl-num">{{r.total | number:2}}</td>
+                      <td class="cl-num">{{r.open | number:2}}</td>
+                      <td class="cl-num"><input class="cl-cell" type="text" inputmode="decimal" autocomplete="off"
+                          cl-money ng-model="r.discount" ng-change="onDiscount(r)" ng-disabled="r.disabled"
+                          aria-label="Discount for {{r.no}}"></td>
+                      <td class="cl-num"><input class="cl-cell" ng-class="{'cl-zero': !r.checked || !r.payment}"
+                          type="text" inputmode="decimal" autocomplete="off" cl-money ng-model="r.payment"
+                          ng-change="onPayment(r)" ng-disabled="r.disabled" aria-label="Payment for {{r.no}}"></td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4">Total</td>
+                      <td class="cl-num">{{rows.length ? (totals.grandTotal | number:2) : '–'}}</td>
+                      <td class="cl-num">{{rows.length ? (totals.open | number:2) : '–'}}</td>
+                      <td class="cl-num">{{totals.disc ? (totals.disc | number:2) : '–'}}</td>
+                      <td class="cl-num">{{totals.pay ? (totals.pay | number:2) : '–'}}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div role="tabpanel" ng-show="ui.tab === 'chg'">
+              <div class="cl-charges">
+                <div class="cl-none" ng-show="!charges.length"><b>No other charges</b>Add a fee or adjustment that
+                  applies to this receipt.</div>
+                <div class="cl-charge" ng-repeat="c in charges track by c.id">
+                  <cl-combo input-id="cl-ctype-{{c.id}}" aria-label="Charge type" ng-model="c.type"
+                    items="lookup.chargeTypes"></cl-combo>
+                  <div class="cl-ctl"><input type="text" placeholder="Note (optional)" aria-label="Charge note"
+                      ng-model="c.note"></div>
+                  <div class="cl-ctl">
+                    <input class="cl-num" type="text" inputmode="decimal" autocomplete="off" aria-label="Charge amount"
+                      cl-money ng-model="c.amount" ng-change="onCharge()">
+                    <span class="cl-add">{{sym()}}</span>
+                  </div>
+                  <button class="cl-icon-btn" type="button" ng-click="removeCharge($index)"
+                    aria-label="Remove charge"><i class="ti ti-trash cl-ico" aria-hidden="true"></i></button>
+                </div>
+                <button class="cl-btn cl-soft cl-addrow" type="button" ng-click="addCharge()"><i
+                    class="ti ti-plus cl-ico" aria-hidden="true"></i>Add charge</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="cl-mfoot">
+      <button class="cl-btn" type="button" ng-click="previewDraft()"><i class="ti ti-printer cl-ico"
+          aria-hidden="true"></i>Print Preview</button>
+      <span class="cl-sp"></span>
+      <label class="cl-chkline"><input type="checkbox" class="cl-chk" ng-model="ui.printAfter"> Print After Save</label>
+      <button class="cl-btn cl-soft" type="button" ng-click="save('new')" ng-disabled="ui.saving">
+        <i class="ti ti-device-floppy cl-ico" aria-hidden="true"></i>
+        {{editing.active ? 'Update' : 'Save & New'}}
+      </button>
+      <button class="cl-btn cl-primary" type="button" ng-click="save('close')" ng-disabled="ui.saving">
+        <i class="ti ti-device-floppy cl-ico" aria-hidden="true"></i>
+        {{editing.active ? 'Update & Close' : 'Save & Close'}}
+      </button>
+      <button class="cl-btn" type="button" ng-click="attemptClose()"><i class="ti ti-x cl-ico"
+          aria-hidden="true"></i>Close</button>
+    </footer>
+  </div>
+
+  <!-- ================= Discard confirmation ================= -->
+  <div class="cl-scrim" ng-show="ui.confirm">
+    <div class="cl-dlg" role="alertdialog" aria-labelledby="cl-confirm-title">
+      <h3 id="cl-confirm-title">Discard this collection?</h3>
+      <p>You have unsaved changes. If you close now, they will be lost.</p>
+      <div class="cl-acts">
+        <button class="cl-btn" type="button" ng-click="ui.confirm = false">Keep editing</button>
+        <button class="cl-btn cl-danger" type="button" ng-click="closeModal()">Discard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Receipt preview ================= -->
+  <div class="cl-scrim" ng-show="preview.open" ng-click="onScrimClick($event)">
+    <div class="cl-paper" role="dialog" aria-labelledby="cl-pv-title" ng-if="preview.rec">
+      <header>
+        <div>
+          <h3 id="cl-pv-title">Collection Receipt</h3><span class="cl-hint cl-mono">{{preview.rec.no}}</span>
+        </div>
+        <button class="cl-icon-btn" type="button" ng-click="preview.open = false" aria-label="Close preview"><i
+            class="ti ti-x cl-ico" aria-hidden="true"></i></button>
+      </header>
+      <div class="cl-meta">
+        <div><span>Customer</span><b>{{preview.rec.customer}}</b></div>
+        <div><span>Date</span><b>{{preview.rec.date | date:'dd-MM-yyyy'}}</b></div>
+        <div><span>Payment method</span><b>{{preview.rec.method}}</b></div>
+        <div><span>Deposit to</span><b>{{preview.rec.deposit}}</b></div>
+        <div><span>Memo</span><b>{{preview.rec.memo || '—'}}</b></div>
+      </div>
+      <div class="cl-tbl">
+        <table>
+          <thead>
+            <tr>
+              <th>Applied to</th>
+              <th class="cl-r">Open</th>
+              <th class="cl-r">Discount</th>
+              <th class="cl-r">{{preview.rec.credit > 0 ? 'Payment Credit' : 'Payment'}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="l in preview.rec.lines">
+              <td>{{l.no}}<br><small class="cl-hint">{{l.type}} · {{l.date | date:'dd-MM-yyyy'}}</small></td>
+              <td class="cl-r">{{l.open | number:2}}</td>
+              <td class="cl-r">{{l.disc | number:2}}</td>
+              <td class="cl-r">{{l.pay | number:2}}</td>
+            </tr>
+            <tr ng-repeat="c in preview.rec.charges">
+              <td>{{c.type}}<br><small class="cl-hint" ng-show="c.note">{{c.note}}</small></td>
+              <td class="cl-r"></td>
+              <td class="cl-r"></td>
+              <td class="cl-r">{{c.amount | number:2}}</td>
+            </tr>
+            <tr ng-if="!preview.rec.lines.length && !preview.rec.charges.length">
+              <td colspan="4" class="cl-hint">No lines</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cl-tot"><span style="font-weight:600">Grand Total</span><b>{{preview.rec.sym}}{{preview.rec.grand |
+          number:2}}</b></div>
+      <div class="cl-tot" ng-if="preview.rec.credit > 0" style="padding-top:0">
+        <span style="font-weight:600">Kept as deposit</span>
+        <b>{{preview.rec.sym}}{{preview.rec.credit | number:2}}</b>
+      </div>
+      <div class="cl-tbl" ng-if="preview.rec.history.length">
+        <table>
+          <thead>
+            <tr>
+              <th>History</th>
+              <th>Invoice</th>
+              <th class="cl-r">Amount</th>
+              <th class="cl-r">Deposit left</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="x in preview.rec.history">
+              <td>{{x.type}}<br><small class="cl-hint">{{x.date | date:'dd-MM-yyyy'}} · {{x.by}}</small></td>
+              <td class="cl-mono">{{x.invoiceNo || '—'}}</td>
+              <td class="cl-r">{{x.amount | number:2}}</td>
+              <td class="cl-r">{{x.balance | number:2}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer><button class="cl-btn" type="button" ng-click="preview.open = false">Close preview</button></footer>
+    </div>
+  </div>
+
+  <!-- ================= Add customer ================= -->
+  <div class="cl-scrim" ng-show="newCust.open" ng-keydown="onKeydown($event)">
+    <form class="cl-dlg" role="dialog" aria-labelledby="cl-nc-title" ng-submit="saveCustomer()" novalidate>
+      <h3 id="cl-nc-title">Add Customer</h3>
+      <p>Create a customer and select them for this collection.</p>
+      <div class="cl-stack">
+        <div class="cl-field" ng-class="{'cl-bad': newCust.error}">
+          <label for="cl-nc-name" class="cl-req">Name</label>
+          <div class="cl-ctl">
+            <input id="cl-nc-name" type="text" autocomplete="off" ng-model="newCust.name"
+              cl-focus-on="cl-focus-newcust">
+          </div>
+          <div class="cl-err" ng-show="newCust.error">{{newCust.error}}</div>
+        </div>
+        <div class="cl-field">
+          <label for="cl-nc-code">Code</label>
+          <div class="cl-ctl"><input id="cl-nc-code" class="cl-mono" type="text" autocomplete="off"
+              ng-model="newCust.code"></div>
+        </div>
+        <div class="cl-field">
+          <label for="cl-nc-phone">Phone</label>
+          <div class="cl-ctl"><input id="cl-nc-phone" type="text" inputmode="tel" autocomplete="off"
+              ng-model="newCust.phone"></div>
+        </div>
+      </div>
+      <div class="cl-acts">
+        <button class="cl-btn" type="button" ng-click="newCust.open = false">Cancel</button>
+        <button class="cl-btn cl-primary" type="submit" ng-disabled="newCust.saving">
+          <i class="ti ti-device-floppy cl-ico" aria-hidden="true"></i>Save Customer
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="cl-toast" ng-class="{'cl-show': toast.show, 'cl-bad': toast.bad}" role="status" aria-live="polite">
+    {{toast.msg}}</div>
+</div>

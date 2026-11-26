@@ -1,0 +1,1575 @@
+@{
+    Layout = null;
+    var paymentAccounts = ViewBag.PaymentAccounts as System.Data.DataTable;
+    var paymentMethods = ViewBag.PaymentMethods as System.Data.DataTable;
+    var vendors = ViewBag.Vendors as System.Data.DataTable;
+    int selectedVendorId = 0;
+    if (ViewBag.VendorID != null)
+    {
+        int.TryParse(Convert.ToString(ViewBag.VendorID), out selectedVendorId);
+    }
+    else if (ViewBag.SelectedVendorID != null)
+    {
+        int.TryParse(Convert.ToString(ViewBag.SelectedVendorID), out selectedVendorId);
+    }
+    string selectedBillId = Convert.ToString(ViewBag.SelectedBillID ?? "");
+    string currentDate = Convert.ToString(ViewBag.CurrentDate ?? DateTime.Now.ToString("dd/MM/yyyy"));
+    string currentUserName = Convert.ToString(ViewBag.CurrentUserName ?? "Admin");
+
+    // Deduplicate Accounts and determine default (e.g. 10000 Petty Cash NSM)
+    string defaultAccId = "";
+    var seenAccounts = new HashSet<string>();
+    if (paymentAccounts != null && paymentAccounts.Rows.Count > 0)
+    {
+        foreach (System.Data.DataRow r in paymentAccounts.Rows)
+        {
+            string accId = r["ChartOfAccountID"].ToString();
+            string accFullName = r["FullAccountName"].ToString();
+            if (string.IsNullOrEmpty(defaultAccId))
+            {
+                if (accFullName.Contains("10000") || accFullName.IndexOf("Petty Cash", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    defaultAccId = accId;
+                }
+            }
+        }
+    }
+}
+
+<div class="bg-white w-100" id="payBillCreateApp">
+
+    <style>
+        /* ======================================================================
+           PAY BILL / CREATE - FULLSCREEN HARMONIZED LAYOUT & SYSTEM BUTTONS
+           ====================================================================== */
+        :root {
+            --pb-theme-color: #2072b2;
+            --pb-theme-focus: rgba(32, 114, 178, 0.2);
+        }
+
+        #payBillCreateApp {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #212529;
+            font-size: 13px;
+            padding: 10px 24px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Section Header Titles - Spanning Full Width */
+        .pb-section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            margin-top: 4px;
+            width: 100%;
+        }
+        .pb-section-header .pb-title {
+            color: var(--pb-theme-color, #2072b2);
+            font-weight: 700;
+            font-size: 12.5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-right: 12px;
+            transition: color 0.2s ease;
+        }
+        .pb-section-header .pb-line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #e2e8f0;
+        }
+
+        /* Form Row Layout - Clean Proportioned Inputs */
+        #payBillCreateApp .form-group-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        #payBillCreateApp .form-group-row.align-top {
+            align-items: flex-start;
+        }
+        #payBillCreateApp .pb-col-label {
+            width: 125px;
+            min-width: 125px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0;
+            padding-right: 10px;
+        }
+        #payBillCreateApp .pb-col-label .star {
+            color: #dc3545;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+        #payBillCreateApp .pb-col-input {
+            flex: 1;
+            max-width: 440px;
+            min-width: 0;
+        }
+
+        /* Form Controls */
+        #payBillCreateApp .form-control {
+            height: 33px !important;
+            font-size: 13px !important;
+            border-radius: 4px !important;
+            border: 1px solid #ced4da;
+            padding: 4px 10px;
+            background-color: #ffffff;
+            color: #495057;
+            width: 100%;
+        }
+        #payBillCreateApp .form-control:focus {
+            border-color: var(--pb-theme-color, #2072b2) !important;
+            outline: 0;
+            box-shadow: 0 0 0 0.18rem var(--pb-theme-focus, rgba(32, 114, 178, 0.2)) !important;
+        }
+        #payBillCreateApp .form-control[readonly] {
+            background-color: #f1f5f9;
+            opacity: 1;
+            color: #475569;
+        }
+
+        /* Yellow Highlight Inputs for Contact Person & Phone */
+        #payBillCreateApp .inp-highlight-yellow {
+            background-color: #fffde7 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            font-weight: 500;
+        }
+        #payBillCreateApp .inp-highlight-yellow:focus {
+            background-color: #ffffff !important;
+            border-color: var(--pb-theme-color, #2072b2) !important;
+        }
+
+        /* Input Group Strict Non-Wrapping Layout (Single Row Connected) */
+        #payBillCreateApp .input-group {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            max-width: 440px !important;
+        }
+        #payBillCreateApp .input-group > .form-control {
+            flex: 1 1 auto !important;
+            width: 1% !important;
+            min-width: 0 !important;
+            height: 33px !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+        #payBillCreateApp .input-group > .input-group-append {
+            display: flex !important;
+            flex: 0 0 auto !important;
+            margin-left: -1px;
+        }
+        #payBillCreateApp .input-group > .input-group-append > .btn {
+            height: 33px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
+            z-index: 2;
+        }
+
+        /* Date Button & Apply Button Attached Styles */
+        #payBillCreateApp .btn-apply-btn {
+            background-color: var(--pb-theme-color, #2072b2);
+            border: 1px solid var(--pb-theme-color, #2072b2);
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 12.5px;
+            padding: 0 16px;
+            transition: all 0.15s;
+        }
+        #payBillCreateApp .btn-apply-btn:hover {
+            filter: brightness(0.92);
+        }
+        #payBillCreateApp .btn-date-btn {
+            background-color: var(--pb-theme-color, #2072b2);
+            border: 1px solid var(--pb-theme-color, #2072b2);
+            color: #ffffff !important;
+            padding: 0 12px;
+            transition: all 0.15s;
+        }
+        #payBillCreateApp .btn-date-btn:hover {
+            filter: brightness(0.92);
+        }
+
+        /* Select2 Styling */
+        #payBillCreateApp .select2-container {
+            width: 100% !important;
+            max-width: 440px !important;
+        }
+        #payBillCreateApp .select2-container .select2-selection--single {
+            height: 33px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+            font-size: 13px !important;
+        }
+        #payBillCreateApp .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 31px !important;
+            padding-left: 8px !important;
+            color: #495057 !important;
+        }
+        #payBillCreateApp .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 31px !important;
+        }
+        #payBillCreateApp .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--pb-theme-color, #2072b2) !important;
+            box-shadow: 0 0 0 0.18rem var(--pb-theme-focus, rgba(32, 114, 178, 0.2)) !important;
+        }
+
+        /* Invoices Table Container - Spanning Full Width Without Horizontal Scroll & Anchored Height */
+        .pb-table-container {
+            border: 1px solid #dee2e6;
+            background-color: #ffffff;
+            margin-bottom: 12px;
+            height: 275px;
+            min-height: 275px;
+            max-height: 275px;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .pb-table {
+            width: 100%;
+            margin-bottom: 0;
+            font-size: 12.5px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .pb-table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dee2e6;
+            border-top: none;
+            border-right: 1px solid #dee2e6;
+            white-space: nowrap;
+            z-index: 2;
+        }
+        .pb-table thead th:last-child {
+            border-right: none;
+        }
+        .pb-table tbody td {
+            padding: 5px 10px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+            border-right: 1px solid #dee2e6;
+        }
+        .pb-table tbody td:last-child {
+            border-right: none;
+        }
+        .pb-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .pb-table tbody tr.row-selected {
+            background-color: #f0f7ff !important;
+        }
+        .pb-table input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: var(--pb-theme-color, #2072b2);
+        }
+        .pb-table .inp-grid {
+            height: 26px !important;
+            font-size: 12.5px !important;
+            padding: 2px 6px !important;
+            border-radius: 3px !important;
+            border: 1px solid #ced4da;
+            width: 100%;
+        }
+        .pb-table .inp-grid:focus {
+            border-color: var(--pb-theme-color, #2072b2) !important;
+        }
+        .pb-btn-edit-pencil {
+            background-color: var(--pb-theme-color, #2072b2);
+            color: #ffffff !important;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 6px;
+            font-size: 11px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pb-btn-edit-pencil:hover {
+            filter: brightness(0.9);
+        }
+
+        /* Heavy Grey Divider - Spanning Full Width */
+        .pb-heavy-divider {
+            height: 3px;
+            background-color: #adb5bd;
+            border: none;
+            margin: 12px 0 14px 0;
+            width: 100%;
+        }
+
+        /* Summary Section - Synced to Right Edge */
+        .pb-summary-table {
+            width: 100%;
+            max-width: 380px;
+            font-size: 13px;
+            border-collapse: collapse;
+            margin-left: auto;
+        }
+        .pb-summary-table td {
+            padding: 3px 0;
+        }
+        .pb-summary-table .lbl-sum {
+            color: #495057;
+            text-align: right;
+            padding-right: 24px;
+            font-size: 12.5px;
+        }
+        .pb-summary-table .val-sum {
+            text-align: right;
+            width: 130px;
+            font-weight: 600;
+            color: #212529;
+            font-size: 13px;
+        }
+        .pb-summary-table .row-balance-applied td {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        /* Direct bottom bar (Fallback when not in modal) */
+        .pb-bottom-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+            width: 100%;
+        }
+
+        /* System Outline Buttons (Standard ERP System Look) */
+        .btn-outline-primary {
+            color: var(--pb-theme-color, #2072b2) !important;
+            border-color: var(--pb-theme-color, #2072b2) !important;
+            background-color: transparent !important;
+        }
+        .btn-outline-primary:hover {
+            color: #ffffff !important;
+            background-color: var(--pb-theme-color, #2072b2) !important;
+            border-color: var(--pb-theme-color, #2072b2) !important;
+        }
+    </style>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 1: BASIC INFORMATION                                         -->
+    <!-- ==================================================================== -->
+    <div class="pb-section-header">
+        <span class="pb-title">BASIC INFORMATION</span>
+        <div class="pb-line"></div>
+    </div>
+
+    <div class="row">
+        <!-- LEFT COLUMN -->
+        <div class="col-md-6 pr-lg-4">
+            <!-- Vendor -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="cboVendor">Vendor<span class="star">*</span></label>
+                <div class="pb-col-input">
+                    @{
+                        var seenVendors = new HashSet<int>();
+                    }
+                    <select id="cboVendor" class="form-control select2">
+                        <option value="" @(selectedVendorId <= 0 ? "selected" : "")>---Please select---</option>
+                        @if (vendors != null)
+                        {
+                            foreach (System.Data.DataRow r in vendors.Rows)
+                            {
+                                int vId = 0;
+                                int.TryParse(r["VendorID"].ToString(), out vId);
+                                if (vId <= 0 || !seenVendors.Add(vId)) { continue; }
+                                string vName = r["VendorDisplayName"].ToString();
+                                string contact = r["ContactPerson"] != null ? r["ContactPerson"].ToString() : "";
+                                string phone = r["Phone"] != null ? r["Phone"].ToString() : "";
+                                bool isSel = (vId == selectedVendorId);
+                                <option value="@vId" data-contact="@contact" data-phone="@phone" @(isSel ? "selected" : "")>@vName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contact Person -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="txtContactPerson">Contact Person</label>
+                <div class="pb-col-input">
+                    <input type="text" id="txtContactPerson" class="form-control inp-highlight-yellow" placeholder="" />
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="txtPhone">Phone</label>
+                <div class="pb-col-input">
+                    <input type="text" id="txtPhone" class="form-control inp-highlight-yellow" placeholder="" />
+                </div>
+            </div>
+
+            <!-- Memo -->
+            <div class="form-group-row align-top">
+                <label class="pb-col-label pt-1" for="txtMemo">Memo</label>
+                <div class="pb-col-input">
+                    <textarea id="txtMemo" class="form-control" rows="3" style="height: 68px !important; resize: vertical;" placeholder=""></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-6 pl-lg-4">
+            <!-- RV No / PV No -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="txtPaymentNo">PV No<span class="star">*</span></label>
+                <div class="pb-col-input">
+                    <input type="text" id="txtPaymentNo" class="form-control" readonly value="Auto Generate Code" />
+                </div>
+            </div>
+
+            <!-- Payment Date -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="txtPaymentDate">Payment Date<span class="star">*</span></label>
+                <div class="pb-col-input">
+                    <div class="input-group input-group-sm" id="wrapPaymentDate">
+                        <input type="text" id="txtPaymentDate" class="form-control" value="@currentDate" placeholder="dd/MM/yyyy" autocomplete="off" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-date-btn" id="btnPaymentDate" title="Choose date">
+                                <i class="far fa-calendar-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pay Amount -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="txtPayAmount">Pay Amount</label>
+                <div class="pb-col-input">
+                    <div class="input-group input-group-sm" id="wrapPayAmount">
+                        <input type="number" id="txtPayAmount" class="form-control text-right" min="0" step="0.01" placeholder="0.00" onkeyup="onPayAmountKeyup(event);" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-apply-btn" id="btnApplyAmount" onclick="applyPayAmount();">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="cboPaymentMethod">Payment Method</label>
+                <div class="pb-col-input">
+                    <select id="cboPaymentMethod" class="form-control">
+                        @{
+                            var seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            bool hasCashSelected = false;
+                            if (paymentMethods != null && paymentMethods.Rows.Count > 0)
+                            {
+                                foreach (System.Data.DataRow pm in paymentMethods.Rows)
+                                {
+                                    string pmId = pm["PaymentMethodID"].ToString();
+                                    string pmName = pm["PaymentMethod"].ToString().Trim();
+                                    if (!string.IsNullOrEmpty(pmName) && seenMethods.Add(pmName))
+                                    {
+                                        bool isCash = string.Equals(pmName, "Cash", StringComparison.OrdinalIgnoreCase);
+                                        if (isCash) { hasCashSelected = true; }
+                                        <option value="@pmId" @(isCash ? "selected" : "")>@pmName</option>
+                                    }
+                                }
+                            }
+                            if (!seenMethods.Contains("Cash"))
+                            {
+                                <option value="1" @(!hasCashSelected ? "selected" : "")>Cash</option>
+                                hasCashSelected = true;
+                            }
+                            if (!seenMethods.Contains("Bank Transfer"))
+                            {
+                                <option value="2">Bank Transfer</option>
+                            }
+                            if (!seenMethods.Contains("Cheque"))
+                            {
+                                <option value="3">Cheque</option>
+                            }
+                            if (!seenMethods.Contains("Petty Cash"))
+                            {
+                                <option value="4">Petty Cash</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Account Name -->
+            <div class="form-group-row">
+                <label class="pb-col-label" for="cboPaymentAccount">Account Name<span class="star">*</span></label>
+                <div class="pb-col-input">
+                    <select id="cboPaymentAccount" class="form-control select2">
+                        <option value="">---Please select---</option>
+                        @if (paymentAccounts != null && paymentAccounts.Rows.Count > 0)
+                        {
+                            foreach (System.Data.DataRow r in paymentAccounts.Rows)
+                            {
+                                string accId = r["ChartOfAccountID"].ToString();
+                                string accFullName = r["FullAccountName"].ToString();
+                                if (!string.IsNullOrEmpty(accId) && seenAccounts.Add(accId))
+                                {
+                                    bool isSelAcc = (!string.IsNullOrEmpty(defaultAccId) && accId == defaultAccId);
+                                    <option value="@accId" @(isSelAcc ? "selected" : "")>@accFullName</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 2: INVOICE FOR PAYMENT                                       -->
+    <!-- ==================================================================== -->
+    <div class="pb-section-header mt-3">
+        <span class="pb-title">INVOICE FOR PAYMENT</span>
+        <div class="pb-line"></div>
+    </div>
+
+    <div class="pb-table-container">
+        <table class="table pb-table" id="tblInvoices">
+            <colgroup>
+                <col style="width: 4%;" />
+                <col style="width: 10%;" />
+                <col style="width: 20%;" />
+                <col style="width: 12%;" />
+                <col style="width: 12%;" />
+                <col style="width: 14%;" />
+                <col style="width: 12%;" />
+                <col style="width: 11%;" />
+                <col style="width: 5%;" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="text-center">#</th>
+                    <th>Date</th>
+                    <th>Reference</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-right">Balance</th>
+                    <th class="text-right">Pay</th>
+                    <th class="text-right">Discount</th>
+                    <th class="text-right">Remain</th>
+                    <th class="text-center">
+                        <input type="checkbox" id="chkSelectAll" onchange="toggleSelectAllInvoices(this);" title="Select/Deselect All" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tblInvoicesBody">
+                <tr>
+                    <td colspan="9" class="text-center text-muted" style="height: 235px; vertical-align: middle;">
+                        <i class="fa fa-info-circle mr-1"></i> Please select a vendor to load outstanding invoices.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Heavy Grey Divider - Spanning Full Width -->
+    <hr class="pb-heavy-divider" />
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 3: REMARK & SUMMARY TOTALS                                   -->
+    <!-- ==================================================================== -->
+    <div class="row align-items-start">
+        <!-- Left: Remark -->
+        <div class="col-md-7 pr-md-4">
+            <label class="font-weight-bold text-secondary mb-1" for="txtRemark" style="font-size: 12.5px;">Remark</label>
+            <textarea id="txtRemark" class="form-control" rows="3" style="width: 100%; max-width: 650px; height: 82px !important; resize: vertical;" placeholder=""></textarea>
+        </div>
+
+        <!-- Right: Totals Summary (Synced to Right Edge) -->
+        <div class="col-md-5 pl-md-2 text-right">
+            <table class="pb-summary-table ml-auto">
+                <tbody>
+                    <tr>
+                        <td class="lbl-sum">Total Balance</td>
+                        <td class="val-sum" id="lblTotalBalance">0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl-sum">Total Pay</td>
+                        <td class="val-sum" id="lblTotalPay">0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl-sum">Discount($)</td>
+                        <td class="val-sum" id="lblTotalDiscount">0.00</td>
+                    </tr>
+                    <tr class="row-balance-applied">
+                        <td class="lbl-sum font-weight-bold text-dark">Balance Applied</td>
+                        <td class="val-sum font-weight-bold text-dark" id="lblBalanceApplied">0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl-sum">Remain Balance</td>
+                        <td class="val-sum font-weight-bold" id="lblRemainBalance">0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Direct bottom bar (Used when not loaded in modal) -->
+    <div class="pb-bottom-bar" id="pbDirectFooter">
+        <button type="button" class="btn btn-outline-primary mr-2" id="btnDirectSaveNew" onclick="submitPayBill(true);"><i class="ti ti-plus mr-1"></i> Save &amp; New</button>
+        <button type="button" class="btn btn-outline-primary mr-2" id="btnDirectSave" onclick="submitPayBill(false);"><i class="ti ti-device-floppy mr-1"></i> Save Change</button>
+        <button type="button" class="btn btn-outline-danger" onclick="closePayBillModal();"><i class="ti ti-x mr-1"></i> Close</button>
+    </div>
+
+</div>
+
+<!-- ==========================================================================
+     CLIENT JAVASCRIPT ENGINE & LOGIC
+     ========================================================================== -->
+<script>
+    var allBills = [];
+    var selectedBillsMap = {};
+    var billsLoading = false;
+
+    var currentSystemID = '@(ViewBag.SystemID ?? "")';
+    var currentWarehouseID = '@(ViewBag.WarehouseID ?? "")';
+
+    $(document).ready(function () {
+        // Detect & apply dynamic system theme color
+        applyDynamicTheme();
+
+        // Setup standard modal header and footer buttons matching system modals
+        setupSystemModalActions();
+
+        // Initialize Select2 dropdowns
+        initSelect2Dropdowns();
+
+        // Initialize Datepicker
+        initPaymentDatePicker();
+
+        // Sync vendor contact information on start
+        syncVendorContactDetails();
+
+        // Preselect vendor or trigger bill load
+        if ($('#cboVendor').val()) {
+            onVendorChange('@selectedBillId');
+        } else {
+            refreshPVNumber();
+        }
+    });
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // DYNAMIC SYSTEM / WAREHOUSE THEME RESOLUTION
+    // ──────────────────────────────────────────────────────────────────────────
+    function getSystemThemeColor() {
+        // 1. Check CSS root variable --base-bg-color
+        try {
+            var rootColor = getComputedStyle(document.documentElement).getPropertyValue('--base-bg-color');
+            if (rootColor && rootColor.trim() && rootColor.trim() !== 'transparent') {
+                return rootColor.trim();
+            }
+        } catch (e) { }
+
+        // 2. Check localStorage "BaseSystemBGColor"
+        try {
+            var lsColor = localStorage.getItem("BaseSystemBGColor");
+            if (lsColor && lsColor.trim() && lsColor.trim() !== 'transparent' && lsColor.trim() !== 'rgba(0, 0, 0, 0)') {
+                return lsColor.trim();
+            }
+        } catch (e) { }
+
+        // 3. Check parent window if in modal or iframe
+        try {
+            if (window.parent && window.parent !== window) {
+                var pRoot = window.parent.getComputedStyle(window.parent.document.documentElement).getPropertyValue('--base-bg-color');
+                if (pRoot && pRoot.trim()) return pRoot.trim();
+                var pLs = window.parent.localStorage.getItem("BaseSystemBGColor");
+                if (pLs && pLs.trim()) return pLs.trim();
+            }
+        } catch (e) { }
+
+        // 4. Check active DOM elements on page or parent (AdminLTE active nav or navbar)
+        try {
+            var $activeLink = $("aside nav ul > li.nav-item > .nav-link.active, .navbar.main-header, .navbar-custom, .navbar-main").first();
+            if ($activeLink.length) {
+                var bg = $activeLink.css("background-color");
+                if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && bg !== 'rgb(255, 255, 255)') {
+                    return bg;
+                }
+            }
+        } catch (e) { }
+
+        // 5. SystemID fallback mapping
+        var sysId = parseInt(currentSystemID || '0');
+        if (sysId === 13) return '#2072b2';
+        if (sysId === 28) return '#2275b9';
+        if (sysId === 25) return '#c5d9f1';
+
+        // 6. Default fallback
+        return '#2072b2';
+    }
+
+    function applyDynamicTheme(color) {
+        var themeColor = color || getSystemThemeColor();
+
+        var rootEl = document.getElementById('payBillCreateApp');
+        if (rootEl) {
+            rootEl.style.setProperty('--pb-theme-color', themeColor);
+        }
+
+        // Section titles & lines
+        $('.pb-title').css('color', themeColor);
+
+        // Buttons
+        $('#btnPaymentDate').css({
+            'background-color': themeColor,
+            'border-color': themeColor,
+            'color': '#ffffff'
+        });
+
+        $('#btnApplyAmount').css({
+            'background-color': themeColor,
+            'border-color': themeColor,
+            'color': '#ffffff'
+        });
+
+        $('.pb-btn-edit-pencil').css({
+            'background-color': themeColor,
+            'border-color': themeColor
+        });
+
+        // Update default outline buttons with theme color
+        $('.btn-outline-primary').css({
+            'color': themeColor,
+            'border-color': themeColor
+        });
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // SYSTEM DEFAULT MODAL FOOTER BUTTONS INTEGRATION
+    // ──────────────────────────────────────────────────────────────────────────
+    function setupSystemModalActions() {
+        var $modal = $('#modal-default, .modal:visible');
+        var $dialog = $modal.find('.modal-dialog');
+
+        if ($dialog.length) {
+            $dialog.find('.card-header .col:first, .modal-title').html('<i class="ti ti-receipt mr-1"></i> Pay Bill');
+
+            var $footer = $dialog.find('.modal-footer');
+            if ($footer.length) {
+                var themeColor = getSystemThemeColor();
+
+                // 1. Locate or create default #SaveChange button
+                var $btnSave = $footer.find('#SaveChange');
+                if ($btnSave.length === 0) {
+                    $btnSave = $('<button type="button" id="SaveChange" name="SaveChange" class="btn btn-outline-primary"><i class="ti ti-device-floppy"></i> Save Change</button>');
+                    $footer.append($btnSave);
+                }
+
+                // 2. Locate or create default #CloseModal button
+                var $btnClose = $footer.find('#CloseModal');
+                if ($btnClose.length === 0) {
+                    $btnClose = $('<button type="button" id="CloseModal" name="CloseModal" class="btn btn-outline-danger btnclose" data-dismiss="modal"><i class="ti ti-x"></i> Close</button>');
+                    $footer.append($btnClose);
+                }
+
+                // Configure #SaveChange with system default outline style
+                $btnSave.html('<i class="ti ti-device-floppy mr-1"></i> Save Change')
+                        .removeClass('btn-primary btn-info')
+                        .addClass('btn btn-outline-primary')
+                        .css({
+                            'color': themeColor,
+                            'border-color': themeColor
+                        })
+                        .off('click.paybill')
+                        .on('click.paybill', function (e) {
+                            e.preventDefault();
+                            submitPayBill(false);
+                        });
+
+                // Configure #CloseModal with system default outline style
+                $btnClose.html('<i class="ti ti-x mr-1"></i> Close')
+                         .removeClass('btn-danger')
+                         .addClass('btn btn-outline-danger btnclose')
+                         .off('click.paybill')
+                         .on('click.paybill', function (e) {
+                             e.preventDefault();
+                             closePayBillModal();
+                         });
+
+                // 3. Add Save & New button right before #SaveChange in matching system outline style
+                var $btnSaveNew = $footer.find('#btnSaveNew');
+                if ($btnSaveNew.length === 0) {
+                    $btnSaveNew = $('<button type="button" id="btnSaveNew" class="btn btn-outline-primary mr-2"><i class="ti ti-plus mr-1"></i> Save &amp; New</button>');
+                    $btnSave.before($btnSaveNew);
+                }
+                $btnSaveNew.css({
+                    'color': themeColor,
+                    'border-color': themeColor
+                }).off('click.paybill').on('click.paybill', function (e) {
+                    e.preventDefault();
+                    submitPayBill(true);
+                });
+
+                $footer.show().css({
+                    'display': 'flex',
+                    'justify-content': 'flex-end',
+                    'align-items': 'center',
+                    'padding': '10px 24px',
+                    'background-color': '#f8f9fa',
+                    'border-top': '1px solid #dee2e6'
+                });
+
+                $('#pbDirectFooter').hide();
+            } else {
+                $('#pbDirectFooter').show();
+            }
+
+            $dialog.find('.modal-body').css({
+                'padding': '12px 24px 8px 24px'
+            });
+        } else {
+            $('#pbDirectFooter').show();
+        }
+    }
+
+    function initSelect2Dropdowns() {
+        if (typeof $.fn.select2 === 'function') {
+            $('#cboVendor').select2({
+                theme: 'bootstrap4',
+                placeholder: '---Please select---',
+                allowClear: true,
+                dropdownParent: $('#payBillCreateApp')
+            }).off('change.vendor').on('change.vendor', function () {
+                syncVendorContactDetails();
+                onVendorChange();
+            });
+
+            $('#cboPaymentAccount').select2({
+                theme: 'bootstrap4',
+                placeholder: '---Please select---',
+                allowClear: true,
+                dropdownParent: $('#payBillCreateApp')
+            });
+        } else {
+            $('#cboVendor').off('change.vendor').on('change.vendor', function () {
+                syncVendorContactDetails();
+                onVendorChange();
+            });
+        }
+    }
+
+    function syncVendorContactDetails() {
+        var $opt = $('#cboVendor option:selected');
+        var contact = $opt.data('contact') || '';
+        var phone = $opt.data('phone') || '';
+        $('#txtContactPerson').val(contact);
+        $('#txtPhone').val(phone);
+    }
+
+    function initPaymentDatePicker() {
+        var $input = $('#txtPaymentDate');
+        var initialized = false;
+
+        if (typeof $.fn.daterangepicker === 'function') {
+            try {
+                var startMoment = moment();
+                var curText = $input.val();
+                if (curText) {
+                    var parts = curText.split('/');
+                    if (parts.length === 3) {
+                        startMoment = moment(parts[2] + '-' + parts[1] + '-' + parts[0], 'YYYY-MM-DD');
+                        if (!startMoment.isValid()) startMoment = moment();
+                    }
+                }
+
+                $input.daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    autoApply: true,
+                    autoUpdateInput: true,
+                    startDate: startMoment,
+                    locale: { format: 'DD/MM/YYYY' },
+                    parentEl: $('#payBillCreateApp').length ? $('#payBillCreateApp') : 'body'
+                }, function (start) {
+                    $input.val(start.format('DD/MM/YYYY'));
+                    refreshPVNumber();
+                });
+
+                $input.on('apply.daterangepicker', function (ev, picker) {
+                    $input.val(picker.startDate.format('DD/MM/YYYY'));
+                    refreshPVNumber();
+                });
+
+                initialized = true;
+            } catch (err) {
+                console.warn('daterangepicker warning:', err);
+            }
+        }
+
+        if (!initialized && typeof $.fn.datepicker === 'function') {
+            try {
+                $input.datepicker({
+                    format: 'dd/mm/yyyy',
+                    dateFormat: 'dd/mm/yy',
+                    autoclose: true,
+                    todayHighlight: true
+                }).on('changeDate', function () {
+                    refreshPVNumber();
+                });
+                initialized = true;
+            } catch (err) {
+                console.warn('datepicker warning:', err);
+            }
+        }
+
+        $('#wrapPaymentDate button, #wrapPaymentDate input').off('click.openDp').on('click.openDp', function () {
+            if ($input.data('daterangepicker')) {
+                $input.data('daterangepicker').show();
+            } else if (typeof $input.datepicker === 'function') {
+                $input.datepicker('show');
+            } else {
+                $input.focus();
+            }
+        });
+    }
+
+    function onVendorChange(specificBill) {
+        refreshPVNumber();
+        loadOutstandingBills(specificBill);
+    }
+
+    function refreshPVNumber() {
+        var pDate = $('#txtPaymentDate').val() || '@currentDate';
+        $.ajax({
+            url: '@Url.Action("GetPVNumber", "PayBill")',
+            type: 'GET',
+            data: { 
+                paymentDate: pDate,
+                systemId: currentSystemID,
+                warehouseId: currentWarehouseID
+            },
+            success: function (res) {
+                if (res && res.success && res.pvNumber) {
+                    $('#txtPaymentNo').val(res.pvNumber);
+                } else {
+                    $('#txtPaymentNo').val('Auto Generate Code');
+                }
+            },
+            error: function () {
+                $('#txtPaymentNo').val('Auto Generate Code');
+            }
+        });
+    }
+
+    function loadOutstandingBills(specificBill) {
+        var vId = $('#cboVendor').val() || 0;
+        var targetBill = (typeof specificBill !== 'undefined') ? specificBill : '@selectedBillId';
+
+        if (!vId || vId === '0') {
+            billsLoading = false;
+            allBills = [];
+            selectedBillsMap = {};
+            renderInvoicesTable();
+            calculateAndSyncTotals();
+            return;
+        }
+
+        billsLoading = true;
+        $('#tblInvoicesBody').html('<tr><td colspan="9" class="text-center text-muted" style="height: 235px; vertical-align: middle;"><i class="fa fa-spinner fa-spin mr-1"></i> Loading unpaid invoices...</td></tr>');
+
+        $.ajax({
+            url: '@Url.Action("GetUnpaidBills", "PayBill")',
+            type: 'GET',
+            data: { 
+                vendorId: vId,
+                billId: targetBill,
+                systemId: currentSystemID,
+                warehouseId: currentWarehouseID
+            },
+            success: function (res) {
+                billsLoading = false;
+                if (res && res.success) {
+                    var rawBills = res.bills || res.data || [];
+                    if (typeof rawBills === 'string') {
+                        try { rawBills = JSON.parse(rawBills); } catch (e) { rawBills = []; }
+                    }
+
+                    var seenKeys = {};
+                    var seenBillNos = {};
+                    var deduplicated = [];
+
+                    (Array.isArray(rawBills) ? rawBills : []).forEach(function (b) {
+                        var key = getBillKey(b);
+                        var bNo = (b.BillNumber || '').toString().trim().toUpperCase();
+
+                        if (seenKeys[key]) return;
+                        if (bNo && !bNo.startsWith('EXP-') && seenBillNos[bNo]) return;
+
+                        seenKeys[key] = true;
+                        if (bNo && !bNo.startsWith('EXP-')) {
+                            seenBillNos[bNo] = true;
+                        }
+                        deduplicated.push(b);
+                    });
+
+                    allBills = deduplicated;
+                    selectedBillsMap = {};
+
+                    if (allBills.length > 0) {
+                        allBills.forEach(function (b) {
+                            var key = getBillKey(b);
+                            var isTarget = (targetBill && (b.BillID == targetBill || b.BillNumber == targetBill));
+                            selectedBillsMap[key] = $.extend({}, b, {
+                                AmountToPay: isTarget ? parseNum(b.AmountDue) : 0.00,
+                                Discount: 0.00,
+                                IsSelected: isTarget ? true : false
+                            });
+                        });
+                    }
+
+                    renderInvoicesTable();
+                    calculateAndSyncTotals();
+                } else {
+                    allBills = [];
+                    selectedBillsMap = {};
+                    renderInvoicesTable();
+                    calculateAndSyncTotals();
+                }
+            },
+            error: function () {
+                billsLoading = false;
+                allBills = [];
+                selectedBillsMap = {};
+                renderInvoicesTable();
+                calculateAndSyncTotals();
+            }
+        });
+    }
+
+    function renderInvoicesTable() {
+        if (!allBills || allBills.length === 0) {
+            var msg = $('#cboVendor').val() ? 'No outstanding invoices found for this vendor.' : 'Please select a vendor to load outstanding invoices.';
+            $('#tblInvoicesBody').html('<tr><td colspan="9" class="text-center text-muted" style="height: 235px; vertical-align: middle;"><i class="fa fa-info-circle mr-1"></i> ' + msg + '</td></tr>');
+            $('#chkSelectAll').prop('checked', false);
+            return;
+        }
+
+        var html = '';
+        allBills.forEach(function (b, idx) {
+            var key = getBillKey(b);
+            var item = selectedBillsMap[key] || { AmountToPay: 0, Discount: 0, IsSelected: false };
+            var isSel = !!item.IsSelected;
+            var payVal = parseNum(item.AmountToPay);
+            var discVal = parseNum(item.Discount);
+            var dueVal = parseNum(b.AmountDue);
+            var remainVal = Math.max(0, dueVal - payVal - discVal);
+
+            html += '<tr class="' + (isSel ? 'row-selected' : '') + '" data-key="' + key + '">';
+            
+            // #
+            html += '<td class="text-center align-middle text-muted">' + (idx + 1) + '</td>';
+
+            // Date
+            html += '<td class="align-middle text-truncate">' + (b.BillDateFormatted || '-') + '</td>';
+
+            // Reference
+            html += '<td class="align-middle font-weight-bold text-truncate" title="' + (b.BillNumber || '') + '">' + (b.BillNumber || '-') + '</td>';
+
+            // Amount
+            html += '<td class="text-right align-middle">' + formatNumber(b.GrandTotal) + '</td>';
+
+            // Balance
+            html += '<td class="text-right align-middle font-weight-bold">' + formatNumber(b.AmountDue) + '</td>';
+            
+            // Pay input
+            html += '<td class="text-right align-middle p-1">';
+            html += '  <input type="text" class="form-control text-right inp-grid inp-row-pay" data-key="' + key + '" value="' + formatNumber(payVal) + '" oninput="onRowPayChange(this, \'' + key + '\', false);" onchange="onRowPayChange(this, \'' + key + '\', true);" onfocus="this.select();" />';
+            html += '</td>';
+
+            // Discount input
+            html += '<td class="text-right align-middle p-1">';
+            html += '  <input type="text" class="form-control text-right inp-grid inp-row-discount" data-key="' + key + '" value="' + formatNumber(discVal) + '" oninput="onRowDiscountChange(this, \'' + key + '\', false);" onchange="onRowDiscountChange(this, \'' + key + '\', true);" onfocus="this.select();" />';
+            html += '</td>';
+
+            // Remain
+            html += '<td class="text-right align-middle font-weight-bold cell-row-remain" data-key="' + key + '">';
+            html += formatNumber(remainVal);
+            html += '</td>';
+
+            // Checkbox & Edit Pencil Button
+            html += '<td class="text-center align-middle text-nowrap">';
+            html += '  <input type="checkbox" class="chk-row-item align-middle mr-1" data-key="' + key + '" ' + (isSel ? 'checked' : '') + ' onchange="onRowCheckChange(this, \'' + key + '\');" />';
+            html += '  <a href="javascript:void(0);" class="pb-btn-edit-pencil align-middle" title="Select / Focus" onclick="quickEditRow(event, \'' + key + '\');"><i class="fas fa-pencil-alt"></i></a>';
+            html += '</td>';
+
+            html += '</tr>';
+        });
+
+        $('#tblInvoicesBody').html(html);
+
+        // Apply theme to freshly created pencil buttons
+        var themeColor = getSystemThemeColor();
+        $('.pb-btn-edit-pencil').css({
+            'background-color': themeColor,
+            'border-color': themeColor
+        });
+
+        var totalItems = allBills.length;
+        var checkedItems = allBills.filter(function (b) {
+            var key = getBillKey(b);
+            return selectedBillsMap[key] && selectedBillsMap[key].IsSelected;
+        }).length;
+        $('#chkSelectAll').prop('checked', totalItems > 0 && totalItems === checkedItems);
+    }
+
+    function quickEditRow(e, key) {
+        if (e && e.preventDefault) e.preventDefault();
+        var bill = allBills.find(function (b) { return getBillKey(b) === key; });
+        if (!bill) return;
+
+        var item = selectedBillsMap[key];
+        var isCurrentlySelected = item && item.IsSelected && (parseNum(item.AmountToPay) > 0 || parseNum(item.Discount) > 0);
+
+        if (isCurrentlySelected) {
+            // Deselect cleanly
+            selectedBillsMap[key] = $.extend({}, bill, { AmountToPay: 0, Discount: 0, IsSelected: false });
+            syncSingleRow(key, true);
+            calculateAndSyncTotals();
+        } else {
+            // Select row with full due balance and focus pay input
+            var fullDue = parseNum(bill.AmountDue);
+            selectedBillsMap[key] = $.extend({}, bill, { AmountToPay: fullDue, Discount: 0, IsSelected: true });
+            syncSingleRow(key, true);
+            calculateAndSyncTotals();
+            var $payInp = $('tr[data-key="' + key + '"] .inp-row-pay');
+            if ($payInp.length) {
+                $payInp.focus().select();
+            }
+        }
+    }
+
+    function onRowPayChange(input, key, isFinal) {
+        var rawVal = $(input).val();
+        var val = parseNum(rawVal);
+        var bill = allBills.find(function (b) { return getBillKey(b) === key; });
+        if (!bill) return;
+
+        var disc = selectedBillsMap[key] ? parseNum(selectedBillsMap[key].Discount || 0) : 0;
+        var maxPay = Math.max(0, parseNum(bill.AmountDue) - disc);
+
+        if (val > maxPay) {
+            val = maxPay;
+            if (isFinal && typeof DialogSweetAlert === 'function') {
+                DialogSweetAlert('warning', 'Payment cannot exceed balance (' + formatNumber(maxPay) + ')');
+            }
+        }
+        if (val < 0) val = 0;
+
+        if (isFinal) {
+            $(input).val(formatNumber(val));
+        }
+
+        var isSel = (val > 0 || disc > 0);
+        selectedBillsMap[key] = $.extend({}, bill, {
+            AmountToPay: val,
+            Discount: disc,
+            IsSelected: isSel
+        });
+
+        syncSingleRow(key, isFinal);
+        calculateAndSyncTotals();
+    }
+
+    function onRowDiscountChange(input, key, isFinal) {
+        var rawVal = $(input).val();
+        var disc = parseNum(rawVal);
+        var bill = allBills.find(function (b) { return getBillKey(b) === key; });
+        if (!bill) return;
+
+        var pay = selectedBillsMap[key] ? parseNum(selectedBillsMap[key].AmountToPay || 0) : 0;
+        var due = parseNum(bill.AmountDue);
+
+        if (disc + pay > due) {
+            disc = Math.max(0, due - pay);
+        }
+        if (disc < 0) disc = 0;
+
+        if (isFinal) {
+            $(input).val(formatNumber(disc));
+        }
+
+        var isSel = (pay > 0 || disc > 0);
+        selectedBillsMap[key] = $.extend({}, bill, {
+            AmountToPay: pay,
+            Discount: disc,
+            IsSelected: isSel
+        });
+
+        syncSingleRow(key, isFinal);
+        calculateAndSyncTotals();
+    }
+
+    function onRowCheckChange(chk, key) {
+        var isChecked = $(chk).is(':checked');
+        var bill = allBills.find(function (b) { return getBillKey(b) === key; });
+        if (!bill) return;
+
+        if (isChecked) {
+            var fullDue = parseNum(bill.AmountDue);
+            selectedBillsMap[key] = $.extend({}, bill, { AmountToPay: fullDue, Discount: 0, IsSelected: true });
+        } else {
+            selectedBillsMap[key] = $.extend({}, bill, { AmountToPay: 0, Discount: 0, IsSelected: false });
+        }
+
+        syncSingleRow(key, true);
+        calculateAndSyncTotals();
+    }
+
+    function toggleSelectAllInvoices(chk) {
+        var isChecked = $(chk).is(':checked');
+        allBills.forEach(function (b) {
+            var key = getBillKey(b);
+            if (isChecked) {
+                var fullDue = parseNum(b.AmountDue);
+                selectedBillsMap[key] = $.extend({}, b, { AmountToPay: fullDue, Discount: 0, IsSelected: true });
+            } else {
+                selectedBillsMap[key] = $.extend({}, b, { AmountToPay: 0, Discount: 0, IsSelected: false });
+            }
+        });
+
+        renderInvoicesTable();
+        calculateAndSyncTotals();
+    }
+
+    function syncSingleRow(key, syncInputs) {
+        var item = selectedBillsMap[key];
+        var bill = allBills.find(function (b) { return getBillKey(b) === key; });
+        if (!item || !bill) return;
+
+        var $row = $('tr[data-key="' + key + '"]');
+        var isSel = !!item.IsSelected;
+        var pay = parseNum(item.AmountToPay);
+        var disc = parseNum(item.Discount);
+        var due = parseNum(bill.AmountDue);
+        var remain = Math.max(0, due - pay - disc);
+
+        $row.toggleClass('row-selected', isSel);
+        $row.find('.chk-row-item').prop('checked', isSel);
+        if (syncInputs) {
+            $row.find('.inp-row-pay').val(formatNumber(pay));
+            $row.find('.inp-row-discount').val(formatNumber(disc));
+        }
+        $row.find('.cell-row-remain').text(formatNumber(remain));
+
+        var totalItems = allBills.length;
+        var checkedItems = allBills.filter(function (b) {
+            var k = getBillKey(b);
+            return selectedBillsMap[k] && selectedBillsMap[k].IsSelected;
+        }).length;
+        $('#chkSelectAll').prop('checked', totalItems > 0 && totalItems === checkedItems);
+    }
+
+    function onPayAmountKeyup(e) {
+        if (e.keyCode === 13) {
+            applyPayAmount();
+        }
+    }
+
+    function applyPayAmount() {
+        var totalApply = parseNum($('#txtPayAmount').val());
+        if (totalApply <= 0) return;
+
+        if (!allBills || allBills.length === 0) return;
+
+        var remaining = totalApply;
+
+        allBills.forEach(function (b) {
+            var key = getBillKey(b);
+            var due = parseNum(b.AmountDue);
+            var disc = selectedBillsMap[key] ? parseNum(selectedBillsMap[key].Discount || 0) : 0;
+            var maxPay = Math.max(0, due - disc);
+
+            if (remaining > 0 && maxPay > 0) {
+                var alloc = Math.min(remaining, maxPay);
+                selectedBillsMap[key] = $.extend({}, b, {
+                    AmountToPay: alloc,
+                    Discount: disc,
+                    IsSelected: (alloc > 0)
+                });
+                remaining -= alloc;
+            } else {
+                selectedBillsMap[key] = $.extend({}, b, {
+                    AmountToPay: 0,
+                    Discount: disc,
+                    IsSelected: false
+                });
+            }
+        });
+
+        renderInvoicesTable();
+        calculateAndSyncTotals();
+    }
+
+    function calculateAndSyncTotals() {
+        var totalBalance = 0;
+        var totalPay = 0;
+        var totalDiscount = 0;
+
+        allBills.forEach(function (b) {
+            totalBalance += parseNum(b.AmountDue);
+            var key = getBillKey(b);
+            if (selectedBillsMap[key] && selectedBillsMap[key].IsSelected) {
+                totalPay += parseNum(selectedBillsMap[key].AmountToPay || 0);
+                totalDiscount += parseNum(selectedBillsMap[key].Discount || 0);
+            }
+        });
+
+        var balanceApplied = totalPay + totalDiscount;
+        var remainBalance = Math.max(0, totalBalance - balanceApplied);
+
+        // Sync Summary Table
+        $('#lblTotalBalance').text(formatNumber(totalBalance));
+        $('#lblTotalPay').text(formatNumber(totalPay));
+        $('#lblTotalDiscount').text(formatNumber(totalDiscount));
+        $('#lblBalanceApplied').text(formatNumber(balanceApplied));
+        $('#lblRemainBalance').text(formatNumber(remainBalance));
+
+        // Sync Pay Amount text input
+        $('#txtPayAmount').val(totalPay > 0 ? totalPay.toFixed(2) : '0.00');
+    }
+
+    function getBillKey(bill) {
+        return (bill.ExpenseID && bill.ExpenseID > 0) ? ('EXP_' + bill.ExpenseID) : ('BILL_' + bill.BillID);
+    }
+
+    function parseNum(val) {
+        if (typeof accounting !== 'undefined' && accounting.unformat) {
+            return accounting.unformat(val) || 0;
+        }
+        if (!val) return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        var clean = val.toString().replace(/[^0-9.-]/g, '');
+        var num = parseFloat(clean);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function formatNumber(num) {
+        if (typeof accounting !== 'undefined' && accounting.formatMoney) {
+            return accounting.formatMoney(num, '');
+        }
+        return (parseFloat(num) || 0).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function closePayBillModal() {
+        try {
+            var m = document.getElementById('modal-default') || document.querySelector('.modal.show');
+            if (m && window.bootstrap && bootstrap.Modal) {
+                var inst = bootstrap.Modal.getInstance(m) || bootstrap.Modal.getOrCreateInstance(m);
+                if (inst) inst.hide();
+            }
+        } catch (e) { }
+
+        try {
+            if (typeof closeDialogClick === 'function') {
+                closeDialogClick('modal-default');
+            }
+        } catch (e) { }
+
+        try {
+            $('#modal-default, .modal').modal('hide');
+        } catch (e) { }
+
+        setTimeout(function () {
+            $('#modal-default, .modal').removeClass('show in').hide();
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css({ 'padding-right': '', 'overflow': 'auto' });
+        }, 100);
+    }
+
+    function submitPayBill(isSaveAndNew) {
+        if (billsLoading) {
+            if (typeof DialogSweetAlert === 'function') {
+                DialogSweetAlert('warning', 'Please wait for invoices to finish loading.');
+            }
+            return;
+        }
+
+        var vendorId = $('#cboVendor').val();
+        if (!vendorId || vendorId === '0') {
+            if (typeof DialogSweetAlert === 'function') {
+                DialogSweetAlert('warning', 'Please select a vendor.');
+            }
+            return;
+        }
+
+        var accountId = $('#cboPaymentAccount').val();
+        if (!accountId) {
+            if (typeof DialogSweetAlert === 'function') {
+                DialogSweetAlert('warning', 'Please select an account.');
+            }
+            return;
+        }
+
+        var details = [];
+        var totalPay = 0;
+
+        allBills.forEach(function (b) {
+            var key = getBillKey(b);
+            var item = selectedBillsMap[key];
+            if (item && item.IsSelected && parseNum(item.AmountToPay) > 0) {
+                var amt = parseNum(item.AmountToPay);
+                totalPay += amt;
+                details.push({
+                    BillID: item.BillID || 0,
+                    ExpenseID: item.ExpenseID || 0,
+                    BillNumber: item.BillNumber || '',
+                    PONumber: item.PONumber || '',
+                    Amount: parseNum(item.GrandTotal),
+                    AmountPaid: parseNum(item.AmountPaid),
+                    AmountDue: parseNum(item.AmountDue),
+                    PaymentAmount: amt,
+                    DepositAmount: parseNum(item.DepositAmount || 0),
+                    DepositExpenseID: item.DepositExpenseID || 0
+                });
+            }
+        });
+
+        if (details.length === 0 || totalPay <= 0) {
+            if (typeof DialogSweetAlert === 'function') {
+                DialogSweetAlert('warning', 'Please enter payment amount for at least one invoice.');
+            }
+            return;
+        }
+
+        var payeeText = $('#txtContactPerson').val() || $('#cboVendor option:selected').text();
+        var pmId = $('#cboPaymentMethod').val() || 1;
+        var pmText = $('#cboPaymentMethod option:selected').text() || 'Cash';
+        var pvNo = $('#txtPaymentNo').val();
+        if (pvNo === 'Auto Generate Code') pvNo = '';
+
+        var memoText = $('#txtMemo').val() || '';
+        var remarkText = $('#txtRemark').val() || '';
+        var combinedMemo = memoText;
+        if (remarkText) {
+            combinedMemo = combinedMemo ? (combinedMemo + ' | Remark: ' + remarkText) : remarkText;
+        }
+
+        var header = {
+            SystemID: currentSystemID,
+            WarehouseID: currentWarehouseID,
+            VendorID: vendorId,
+            Payee: payeeText,
+            PVNumber: pvNo,
+            Reference: '',
+            PaymentDate: $('#txtPaymentDate').val(),
+            ChartOfAccountID: accountId,
+            PaymentModeID: pmId,
+            PaymentMode: pmText,
+            Memo: combinedMemo || ('Payment for ' + details.length + ' vendor bill(s)'),
+            TotalPaymentAmount: totalPay
+        };
+
+        var $btnAction = isSaveAndNew ? $('#btnSaveNew, #btnDirectSaveNew') : $('#SaveChange, #btnDirectSave');
+        var origHtml = $btnAction.html();
+        $btnAction.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Saving...');
+
+        $.ajax({
+            url: '@Url.Action("SavePayment", "PayBill")',
+            type: 'POST',
+            data: {
+                paymentHeader: JSON.stringify(header),
+                paymentDetails: JSON.stringify(details)
+            },
+            success: function (res) {
+                $btnAction.prop('disabled', false).html(origHtml);
+                if (res && res.success) {
+                    var pid = res.paymentId;
+                    var pv = res.pvNumber || header.PVNumber || '';
+
+                    if (typeof DialogSweetAlert === 'function') {
+                        DialogSweetAlert('loadsuccess', 'Payment saved successfully! PV: ' + pv);
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Payment Saved Successfully!',
+                            html: pv ? ('Voucher Nº: <strong>' + pv + '</strong>') : '',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+
+                    // Reload underlying grid
+                    if ($('#BunSearch').length) {
+                        $('#BunSearch').click();
+                    } else if (typeof LoadDataSearch === 'function') {
+                        LoadDataSearch();
+                    }
+
+                    if (isSaveAndNew) {
+                        resetFormForNewPayment();
+                    } else {
+                        closePayBillModal();
+                    }
+                } else {
+                    var errMsg = (res && res.message) ? res.message : 'Failed to save payment.';
+                    if (typeof DialogSweetAlert === 'function') {
+                        DialogSweetAlert('error', errMsg);
+                    } else if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Save Failed',
+                            html: errMsg
+                        });
+                    }
+                }
+            },
+            error: function (xhr) {
+                $btnAction.prop('disabled', false).html(origHtml);
+                var msg = 'Error saving payment: ' + (xhr.statusText || 'Server error');
+                if (typeof DialogSweetAlert === 'function') {
+                    DialogSweetAlert('error', msg);
+                } else if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            }
+        });
+    }
+
+    function resetFormForNewPayment() {
+        $('#cboVendor').val('').trigger('change');
+        $('#txtContactPerson').val('');
+        $('#txtPhone').val('');
+        $('#txtMemo').val('');
+        $('#txtRemark').val('');
+        $('#txtPayAmount').val('');
+        allBills = [];
+        selectedBillsMap = {};
+        renderInvoicesTable();
+        calculateAndSyncTotals();
+        refreshPVNumber();
+    }
+</script>

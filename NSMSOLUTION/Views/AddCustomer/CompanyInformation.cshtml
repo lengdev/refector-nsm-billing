@@ -1,0 +1,194 @@
+﻿@{
+    Layout = null;
+}
+<form id="FormCompanyInformation" name="FormCompanyInformation" novalidate autocomplete="off">
+    <div class="row">
+        <div class="col-auto"><label for="Company_Name" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុន/Company Name:</label></div>
+        <div class="col">
+            <div class="wrap-input2">
+                <input type="text" alt="CompanyName" class="input2 CustInfo" id="Company_Name" name="Company_Name">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+        <div class="col-auto"><label for="Company_Name_KH" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុនជាភាសាខ្មែរ/Company Name KH:</label></div>
+        <div class="col">
+            <div class="wrap-input2">
+                <input type="text" alt="CompanyNameKH" class="input2 CustInfo" id="Company_Name_KH" name="Company_Name_KH">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-auto"><label for="Company_Desk_Phone" class="col-form-label khmerFont1">ទូរស័ព្ទលើតុ/Company Desk Phone:</label></div>
+        <div class="col">
+            <div class="wrap-input2">
+                <input type="text" class="input2 CustInfo" alt="CompanyDeskPhone" id="Company_Desk_Phone" name="Company_Desk_Phone">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+        <div class="col-auto"><label for="Company_Mobile" class="col-form-label khmerFont1">ទូរស័ព្ទដៃ/Company H/P:</label></div>
+        <div class="col">
+            <div class="wrap-input2">
+                <input type="text" class="input2 CustInfo" alt="CompanyMobile" id="Company_Mobile" name="Company_Mobile">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-auto"><label for="VAT_Number" class="col-form-label khmerFont1">លេខ VAT/VAT TIN:</label></div>
+        <div class="col">
+            <div class="wrap-input2">
+                <input type="text" alt="VATNumber" class="input2 CustInfo" id="VAT_Number" name="VAT_Number">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+        <div class="col-auto"><label for="Industry_Type" class="col-form-label khmerFont1">ប្រភេទអាជីវកម្ម/Business Type:</label></div>
+        <div class="col">
+            <div class="wrap-input2 validate-input" data-validate="Business Type is required">
+                <input type="text" alt="IndustryType" class="input2 CustInfo" id="Industry_Type" name="Industry_Type">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-auto"><label for="Company_Address" class="col-form-label khmerFont1">អាសយដ្ឋានក្រុមហ៊ុន/Company Add.:</label></div>
+        <div class="col">
+            <div class="wrap-input2" data-validate="Company Address is required">
+                <input type="text" alt="CompanyAddress" class="input2 CustInfo" id="Company_Address" name="Company_Address">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+        <div class="col-auto"><label for="Company_Commune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+        <div class="col">
+            <div class="wrap-input2" data-validate="Commune is required">
+                <input type="text" alt="CompanyCommune" class="input2 CustInfo" id="Company_Commune" name="Company_Commune">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-auto"><label for="Company_District" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+        <div class="col">
+            <div class="wrap-input2" data-validate="District is required">
+                <input type="text" alt="CompanyDistrict" class="input2 CustInfo" id="Company_District" name="Company_District">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+        <div class="col-auto"><label for="Company_Province_City" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+        <div class="col">
+            <div class="wrap-input2" data-validate="Province/City is required">
+                <input type="text" alt="CompanyProvinceCity" class="input2 CustInfo" id="Company_Province_City" name="Company_Province_City">
+                <span class="focus-input2"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12" style="background-color:papayawhip; padding-top:5px; padding-bottom:5px">
+            <div class="row">
+                <div class="col-auto"><label for="Company_Contact_Name" class="col-form-label khmerFont1">ឈ្មោះទំនាក់ទំនង/Contact Person:</label></div>
+                <div class="col">
+                    <div class="wrap-input2 validate-input" data-validate="Company Contact Name is required">
+                        <input type="text" alt="CompanyContactName" class="input2 CustInfo" id="Company_Contact_Name" name="Company_Contact_Name">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+                <div class="col-auto"><label for="Company_Contact_Position" class="col-form-label khmerFont1">តំណែង/Position:</label></div>
+                <div class="col">
+                    <div class="wrap-input2">
+                        <input type="text" alt="CompanyContactPosition" class="input2 CustInfo" id="Company_Contact_Position" name="Company_Contact_Position">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto"><label for="Company_Contact_Mobile_Number" class="col-form-label khmerFont1">លេខទំនាក់ទំនង/Contact Number:</label></div>
+                <div class="col">
+                    <div class="wrap-input2 validate-input" data-validate="Contact Mobile Number is required">
+                        <input type="text" class="input2 CustInfo" alt="CompanyContactMobileNumber" id="Company_Contact_Mobile_Number" name="Company_Contact_Mobile_Number">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row p-1"><div class="col-12"></div></div>
+    <div class="row p-2 bg-gray-light justify-content-end">
+        <div class="col-12 text-right">
+            <button type="button" id="Save_ChangeCompanyInfo" class="btn btn-outline-primary"><i class="fa fa-save" aria-hidden="true"></i> Save Change</button>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        LoadData('/AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            Commune = data;
+            ApplyTypeahead("Company_Commune", Commune,
+                {
+                    Company_District: 'District',
+                    Company_Province_City: 'ProvinceCity',
+                },
+                {
+                    Name: 'Commune',
+                    ID: 'CommuneID',
+                    DistrictID: 'DistrictID',
+                    District: 'District',
+                    ProvinceCityID: 'ProvinceCityID',
+                    ProvinceCity: 'ProvinceCity'
+                }
+            );
+        });
+        LoadData('/AddCustomer/LoadIndustryType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#Industry_Type").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    limit: 9999,
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.IndustryType;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.IndustryType, ID: str.IndustryTypeID });
+                            }
+                        });
+                        cb(matches);
+                    }
+                }).bind("typeahead:selected", function (obj, data, name) {
+                    BusinessTypeID = data.ID;
+                });
+            $("#Industry_Type").on("click", function () {
+                $("#Industry_Type").typeahead("open");
+            });
+        });
+    });
+    $("#Save_ChangeCompanyInfo").click(function () {
+        var check = validateInput("FormCompanyInformation");
+        if (check) {
+            var URL = "/AddCustomer/SaveChangeCompanyInfo";
+            var obj = {};
+            var dataobj = [];
+            obj["CustomerID"] = Customer_ID;
+            obj["IndustryTypeID"] = BusinessTypeID;
+            $("#FormCompanyInformation input.input2").each(function (key, value) {
+                var id = (typeof $(value).attr("id") == "undefined" ? "" : $(value).attr("id"));
+                if (id != "") {
+                    if ($(value).attr("alt") != "IndustryType")
+                        obj[$(value).attr("alt")] = $(value).val();
+                }
+            });
+            dataobj.push(obj);
+            var DATA = { CompanyData: JSON.stringify(dataobj) };
+            DoSaveChangeData(URL, DATA, function (response) {
+                LoadCustInfo(Customer_ID);
+            });
+        }
+    });
+</script>

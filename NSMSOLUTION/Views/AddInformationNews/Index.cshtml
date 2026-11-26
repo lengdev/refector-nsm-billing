@@ -1,0 +1,35 @@
+@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLSearchForm)
+
+<script>
+    window.CleanupImagesJS = function(id, response) {
+        var respObj = response;
+        if (typeof response === 'string') {
+            try {
+                respObj = JSON.parse(response);
+            } catch (e) { }
+        }
+
+        // 2 = Successful enum value from Utilities.ResultType
+        if (respObj && (respObj.Result === 2 || respObj.Result === "2")) {
+            var cleanupUrl = (typeof ServerRoot !== 'undefined' ? ServerRoot : '/') + 'AddInformationNews/CleanupImages';
+            $.post(cleanupUrl, { id: parseInt(id) }).always(function() {
+                // Reload grid
+                if (typeof LoadTableGrid === "function" && typeof CurrentPage !== 'undefined') {
+                    LoadTableGrid(CurrentPage);
+                } else {
+                    location.reload();
+                }
+            });
+        } else {
+            // Fallback grid reload even if result parsing failed
+            if (typeof LoadTableGrid === "function" && typeof CurrentPage !== 'undefined') {
+                LoadTableGrid(CurrentPage);
+            } else {
+                location.reload();
+            }
+        }
+    };
+</script>

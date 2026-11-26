@@ -1,0 +1,13 @@
+﻿@{Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function ShowInvoiceStockReceive(stockInId, receiveNumber) {
+        ShowDialogBox2("Receive Note No.: " + receiveNumber, "auto", "500", "AddStockIn/InvoiceStockReceive?ID=" + stockInId, 0, "", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#DivPrintStockReciveInvoice").printThis();
+            });
+        });
+    }
+</script>

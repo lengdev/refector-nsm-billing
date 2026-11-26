@@ -1,0 +1,451 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var itemAttrsDetail = [];
+    $(function () {
+        $("#Txt_ItemGroupName").on("change", function (e) {
+            OnOptionsItemAdded(e, this);
+        });
+        //$("#Txt_ItemGroupName").on("blur", function (e) {
+        //    var ItemGroupName = encodeURIComponent($(this).val());
+        //    if (ItemGroupName != "") {
+        //        setTimeout(function () {
+        //            checkISUniqueFiled("", ItemGroupName, "TblItem", "ItemGroupName", $("#Txt_ItemGroupName"));
+        //        }, 800);
+        //    }
+        //});
+    });
+    function OnOptionsItemAdded(event, THIS) {
+        var combinations = [];
+        var variantIds = [];
+        var step = 0;
+        $("input[name=Options]").each(function (index) {
+            if ($("input[name=Attribute]").eq(index).val() != "" && $("input[name=Options]").eq(index).val())
+                variantIds.splice(index, 1, $(this).attr('name'));
+            //else {
+            //    DialogSweetAlert('error', "Please enter Attribute.", function () {
+            //        $("input[name=Attribute]").eq(index).focus();
+            //        return false;
+            //    });
+            //    return false;
+            //}
+        });
+        //start custom code
+        var newCombinations = [], oldCombinations = [];
+        var keeCombinations = [];
+        var first_variant_values = $('input[name=Options]').eq(0).val().split(',');
+        combinations = first_variant_values;
+        newCombinations = first_variant_values;
+        oldCombinations = first_variant_values;
+        //var obj = {};
+        //obj[$("input[name=Attribute]").val()] = first_variant_values;
+        keeCombinations = first_variant_values;
+        step = 1;
+        while (step < variantIds.length) {
+            newCombinations = [];
+            oldCombinations = [];
+            for (var i = 0; i < combinations.length; i++) {
+                var new_variant_values = $('input[name=Options]').eq(step).val().split(',')
+                for (var j = 0; j < new_variant_values.length; j++) {
+                    if (new_variant_values[j] != "") {
+                        newCombinations.push(combinations[i] + '/' + new_variant_values[j]);
+                        oldCombinations.push(keeCombinations[i] + '~' + new_variant_values[j]);
+                    }
+                    else {
+                        newCombinations.push(combinations[i]);
+                        oldCombinations.push(keeCombinations[i]);
+                    }
+                }
+            }
+            combinations = newCombinations;
+            keeCombinations = oldCombinations;
+            step++;
+        }
+        $("#Table_ItemsDetail tbody").remove();
+        var newBody = $("<tbody>");
+        itemAttrsDetail = []; 
+        var k = 0;
+        for (i = 0; i < combinations.length; i++) {
+            var str = "";
+            var objAttr = keeCombinations[i].split('~');
+            var obj = {};
+            for (var j = 0; j < objAttr.length; j++) {
+                obj[$("input[name=Attribute]").eq(j).val()] = encodeURIComponent(objAttr[j]);
+                if (str == "")
+                    str = $("input[name=Attribute]").eq(j).val() + "|" + encodeURIComponent(objAttr[j]);
+                else
+                    str += "~" + $("input[name=Attribute]").eq(j).val() + "|" + encodeURIComponent(objAttr[j]);
+            }
+            itemAttrsDetail.push(obj);
+
+            var variant_name = combinations[i];
+            var item_code = $.trim($("#Txt_ItemGroupName").val()) + ' - ' + $.trim(variant_name);
+
+            var a = $("#Txt_UMName").select2('data');
+            //if (a == "")
+            //{
+            //    DialogSweetAlert("error", "Please choose UOM.", function () {
+            //        $("#Txt_UMName").focus()
+            //    });
+            //    return false;
+            //}
+            $.each(a, function (key, umvalue) {
+                k++;
+                var newRow = $("<tr name=\"TR_ItemDetails\">");
+                var cols = '';
+                cols += '<td name="TD_ItemDetails" align="right" class=""><input type="hidden" name="itemAttribute" value="' + str + '" />' + k + '</td>';
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="iBarcode" placeholder="Enter Barcode" class="input2 CustInfo"><div class="input-delete" title="Delete Row" data-validate="Delete Service Plan Row" onclick="RemoveTableRow('TR_ItemDetails', 'TD_Items_Detail', this,'','iBarcode');"></div>
+<span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="iItemCode" placeholder="Enter Item Code" class="input2 CustInfo"><span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="iItemName" value="`+ item_code + `" placeholder="Enter Item Name" class="input2 CustInfo">
+<div class="input-delete" title="Delete Row" data-validate="Delete Service Plan Row" onclick="RemoveTableRow('TR_ItemDetails', 'TD_Items_Detail', this,'','iBarcode');"></div>
+<span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="hidden" name="iUOMID" value="`+ umvalue.id + `" /><input readonly="readonly" type="text" name="iUOM" value="` + umvalue.text +`" placeholder="Enter UOM" class="input2 CustInfo" /><span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3"><input type="text" name="iMultiplier" value="1" placeholder="Enter Multiplier" class="input2 CustInfo" /><span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="iCostPrice" value="0" placeholder="Enter Cost Price" class="input2 CustInfo text-right"><span class="focus-input2"></span>
+</div></div>
+</td>`;
+                cols += `<td name="" align="left" class=""><div class="col-sm align-text-bottom">
+<div class="wrap-input3 ">
+<input type="text" name="iSellingPrice" value="0" placeholder="Enter Selling Price" class="input2 CustInfo text-right"><span class="focus-input2"></span>
+</div></div>
+</td>`;
+                //            cols += `<td name="" align="left" class=""><div class="col-sm-auto align-text-bottom">
+                //<div class="wrap-input3 ">
+                //<input onkeyup="" onchange="" type="text" value="0" name="iOpeningStock" id="" value="" placeholder="Enter Opening Stock" class="input2 CustInfo text-right"><span class="focus-input2"></span>
+                //</div></div>
+                //</td>`;
+                //            cols += `<td name="" align="left" class=""><div class="col-sm-auto align-text-bottom">
+                //<div class="wrap-input3 ">
+                //<input onkeyup="" onchange="" type="text" value="0" name="iOpeningStockRatePerUnit" id="" value="" placeholder="Enter Opening Stock Rate Per Unit" class="input2 CustInfo text-right"><span class="focus-input2"></span>
+                //</div></div>
+                //</td>`;
+                cols += `<td name="" align="right" class="">
+<input type="file" multiple="" name="ItemImage`+ k + `" class="file input2 CustInfo" value="" accept="image/*">
+</td>`;
+                newRow.append(cols);
+                newBody.append(newRow);
+            });
+        }
+        $("#Table_ItemsDetail").append(newBody);
+        applyItemImage();
+        //end custom code
+    }
+</script>
+
+<script>
+    function applyItemImage() {
+        $(".file").fileinput({
+            theme: 'fa5', showCaption: false, showPreview: false, inputGroupClass: "input-group-sm", dropZoneEnabled: false,
+            allowedFileTypes: ['image'],
+            showCancel: false,
+            showUpload: false,
+        });
+        $(".file").on('change', function (event) {
+            let input = event.currentTarget; let dT = new DataTransfer();
+            $.each(event.target.files, function (key, value) {
+                let fileExtension = '.' + value.name.split('.').pop();
+                let oldName = value.name; let fName = oldName.slice(0, oldName.lastIndexOf('.')).replace(/[^\w]/gi, '');
+                let newName = fName + "_" + new Date().getTime().toString().substring(8) + fileExtension;
+                let previousFile = value; let newFile = new File([previousFile], newName);
+                dT.items.add(newFile);
+            }); input.files = dT.files;
+        });
+        $("input[name=iCostPrice]").focus(function () { $(this).select(); }); $("input[name=iCostPrice]").autoNumeric(
+            { vMin: "-99999999999.99", vMax: "9999999999999999999999999999999999999999999999999999999.99" });
+        $("input[name=iSellingPrice]").focus(function () { $(this).select(); }); $("input[name=iSellingPrice]").autoNumeric(
+            { vMin: "-99999999999.99", vMax: "9999999999999999999999999999999999999999999999999999999.99" });
+        $("input[name=iMultiplier]").focus(function () { $(this).select(); }); $("input[name=iMultiplier]").autoNumeric(
+            { vMin: "-99999999999.99", vMax: "9999999999999999999999999999999999999999999999999999999.99" });
+        //$("input[name=iOpeningStock]").focus(function () { $(this).select(); }); $("input[name=iOpeningStock]").autoNumeric(
+        //    { aSep: "", aPad: false, vMin: "0", vMax: "999999999999999999999999999999999999999999999999999999999999999999999999999999999" });
+        //$("input[name=iOpeningStockRatePerUnit]").focus(function () { $(this).select(); }); $("input[name=iOpeningStockRatePerUnit]").autoNumeric(
+        //    { vMin: "-99999999999.99", vMax: "9999999999999999999999999999999999999999999999999999999.99" });
+
+        $("input[name=iMultiplier], input[name=iCostPrice], input[name=iSellingPrice]").on('keydown', function (e) {
+            if (e.which == 40) {
+                var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                var THIS = $('input[name=' + $(this).attr('name') + ']');
+                $(this).closest('tr').next().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                var scrollPosition = (THIS.eq(index).offset().top - 120);
+                $(window).scrollTop(scrollPosition);
+                delete e.which;
+                return false;
+            }
+            if (e.which == 38) {
+                var index = $('input[name=' + $(this).attr('name') + ']').index($(this));
+                var THIS = $('input[name=' + $(this).attr('name') + ']');
+                $(this).closest('tr').prev().find('input[name=' + $(this).attr('name') + ']').focus().select();
+                var scrollPosition = (THIS.eq(index).offset().top - 200);
+                $(window).scrollTop(scrollPosition);
+                delete e.which;
+                return false;
+            }
+        });
+    }
+
+    function SaveChangeItemGroup() {
+        var ItemGroupName = $("#Txt_ItemGroupName").val();
+        //checkISUniqueFiled("", ItemGroupName, "TblItem", "ItemGroupName", $("#Txt_ItemGroupName"), function (response) {
+        //    if (response) {
+
+        //    }
+        //});
+        var itemInfo = {};
+        var itemAttribute = [];
+        var itemDetail = [];
+        var StockNameID = $("#StockName").val();
+        var StockName = $("#StockName").val();
+        var ItemTypeID = $("#TypeName_ItemTypeID").val();
+        var TypeName = $("#TypeName").val();
+        //var UomID = $("#Txt_UMName_UomID").val();
+        //var UM = $("#Txt_UMName").val();
+        var ItemBrandID = $("#ItemBrand_ItemBrandID").val();
+        var ItemBrand = $("#ItemBrand").val();
+        var Model = $("#Model").val();
+        var ReorderPoint = $("#ReorderPoint").val();
+        //var ReturnableItem = ($("#ReturnableItem").is(':checked') ? true : false);
+        var InventoryAccountName = $("input[name=Inventory_input]").val();
+        var InventoryChartOfAccountID = $("#Inventory").val();
+        var PurchaseChartOfAccount = $("input[name=PurchaseChartOfAccountID_input]").val();
+        var PurchaseChartOfAccountID = $("#PurchaseChartOfAccountID").val();
+        var SaleChartOfAccountID = $("#SaleChartOfAccountID").val();
+        var SaleChartOfAccount = $("input[name=SaleChartOfAccountID_input]").val();
+
+        $("tr[name=TR_MultipleItems_No]").each(function (key, value) {
+            var Attribute = $("input[name=Attribute]").eq(key).val();
+            if ($("input[name=Attribute]").eq(key).val() != "") {
+                var obj = {};
+                obj = { Attribute: $.trim(Attribute) };
+                itemAttribute.push(obj);
+            }
+        });
+
+        $("tr[name=TR_ItemDetails]").each(function (key, value) {
+            var obj = {};
+            obj = {
+                StockNameID: encodeURIComponent($.trim(StockNameID)),
+                StockName: encodeURIComponent($.trim(StockName)),
+                ItemTypeID: ItemTypeID,
+                TypeName: encodeURIComponent($.trim(TypeName)),
+                ItemGroupName: encodeURIComponent($.trim(ItemGroupName)),
+                //UomID: UomID,
+                //UM: encodeURIComponent($.trim(UM)),
+                ItemBrandID: ItemBrandID,
+                ItemBrand: encodeURIComponent($.trim(ItemBrand)),
+                Model: Model,
+                ReorderPoint: ReorderPoint,
+                //ReturnableItem: encodeURIComponent(ReturnableItem),
+                InventoryAccountName: encodeURIComponent($.trim(InventoryAccountName)),
+                InventoryChartOfAccountID: InventoryChartOfAccountID,
+                PurchaseChartOfAccount: encodeURIComponent($.trim(PurchaseChartOfAccount)),
+                PurchaseChartOfAccountID: PurchaseChartOfAccountID,
+                SaleChartOfAccountID: SaleChartOfAccountID,
+                SaleChartOfAccount: encodeURIComponent($.trim(SaleChartOfAccount))
+            }
+            var Barcode = $("input[name=iBarcode]").eq(key).val();
+            if (Barcode == "") {
+                let d = 0;
+                if (d == 0)
+                    d = new Date().getTime();
+                else
+                    d += parseInt(d) + parseInt((Math.random() * 100000) + 1);
+                d = parseInt(d) + parseInt(((Math.random() * 100000) + 1));
+                for (let j = 0; j <= 10; j++) {
+                    d += parseInt(parseInt(d) * parseInt(((Math.random() * 100) + j)));
+                }
+                let result = d.toString();
+                result = result.substring(0, 11).replace(".", 9);
+                $("input[name=DBarcode]").eq(key).val(result);
+                obj["Barcode"] = $.trim(result);
+            }
+            else
+                obj["Barcode"] = $.trim(Barcode);
+            obj["ItemCode"] = $.trim($("input[name=iItemCode]").eq(key).val());
+            obj["ItemName"] = encodeURIComponent($.trim($("input[name=iItemName]").eq(key).val()));
+            obj["UM"] = $("input[name=iUOM]").eq(key).val();
+            obj["UomID"] = accounting.unformat($("input[name=iUOMID]").eq(key).val());
+            obj["Multiplier"] = accounting.unformat($("input[name=iMultiplier]").eq(key).val());
+            obj["CostPrice"] = accounting.unformat($("input[name=iCostPrice]").eq(key).val());
+            obj["SellingPrice"] = accounting.unformat($("input[name=iSellingPrice]").eq(key).val());
+            obj["OpeningStock"] = 0;// accounting.unformat($("input[name=iOpeningStock]").eq(key).val());
+            obj["OpeningStockRatePerUnit"] = 0;// accounting.unformat($("input[name=iOpeningStockRatePerUnit]").eq(key).val());
+            obj["itemAttrsDetail"] = itemAttrsDetail[key];
+            itemDetail.push(obj);
+        });
+        var DATA = {
+            Data: JSON.stringify({
+                itemAttribute: JSON.stringify(itemAttribute),
+                itemDetail: JSON.stringify(itemDetail),
+                itemDetailAttr: JSON.stringify(itemAttrsDetail)
+            })
+        };
+        SaveChangeResponse = $("form[name=CreateItemGroup]").serializeArray();
+        DoSaveChageAjaxForm("CreateItemGroup", "Items/SaveChangeItemGroup", DATA, "", function (response) {
+            if (response.Result == 2) {
+                var dt = JSON.parse(response.Data);
+                SaveChangeResponse['Data'] = dt;
+                addCategoryToItem();
+                $(".btnclose").click();
+            }
+        });
+    }
+
+    function addCategoryToItem() {
+        var Data = [], ItemCategory = {}, objDatas = [], CostPrice = "", SellingPrice = "",
+            OpeningStock = "", OpeningStockRatePerUnit = "", Warehouse = "", WID = "",
+            VendorName = "", VendorID = "", UM = "", ItemName = "", Attribute = "",
+            Options = "", ItemGroupName = "", ItemAttributes = "", ItemExpirationDate = "";
+        //Data = SaveChangeResponse['Data'].IDENTITYValue.split("~");
+        //var filteredArray = Data.filter(item => !item.startsWith("ItemID|"));
+        //Data = filteredArray;
+        Data = SaveChangeResponse['Data'];
+        ItemCategory = SaveChangeResponse.filter(function (item) {
+            return item.name == 'StockName';
+        });
+        Warehouse = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Warehouse';
+        })[0];
+        WID = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Warehouse_WID';
+        })[0];
+        UM = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Txt_UMName';
+        })[0];
+        ItemName = SaveChangeResponse.filter(function (item) {
+            return item.name == 'iItemName';
+        });
+        CostPrice = SaveChangeResponse.filter(function (item) {
+            return item.name == 'iCostPrice';
+        });
+        SellingPrice = SaveChangeResponse.filter(function (item) {
+            return item.name == 'iSellingPrice';
+        });
+        //OpeningStock = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iOpeningStock';
+        //});
+        //OpeningStockRatePerUnit = SaveChangeResponse.filter(function (item) {
+        //    return item.name == 'iOpeningStockRatePerUnit';
+        //});
+        VendorName = SaveChangeResponse.filter(function (item) {
+            return item.name == 'VendorName_Reference_VendorName';
+        })[0];
+        VendorID = SaveChangeResponse.filter(function (item) {
+            return item.name == 'VendorName_VendorID';
+        })[0];
+        Attribute = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Attribute';
+        });
+        Options = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Options';
+        });
+        ItemGroupName = SaveChangeResponse.filter(function (item) {
+            return item.name == 'Txt_ItemGroupName';
+        })[0];
+        ItemAttributes = SaveChangeResponse.filter(function (item) {
+            return item.name == 'itemAttribute';
+        });
+        ItemExpirationDate = SaveChangeResponse.filter(function (item) {
+            return item.name == 'ItemExpirationDate';
+        })[0].value;
+        var objsItemID = [];
+        for (var i = 0; i < Data.length; i++) {
+            var obj = {
+                ItemID: Data[i].ItemID,
+                CostPrice: accounting.unformat(CostPrice.value),
+                SellingPrice: accounting.unformat(SellingPrice.value),
+                OpeningStock: "0",//accounting.unformat(OpeningStock[i].value == "" ? "0" : OpeningStock[i].value),
+                OpeningStockRatePerUnit: "0",//accounting.unformat(OpeningStockRatePerUnit[i].value == "" ? "0" : OpeningStockRatePerUnit[i].value),
+                Warehouse: encodeURIComponent(Warehouse.value),
+                WID: WID.value,
+                VendorName: encodeURIComponent(VendorName.value),
+                VendorID: VendorID.value,
+                UM: UM.value,
+                ItemExpirationDate: StringToDate(ItemExpirationDate),
+                ItemName: ItemName
+            };
+            objsItemID.push(obj);
+        }
+        var objsItemCategory = [];
+        for (var i = 0; i < ItemCategory.length; i++) {
+            var Category = ItemCategory[i].value;
+            var obj = {};
+            $.each(objsItemID, function (key, value) {
+                obj = {
+                    ItemID: value.ItemID,
+                    CategoryID: Category
+                }
+                objsItemCategory.push(obj);
+            });
+        }
+
+        //var objAttr = SaveChangeResponse.filter(obj => (obj.name === "Attribute" || obj.name === "Options"));
+        //
+        //$.each(objAttr, function (key, val) {
+        //    var obj = {};
+        //    obj[val.name] = val.value;
+        //    objAttrs.push(obj);
+        //});
+        var objAttrs = [];        
+        for (var i = 0; i < Options.length; i++) {
+            var obj = {};
+            if (Options[i].value != "") {
+                //obj['ItemID'] = SaveChangeResponse['Data'].IDENTITYValue;
+                //obj['ItemGroupName'] = ItemGroupName.value;
+                obj[Attribute[i].name] = Attribute[i].value;
+                obj[Options[i].name] = Options[i].value;
+                objAttrs.push(obj);
+            }
+        }
+        var objitemAttrsDetail = [];
+        $.each(objsItemID, function (key, value) {
+            if (ItemAttributes[key]) {
+                //var attrs = ItemAttributes[key].value.split("~");
+                var obj = {
+                    ItemID: value.ItemID,
+                    ItemGroupName: ItemGroupName.value,
+                    AttrsDetail: ItemAttributes[key].value
+                }
+                objitemAttrsDetail.push(obj)
+            }
+        });
+        //var mapped = $.map(SaveChangeResponse, function (item) {
+        //    return { Name: item.CustomerType, ID: item.CustomerTypeID }
+
+        //var ItemPriceList = objsItemID.filter(function (item) {
+        //    return item.ItemID
+        //});
+        //
+
+        var DATA = {
+            ItemCategory: JSON.stringify(objsItemCategory),
+            ItemPriceList: JSON.stringify(objsItemID),
+            OpeningStock: JSON.stringify(objsItemID),
+            ItemAttribute: JSON.stringify(objAttrs),
+            ItemAttrsDetail: JSON.stringify(objitemAttrsDetail),
+        };
+        PostData("AddItem/SaveChangeItem", DATA);
+    }
+</script>
+

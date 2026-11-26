@@ -1,0 +1,14 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+
+<script>
+    function SendNotificationStockReturn() {
+        if (SaveChangeResponse.length > 0) {
+            var ID = SaveChangeResponse["Data"].IDENTITYValue;
+            var IDs = ID.split("~");
+            ID = IDs[0].split("|")[1];
+            SaveChangeResponse = [];
+            PostData("Items/SendNotificationStockReturn?ID=" + ID , function (response) { });
+        }
+    }
+</script>

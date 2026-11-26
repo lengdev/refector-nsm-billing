@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowRequestFormInvoice(RequestFormID, ReqeustNumber) {
+        var URL = "Profile/InvoiceTMPRCA?RequestFormID=" + RequestFormID + "&Type=RCA";
+        ShowDialogBox("Preview Request Cash Advance No.: " + ReqeustNumber, "Auto", "500", URL);
+    }
+</script>

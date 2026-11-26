@@ -1,0 +1,10 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function PrintItemBarcode(THIS) {
+        var index = $(THIS).closest("tr").index();
+        var QTY = $("input[name=QTY]").eq(index).val();
+        var Barcode = $(THIS).closest("tr").find("div[name=div_Barcode]").html();
+        PrintProductLable(Barcode, QTY, '');
+    }
+</script>

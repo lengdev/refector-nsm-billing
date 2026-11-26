@@ -1,0 +1,11 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showInvoicesForm(salesId, invoiceNo, saleType) {
+        const type = "Commercial Invoices";
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox(`Preview ${type} Form No.: ${invoiceNo}`, "Auto", "500", URL);
+    }
+</script>

@@ -1,0 +1,607 @@
+﻿@{ Layout = null; }
+
+<div class="row mb-3 text-primary">
+    <div class="col"><h4><i class="fa-duotone fa-users"></i> Customers</h4></div>
+</div>
+@*<div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div id="ShowCustWithBlockConnection"></div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-auto">
+                        <div id="fromDate">@Html.Raw(ViewBag.CustSearchByDate)</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="showCustCon"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-8 col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="row"><div class="col"><h4 class="card-title">New Customer</h4></div></div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card-subtitle">
+                                    Last Month Vs This Month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <ul class="d-flex gap-3 mb-0">
+                            <li class="d-flex px-1">
+                                <div style="color: var(--bs-info);" class="d-flex align-items-center gap-2 fs-3">
+                                    <i class="fa-solid fa-circle"></i>&nbsp;Last Year&nbsp;<span id="span_last_year">0</span>
+                                </div>
+                            </li>
+                            <li class="d-flex">
+                                <div style="color: var(--bs-primary);" class="d-flex align-items-center gap-2 fs-3">
+                                    <i class="fa-solid fa-circle"></i>&nbsp;This Year&nbsp;<span id="span_this_year">0</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="Customer"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="row"><div class="col"><h4 class="card-title">Our Customer <span id="span_totalCustomer"></span></h4></div></div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card-subtitle">
+                                    All Customers By Group
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="CustomerGroup"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-auto">@Html.Raw(ViewBag.DrawHTMLFormDate)</div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="custConnectivity"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <dvi class="col">
+        @*@Html.Raw(ViewBag.DrawHTMLForm)*@
+    </dvi>
+</div>
+<div class="row">
+    <div class="col" id="ShowSearchData"></div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-auto">
+                        @Html.Raw(ViewBag.CustSearchDate)
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div id="showCustSearchDate"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function CustSearchDate() {
+        var FromDate = $("#CustSearchDate").data('daterangepicker').startDate.format('YYYYMMDD');
+        var ToDate = $("#CustSearchDate").data('daterangepicker').endDate.format('YYYYMMDD');
+        LoadData("CustomerReports/CustSearchDate?FromDate=" + FromDate + "&ToDate=" + ToDate, function (response) {
+            $("#showCustSearchDate").html(response);
+        });
+    }
+
+    function ShowCustBlockWithConnection() {
+        LoadData("CustomerReports/ShowCustBlockWithConnection", function (response) {
+            var colorPalette = ['#D81B60', '#20C997', '#6610F2', '#007BFF', '#FFC107', '#F89C39', '#f48024', '#69d2e7'];
+            var result = JSON.parse(response).Table;
+            var Table10 = result;
+            var CustomerGroup = Table10.map(function (item) {
+                return item.CustomerGroup;
+            });
+            var grouped = _.groupBy(CustomerGroup, function (x) { return x; })
+            var custData = [];
+            var objhide = [];
+            $.each(grouped, function (key, value) {
+                var obj = Table10.filter(function (item) {
+                    return item.CustomerGroup == key;
+                });
+                obj = obj.map(function (item) {
+                    return item.NewCustomer;
+                });
+                obj = {
+                    name: key,
+                    group: key,
+                    data: obj
+                }
+                custData.push(obj);
+            });
+
+            $.each(grouped, function (key, value) {
+                var obj = Table10.filter(function (item) {
+                    return item.CustomerGroup == key;
+                });
+                obj = obj.map(function (item) {
+                    return item.NewConnection;
+                });
+                obj = {
+                    name: key + '_NewConnection',
+                    group: key,
+                    data: obj
+                }
+                custData.push(obj);
+                objhide.push(key + '_NewConnection');
+            });
+
+            $.each(grouped, function (key, value) {
+                var obj = Table10.filter(function (item) {
+                    return item.CustomerGroup == key;
+                });
+                obj = obj.map(function (item) {
+                    return item.Renew;
+                });
+                obj = {
+                    name: key + '_Renew',
+                    group: key,
+                    data: obj
+                }
+                custData.push(obj);
+                objhide.push(key + '_Renew');
+            });
+
+            $.each(grouped, function (key, value) {
+                var obj = Table10.filter(function (item) {
+                    return item.CustomerGroup == key;
+                });
+                obj = obj.map(function (item) {
+                    return item.Lock;
+                });
+                obj = {
+                    name: key + '_Lock',
+                    group: key,
+                    data: obj
+                }
+                custData.push(obj);
+                objhide.push(key + '_Lock');
+            });
+
+            options = {
+                series: custData,
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    stacked: true,
+                },
+                //stroke: {
+                //    width: 1,
+                //    colors: ['#fff']
+                //},
+                dataLabels: {
+                    dropShadow: {
+                        enabled: true
+                    },
+                    style: {
+                        fontSize: '13px',
+                    }
+                    //formatter: (val) => {
+                    //    return val / 1000 + 'K'
+                    //}
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        borderRadius: 4,
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        show: false
+                    }
+                },
+                xaxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                },
+                fill: {
+                    opacity: 1
+                },
+                colors: colorPalette,
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center'
+                }
+            };
+            chart = new ApexCharts(document.querySelector("#ShowCustWithBlockConnection"), options);
+            chart.render();
+
+            $.each(objhide, function (key, val) {
+                chart.hideSeries(val);
+            });
+            //$("#ShowCustWithBlockConnection").html(response);
+        });
+    }
+
+    function CustSearchByDate() {
+        var FromDate = $("#DateSearch").data('daterangepicker').startDate.format('YYYYMMDD');
+        var ToDate = $("#DateSearch").data('daterangepicker').endDate.format('YYYYMMDD');
+        LoadData("CustomerReports/ShowCustomerByBlockAndConnection?FromDate=" + FromDate + "&ToDate=" + ToDate, function (response) {
+            $("#showCustCon").html(response);
+        });
+    }
+    function ShowCustomerConnectivityStatus(d) {
+        LoadData("CustomerReports/ShowCustomerConnectivityStatus?Date=" + d, function (response) {
+            $("#custConnectivity").html(response);
+        });
+    }
+    $(function () {
+        setTimeout(function () {
+        //    ShowCustBlockWithConnection();
+            CustSearchByDate();
+            CustSearchDate();
+        }, 500);
+        var colorPalette = ['#D81B60', '#20C997', '#6610F2', '#007BFF', '#FFC107', '#F89C39', '#f48024', '#69d2e7'];
+        //SearchByDate();
+        //$("#DateSearch").unbind("keypress");
+        var NewCustomer = `@Html.Raw(ViewBag.NewCustomer)`;
+        var Data = "@ViewBag.Date";
+        if (NewCustomer != "") {
+            NewCustomer = JSON.parse(NewCustomer);
+            var Table = NewCustomer.Table;
+            var Table1 = NewCustomer.Table1;
+            var lastYear = Table.map(function (item) {
+                return item.Customer;
+            });
+            var thisYear = Table1.map(function (item) {
+                return item.Customer;
+            });
+            var sumLastYear = lastYear.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            var sumThisYear = thisYear.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            $("#span_last_year").html(accounting.formatNumber(sumLastYear));
+            $("#span_this_year").html(accounting.formatNumber(sumThisYear));
+            var options = {
+                series: [{
+                    name: 'Last Year',
+                    data: lastYear,//[44, 55, 57, 56, 61, 58, 63, 60, 66]
+                }, {
+                    name: 'This Year',
+                    data: thisYear,//[76, 85, 101, 98, 87, 105, 91, 114, 94]
+                },],
+                chart: {
+                    //type: 'bar',
+                    //height: 350,
+                    //fontFamily: "inherit",
+                    type: "bar",
+                    height: 350,
+                    //foreColor: "#adb0bb",
+                    //offsetY: 10,
+                    //offsetX: -15,
+                    //toolbar: {
+                    //   show: false,
+                    //},
+                },
+                plotOptions: {
+                    bar: {
+                        //horizontal: false,
+                        //columnWidth: '55%',
+                        endingShape: 'rounded',
+                        horizontal: false,
+                        columnWidth: "55%",
+                        //endingShape: "flat",
+                        borderRadius: 6,
+                        dataLabels: {
+                            position: 'top', // top, center, bottom
+                        },
+                    },
+                },
+                //dataLabels: {
+                //    enabled: false
+                //},
+                //stroke: {
+                //    show: true,
+                //    width: 2,
+                //    colors: ['transparent']
+                //},
+                dataLabels: {
+                    enabled: true,
+                    //textAnchor: 'start',
+                    offsetY: -20,
+                    style: {
+                        fontSize: '12px',
+                        colors: ["#304758"]
+                    },
+                    formatter: function (val, opt) {
+                        return val;//opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+                    },
+                    //offsetX: 0,
+                    dropShadow: {
+                        enabled: false
+                    }
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                xaxis: {
+                    position: 'top',
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    },
+                    crosshairs: {
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                colorFrom: '#D8E3F0',
+                                colorTo: '#BED1E6',
+                                stops: [0, 100],
+                                opacityFrom: 0.4,
+                                opacityTo: 0.5,
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                    }
+                },
+                //yaxis: {
+                //    title: {
+                //        text: '$ (thousands)'
+                //    }
+                //},
+                colors: ["var(--bs-info)", "var(--bs-primary)"],
+                fill: {
+                    opacity: 1,
+                    colors: ["var(--bs-info)", "var(--bs-primary)"],
+                },
+                tooltip: {
+                    //theme: 'dark',
+                    x: {
+                        show: false
+                    },
+                    y: {
+                        title: {
+                            formatter: function (val) {
+                                return ''
+                            }
+                        }
+                    }
+                },
+                //tooltip: {
+                //    y: {
+                //        formatter: function (val) {
+                //            return accounting.formatNumber(val)// + " thousands"
+                //        }
+                //    }
+                //}
+            };
+            var chart = new ApexCharts(document.querySelector("#Customer"), options);
+            chart.render();
+
+            var Table2 = NewCustomer.Table2;
+            serie = Table2;
+            label = Table2;
+            var series = serie.map(function (item) {
+                return item.CustomerID;
+            });
+            var labels = label.map(function (item) {
+                return item.CustomerGroup;
+            });
+            var totalCustomer = series.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            $("#span_totalCustomer").html(accounting.formatNumber(totalCustomer));
+            options = {
+                series: [{
+                    data: series
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
+                plotOptions: {
+                    //bar: {
+                    //    borderRadius: 4,
+                    //    borderRadiusApplication: 'end',
+                    //    horizontal: false,
+                    //}
+                    bar: {
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
+                        barHeight: '100%',
+                        distributed: true,
+                        horizontal: false,
+                        //dataLabels: {
+                        //    position: 'bottom'
+                        //},
+                    }
+                },
+                colors: colorPalette,
+                dataLabels: {
+                    enabled: true,
+                    //textAnchor: 'start',
+                    style: {
+                        colors: ['#fff']
+                    },
+                    formatter: function (val, opt) {
+                        return val;//opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+                    },
+                    offsetX: 0,
+                    dropShadow: {
+                        enabled: true
+                    }
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                xaxis: {
+                    categories: labels,
+                },
+                yaxis: {
+                    labels: {
+                        show: false
+                    }
+                },
+                //title: {
+                //    text: 'Custom DataLabels',
+                //    align: 'center',
+                //    floating: true
+                //},
+                //subtitle: {
+                //    text: 'Category Names as DataLabels inside bars',
+                //    align: 'center',
+                //},
+                tooltip: {
+                    theme: 'dark',
+                    x: {
+                        show: false
+                    },
+                    y: {
+                        title: {
+                            formatter: function () {
+                                return ''
+                            }
+                        }
+                    }
+                },
+                //fill: {
+                //    opacity: 1,
+                //    colors: ["var(--bs-primary)"],
+                //},
+            };
+            chart = new ApexCharts(document.querySelector("#CustomerGroup"), options);
+            chart.render();
+        }
+        ShowCustomerConnectivityStatus(Data);
+        $("#TxtDate").select2();
+        $("#TxtDate").on("change", function () {
+            var d = $(this).val() + "01";
+            ShowCustomerConnectivityStatus(d);
+        });
+    });
+
+    //function SearchByDate() {
+    //    var startDate = $("#DateSearch").data('daterangepicker').startDate.format('YYMMDD');
+    //    var endDate = $("#DateSearch").data('daterangepicker').endDate.format('YYMMDD');
+    //    //var Data = StringToDate($("#DateSearch").val());
+    //    //Data = moment(new Date(Data)).format('YYMMDD');//yyMMdd
+    //    LoadData("CustomerReports/ShowCustomer?startDate=" + startDate + "&endDate=" + endDate, function (response) {
+    //        $("#ShowSearchData").html(response);
+    //    });
+    //}
+    function ShowCustByBlock(THIS, CustomerTypeID, Block, Show, CustomerGroup) {
+        $(THIS).select();
+        var FromDate = $("#CustSearchDate").data('daterangepicker').startDate.format('YYYYMMDD');
+        var ToDate = $("#CustSearchDate").data('daterangepicker').endDate.format('YYYYMMDD');
+        ModalDialogBox(Block, "CustomerReports/ShowCustByBlock", { CustomerTypeID: CustomerTypeID, Show: Show, FromDate: FromDate, ToDate: ToDate, CustomerGroup: CustomerGroup }, "Dialog", "", "", "", true);
+    }
+</script>
+
+@*<div id="grid"></div>
+
+<script>
+    $(document).ready(function () {
+        var grid = $("#grid").kendoGrid({
+            dataSource: {
+                data: [
+                    { ProductName: "ផលិតផល A", UnitPrice: 18.00, UnitsInStock: 39, Discontinued: false },
+                    { ProductName: "ផលិតផល B", UnitPrice: 19.00, UnitsInStock: 17, Discontinued: true },
+                    { ProductName: "ផលិតផល C", UnitPrice: 20.00, UnitsInStock: 25, Discontinued: false },
+                    { ProductName: "ផលិតផល D", UnitPrice: 21.00, UnitsInStock: 40, Discontinued: true },
+                    { ProductName: "ផលិតផល E", UnitPrice: 22.00, UnitsInStock: 10, Discontinued: false },
+                    { ProductName: "ផលិតផល F", UnitPrice: 23.00, UnitsInStock: 12, Discontinued: true }
+                ],
+                pageSize: 2
+            },
+            pageable: true,
+            toolbar: ["pdf"],
+            pdf: {
+                allPages: true, // Export all pages' content
+                avoidLinks: true,
+                paperSize: "A4",
+                margin: { top: "2cm", right: "1cm", bottom: "1cm", left: "1cm" },
+                landscape: true,
+                repeatHeaders: true,
+                scale: 0.8,
+                fileName: "KendoGridExport.pdf",
+                proxyURL: "https://demos.telerik.com/kendo-ui/service/export",
+                font: {
+                    family: "Noto Sans Khmer",
+                    size: 16
+                }
+            },
+            columns: [
+                { field: "ProductName", title: "ឈ្មោះផលិតផល" },
+                { field: "UnitPrice", title: "តម្លៃឯកតា", format: "{0:c}" },
+                { field: "UnitsInStock", title: "ឯកតានៅក្នុងស្តុក" },
+                { field: "Discontinued", title: "ផ្អាក" }
+            ]
+        }).data("kendoGrid");
+
+        grid.bind("pdfExport", function (e) {
+            // Get the current page size
+            var pageSize = grid.dataSource.pageSize();
+
+            // Temporarily change page size to total records to get all data
+            grid.dataSource.pageSize(grid.dataSource.total());
+            console.log(grid.table[0].outerHTML);
+            // Restore the original page size after export
+            e.promise.done(function () {
+                grid.dataSource.pageSize(pageSize);
+                //var grid = $("#grid").data("kendoGrid");
+                //var gridContent = grid.table[0].outerHTML; // Get the HTML content of the grid
+                
+                //console.log(gridContent); // Display the HTML content in the console
+            });
+        });
+    });
+</script>*@

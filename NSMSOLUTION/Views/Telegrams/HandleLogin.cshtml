@@ -1,0 +1,18 @@
+﻿@* Views/Telegram/HandleLogin.cshtml *@
+@{
+    ViewBag.Title = "Telegram Login";
+}
+
+<h2>Telegram Login</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <p style="color:red;">@ViewBag.Error</p>
+}
+
+<form action="/Telegram/HandleLogin" method="post">
+    <label for="input">Enter the required information (e.g., code, password):</label>
+    <input type="text" name="input" id="input" />
+    <button type="submit">Submit</button>
+</form>
+

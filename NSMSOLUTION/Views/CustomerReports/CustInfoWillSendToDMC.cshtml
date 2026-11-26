@@ -1,0 +1,196 @@
+﻿@{ Layout = null; }
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLSearchForm)
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="custom-tabs" role="tablist">
+                    <li class="nav-item" id="cust_inv">
+                        <a class="nav-link active" id="custom-invoice" data-toggle="pill" href="#custom-tabs-invoice" role="tab" aria-controls="custom-tabs-invoice" aria-selected="true">Invoice</a>
+                    </li>
+                    <li class="nav-item d-none" id="cust_inv_no_serial">
+                        <a class="nav-link" id="custom-invoice-no-serial" data-toggle="pill" href="#custom-tabs-invoice-no-serial" role="tab" aria-controls="custom-tabs-invoice-no-serial" aria-selected="true">Invoice No Serial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-current" data-toggle="pill" href="#custom-tabs-current" role="tab" aria-controls="custom-tabs-current" aria-selected="true">Current</a>
+                    </li>
+                    @*<li class="nav-item">
+                            <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">On DMC & TAX System</a>
+                        </li>*@
+                    <li class="nav-item d-none">
+                        <div class="nav-link">
+                            <button id="" onclick="PreviewExcel(false);" class="btn btn-outline-primary btn-sm">Preview Excel(Normal)</button>
+                        </div>
+                    </li>
+                     <li class="nav-item d-none">
+                         <div class="nav-link">
+                             <button id="" onclick="PreviewExcel(false, true);" class="btn btn-outline-primary btn-sm">Preview Excel(To DMC)</button>
+                         </div>
+                     </li>
+                    <li class="nav-item d-none">
+                        <div class="nav-link">
+                            <button id="" onclick="PreviewExcel(true);" class="btn btn-outline-danger btn-sm">Upload</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" role="tabpanel" id="custom-tabs-invoice" aria-labelledby="custom-tabs-invoice">
+                        <div id="divShowCustinvoice"></div>
+                    </div>
+                    <div class="tab-pane fade" role="tabpanel" id="custom-tabs-current" aria-labelledby="custom-tabs-current">
+                        <div id="divShowCustInfoWillSendToDMC"></div>
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                        <div id="divShowCustInfoWillSendToDMC_OnDMCTAX"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+<script>
+    var FromDate = "", ToDate = "", InvoiceNo = "", CID = "";
+    var isNoSerial = false;
+    $(function () {
+
+        const domainID = '@ViewBag.DomainID';
+        if (domainID === '001,002')
+            $('#cust_inv_no_serial').remove();
+        @* else
+            $('#cust_inv_no_serial').removeClass('d-none');
+             *@
+        //$("#custom-tabs a").click(function (e) {
+        //    e.preventDefault();
+        //});
+        //$("#btns").click(function () {
+        //    console.log('test');
+        //    $("#cust_inv").click();
+        //});
+        CusotmerInvoice();
+        $("#custom-invoice, #custom-invoice-no-serial").click(function (e) {
+            isNoSerial = $(this).attr("id") === "custom-invoice-no-serial";
+            setTimeout(function () {
+                CusotmerInvoice();
+            }, 200);
+            e.preventDefault();
+        });
+        $("#custom-current").click(function (e) {
+            setTimeout(function () {
+                ShowCustInfoWillSendToDMC();
+            }, 200);
+            
+            e.preventDefault();
+        });
+    });
+
+    function CusotmerInvoice() {
+        var ClassName = $("#txtClassName").val();
+        if (ClassName == "All")
+            ClassName = "";
+        if ($("#TxtFromDate").val() != "") {
+            FromDate = $("#TxtFromDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            ToDate = $("#TxtFromDate").data('daterangepicker').endDate.format('YYYY-MM-DD');
+        }
+        else {
+            FromDate = ""; ToDate = "";
+        }
+        var isFirstRadioChecked = $("input[name=RD]").eq(0).prop("checked");
+        if (isFirstRadioChecked)
+            InvoiceNo = $("#CboSearchText").val();
+        else
+            CID = $("#CboSearchText").val();
+        LoadData("CustomerReports/CusotmerInvoice?FromDate=" + encodeURIComponent(FromDate) + "&ToDate=" + encodeURIComponent(ToDate) +
+            "&InvoiceNo=" + encodeURIComponent(InvoiceNo) + "&CID=" + encodeURIComponent(CID) + "&ClassName=" + ClassName +"&isNoSerial=" + isNoSerial, function (response) {
+                $("#divShowCustinvoice").html(response);
+            });
+    }
+
+    function ShowCustInfoWillSendToDMC() {
+        var ClassName = $("#txtClassName").val();
+        if (ClassName == "All")
+            ClassName = "";
+        if ($("#TxtFromDate").val() != "") {
+            FromDate = $("#TxtFromDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            ToDate = $("#TxtFromDate").data('daterangepicker').endDate.format('YYYY-MM-DD');
+        }
+        else {
+            FromDate = ""; ToDate = "";
+        }
+        if ($("input[name=RD]:eq(0)").is("checked"))
+            InvoiceNo = $("#CboSearchText").val();
+        else
+            CID = $("#CboSearchText").val();
+        LoadData("CustomerReports/ShowCustInfoWillSendToDMC?FromDate=" + encodeURIComponent(FromDate) + "&ToDate=" + encodeURIComponent(ToDate) +
+            "&InvoiceNo=" + encodeURIComponent(InvoiceNo) + "&CID=" + encodeURIComponent(CID) + "&ClassName=" + ClassName, function (response) {
+                $("#divShowCustInfoWillSendToDMC").html(response);
+            });
+    }
+
+    function ShowCustInfoWillSendToDMC_OnDMCTAX() {
+        if ($("#TxtFromDate").val() != "") {
+            FromDate = $("#TxtFromDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            ToDate = $("#TxtFromDate").data('daterangepicker').endDate.format('YYYY-MM-DD');
+        }
+        if ($("input[name=RD]:eq(0)").is("checked"))
+            InvoiceNo = $("#CboSearchText").val();
+        else
+            CID = $("#CboSearchText").val();
+        LoadData("CustomerReports/ShowCustInfoWillSendToDMC?FromDate=" + encodeURIComponent(FromDate) + "&ToDate=" + encodeURIComponent(ToDate) +
+            "&InvoiceNo=" + encodeURIComponent(InvoiceNo) + "&CID=" + encodeURIComponent(CID) + "&isOnDMCTax=True", function (response) {
+                $("#divShowCustInfoWillSendToDMC_OnDMCTAX").html(response);
+            });
+    }
+
+    function PreviewExcel(Upload, IsToDMCFormat = false) {
+        if ($("#TxtFromDate").val() != "") {
+            FromDate = $("#TxtFromDate").data('daterangepicker').startDate.format('YYYY-MM-DD');
+            ToDate = $("#TxtFromDate").data('daterangepicker').endDate.format('YYYY-MM-DD');
+        }
+        if ($("input[name=RD]:eq(0)").is("checked"))
+            InvoiceNo = $("#CboSearchText").val();
+        else
+            CID = $("#CboSearchText").val();
+        var url = "CustomerReports/PreviewExcel?FromDate=" + encodeURIComponent(FromDate) + "&ToDate=" + encodeURIComponent(ToDate) +
+            "&InvoiceNo=" + encodeURIComponent(InvoiceNo) + "&CID=" + encodeURIComponent(CID) + "&IsToDMCFormat=" + IsToDMCFormat;
+        if (!Upload)
+            OpenNewTap(url);
+        else {
+            url += "&Upload=True";
+            DialogSweetAlert("load", "Uploading...", function () {
+                LoadData(url, function (rst) {
+                    DialogSweetAlert("Savesuccess", "Your data has been uploaded.");
+                });
+            });
+        }
+    }
+
+    function ShowCustWillSendToDMC() {
+        $("#custom-invoice").click();
+    }
+
+    function UploadInvoiceTODMC(CustomerID, InvoiceNo, FileName, TypeOfInvoice, ReviseCount) {
+        DialogSweetAlert("load", "Uploading...", function () {
+            PostData("CustomerReports/UploadInvoiceTODMC", {
+                CustomerID: CustomerID,
+                InvoiceNo: InvoiceNo,
+                UploadToDMC: true
+                //FileName: FileName,
+                //TypeOfInvoice: TypeOfInvoice,
+                //ReviseCount: ReviseCount
+            }, function (response) {
+                var rst = JSON.parse(response);
+                if (rst.Result == 2)
+                    DialogSweetAlert("Savesuccess", "Invoice No: " + InvoiceNo + " has been uploaded.");
+                else
+                    DialogSweetAlert("error", rst.Message);
+            });
+        });
+    }
+</script>

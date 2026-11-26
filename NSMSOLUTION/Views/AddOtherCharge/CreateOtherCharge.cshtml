@@ -1,0 +1,196 @@
+@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+
+<script>
+    function CleanKendoNulls() {
+        var $form = $('form[id^="CreateOtherCharge"]');
+        if ($form.length > 0) {
+            $form.find('input, select, textarea').each(function () {
+                var $el = $(this);
+                var val = $el.val();
+                if (val === 'null' || val === null) {
+                    $el.val('');
+                    var id = $el.attr('id');
+                    if (id) {
+                        try {
+                            var w = $el.data('kendoMultiColumnComboBox') ||
+                                    $el.data('kendoComboBox') ||
+                                    $el.data('kendoDropDownList');
+                            if (w) { w.value(''); w.trigger('change'); }
+                        } catch (err) { }
+                    }
+                }
+            });
+        }
+        return true;
+    }
+</script>
+
+<script>
+    $(function () {
+        var uploadHtml = `
+        <div class="p-2" id="UploadContainer">
+            <div class="row">
+                <div class="col-sm align-text-bottom">
+                    <label>Attachment:</label>
+                    <div>
+                        <input type="file" multiple name="OtherChargeImage" id="FileUpload_OtherCharge"
+                               class="jfilestyle" accept="image/*" style="display:none;">
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        $('form[id^="CreateOtherCharge"]').append(uploadHtml);
+
+        var $activeForm = $('form[id^="CreateOtherCharge"]').last();
+        window.GetdTData = new DataTransfer();
+        $activeForm.find('input[name="OtherChargeImage"]').attr('accept', 'image/*');
+        $activeForm.find('input[name="OtherChargeImage"]').imageuploadify();
+
+        // Load existing images from TblOtherChargeImage
+        var pvFromServer = parseInt('@ViewBag.PrimaryFieldValue') || 0;
+        if (pvFromServer > 0) {
+            $.getJSON('@Url.Action("GetImages", "AddOtherCharge")', { id: pvFromServer }, function (data) {
+                if (data && data.files && data.files.length > 0) {
+                    renderExistingImages(data.files);
+                }
+            });
+        }
+
+        // Capture files AND existing images BEFORE the main form save closes the modal
+        window._pendingOtherChargeFiles = null;
+        window._pendingRemainingFiles = null;
+        $(document).off('ajaxSend.OtherChargeImage').on('ajaxSend.OtherChargeImage', function (event, xhr, settings) {
+            if (settings.url && settings.url.indexOf('DoActionData/SaveChange') > -1) {
+                try {
+                    var $activeForm = $('form[id^="CreateOtherCharge"]').last();
+
+                    // Capture new files from the active input
+                    var fi = $activeForm.find('input[name="OtherChargeImage"]')[0];
+                    if (fi && fi.files && fi.files.length > 0) {
+                        var dt = new DataTransfer();
+                        for (var i = 0; i < fi.files.length; i++) {
+                            dt.items.add(fi.files[i]);
+                        }
+                        window._pendingOtherChargeFiles = dt;
+                    }
+
+                    // Capture existing images that the user has NOT removed (before modal closes)
+                    var remaining = [];
+                    $activeForm.find('.imageuploadify-container[data-existing-filename]').each(function () {
+                        remaining.push($(this).attr('data-existing-filename'));
+                    });
+                    window._pendingRemainingFiles = remaining;
+                } catch (e) { }
+            }
+        });
+
+        // Trigger upload after save completes
+        $(document).off('ajaxComplete.OtherChargeImage').on('ajaxComplete.OtherChargeImage', function (event, xhr, settings) {
+            if (settings.url && settings.url.indexOf('DoActionData/SaveChange') > -1) {
+                try {
+                    var response = xhr.responseJSON;
+                    if (response && response.Data && parseInt(response.Data) > 0) {
+                        var msg = response.Message || '';
+                        if (msg.indexOf('inserted successful') > -1 || msg.indexOf('updated successful') > -1) {
+                            UploadOtherChargeImage(response.Data);
+                        }
+                    }
+                } catch (e) { }
+            }
+        });
+    });
+
+    function renderExistingImages(files) {
+        var $activeForm = $('form[id^="CreateOtherCharge"]').last();
+        var $imagesList = $activeForm.find('.imageuploadify-images-list');
+        var width       = $activeForm.find('.imageuploadify').width() || 500;
+        var boxesNb     = Math.floor(width / 100) || 4;
+        var marginSize  = Math.floor((width - (boxesNb * 100)) / (boxesNb + 1)) || 20;
+
+        files.forEach(function (fileName) {
+            if (!fileName || !fileName.trim()) return;
+            fileName = fileName.trim();
+            
+            var filePath = fileName;
+            if (fileName.indexOf('http://') !== 0 && fileName.indexOf('https://') !== 0 && fileName.indexOf('/') !== 0) {
+                filePath = '/Uploads/Services/' + fileName;
+            }
+            
+            var baseName = fileName.substring(fileName.lastIndexOf('/') + 1);
+            var cleanName = baseName.indexOf('_') !== -1
+                ? baseName.substring(baseName.indexOf('_') + 1)
+                : baseName;
+
+            var $container = $('<div class="imageuploadify-container" data-existing-filename="' + fileName + '">' +
+                '<button type="button" class="btn btn-danger fa-solid fa-circle-xmark" onclick="removeExistingImage(this)"></button>' +
+                '<div class="imageuploadify-details"><span title="' + cleanName + '">' + cleanName + '</span></div>' +
+                '<img src="' + filePath + '" style="max-width:100px;max-height:100px;object-fit:contain;">' +
+                '</div>');
+
+            $container.css('margin-left', marginSize + 'px');
+            $container.find('.imageuploadify-details').hover(
+                function () { $(this).css('opacity', '1'); },
+                function () { $(this).css('opacity', '0'); }
+            );
+            $imagesList.append($container);
+        });
+    }
+
+    function removeExistingImage(btn) {
+        $(btn).closest('.imageuploadify-container').remove();
+    }
+
+    function UploadOtherChargeImage(identityId) {
+        var pvFromServer = parseInt('@ViewBag.PrimaryFieldValue') || 0;
+        var id = (parseInt(identityId) > 0) ? parseInt(identityId) : pvFromServer;
+
+        if (id <= 0) {
+            $("[id^='CloseModal']").click();
+            return;
+        }
+
+        var filesToUpload = window._pendingOtherChargeFiles ? window._pendingOtherChargeFiles.files : null;
+        window._pendingOtherChargeFiles = null; // reset after use
+
+        // Use the remaining files captured before modal closed (scanning DOM here is too late)
+        var remainingFiles = window._pendingRemainingFiles || [];
+        window._pendingRemainingFiles = null; // reset after use
+        var remainingFilesStr = remainingFiles.join(',');
+
+        var hasNewFiles = filesToUpload && filesToUpload.length > 0;
+        var hasRemaining = remainingFiles.length > 0;
+
+        // If there are no files to upload and no files to keep, we still want to hit the server to delete all images
+        var formData = new FormData();
+        formData.append('id', id);
+        formData.append('remainingFiles', remainingFilesStr);
+        if (hasNewFiles) {
+            for (var i = 0; i < filesToUpload.length; i++) {
+                formData.append('files', filesToUpload[i]);
+            }
+        }
+
+        $.ajax({
+            url: '/AddOtherCharge/UploadImage',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Result !== 1) {
+                    alert('Image save error: ' + response.Message);
+                }
+                $("[id^='CloseModal']").click();
+            },
+            error: function (xhr) {
+                alert('Image upload failed to reach server. Status: ' + xhr.status + ' - ' + xhr.responseText);
+                $("[id^='CloseModal']").click();
+            }
+        });
+    }
+</script>

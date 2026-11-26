@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowRequestFormInvoice(VendorID, RequestFormID, ReqeustNumber, Type) {
+        var URL = `Profile/InvoiceTMPRequestForm?VendorID=${VendorID}&RequestFormID=${RequestFormID}&Type=${Type}`;
+        ShowDialogBox("Preview Request Form No.: " + ReqeustNumber, "Auto", "500", URL);
+    }
+</script>

@@ -1,0 +1,111 @@
+﻿@{ Layout = null;}
+
+<div class="row">
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box bg-info">
+            <span class="info-box-icon"><i class="fa-light fa-file-invoice-dollar"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Credit Note#</span>
+                <span class="info-box-number">@ViewBag.CreditNoteNo</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 100%"></div>
+                </div>
+                <span class="progress-description">
+                    Available Credits: @ViewBag.InvoiceAmount
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLSearchForm)
+    </div>
+</div>
+<div class="row justify-content-end pr-5 pt-3">
+    <div class="col-9">&nbsp;</div>
+    <div class="col-3 rounded bg-gray-light p-2 shadow">
+        <div class="row p-2">
+            <div class="col">
+                Credits Applied:
+            </div>
+            <div class="col text-right">
+                <span id="sCreditsApplied">0.00</span>
+            </div>
+        </div>
+        <div class="row p-2">
+            <div class="col">
+                <label>Remaining Credits:</label>
+            </div>
+            <div class="col text-right">
+                <label>
+                    <span id="sRemainingCredits">@ViewBag.InvoiceAmount</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var CreditNoteNo = "@ViewBag.CreditNoteNo";
+    var CustomerName = "@ViewBag.CustomerName";
+    var CustomerID = "@ViewBag.CustomerID";
+    var RemainingCredits = accounting.unformat("@ViewBag.InvoiceAmount");
+    $(function () {
+        var TotalCreditToApply = 0;
+        $("input[name=CreditstoApply]").keyup(function () {
+            var InvoiceBalance = accounting.unformat($(this).closest("tr").find("td:eq(4)").html());
+            TotalCreditToApply = 0;
+            RemainingCredits = accounting.unformat("@ViewBag.InvoiceAmount");
+            if (accounting.unformat($(this).val()) > InvoiceBalance) {
+                $(this).val(InvoiceBalance);
+            }
+            $("input[name=CreditstoApply]").each(function (key, value) {
+                TotalCreditToApply += accounting.unformat($(this).val());
+            });
+            $("#sCreditsApplied").html(accounting.formatNumber(TotalCreditToApply, '2'));
+            RemainingCredits = RemainingCredits - accounting.unformat(TotalCreditToApply);
+            $("#sRemainingCredits").html(accounting.formatNumber(RemainingCredits, '2'));            
+        });
+        $("#SaveChange2").click(function () {
+            if (TotalCreditToApply == 0) {
+                DialogSweetAlert("error", "Please enter the credits to be applied to invoice(s).");
+                return false;
+            }
+            else if (RemainingCredits < 0) {
+                DialogSweetAlert("error", "The credits applied is more than the credit note balance.");
+                return false;
+            }
+            var Data = [];
+            $("input[name=CreditstoApply]").each(function (key, value) {
+                var InvoiceAmount = accounting.unformat($(this).closest("tr").find("td:eq(3)").html());
+                var InvoiceBalance = accounting.unformat($(this).closest("tr").find("td:eq(4)").html());
+                var InvoiceNo = $(this).closest("tr").find("td:eq(1)").html();
+                var PaymentAmount = accounting.unformat(($(this).val() == "" ? "0" : $(this).val()));
+                if (PaymentAmount != 0) {
+                    var obj = {
+                        CreditNoteNo: CreditNoteNo,
+                        CustomerID: CustomerID,
+                        CustomerName: CustomerName,
+                        InvoiceNo: InvoiceNo,
+                        PaymentAmount: PaymentAmount,
+                        InvoiceAmount: InvoiceAmount,
+                        InvoiceBalance: InvoiceBalance
+                    };
+                    Data.push(obj);
+                }
+            });
+            Data = { Data: JSON.stringify(Data) };
+            DoSaveChangeData("CustomerProfile/SaveChangeApplyCreditToInvoice", Data, function (response) {
+                $("#CloseModal2").click();                
+                LoadCustInvoice(CustomerID);
+                setTimeout(function () {
+                    $("#CreditNotes-tab").click();
+                }, 500);
+            });
+        });
+    });
+</script>

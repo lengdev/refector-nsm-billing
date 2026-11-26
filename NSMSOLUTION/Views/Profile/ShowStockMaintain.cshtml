@@ -1,0 +1,27 @@
+﻿@{ Layout = null;}
+<div class="row table-sm mt-3">
+    <div class="col-md-12 col-lg-4 table-responsive">
+        <div class="card card-success card-outline">
+            <h5 class="card-header">Stock IN Report</h5>
+            <div class="card-body">                
+                @Html.Raw(ViewBag.STOCKInMaintain)
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-4 table-responsive">
+        <div class="card card-success card-outline">
+            <h5 class="card-header">Stock OUT Report</h5>
+            <div class="card-body">                
+                @Html.Raw(ViewBag.STOCKOutMaintain)
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-4 table-responsive">
+        <div class="card card-success card-outline">
+            <h5 class="card-header">Stock Available Report</h5>
+            <div class="card-body">                
+                @Html.Raw(ViewBag.NetSTOCKMaintain)
+            </div>
+        </div>
+    </div>
+</div>

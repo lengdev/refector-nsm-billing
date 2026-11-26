@@ -1,0 +1,78 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.CboRouterID)
+    </div>
+</div>
+<div class="row p-3">
+    <div class="col">
+        <div id="packagelist"></div>
+    </div>
+</div>
+<script>
+    $("#CboRouterID").select2().on("change", function (e) {
+        let id = $(this).val();
+        PostData("RADIUS/GetPackageName", {
+            RouterIP: id
+        }, function (response) {
+            if (JSON.parse(response).Data != "") {
+                var ProfileLimitation = JSON.parse(response).ProfileLimitation;
+                response = JSON.parse(JSON.parse(response).Data);
+                let row = `<table id="tblShowPPPoEPackageList" class="table table-bordered text-nowrap" width="100%" cellspacing="0" cellpadding="5" border="0">
+<thead>
+<tr class="header"><th>#</th><th>Package Name</th><th>Action</th></tr></thead><tbody>`;
+                $.each(response, function (key, val) {                    
+                    row += "<tr>";
+                    row += "<td align=\"right\">" + (key + 1) + "</td><td><a href=\"javascript:void(0);\" onclick=\"ShowPPPoEUserByPackage('" + val.Words[".id"] + "','" + val.Words.name + "');\">" + val.Words.name + "</a> Validity: " + val.Words.validity + "</td>";
+                    row += `<td align="center"><a onclick="deleteProfile(` + id + `,'` + val.Words[".id"] + `', this);" name="Delete" class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete" alt="Delete"><i class="fa fa-trash"></i></a></td>`;
+                    row += "</tr>";
+                    if (ProfileLimitation != "") {
+                        var ProfileLimitations = ProfileLimitation.filter(function (item) {
+                            if (item.Words["profile"]) {
+                                return item.Words["profile"] == val.Words.name;
+                            }
+                            return "";
+                        });
+                        if (ProfileLimitations.length > 0 && ProfileLimitations != "") {
+                            row += '<tr><td colspan="3">';
+                            row += '<table class="table">';
+                            row += '<thead>';
+                            row += '<tr><th>#</th><th>Limitation Name</th><th>From Time</th><th>Till Time</th><th>weekdays</th><th>Action</th></tr></thead><tbody>';
+                            $.each(ProfileLimitations, function (k, v) {
+                                var comment = "";
+                                if (v.Words["comment"])
+                                    comment = v.Words["comment"];
+                                row += '<tr><td>' + (k + 1) + '</td><td>' + v.Words["limitation"] + '</td><td>' + v.Words["from-time"] + '</td><td>' + v.Words["till-time"] + '</td><td>' + v.Words["weekdays"] + '</td>';
+                                row += `<td align="center"><a onclick="DeleteLimitation(` + id + `,'` + v.Words[".id"] + `', this);" name="Delete" class="btn btn-danger btn-sm" href="javascript:void(0);" title="Delete" alt="Delete"><i class="fa fa-trash"></i></a></td>`;
+                                row += '</tr>';
+                            });
+                            row += '</tbody></table>';
+                            row += '</td></tr>';
+                        }
+                    }
+                });
+                row += "</tbody></table>";
+                $("#packagelist").html(row);
+            }
+            else {
+                $("#packagelist").html('');
+            }
+        });
+    });
+
+    function ShowPPPoEUserByPackage(PackageID, PackageName) {
+        var RouterID = $("#CboRouterID").val();
+        ModalDialogBox("Package Name: " + PackageName, "RADIUS/ShowPPPoEUserUsingPackage", { RouterID: RouterID, PackageID: PackageID, PackageName: PackageName }, "", "", "", "", true);
+    }
+
+    function deleteProfile(RouterID,id, THIS) {
+        DoSaveChangeSweetCofirm("RADIUS/DeleteProfileName", { RouterID: RouterID, ProfileID: id }, function (response) {
+            $(THIS).closest("tr").remove();
+        });
+    }
+    function DeleteLimitation(RouterID, id, THIS) {
+        DoSaveChangeSweetCofirm("RADIUS/DeleteProfileLimitation", { RouterID: RouterID, ProfileID: id }, function (response) {
+            $(THIS).closest("tr").remove();
+        });
+    }
+</script>

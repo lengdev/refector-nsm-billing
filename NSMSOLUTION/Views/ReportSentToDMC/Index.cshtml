@@ -1,0 +1,137 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<style>
+    .preview-wrapper button{
+        margin-right: 10px;
+    }
+    .select2-container--bootstrap4 .select2-selection--single {
+        background: #fff !important;
+        height: calc(1.6em + .75rem + 2px) !important;
+    }
+</style>
+
+<div class="tabs-showcase">
+    <div class="tabs-showcase__container">
+        <h1 class="tabs-showcase__title">All Report To DMC</h1>
+        <div class="tabs-showcase__card">
+            <div class="tabs-showcase__grid">
+                <!-- Gray Tabs -->
+                <div class="tabs-showcase__item">
+                    <div class="tab-group" data-variant="gray">
+                        <div class="tab-container tab-container--gray">
+                            <div class="tab-list">
+                                <button class="tab-item tab-item--gray active" data-tab-index="daily-invoice">Daily Invoice</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="invoice-summary">Invoice Summary</button>
+                                <button class="tab-item tab-item--gray" data-tab-index="customer-info-list">Customer Info List</button>
+                            </div>
+                        </div>
+                        <div class="tab-content tab-content--gray">First Tab</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        // Create button preview
+        const btnPreview = $(`
+            <div class="mx-2 d-inline preview-wrapper">
+                <button type="button" class="btn btn-info preview-csv">
+                    <i class="ti ti-download"></i>
+                    <span>Preview CSV</span>
+                </button>
+            </div>
+        `);
+        const btnPreviewUpload = $(`
+            <button type="button" class="btn btn-secondary preview-upload">
+                <i class="ti ti-download"></i>
+                <span>Preview Upload</span>
+            </button>
+        `);
+
+        // Append preview button after search btn
+        const showPreview = () => {
+            $('#BunSearch').after(btnPreview);
+        };
+        const showPreviewUpload = () => {
+            $('.preview-csv').after(btnPreviewUpload);
+        };
+
+        // Load invoice summary content
+        const getInvoiceSummary = async () => {
+            return await new Promise(resolve => {
+                PostData(`ReportSentToDMC/LoadInvoiceSummary`, "", res => resolve(res));
+            });
+        };
+
+        // Load customer info list
+        const getCustomerInfo = async () => {
+            return await new Promise(resolve => {
+                PostData(`ReportSentToDMC/LoadCustomerInfoList`, "", res => resolve(res));
+            });
+        };
+
+        // Load daily invoice
+        const getDailyInvoice = async () => {
+            return await new Promise(resolve => {
+                PostData(`ReportSentToDMC/DailyInvoice`, "", res => resolve(res));
+            });
+        };
+
+        // Tabs content action
+        const tabContents = {
+            "daily-invoice": getDailyInvoice,
+            "invoice-summary": getInvoiceSummary,
+            "customer-info-list": getCustomerInfo,
+        };
+
+        $('.tab-group').each(function () {
+            const $group = $(this);
+            const $buttons = $group.find('.tab-item');
+            const $contentDiv = $group.find('.tab-content');
+
+            $buttons.on('click', async function () {
+
+                $buttons.removeClass('active');
+                $(this).addClass('active');
+
+                const tabIndex = $(this).data('tab-index');
+                
+                // Download CSV
+                $(document).on('click', '.preview-csv', function () {
+                    window.location.href = `/api/dmc-report/${tabIndex}`;
+                });
+                $(document).on('click', '.preview-upload', function () {
+                    window.location.href = `/api/dmc-report/customer-info-list?upload=true`;
+                });
+
+                const handler = tabContents[tabIndex];
+                destroyKendoWidgets($contentDiv);
+                try {
+                    $contentDiv.html("Loading...");
+                    const result = await handler();
+                    $contentDiv.html(result);
+                    if (tabIndex !== 'daily-invoice') showPreview();
+                    if (tabIndex === 'customer-info-list') {
+                        showPreviewUpload();
+                    } else {
+                        $('.preview-upload').remove();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    $contentDiv.html("Error loading content");
+                }
+            });
+        });
+
+        // Initial tab load
+        $('.tab-group .tab-item.active').click();
+    });
+</script>
+
+

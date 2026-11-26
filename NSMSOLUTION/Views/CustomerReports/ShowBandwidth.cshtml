@@ -1,0 +1,30 @@
+﻿@{ Layout = null; }
+<div id="divshowbandwidth">
+
+</div>
+<script>
+    var Data = JSON.parse(`@Html.Raw(ViewBag.Data)`);
+    $(function () {
+        if (Data.length > 0) {
+            Data = Data[0].Table;
+            var row = '<div class="row">';
+            $.each(Data, function (key, value) {
+                row += `<div class="col-md col-sm-6 col-12">
+        <a onclick="ShowCusotmerByBandwidth(`+ value.Bandwidth + `)" href="javascript:void(0);">
+    <div class="info-box">
+        <span class="info-box-icon bg-success"><i class="ion ion-stats-bars"></i></span>
+        <div class="info-box-content">
+            <span><span class="badge badge-primary">`+ accounting.formatNumber(value.Bandwidth, 0) + ` Mbps</span></span>
+            <span class="info-box-number" title="Customer"><span class="badge bg-teal color-palette">`+ accounting.formatNumber(value.Connection, 0) + `</span></span>
+        </div>
+    </div></a>
+</div>`;
+                if (key == 0) {
+                    ShowCusotmerByBandwidth(value.Bandwidth);
+                }
+            });
+            row += '</div>';
+            $("#divshowbandwidth").html(row);
+        }
+    });
+</script>

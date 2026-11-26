@@ -1,0 +1,211 @@
+﻿@{ Layout = null; }
+<div class="toolbar">
+    <input type="text" id="searchBox" placeholder="Search account..." />
+    <button id="expandAllBtn">Expand All</button>
+    <button id="collapseAllBtn">Collapse All</button>
+    <div id="totals">Total Debit: 0.00 | Total Credit: 0.00</div>
+</div>
+
+<div id="trialBalanceTreeList"></div>
+
+<style>
+    .toolbar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    #searchBox {
+        padding: 5px 10px;
+        width: 250px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    #expandAllBtn, #collapseAllBtn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        background-color: #f1f1f1;
+    }
+
+        #expandAllBtn:hover, #collapseAllBtn:hover {
+            background-color: #e0e0e0;
+        }
+
+    #totals {
+        font-weight: bold;
+        text-align: right;
+        min-width: 200px;
+    }
+
+    #trialBalanceTreeList .k-grid-header {
+        background: #f1f1f1;
+    }
+
+    #trialBalanceTreeList .k-grid-content tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .highlight {
+        background-color: #fffa90;
+    }
+
+    .debit-cell {
+        color: green;
+        font-weight: bold;
+    }
+
+    .credit-cell {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+$(document).ready(function () {
+
+    var dataSource = new kendo.data.TreeListDataSource({
+        transport: {
+            read: {
+                url: '@Url.Action("GetHierarchyTrialBalance", "Account")',
+                dataType: "json"
+            }
+        },
+        schema: {
+            data: "data",
+            model: {
+                id: "AccountNo",
+                parentId: "ParentAccountNo",
+                fields: {
+                    AccountNo: { type: "string" },
+                    ParentAccountNo: { type: "string", nullable: true },
+                    AccountNameIndented: { type: "string" },
+                    AccountCategory: { type: "string" },
+                    DebitBalance: { type: "number", defaultValue: 0 },
+                    CreditBalance: { type: "number", defaultValue: 0 },
+                    NormalSide: { type: "string" }
+                },
+                expanded: true
+            }
+        }
+    });
+
+    var treeList = $("#trialBalanceTreeList").kendoTreeList({
+        dataSource: dataSource,
+        height: 600,
+        sortable: true,
+        toolbar: ["excel"],
+        excel: {
+            fileName: "HierarchyTrialBalance.xlsx",
+            allPages: true
+        },
+        columns: [
+            { field: "AccountNameIndented", title: "Account Name", width: 300 },
+            { field: "AccountNo", title: "Account No", width: 120 },
+            { field: "AccountCategory", title: "Category", width: 120 },
+            {
+                field: "DebitBalance",
+                title: "Debit",
+                width: 150,
+                template: '<span class="debit-cell">#: kendo.toString(DebitBalance,"n2") #</span>',
+                attributes: { style: "text-align:right;" }
+            },
+            {
+                field: "CreditBalance",
+                title: "Credit",
+                width: 150,
+                template: '<span class="credit-cell">#: kendo.toString(CreditBalance,"n2") #</span>',
+                attributes: { style: "text-align:right;" }
+            },
+            { field: "NormalSide", title: "Side", width: 100 }
+        ],
+        dataBound: function () {
+            // compute totals
+            var totalDebit = 0;
+            var totalCredit = 0;
+
+            function sumTree(items) {
+                items.forEach(function(item) {
+                    totalDebit += item.DebitBalance || 0;
+                    totalCredit += item.CreditBalance || 0;
+                    if (item.hasChildren && item.children && item.children.data().length > 0) {
+                        sumTree(item.children.data());
+                    }
+                });
+            }
+
+            sumTree(dataSource.view());
+            $("#totals").html(
+                "Total Debit: " + kendo.toString(totalDebit, "n2") +
+                " | Total Credit: " + kendo.toString(totalCredit, "n2")
+            );
+        }
+    }).data("kendoTreeList");
+
+    // ----------------------
+    // Hierarchical Search
+    // ----------------------
+    $("#searchBox").on("input", function() {
+        var searchValue = $(this).val().toLowerCase();
+
+        function filterTree(items) {
+            var anyVisible = false;
+
+            items.forEach(function(item) {
+                var match = item.AccountNameIndented.toLowerCase().includes(searchValue);
+                var childVisible = false;
+
+                if (item.hasChildren && item.children && item.children.data().length > 0) {
+                    childVisible = filterTree(item.children.data());
+                }
+
+                // Show row if match or any child is visible
+                var row = treeList.tbody.find("tr[data-uid='" + item.uid + "']");
+                row.toggle(match || childVisible);
+
+                // Highlight if match
+                row.toggleClass("highlight", match);
+
+                if (match || childVisible) anyVisible = true;
+            });
+
+            return anyVisible;
+        }
+
+        filterTree(dataSource.view());
+    });
+
+    // ----------------------
+    // Expand / Collapse All
+    // ----------------------
+    $("#expandAllBtn").click(function() {
+        function expandAll(items) {
+            items.forEach(function(item) {
+                treeList.expand(treeList.tbody.find("tr[data-uid='" + item.uid + "']"));
+                if (item.hasChildren && item.children && item.children.data().length > 0) {
+                    expandAll(item.children.data());
+                }
+            });
+        }
+        expandAll(dataSource.view());
+    });
+
+    $("#collapseAllBtn").click(function() {
+        function collapseAll(items) {
+            items.forEach(function(item) {
+                treeList.collapse(treeList.tbody.find("tr[data-uid='" + item.uid + "']"));
+                if (item.hasChildren && item.children && item.children.data().length > 0) {
+                    collapseAll(item.children.data());
+                }
+            });
+        }
+        collapseAll(dataSource.view());
+    });
+
+});
+</script>

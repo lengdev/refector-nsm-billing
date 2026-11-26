@@ -1,0 +1,28 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showDNForm(salesId, statusId, soNumber, saleType) {
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox("Preview DN Form No.: " + soNumber, "Auto", "500", URL, "", "", "", "", "", function () {
+            if (statusId == "90") {
+                let btn = "<div class=\"\"><button type=\"button\" onclick=\"CancelDN();\" id=\"CancelDN\" class=\"btn btn-danger\">";
+                btn += `<i class="ti ti-circle-dashed-x"></i> Cancel This DN</button></div>`;
+                $("#SaveChange").before(btn);
+            } 
+        });
+    }
+    function CancelDN() {
+        let Type = "DeliveryNote";
+        let btnTitle = "Save";
+        DoSaveChangeSweetCofirm("Sales/ApproveSales", { ID: PrimaryFieldValue, StatusID: 94, Type: Type, Comment: $("#txtComment").val() }, function (result) {
+            if (result.Result == 2) {
+                $("#CloseModal").click();
+                $("#BunSearch").click();
+                //$("#BtnSearchVendorPO").click();
+                LoadTableGrid(CurrentPage);
+            }
+        }, "", "", btnTitle);
+    }
+</script>

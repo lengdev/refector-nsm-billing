@@ -1,0 +1,121 @@
+﻿@{ Layout = null;}
+@*@Html.Raw(ViewBag.DrawHTMLSearchForm)*@
+
+<section>
+    <div class="row">
+        <div class="col">
+            <h3 class="text-center card-header mb-3">@ViewBag.ProjectName</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <div id="divShowProjectSuDetail"></div>
+        </div>
+        <div class="col-6">
+            <div id="divShowProjectPDetail"></div>
+        </div>
+    </div>
+
+</section>
+<script>
+    var ProjectName = "@ViewBag.ProjectName";
+    var Data = `@Html.Raw(@ViewBag.Data)`;
+    $(function () {        
+        Data = JSON.parse(Data.replace(/(^\"|\"$)/g, ''));
+        var Table = Data.Table;
+        var Table2 = Data.Table2;
+        var Table3 = Data.Table3;
+        var row = '<div class="row"><div class="col-12">';
+        row += '<div class="card card-primary card-outline">';
+        //row += `<div class="card-header">
+        //        <h3 class="card-title">
+        //        <i class="far fa-file-alt mr-1"></i> Subject
+        //        </h3>
+        //      </div>`;
+        row += '<dic class="card-body box-profile">';
+        row += `<div class="text-center">
+                  <h3 class="profile-username text-center text-uppercase">Subjects</h3>
+                </div>`;
+        row +='<ul class="list-group list-group-unbordered mb-3">';
+        $.each(Table, function (key, val) {
+            row += `<li class="list-group-item btn btn-block btn-outline-light text-left p-2">
+                    <div><b><a href="javascript:void(0);" onclick="ShowSubjectDetailByProID('`+ ProjectName + `', ` + val.SupportProjectID + `, '` + val.Subject + `');"><h4>` + val.Subject + ' <small class="badge bg-danger p-1">' + val.CountSubject + `</small></h4></a></b>`;
+            //row += `<span class="float-right badge bg-danger p-2">` + val.CountSubject + `</span></div>`;
+            row += '</div>';
+            if (val.CountCustomer != 0) {
+                row += `<div class="row mt-3 mb-3"><div class="col">`;
+                row += `<a href="javascript:void(0);" onclick="ShowByCustomer('` + ProjectName + `', ` + val.SupportProjectID + `, '` + val.Subject + `', '');">`;
+                //row += '<h5 class="badge bg-info p-2">Customer: ' + val.CountCustomer + '</h5>';
+                row += '</a></div></div>';
+            }
+            var DS = Table2.filter(function (value) {
+                return value.Subject == val.Subject;
+            });            
+            row += '<div class="row">';
+            $.each(DS, function (k, v) {
+                row += `<div class="col-auto"><a href="javascript:void(0);" onclick="ShowSubjectDetailByProID('` + ProjectName + `', ` + val.SupportProjectID + `, '` + val.Subject + `',` + v.StatusID + `);"><span style="color:white !important;" class="badge bg-primary">` + v.Status + ' ' + v.CountStatus + `</span></a></div>`;
+            });
+            row += '</div>';
+            row += '<div class="row"><div class="col">';
+            //row += 'Customer: ' + val.CountCustomer;            
+            row += '</div></div>';
+            row += '</li>';
+        });
+        row += '</ul></div></div></div></div>';
+        $("#divShowProjectSuDetail").html(row);
+
+        var Table1 = Data.Table1;
+        var row = '<div class="row"><div class="col-12">';
+        row += '<div class="card card-info card-outline">';
+        //row += `<div class="card-header">
+        //        <h3 class="card-title">
+        //        <i class="far fa-file-alt mr-1"></i> Problem Type
+        //        </h3>
+        //      </div>`;
+        row += '<dic class="card-body box-profile">';
+        row += `<div class="text-center">
+                  <h3 class="profile-username text-center text-uppercase">Problem Types</h3>
+                </div>`;
+        row += '<ul class="list-group list-group-unbordered mb-3">';
+        $.each(Table1, function (key, val) {
+            row += `<li class="list-group-item btn btn-block btn-outline-light text-left p-2">
+                    <b><a href="javascript:void(0);" onclick="ShowSubjectDetailByProID('`+ ProjectName + `', ` + val.SupportProjectID + `, '',0,'` + val.ProblemType + `');"><h4>` + val.ProblemType + ` <small class="badge bg-danger p-1">` + val.CountProblemType + `</small></h4></a></b>`;
+            //row += `<span class="float-right badge bg-danger p-2">` + val.CountProblemType + `</span>`;
+            if (val.CountCustomer != 0) {
+                row += `<div class="row mt-3 mb-3"><div class="col">`;
+                row += `<a href="javascript:void(0);" onclick="ShowByCustomer('` + ProjectName + `', ` + val.SupportProjectID + `, '', '` + val.ProblemType + `');">`;
+                //row += '<h5 class="badge bg-info p-2">Customer: ' + val.CountCustomer + '</h5>';
+                row += '</a></div></div>';
+            }
+            row += '<div class="row">';
+            var DS = Table3.filter(function (value) {
+                return value.ProblemType == val.ProblemType;
+            }); 
+            $.each(DS, function (k, v) {
+                row += `<div class="col-auto"><a href="javascript:void(0);" onclick="ShowSubjectDetailByProID('` + ProjectName + `', ` + val.SupportProjectID + `, '',` + v.StatusID + `,'` + val.ProblemType +`');"><span style="color:white !important;" class="badge bg-info">` + v.Status + ' ' + v.CountStatus + `</span></a></div>`;
+            });
+            row += '</div>';
+            row += '</li>';
+        });
+        row += '</ul></div></div></div></div>';
+        $("#divShowProjectPDetail").html(row);
+        $("a[name=accordion]").click(function (e) {
+            e.preventDefault();
+        });
+    });
+    function ShowSubjectDetailByProID(ProjectName, ProjectID, Subject, StatusID, ProblemType) {
+        Subject = (typeof Subject == "undefined" ? "" : Subject);
+        StatusID = (typeof StatusID == "undefined" ? "0" : StatusID);
+        ProblemType = (typeof ProblemType == "undefined" ? "" : ProblemType);
+        ShowDialogBox2("Project Name: " + ProjectName, "Auto", "500", "Tickets/ProjectStatus?StatusID=" + StatusID + "&ProjectID=" + ProjectID + "&Subject=" + Subject + "&ProblemType=" + ProblemType, 0, "dialogShowSubjectDetailByProID", function (result) {
+            $("#SaveChange2").remove();
+        });
+    }
+    function ShowByCustomer(ProjectName, ProjectID, Subject, ProblemType) {
+        Subject = (typeof Subject == "undefined" ? "" : Subject);
+        ProblemType = (typeof ProblemType == "undefined" ? "" : ProblemType);
+        ShowDialogBox2("Project Name: " + ProjectName, "Auto", "500", "Tickets/ShowByCustomer?ProjectName=" + ProjectName +"&ProjectID=" + ProjectID + "&Subject=" + Subject + "&ProblemType=" + ProblemType, 0, "dialogShowByCustomer", function (result) {
+            $("#SaveChange2").remove();
+        });
+    }
+</script>

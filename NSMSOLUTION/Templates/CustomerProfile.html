@@ -1,0 +1,2343 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sopheap Chan — ISP Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --bg2: #eef0f7;
+            --surface: #ffffff;
+            --surface2: #f8f9fc;
+            --surface3: #f0f2f8;
+            --border: #e4e7f0;
+            --border2: #cdd2e4;
+            --text: #141928;
+            --text2: #5a6282;
+            --text3: #9ba3c0;
+            --accent: #3b62f5;
+            --accent2: #2a4fe0;
+            --accent-light: #eff3ff;
+            --green: #0ea871;
+            --green-bg: #edfaf5;
+            --red: #e63c5e;
+            --red-bg: #fff0f3;
+            --amber: #e8910a;
+            --amber-bg: #fff8ec;
+            --purple: #7c51eb;
+            --shadow-sm: 0 1px 3px rgba(20,25,40,0.06), 0 1px 2px rgba(20,25,40,0.04);
+            --shadow: 0 2px 8px rgba(20,25,40,0.08), 0 1px 3px rgba(20,25,40,0.05);
+            --shadow-lg: 0 8px 32px rgba(20,25,40,0.1), 0 2px 8px rgba(20,25,40,0.06);
+            --radius: 10px;
+            --radius-lg: 14px;
+            --font: 'DM Sans', sans-serif;
+            --mono: 'DM Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--accent);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 99px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--text3);
+            }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-brand {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(59,98,245,0.35);
+        }
+
+        .topbar-sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--text3);
+        }
+
+            .breadcrumb a {
+                color: var(--text2);
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    color: var(--text);
+                }
+
+            .breadcrumb i {
+                font-size: 11px;
+            }
+
+        .topbar-search {
+            flex: 1;
+            max-width: 300px;
+            margin-left: .5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 6px 12px;
+            cursor: text;
+            transition: all 0.18s;
+        }
+
+            .topbar-search:hover {
+                border-color: var(--accent);
+                background: #fff;
+                box-shadow: 0 0 0 3px var(--accent-light);
+            }
+
+            .topbar-search i {
+                font-size: 15px;
+                color: var(--text3);
+            }
+
+            .topbar-search span {
+                font-size: 13px;
+                color: var(--text3);
+            }
+
+            .topbar-search kbd {
+                margin-left: auto;
+                font-size: 10px;
+                color: var(--text3);
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 5px;
+                padding: 1px 6px;
+                font-family: var(--mono);
+            }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 17px;
+            position: relative;
+        }
+
+            .icon-btn:hover {
+                background: var(--surface3);
+                border-color: var(--border);
+                color: var(--text);
+            }
+
+        .notif-dot {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--red);
+            border: 2px solid var(--surface);
+        }
+
+        .topbar-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #dbe4ff, #ede9ff);
+            border: 1px solid var(--border2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--accent);
+            cursor: pointer;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 500px;
+                height: 100%;
+                background: linear-gradient(135deg, transparent 60%, rgba(59,98,245,0.03) 100%);
+                pointer-events: none;
+            }
+
+        .hero-inner {
+            max-width: 1340px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 0;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.3s ease both;
+        }
+
+        .hero-top {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 74px;
+            height: 74px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #dbe4ff 0%, #ede9ff 100%);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            letter-spacing: -1px;
+            box-shadow: var(--shadow);
+        }
+
+            .avatar:hover {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 4px var(--accent-light);
+            }
+
+        .avatar-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(59,98,245,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.18s;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .status-pill {
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--green-bg);
+            border: 1px solid rgba(14,168,113,0.3);
+            color: var(--green);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 99px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pulse {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(14,168,113,0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 5px rgba(14,168,113,0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(14,168,113,0);
+            }
+        }
+
+        .hero-meta {
+            flex: 1;
+            min-width: 0;
+            padding-top: 4px;
+        }
+
+        .hero-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.6px;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cust-id {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text3);
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 8px;
+            letter-spacing: 0.5px;
+            font-family: var(--mono);
+        }
+
+        .hero-sub {
+            font-size: 13px;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            padding: 3px 9px;
+            border-radius: 7px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+            .badge i {
+                font-size: 12px;
+            }
+
+        .badge-blue {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: rgba(59,98,245,0.2);
+        }
+
+        .badge-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border-color: rgba(14,168,113,0.2);
+        }
+
+        .badge-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border-color: rgba(230,60,94,0.2);
+        }
+
+        .badge-amber {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border-color: rgba(232,145,10,0.2);
+        }
+
+        .badge-neutral {
+            background: var(--surface3);
+            color: var(--text2);
+            border-color: var(--border);
+        }
+
+        .badge-purple {
+            background: #f3f0ff;
+            color: var(--purple);
+            border-color: rgba(124,81,235,0.2);
+        }
+
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .exrate {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            background: var(--amber-bg);
+            border: 1px solid rgba(232,145,10,0.2);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--amber);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .stat {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 16px;
+            text-align: center;
+            min-width: 80px;
+            cursor: default;
+            transition: all 0.15s;
+        }
+
+            .stat:hover {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-light);
+            }
+
+        .stat-val {
+            font-size: 17px;
+            font-weight: 700;
+            font-family: var(--mono);
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+
+            .stat-val.green {
+                color: var(--green);
+            }
+
+            .stat-val.red {
+                color: var(--red);
+            }
+
+        .stat-lbl {
+            font-size: 10px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--surface);
+            color: var(--text2);
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+            .btn i {
+                font-size: 15px;
+            }
+
+            .btn:hover {
+                background: var(--surface3);
+                color: var(--text);
+                border-color: var(--border2);
+                box-shadow: var(--shadow-sm);
+            }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+            .btn-primary:hover {
+                background: var(--accent2);
+                border-color: var(--accent2);
+                color: #fff;
+            }
+
+        .btn-success {
+            background: var(--green-bg);
+            color: var(--green);
+            border-color: rgba(14,168,113,0.3);
+        }
+
+            .btn-success:hover {
+                background: #d5f5ea;
+            }
+
+        .btn-danger {
+            background: var(--red-bg);
+            color: var(--red);
+            border-color: rgba(230,60,94,0.2);
+        }
+
+            .btn-danger:hover {
+                background: #ffe0e7;
+            }
+
+        .btn-amber {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border-color: rgba(232,145,10,0.2);
+        }
+
+            .btn-amber:hover {
+                background: #ffefd0;
+            }
+
+        .btn-ghost {
+            background: transparent;
+            border-color: transparent;
+            color: var(--text3);
+        }
+
+            .btn-ghost:hover {
+                background: var(--surface3);
+                color: var(--text);
+                border-color: var(--border);
+            }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 7px;
+        }
+
+            .btn-sm i {
+                font-size: 13px;
+            }
+
+        /* ── INFO STRIP ── */
+        .info-strip {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            border-top: 1px solid var(--border);
+            margin-top: .25rem;
+        }
+
+        .info-cell {
+            padding: 11px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 1px solid var(--border);
+            transition: background 0.15s;
+            cursor: default;
+        }
+
+            .info-cell:last-child {
+                border-right: none;
+            }
+
+            .info-cell:hover {
+                background: var(--surface2);
+            }
+
+        .info-cell-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: var(--text3);
+            flex-shrink: 0;
+        }
+
+        .info-cell-lbl {
+            font-size: 10px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 1px;
+        }
+
+        .info-cell-val {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── TABS BAR ── */
+        .tabs-bar-wrap {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 56px;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            animation: fadeUp 0.3s 0.05s ease both;
+        }
+
+        .tabs-bar {
+            max-width: 1340px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+            .tabs-bar::-webkit-scrollbar {
+                display: none;
+            }
+
+        .tab {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--text3);
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+            .tab:hover {
+                color: var(--text2);
+            }
+
+            .tab.active {
+                color: var(--accent);
+                border-bottom-color: var(--accent);
+            }
+
+                .tab.active i {
+                    color: var(--accent);
+                }
+
+        .tab-badge {
+            background: var(--red);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 0 5px;
+            border-radius: 99px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 15px;
+        }
+
+        /* ── BODY ── */
+        .body {
+            max-width: 1340px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            animation: fadeUp 0.3s 0.1s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel {
+            display: none;
+        }
+
+            .panel.active {
+                display: block;
+                animation: fadeUp 0.2s ease both;
+            }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: .5rem;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: -0.3px;
+        }
+
+            .card-title i {
+                font-size: 16px;
+                color: var(--text3);
+            }
+
+        .card-title-sm {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: .75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+            .card-title-sm i {
+                font-size: 14px;
+            }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .four-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 0;
+        }
+
+        /* ── SUB TABS ── */
+        .sub-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+            .sub-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+        .sub-tab {
+            padding: 8px 13px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text3);
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: all 0.12s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-bottom: 10px;
+        }
+
+            .sub-tab:hover {
+                color: var(--text2);
+            }
+
+            .sub-tab.active {
+                color: var(--accent);
+                border-bottom-color: var(--accent);
+            }
+
+        .sub-panel {
+            display: none;
+        }
+
+            .sub-panel.active {
+                display: block;
+            }
+
+        /* ── TABLE ── */
+        .tbl-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1.5px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            background: var(--surface2);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background 0.1s;
+        }
+
+            tbody tr:hover td {
+                background: var(--surface2);
+            }
+
+        .td-mono {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .td-link {
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
+            .td-link:hover {
+                text-decoration: underline;
+            }
+
+        /* ── FIELDS ── */
+        .field {
+            margin-bottom: .85rem;
+        }
+
+        .field-lbl {
+            font-size: 10.5px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .field-val {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 400;
+        }
+
+            .field-val.mono {
+                font-family: var(--mono);
+                font-size: 12.5px;
+            }
+
+        /* ── SERVICE CARDS ── */
+        .svc-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: .9rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .svc-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: linear-gradient(180deg, var(--accent), var(--purple));
+                border-radius: 4px 0 0 4px;
+            }
+
+            .svc-card.suspended::before {
+                background: var(--red);
+            }
+
+            .svc-card:hover {
+                border-color: var(--accent);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .svc-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: .65rem;
+        }
+
+        .svc-plan {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .svc-detail {
+            font-size: 12.5px;
+            color: var(--text2);
+            margin-top: 2px;
+        }
+
+        .svc-ids {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            color: var(--text3);
+            font-family: var(--mono);
+            margin-top: 5px;
+        }
+
+            .svc-ids a {
+                color: var(--accent);
+            }
+
+        .conn-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            padding: 9px 12px;
+            margin-bottom: .75rem;
+        }
+
+            .conn-info span {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 12.5px;
+                color: var(--text2);
+            }
+
+                .conn-info span b {
+                    color: var(--text);
+                    font-family: var(--mono);
+                    font-weight: 500;
+                }
+
+        .progress {
+            height: 5px;
+            background: var(--surface3);
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 6px 0 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            transition: width 0.8s ease;
+        }
+
+        .svc-meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: var(--text2);
+            margin-top: 6px;
+            align-items: center;
+        }
+
+            .svc-meta span b {
+                color: var(--text);
+                font-weight: 600;
+            }
+
+        .svc-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: .8rem;
+            padding-top: .8rem;
+            border-top: 1.5px solid var(--border);
+            align-items: center;
+        }
+
+        .auto-lock {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--text2);
+            margin-left: auto;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+            .toggle input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--border2);
+            border-radius: 20px;
+            transition: .2s;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: var(--accent);
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: .2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+
+        /* ── TICKETS ── */
+        .ticket-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .ticket-item:last-child {
+                border-bottom: none;
+            }
+
+        .ticket-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 17px;
+        }
+
+            .ticket-dot.open {
+                background: var(--red-bg);
+                color: var(--red);
+            }
+
+            .ticket-dot.inprogress {
+                background: var(--amber-bg);
+                color: var(--amber);
+            }
+
+            .ticket-dot.closed {
+                background: var(--green-bg);
+                color: var(--green);
+            }
+
+        .ticket-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .ticket-meta {
+            font-size: 11.5px;
+            color: var(--text3);
+            margin-top: 3px;
+            font-family: var(--mono);
+        }
+
+        /* ── FILE GRID ── */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: 10px;
+        }
+
+        .file-thumb {
+            aspect-ratio: 1;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11.5px;
+            color: var(--text3);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .file-thumb:hover {
+                border-color: var(--accent);
+                background: var(--accent-light);
+                color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-light);
+            }
+
+            .file-thumb i {
+                font-size: 26px;
+            }
+
+            .file-thumb.add {
+                border-style: dashed;
+                border-color: var(--border2);
+            }
+
+        .file-dl {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .file-thumb:hover .file-dl {
+            opacity: 1;
+        }
+
+        /* ── ALERT BANNER ── */
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--red-bg);
+            border: 1.5px solid rgba(230,60,94,0.2);
+            border-radius: 11px;
+            padding: 11px 16px;
+            margin-bottom: 1rem;
+        }
+
+            .alert-banner i {
+                font-size: 17px;
+                color: var(--red);
+                flex-shrink: 0;
+            }
+
+            .alert-banner .alert-text {
+                font-size: 13px;
+                color: var(--text2);
+                flex: 1;
+            }
+
+                .alert-banner .alert-text strong {
+                    color: var(--text);
+                }
+
+        /* ── MAP ── */
+        .map-placeholder {
+            background: var(--surface2);
+            border: 1.5px dashed var(--border2);
+            border-radius: var(--radius-lg);
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+            .map-placeholder i {
+                font-size: 48px;
+                color: var(--text3);
+            }
+
+        .map-coords {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 12.5px;
+            color: var(--text2);
+            font-family: var(--mono);
+            margin-top: 4px;
+        }
+
+        /* ── NOTES ── */
+        textarea.note-area {
+            width: 100%;
+            min-height: 110px;
+            padding: .85rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color 0.15s;
+            outline: none;
+        }
+
+            textarea.note-area:focus {
+                border-color: var(--accent);
+                background: var(--surface);
+                box-shadow: 0 0 0 3px var(--accent-light);
+            }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text3);
+        }
+
+            .empty-state i {
+                font-size: 40px;
+                margin-bottom: .75rem;
+                display: block;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+            }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text3);
+            margin-bottom: .65rem;
+            padding-bottom: .4rem;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        /* ── CHIP ── */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: var(--text2);
+            font-family: var(--mono);
+        }
+
+        .chip-green {
+            background: var(--green-bg);
+            border-color: rgba(14,168,113,0.25);
+            color: var(--green);
+        }
+
+        .chip-blue {
+            background: var(--accent-light);
+            border-color: rgba(59,98,245,0.25);
+            color: var(--accent);
+        }
+
+        /* ── ACTIVITY ── */
+        .activity-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+            .activity-icon.pay {
+                background: var(--green-bg);
+                color: var(--green);
+            }
+
+            .activity-icon.ticket {
+                background: var(--red-bg);
+                color: var(--red);
+            }
+
+            .activity-icon.info {
+                background: var(--accent-light);
+                color: var(--accent);
+            }
+
+        .activity-text {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+            .activity-text strong {
+                color: var(--text);
+            }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--text3);
+            font-family: var(--mono);
+            white-space: nowrap;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:900px) {
+            .stats-row {
+                flex-wrap: wrap;
+            }
+
+            .hero-top {
+                flex-wrap: wrap;
+            }
+
+            .info-strip {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .info-cell:nth-child(2) {
+                border-right: none;
+            }
+
+            .info-cell:nth-child(3) {
+                border-top: 1px solid var(--border);
+            }
+
+            .info-cell:nth-child(4) {
+                border-top: 1px solid var(--border);
+                border-right: none;
+            }
+
+            .four-col {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .three-col {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .topbar-search {
+                display: none;
+            }
+        }
+
+        @media(max-width:600px) {
+            .hero-inner, .body {
+                padding: 1rem;
+            }
+
+            .two-col, .three-col, .four-col {
+                grid-template-columns: 1fr;
+            }
+
+            .info-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .info-cell {
+                border-right: none;
+                border-top: 1px solid var(--border);
+            }
+
+                .info-cell:first-child {
+                    border-top: none;
+                }
+
+            .file-grid {
+                grid-template-columns: repeat(3,1fr);
+            }
+
+            .hero-right {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .exrate {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="brand-icon"><i class="ti ti-building-community"></i></div>
+            ISP Manager
+        </div>
+        <div class="topbar-sep"></div>
+        <div class="breadcrumb">
+            <a href="#">Customers</a>
+            <i class="ti ti-chevron-right"></i>
+            <span style="color:var(--text2)">Sopheap Chan</span>
+        </div>
+        <div class="topbar-search">
+            <i class="ti ti-search"></i>
+            <span>Quick search…</span>
+            <kbd>⌘K</kbd>
+        </div>
+        <div class="topbar-right">
+            <button class="icon-btn" title="Notifications">
+                <i class="ti ti-bell"></i>
+                <span class="notif-dot"></span>
+            </button>
+            <button class="icon-btn" title="Print"><i class="ti ti-printer"></i></button>
+            <button class="btn btn-primary" style="gap:5px"><i class="ti ti-edit"></i> Edit Profile</button>
+            <div class="topbar-avatar" title="Dara Sok">DS</div>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-inner">
+            <div class="hero-top">
+                <div class="avatar-wrap">
+                    <div class="avatar" title="Change photo">
+                        SC
+                        <div class="avatar-overlay"><i class="ti ti-camera"></i></div>
+                    </div>
+                    <div class="status-pill">
+                        <span class="status-pulse"></span>ACTIVE
+                    </div>
+                </div>
+
+                <div class="hero-meta">
+                    <div class="hero-name">
+                        Sopheap Chan
+                        <span class="cust-id">CUST-2024-00183</span>
+                    </div>
+                    <div class="hero-sub">Corporate Customer &nbsp;·&nbsp; Phnom Penh &nbsp;·&nbsp; Registered 12 Jan 2023 by Dara Sok</div>
+                    <div class="hero-badges">
+                        <span class="badge badge-green"><i class="ti ti-wifi"></i> Active — Fiber 100 Mbps</span>
+                        <span class="badge badge-red"><i class="ti ti-alert-triangle"></i> 2 Unpaid Invoices</span>
+                        <span class="badge badge-neutral"><i class="ti ti-user-check"></i> Sale: Dara Sok</span>
+                        <span class="badge badge-blue"><i class="ti ti-building"></i> IT / Technology</span>
+                        <span class="badge badge-neutral"><i class="ti ti-id-badge"></i> PP-123456789</span>
+                    </div>
+                </div>
+
+                <div class="hero-right">
+                    <div class="exrate"><i class="ti ti-currency-dollar"></i> 1 USD = 4,100 KHR &nbsp;·&nbsp; 01 May 2026</div>
+                    <div class="stats-row">
+                        <div class="stat"><div class="stat-val">$1,200</div><div class="stat-lbl">Billed</div></div>
+                        <div class="stat"><div class="stat-val green">$980</div><div class="stat-lbl">Paid</div></div>
+                        <div class="stat"><div class="stat-val red">$220</div><div class="stat-lbl">Unpaid</div></div>
+                        <div class="stat"><div class="stat-val">$50</div><div class="stat-lbl">Deposit</div></div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn btn-amber"><i class="ti ti-calendar-dollar"></i> Delay Payment</button>
+                        <button class="btn"><i class="ti ti-brand-telegram"></i> Telegram</button>
+                        <button class="btn btn-success"><i class="ti ti-message-reply"></i> Feedback</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-strip">
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-phone-ringing"></i></div>
+                    <div><div class="info-cell-lbl">Mobile</div><div class="info-cell-val">+855 12 345 678</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-mail"></i></div>
+                    <div><div class="info-cell-lbl">Email</div><div class="info-cell-val">sopheap.chan@company.com</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-map-pin"></i></div>
+                    <div><div class="info-cell-lbl">Address</div><div class="info-cell-val">St. 310, Boeung Keng Kang III, Phnom Penh</div></div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-icon"><i class="ti ti-globe"></i></div>
+                    <div><div class="info-cell-lbl">Nationality</div><div class="info-cell-val">Cambodian</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS BAR -->
+    <div class="tabs-bar-wrap">
+        <div class="tabs-bar" id="mainTabs">
+            <div class="tab active" data-panel="pan-invoice"><i class="ti ti-file-invoice"></i> Invoices <span class="tab-badge">2</span></div>
+            <div class="tab" data-panel="pan-services"><i class="ti ti-server"></i> Services &amp; Products</div>
+            <div class="tab" data-panel="pan-device"><i class="ti ti-router"></i> Devices</div>
+            <div class="tab" data-panel="pan-info"><i class="ti ti-user"></i> Customer Info</div>
+            <div class="tab" data-panel="pan-billing"><i class="ti ti-building"></i> Billing &amp; Contact</div>
+            <div class="tab" data-panel="pan-agency"><i class="ti ti-users"></i> Agency Commission</div>
+            <div class="tab" data-panel="pan-files"><i class="ti ti-paperclip"></i> Files</div>
+            <div class="tab" data-panel="pan-serviceform"><i class="ti ti-file-description"></i> Service Form</div>
+            <div class="tab" data-panel="pan-map"><i class="ti ti-map-pin"></i> Map</div>
+            <div class="tab" data-panel="pan-ticket"><i class="ti ti-ticket"></i> Tickets <span class="tab-badge" style="background:var(--amber)">1</span></div>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+        <!-- INVOICES -->
+        <div class="panel active" id="pan-invoice">
+            <div class="alert-banner">
+                <i class="ti ti-alert-circle"></i>
+                <div class="alert-text"><strong>2 overdue invoices</strong> totalling $220.00 — the most recent was due 15 Apr 2026.</div>
+                <button class="btn btn-danger btn-sm"><i class="ti ti-credit-card"></i> Pay All</button>
+            </div>
+
+            <div class="sub-tabs" id="invoiceSubTabs">
+                <div class="sub-tab" data-sub="inv-pi"><i class="ti ti-file-text"></i> PI</div>
+                <div class="sub-tab" data-sub="inv-quotation"><i class="ti ti-quote"></i> Quotation</div>
+                <div class="sub-tab active" data-sub="inv-unpaid"><i class="ti ti-clock"></i> Unpaid</div>
+                <div class="sub-tab" data-sub="inv-paid"><i class="ti ti-circle-check"></i> Paid</div>
+                <div class="sub-tab" data-sub="inv-transaction"><i class="ti ti-transfer"></i> Transactions</div>
+                <div class="sub-tab" data-sub="inv-rollback"><i class="ti ti-history"></i> Rollback</div>
+                <div class="sub-tab" data-sub="inv-creditnotes"><i class="ti ti-receipt-refund"></i> Credit Notes</div>
+                <div class="sub-tab" data-sub="inv-history"><i class="ti ti-history"></i> History</div>
+                <div class="sub-tab" data-sub="inv-attachment"><i class="ti ti-paperclip"></i> Attachments</div>
+                <div class="sub-tab" data-sub="inv-bankslip"><i class="ti ti-receipt"></i> Bank Slips</div>
+                <div class="sub-tab" data-sub="inv-cancel"><i class="ti ti-ban"></i> Cancelled</div>
+                <div class="sub-tab" data-sub="inv-deposit"><i class="ti ti-wallet"></i> Deposits</div>
+                <div class="sub-tab" data-sub="inv-returndeposit"><i class="ti ti-corner-down-left"></i> Return Deposit</div>
+                <div class="sub-tab" data-sub="inv-noted"><i class="ti ti-note"></i> Customer Notes</div>
+            </div>
+
+            <div class="sub-panel" id="inv-pi">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-file-text"></i> Proforma Invoices</div>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New PI</button>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>PI #</th><th>Date</th><th>Service Plan</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <tr><td class="td-link">PI-2026-0012</td><td>15 Mar 2026</td><td>Fiber 100 Mbps</td><td class="td-mono">$120.00</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-sm"><i class="ti ti-file-export"></i> To Official</button></td></tr>
+                                <tr><td class="td-link">PI-2026-0009</td><td>10 Feb 2026</td><td>Fiber 100 Mbps</td><td class="td-mono">$120.00</td><td><span class="badge badge-green">Approved</span></td><td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-quotation">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-quote"></i> Quotations</div>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Create Quotation</button>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Quotation #</th><th>Date</th><th>Valid Until</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <tr><td class="td-link">QT-2026-0007</td><td>01 Mar 2026</td><td>31 Mar 2026</td><td class="td-mono">$120.00</td><td><span class="badge badge-blue">Sent</span></td><td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel active" id="inv-unpaid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ti ti-clock"></i> Unpaid Invoices</div>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-filter"></i> Filter</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>
+                        </div>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Invoice #</th><th>Invoice Date</th><th>Due Date</th><th>Service Plan</th><th>Period</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="td-link">INV-2026-0044</td>
+                                    <td>01 Apr 2026</td>
+                                    <td><span style="color:var(--red);font-weight:600">15 Apr 2026</span></td>
+                                    <td>Fiber 100 Mbps</td>
+                                    <td class="td-mono">Apr–May 2026</td>
+                                    <td class="td-mono" style="font-weight:700">$120.00</td>
+                                    <td><span class="badge badge-red">Unpaid</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px">
+                                            <button class="btn btn-primary btn-sm"><i class="ti ti-credit-card"></i> Pay</button>
+                                            <button class="btn btn-ghost btn-sm"><i class="ti ti-printer"></i></button>
+                                            <button class="btn btn-ghost btn-sm"><i class="ti ti-building-bank"></i> DMC</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="td-link">INV-2026-0031</td>
+                                    <td>01 Mar 2026</td>
+                                    <td><span style="color:var(--red);font-weight:600">15 Mar 2026</span></td>
+                                    <td>Fiber 100 Mbps</td>
+                                    <td class="td-mono">Mar–Apr 2026</td>
+                                    <td class="td-mono" style="font-weight:700">$100.00</td>
+                                    <td><span class="badge badge-amber">Overdue</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px">
+                                            <button class="btn btn-primary btn-sm"><i class="ti ti-credit-card"></i> Pay</button>
+                                            <button class="btn btn-ghost btn-sm"><i class="ti ti-printer"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-paid">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-circle-check"></i> Paid Invoices</div></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Invoice #</th><th>Paid Date</th><th>Service Plan</th><th>Amount</th><th>Method</th><th>Receipt</th></tr></thead>
+                            <tbody>
+                                <tr><td class="td-link">INV-2026-0018</td><td>05 Feb 2026</td><td>Fiber 100 Mbps</td><td class="td-mono">$120.00</td><td>Bank Transfer</td><td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td></tr>
+                                <tr><td class="td-link">INV-2026-0005</td><td>03 Jan 2026</td><td>Fiber 100 Mbps</td><td class="td-mono">$120.00</td><td>Cash</td><td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td></tr>
+                                <tr><td class="td-link">INV-2025-0091</td><td>02 Dec 2025</td><td>Fiber 100 Mbps</td><td class="td-mono">$120.00</td><td>ABA Bank</td><td><button class="btn btn-sm"><i class="ti ti-printer"></i> Print</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-transaction">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-transfer"></i> Transaction History</div></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Transaction #</th><th>Date</th><th>Invoice #</th><th>Type</th><th>Amount</th><th>Balance</th><th>Note</th></tr></thead>
+                            <tbody>
+                                <tr><td class="td-mono">TXN-2026-0099</td><td>05 Feb 2026</td><td class="td-link">INV-2026-0018</td><td><span class="badge badge-green">Payment</span></td><td class="td-mono" style="color:var(--green);font-weight:600">+$120.00</td><td class="td-mono">$0.00</td><td>ABA Bank Transfer</td></tr>
+                                <tr><td class="td-mono">TXN-2026-0082</td><td>03 Jan 2026</td><td class="td-link">INV-2026-0005</td><td><span class="badge badge-green">Payment</span></td><td class="td-mono" style="color:var(--green);font-weight:600">+$120.00</td><td class="td-mono">$0.00</td><td>Cash</td></tr>
+                                <tr><td class="td-mono">TXN-2025-0210</td><td>10 Nov 2025</td><td>—</td><td><span class="badge badge-blue">Deposit</span></td><td class="td-mono" style="color:var(--accent);font-weight:600">+$50.00</td><td class="td-mono">$50.00</td><td>Initial deposit</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-rollback">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> Rollback Invoices</div></div>
+                    <div class="empty-state"><i class="ti ti-circle-off"></i><p>No rollback invoices for this customer.</p></div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-creditnotes">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-receipt-refund"></i> Credit Notes</div><button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Credit Note</button></div>
+                    <div class="empty-state"><i class="ti ti-receipt-refund"></i><p>No credit notes issued for this customer.</p></div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-history">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> Payment History</div></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Date</th><th>Invoice #</th><th>Amount Paid</th><th>Method</th><th>Reference</th><th>Collected By</th></tr></thead>
+                            <tbody>
+                                <tr><td>05 Feb 2026</td><td class="td-link">INV-2026-0018</td><td class="td-mono">$120.00</td><td>Bank Transfer</td><td class="td-mono">TXN-2026-0099</td><td>Dara Sok</td></tr>
+                                <tr><td>03 Jan 2026</td><td class="td-link">INV-2026-0005</td><td class="td-mono">$120.00</td><td>Cash</td><td class="td-mono">TXN-2026-0082</td><td>Dara Sok</td></tr>
+                                <tr><td>02 Dec 2025</td><td class="td-link">INV-2025-0091</td><td class="td-mono">$120.00</td><td>ABA Bank</td><td class="td-mono">TXN-2025-0311</td><td>Khoem Vannak</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-attachment">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-paperclip"></i> Attachments</div><button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload</button></div>
+                    <div class="file-grid">
+                        <div class="file-thumb"><i class="ti ti-photo"></i><span>Receipt Jan</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-photo"></i><span>Receipt Feb</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add file</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-bankslip">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-receipt"></i> Bank Slip Files</div><button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload</button></div>
+                    <div class="file-grid">
+                        <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Jan 2026</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Feb 2026</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add slip</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-cancel">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-ban"></i> Cancelled Invoices</div></div>
+                    <div class="empty-state"><i class="ti ti-ban"></i><p>No cancelled invoices for this customer.</p></div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-deposit">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-wallet"></i> Deposit List</div></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Date</th><th>Deposit #</th><th>Amount (USD)</th><th>Invoice #</th><th>Notes</th></tr></thead>
+                            <tbody>
+                                <tr><td>12 Jan 2023</td><td class="td-mono">DEP-001</td><td class="td-mono">$50.00</td><td class="td-link">INV-2023-0001</td><td>Initial deposit on registration</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-returndeposit">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-corner-down-left"></i> Return Deposit</div><button class="btn btn-danger btn-sm"><i class="ti ti-corner-down-left"></i> Process Return</button></div>
+                    <div class="empty-state"><i class="ti ti-corner-down-left"></i><p>No deposit returns processed for this customer.</p></div>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="inv-noted">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><i class="ti ti-note"></i> Customer Notes</div></div>
+                    <textarea class="note-area">Customer prefers WhatsApp contact. Has 2nd unit at same address requesting separate billing. VIP client — handle with priority.</textarea>
+                    <div style="display:flex;justify-content:flex-end;margin-top:.75rem">
+                        <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save Notes</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /pan-invoice -->
+        <!-- SERVICES & PRODUCTS -->
+        <div class="panel" id="pan-services">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                <div class="sub-tabs" style="border:none;margin:0" id="svcSubTabs">
+                    <div class="sub-tab active" data-sub="svc-services"><i class="ti ti-server"></i> Services</div>
+                    <div class="sub-tab" data-sub="svc-products"><i class="ti ti-package"></i> Products</div>
+                </div>
+                <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Service &amp; Product</button>
+            </div>
+            <div class="sub-panel active" id="svc-services">
+                <div class="svc-card">
+                    <div class="svc-card-top">
+                        <div>
+                            <div class="svc-plan">Fiber 100 Mbps — Unlimited</div>
+                            <div class="svc-detail">Premium Fiber · 100 Mbps down / 50 Mbps up</div>
+                            <div class="svc-ids">
+                                <span>ConnID: CONN-0042</span>
+                                <span>SID: SVC-183</span>
+                                <span>Invoice: INV-2026-0044</span>
+                                <span>Ticket: <a href="#" class="td-link">TKT-2026-0088</a></span>
+                            </div>
+                        </div>
+                        <span class="badge badge-green"><i class="ti ti-wifi"></i> Active</span>
+                    </div>
+                    <div class="conn-info">
+                        <span><span style="color:var(--text3)">PPPoE:</span>&nbsp;<b>sopheap.chan@isp</b></span>
+                        <span><span style="color:var(--text3)">VLAN:</span>&nbsp;<b>VLAN-230</b>&nbsp;<span class="chip chip-green">Active</span></span>
+                        <span><span style="color:var(--text3)">IP:</span>&nbsp;<b>10.10.42.15</b></span>
+                    </div>
+                    <div style="font-size:12.5px;color:var(--text2)">01 Apr 2026 → 30 Apr 2026 · 5 days used, 25 days remaining</div>
+                    <div class="progress"><div class="progress-fill" style="width:17%"></div></div>
+                    <div class="svc-meta">
+                        <span>Cycle: <b>Monthly</b></span>
+                        <span>Used: <b>5 days</b></span>
+                        <span>Remain: <b style="color:var(--red)">25 days</b></span>
+                        <span>Due: <b style="color:var(--red)">15 Apr 2026</b></span>
+                        <span>Next invoice: <b style="color:var(--accent)">01 May 2026</b></span>
+                        <div class="auto-lock">
+                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            Auto Lock
+                        </div>
+                    </div>
+                    <div class="svc-actions">
+                        <button class="btn btn-danger btn-sm"><i class="ti ti-recycle"></i> Renew</button>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-switch-3"></i> Change Plan</button>
+                        <button class="btn btn-ghost btn-sm"><i class="ti ti-router"></i> Devices</button>
+                        <button class="btn btn-ghost btn-sm"><i class="ti ti-history"></i> Log</button>
+                        <button class="btn btn-ghost btn-sm"><i class="ti ti-ticket"></i> New Ticket</button>
+                    </div>
+                </div>
+                <div class="svc-card suspended" style="opacity:.85">
+                    <div class="svc-card-top">
+                        <div>
+                            <div class="svc-plan">Fiber 50 Mbps — Standard</div>
+                            <div class="svc-detail">Secondary connection · Backup line</div>
+                            <div class="svc-ids"><span>ConnID: CONN-0018</span><span>SID: SVC-084</span><span>Invoice: INV-2025-0091</span></div>
+                        </div>
+                        <span class="badge badge-red"><i class="ti ti-wifi-off"></i> Suspended</span>
+                    </div>
+                    <div class="svc-meta">
+                        <span>Cycle: <b>Monthly</b></span>
+                        <span>Status: <b style="color:var(--red)">Expired</b></span>
+                        <span>Last due: <b style="color:var(--red)">01 Dec 2025</b></span>
+                    </div>
+                    <div class="svc-actions">
+                        <button class="btn btn-danger btn-sm"><i class="ti ti-recycle"></i> Renew</button>
+                        <button class="btn btn-ghost btn-sm"><i class="ti ti-router"></i> Devices</button>
+                        <button class="btn btn-ghost btn-sm"><i class="ti ti-history"></i> Log</button>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-panel" id="svc-products">
+                <div class="tbl-wrap">
+                    <table>
+                        <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>Huawei EG8145V5 ONT</td><td>1</td><td class="td-mono">$45.00</td><td class="td-mono">$45.00</td><td>12 Jan 2023</td><td><span class="badge badge-green">Delivered</span></td></tr>
+                            <tr><td>TP-Link Archer C6 Router</td><td>1</td><td class="td-mono">$35.00</td><td class="td-mono">$35.00</td><td>12 Jan 2023</td><td><span class="badge badge-green">Delivered</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEVICES -->
+        <div class="panel" id="pan-device">
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:1rem">
+                <button class="btn btn-primary btn-sm"><i class="ti ti-package-import"></i> Receive Return</button>
+                <button class="btn btn-sm"><i class="ti ti-switch-horizontal"></i> Change Device</button>
+            </div>
+            <div class="tbl-wrap">
+                <table>
+                    <thead><tr><th>Device Type</th><th>Serial Number</th><th>MAC Address</th><th>Brand / Model</th><th>Assigned</th><th>Condition</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>ONT / ONU</td><td class="td-mono">SN-20241130-042</td><td class="td-mono">A4:C3:F0:12:8B:22</td><td>Huawei EG8145V5</td><td>30 Nov 2024</td><td><span class="badge badge-green">Good</span></td><td><span class="badge badge-green">In Use</span></td></tr>
+                        <tr><td>Router</td><td class="td-mono">SN-20241130-099</td><td class="td-mono">E8:48:B8:44:1C:09</td><td>TP-Link Archer C6</td><td>30 Nov 2024</td><td><span class="badge badge-green">Good</span></td><td><span class="badge badge-green">In Use</span></td></tr>
+                        <tr><td>Splitter</td><td class="td-mono">SPL-00218</td><td class="td-mono">—</td><td>Generic 1:4 Splitter</td><td>12 Jan 2023</td><td><span class="badge badge-green">Good</span></td><td><span class="badge badge-green">In Use</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CUSTOMER INFO -->
+        <div class="panel" id="pan-info">
+            <div class="two-col">
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ti ti-user"></i> Personal Information</div>
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-edit"></i> Edit</button>
+                        </div>
+                        <div class="four-col">
+                            <div class="field"><div class="field-lbl">Type</div><div class="field-val">Corporate</div></div>
+                            <div class="field"><div class="field-lbl">Code</div><div class="field-val mono">CUST-2024-00183</div></div>
+                            <div class="field"><div class="field-lbl">Group</div><div class="field-val">Premium</div></div>
+                            <div class="field"><div class="field-lbl">Gender</div><div class="field-val">Male</div></div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="two-col">
+                            <div class="field"><div class="field-lbl">Full Name (Khmer)</div><div class="field-val">សុភ័ព ចាន់</div></div>
+                            <div class="field"><div class="field-lbl">Full Name (Latin)</div><div class="field-val">Sopheap Chan</div></div>
+                            <div class="field"><div class="field-lbl">Mobile</div><div class="field-val mono">+855 12 345 678</div></div>
+                            <div class="field"><div class="field-lbl">Email</div><div class="field-val">sopheap.chan@company.com</div></div>
+                            <div class="field"><div class="field-lbl">Nationality</div><div class="field-val">Cambodian</div></div>
+                            <div class="field"><div class="field-lbl">ID / Passport</div><div class="field-val mono">PP-123456789</div></div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="three-col">
+                            <div class="field"><div class="field-lbl">Address</div><div class="field-val">No. 42, St. 310</div></div>
+                            <div class="field"><div class="field-lbl">Commune</div><div class="field-val">Tonle Bassac</div></div>
+                            <div class="field"><div class="field-lbl">District</div><div class="field-val">Chamkar Mon</div></div>
+                            <div class="field"><div class="field-lbl">Province / City</div><div class="field-val">Phnom Penh</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="ti ti-briefcase"></i> Business Details</div></div>
+                        <div class="field"><div class="field-lbl">Business Type</div><div class="field-val">IT / Technology</div></div>
+                        <div class="field"><div class="field-lbl">Sale Representative</div><div class="field-val">Dara Sok</div></div>
+                        <div class="field"><div class="field-lbl">Contact Person</div><div class="field-val">Chanra Pich</div></div>
+                        <div class="divider"></div>
+                        <div class="card-title-sm"><i class="ti ti-calendar"></i> Registration</div>
+                        <div class="two-col">
+                            <div class="field"><div class="field-lbl">Register Date</div><div class="field-val">12 January 2023</div></div>
+                            <div class="field"><div class="field-lbl">Registered By</div><div class="field-val">Dara Sok</div></div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="card-title-sm"><i class="ti ti-chart-pie"></i> Summary</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            <div class="stat"><div class="stat-val">24</div><div class="stat-lbl">Months</div></div>
+                            <div class="stat"><div class="stat-val green">$980</div><div class="stat-lbl">Total paid</div></div>
+                            <div class="stat"><div class="stat-val red">$220</div><div class="stat-lbl">Outstanding</div></div>
+                            <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">Tickets</div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title-sm"><i class="ti ti-activity"></i> Recent Activity</div>
+                        <div class="activity-item">
+                            <div class="activity-icon ticket"><i class="ti ti-ticket"></i></div>
+                            <div class="activity-text"><strong>New ticket opened</strong> — No internet after power outage</div>
+                            <div class="activity-time">2 May</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon info"><i class="ti ti-bell"></i></div>
+                            <div class="activity-text">Invoice <strong>INV-2026-0044</strong> generated — $120.00</div>
+                            <div class="activity-time">1 Apr</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                            <div class="activity-text"><strong>Payment received</strong> — INV-2026-0018 · $120.00</div>
+                            <div class="activity-time">5 Feb</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                            <div class="activity-text"><strong>Payment received</strong> — INV-2026-0005 · $120.00</div>
+                            <div class="activity-time">3 Jan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BILLING & CONTACT -->
+        <div class="panel" id="pan-billing">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="ti ti-building"></i> Billing Information — INV-2026-0044</div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-device-floppy"></i> Save</button>
+                </div>
+                <div class="section-title">Company</div>
+                <div class="three-col">
+                    <div class="field"><div class="field-lbl">Company Name (EN)</div><div class="field-val">Chan Technology Co., Ltd.</div></div>
+                    <div class="field"><div class="field-lbl">Company Name (KH)</div><div class="field-val">ចាន់ ធ្នូឡូជី ខូ អិលធីឌី</div></div>
+                    <div class="field"><div class="field-lbl">VAT TIN</div><div class="field-val mono">K001-234567</div></div>
+                    <div class="field"><div class="field-lbl">Desk Phone</div><div class="field-val mono">+855 23 456 789</div></div>
+                    <div class="field"><div class="field-lbl">Mobile</div><div class="field-val mono">+855 12 345 678</div></div>
+                    <div class="field"><div class="field-lbl">Billing Email</div><div class="field-val">billing@chantechnology.com</div></div>
+                </div>
+                <div class="divider"></div>
+                <div class="two-col">
+                    <div>
+                        <div class="section-title">Company Address</div>
+                        <div class="field"><div class="field-lbl">Address</div><div class="field-val">No. 42, St. 310</div></div>
+                        <div class="three-col">
+                            <div class="field"><div class="field-lbl">Commune</div><div class="field-val">Tonle Bassac</div></div>
+                            <div class="field"><div class="field-lbl">District</div><div class="field-val">Chamkar Mon</div></div>
+                            <div class="field"><div class="field-lbl">Province</div><div class="field-val">Phnom Penh</div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-title">Bill To Address</div>
+                        <div class="field"><div class="field-lbl">Address</div><div class="field-val">No. 42, St. 310</div></div>
+                        <div class="three-col">
+                            <div class="field"><div class="field-lbl">Commune</div><div class="field-val">Tonle Bassac</div></div>
+                            <div class="field"><div class="field-lbl">District</div><div class="field-val">Chamkar Mon</div></div>
+                            <div class="field"><div class="field-lbl">Province</div><div class="field-val">Phnom Penh</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="section-title">Installation Address</div>
+                <div class="field"><div class="field-lbl">Full Address</div><div class="field-val">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom Penh</div></div>
+                <div style="display:flex;gap:8px">
+                    <div class="field" style="flex:1"><div class="field-lbl">Latitude</div><div class="field-val mono">11.5468</div></div>
+                    <div class="field" style="flex:1"><div class="field-lbl">Longitude</div><div class="field-val mono">104.9282</div></div>
+                    <div class="field" style="flex:2"><div class="field-lbl">Google Map Address</div><div class="field-val">No. 42, Street 310, Phnom Penh, Cambodia</div></div>
+                </div>
+                <div class="divider"></div>
+                <div class="section-title">Contact Person</div>
+                <div class="three-col">
+                    <div class="field"><div class="field-lbl">Name</div><div class="field-val">Chanra Pich</div></div>
+                    <div class="field"><div class="field-lbl">Position</div><div class="field-val">Finance Manager</div></div>
+                    <div class="field"><div class="field-lbl">Contact Number</div><div class="field-val mono">+855 17 654 321</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGENCY -->
+        <div class="panel" id="pan-agency">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="ti ti-users"></i> Agency Commission</div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-device-floppy"></i> Save</button>
+                </div>
+                <div class="section-title">Agent Details</div>
+                <div class="three-col">
+                    <div class="field"><div class="field-lbl">Agency Name</div><div class="field-val">Mekong Digital Agency</div></div>
+                    <div class="field"><div class="field-lbl">Phone</div><div class="field-val mono">+855 11 222 333</div></div>
+                    <div class="field"><div class="field-lbl">Address</div><div class="field-val">St. 598, Phnom Penh</div></div>
+                    <div class="field"><div class="field-lbl">Commission Type</div><div class="field-val"><span class="badge badge-blue">Monthly</span></div></div>
+                    <div class="field"><div class="field-lbl">Commission (USD)</div><div class="field-val mono" style="color:var(--green)">$10.00</div></div>
+                    <div class="field"><div class="field-lbl">Commission (%)</div><div class="field-val mono" style="color:var(--green)">8%</div></div>
+                </div>
+                <div class="divider"></div>
+                <div class="section-title">Bank Details</div>
+                <div class="three-col">
+                    <div class="field"><div class="field-lbl">Bank Name</div><div class="field-val">ABA Bank</div></div>
+                    <div class="field"><div class="field-lbl">Account Name</div><div class="field-val">Mekong Digital Agency</div></div>
+                    <div class="field"><div class="field-lbl">Account Number</div><div class="field-val mono">000 123 456 7</div></div>
+                </div>
+                <div class="divider"></div>
+                <div class="section-title">Commission History</div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead><tr><th>Month</th><th>Invoice #</th><th>Service</th><th>Commission</th><th>Rate</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>April 2026</td><td class="td-link">INV-2026-0044</td><td>Fiber 100 Mbps</td><td class="td-mono">$10.00</td><td class="td-mono">8%</td><td><span class="badge badge-amber">Pending</span></td></tr>
+                            <tr><td>March 2026</td><td class="td-link">INV-2026-0031</td><td>Fiber 100 Mbps</td><td class="td-mono">$10.00</td><td class="td-mono">8%</td><td><span class="badge badge-green">Paid</span></td></tr>
+                            <tr><td>February 2026</td><td class="td-link">INV-2026-0018</td><td>Fiber 100 Mbps</td><td class="td-mono">$10.00</td><td class="td-mono">8%</td><td><span class="badge badge-green">Paid</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILES -->
+        <div class="panel" id="pan-files">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                <div class="sub-tabs" style="border:none;margin:0" id="fileSubTabs">
+                    <div class="sub-tab active" data-sub="file-id"><i class="ti ti-id-badge"></i> ID Documents</div>
+                    <div class="sub-tab" data-sub="file-bank"><i class="ti ti-receipt"></i> Bank Slips</div>
+                </div>
+                <button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload File</button>
+            </div>
+            <div class="sub-panel active" id="file-id">
+                <div class="card">
+                    <div class="file-grid">
+                        <div class="file-thumb"><i class="ti ti-id-badge-2"></i><span>ID Front</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-id-badge-2"></i><span>ID Back</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-file-text"></i><span>Passport</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-file-text"></i><span>Contract.pdf</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add file</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-panel" id="file-bank">
+                <div class="card">
+                    <div class="file-grid">
+                        <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Jan 2026</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb"><i class="ti ti-receipt"></i><span>Slip Feb 2026</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                        <div class="file-thumb add"><i class="ti ti-plus"></i><span>Add slip</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE FORM -->
+        <div class="panel" id="pan-serviceform">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+                <button class="btn btn-primary btn-sm"><i class="ti ti-upload"></i> Upload Form</button>
+            </div>
+            <div class="card">
+                <div class="card-title-sm"><i class="ti ti-file-description"></i> Service Form Files</div>
+                <div class="file-grid">
+                    <div class="file-thumb"><i class="ti ti-file-description"></i><span>ServiceForm_Jan23.pdf</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                    <div class="file-thumb"><i class="ti ti-file-description"></i><span>ChangeForm_Nov24.pdf</span><div class="file-dl"><i class="ti ti-download"></i></div></div>
+                    <div class="file-thumb add"><i class="ti ti-plus"></i><span>Upload form</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="panel" id="pan-map">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="ti ti-map-2"></i> Customer Location</div>
+                    <button class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Set Location</button>
+                </div>
+                <div class="field"><div class="field-lbl">Full Address</div><div class="field-val">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom Penh, Cambodia</div></div>
+                <div class="map-coords"><span><strong>Lat:</strong> 11.5468°N</span><span><strong>Lng:</strong> 104.9282°E</span></div>
+                <div class="map-placeholder" style="margin-top:1rem">
+                    <i class="ti ti-map-2"></i>
+                    <span style="font-size:13px;color:var(--text2)">Interactive map renders here</span>
+                    <span style="font-size:11.5px;color:var(--text3)">Integrate Google Maps or OpenStreetMap via API key</span>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <button class="btn btn-sm" onclick="window.open('https://maps.google.com/?q=11.5468,104.9282','_blank')"><i class="ti ti-external-link"></i> Open in Google Maps</button>
+                        <button class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Update Coordinates</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title-sm"><i class="ti ti-list"></i> All Registered Locations</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px">
+                        <span style="font-weight:700;color:var(--accent);font-family:var(--mono)">1.</span>
+                        <i class="ti ti-map-pin" style="color:var(--red);font-size:15px"></i>
+                        <a href="#" style="color:var(--accent)">No. 42, St. 310, Tonle Bassac, Chamkar Mon, Phnom Penh</a>
+                        <span class="badge badge-blue" style="margin-left:auto">Main</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TICKETS -->
+        <div class="panel" id="pan-ticket">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                <div style="display:flex;gap:6px">
+                    <span class="badge badge-neutral"><i class="ti ti-stack-2"></i> All: 3</span>
+                    <span class="badge badge-red"><i class="ti ti-circle"></i> Open: 1</span>
+                    <span class="badge badge-amber"><i class="ti ti-loader"></i> In Progress: 1</span>
+                    <span class="badge badge-green"><i class="ti ti-circle-check"></i> Closed: 1</span>
+                </div>
+                <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Ticket</button>
+            </div>
+            <div class="card">
+                <div class="ticket-item">
+                    <div class="ticket-dot open"><i class="ti ti-alert-circle"></i></div>
+                    <div class="ticket-body" style="flex:1">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                            <div class="ticket-title">#TKT-2026-0088 — No internet connection after power outage</div>
+                            <span class="badge badge-red">Open</span>
+                        </div>
+                        <div class="ticket-meta">Opened: 02 May 2026 · ConnID: CONN-0042 · Assigned: Khoem Vannak · Priority: High</div>
+                        <div style="margin-top:8px;display:flex;gap:6px">
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-eye"></i> View</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Update</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-dot inprogress"><i class="ti ti-loader"></i></div>
+                    <div class="ticket-body" style="flex:1">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                            <div class="ticket-title">#TKT-2026-0071 — Request for IP address change</div>
+                            <span class="badge badge-amber">In Progress</span>
+                        </div>
+                        <div class="ticket-meta">Opened: 20 Apr 2026 · ConnID: CONN-0042 · Assigned: Dara Sok · Priority: Medium</div>
+                        <div style="margin-top:8px;display:flex;gap:6px">
+                            <button class="btn btn-primary btn-sm"><i class="ti ti-eye"></i> View</button>
+                            <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Update</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-dot closed"><i class="ti ti-circle-check"></i></div>
+                    <div class="ticket-body" style="flex:1">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                            <div class="ticket-title">#TKT-2026-0051 — Slow speed complaint during peak hours</div>
+                            <span class="badge badge-green">Closed</span>
+                        </div>
+                        <div class="ticket-meta">Opened: 10 Mar 2026 · Closed: 12 Mar 2026 · ConnID: CONN-0042 · Resolution: Network congestion fixed</div>
+                        <div style="margin-top:8px"><button class="btn btn-ghost btn-sm"><i class="ti ti-eye"></i> View</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /body -->
+
+    <script>
+        $(function () {
+
+            // Main tab switching
+            $('#mainTabs').on('click', '.tab', function () {
+                var $tab = $(this);
+                $('#mainTabs .tab').removeClass('active');
+                $tab.addClass('active');
+                var pid = $tab.data('panel');
+                $('.body > .panel').removeClass('active');
+                $('#' + pid).addClass('active');
+                $('html, body').animate({ scrollTop: 56 }, 200);
+            });
+
+            // Generic sub-tab handler factory
+            function initSubTabs(tabContainerId, panelParentId) {
+                $('#' + tabContainerId).on('click', '.sub-tab', function () {
+                    var $tab = $(this);
+                    $('#' + tabContainerId + ' .sub-tab').removeClass('active');
+                    $tab.addClass('active');
+                    var sid = $tab.data('sub');
+                    $('#' + panelParentId + ' .sub-panel').removeClass('active');
+                    $('#' + sid).addClass('active');
+                });
+            }
+
+            initSubTabs('invoiceSubTabs', 'pan-invoice');
+            initSubTabs('svcSubTabs', 'pan-services');
+            initSubTabs('fileSubTabs', 'pan-files');
+
+        });
+    </script>
+</body>
+</html>

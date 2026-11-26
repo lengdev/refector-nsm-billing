@@ -1,0 +1,117 @@
+﻿@{
+    Layout = null;
+}
+
+<nav class="navbar sticky-top justify-content-end">
+    <div class="row">
+        <div class="col text-right p-2">
+            <div class="panel-toolbar">
+                <div class="btn-group flex-wrap" role="group">                    
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-file-pdf-o"></i>
+                            <span class="d-none d-md-inline">PDF</span>
+                            <span class="caret"></span>
+                        </button>
+                        <div class="dropdown-menu" role="menu">
+                            <a id="View_PDF_Customer" class="dropdown-item" href="javascript:void(0);">View PDF</a>
+                            <a id="Download_PDF_Customer" class="dropdown-item" href="javascript:void(0);">Download PDF</a>
+                            <a id="Download_Excel_Customer" class="dropdown-item" href="javascript:void(0);">Download Excel</a>
+                        </div>
+                    </div>                    
+                    <a href="javascript:void(0);" style="display:none" id="ToSaleOrder" class="btn btn-sm btn-success" data-animation="true" data-placement="top" title="To Sale Order" data-bs-original-title="To Sale Order"><i class="fa fa-copy"></i> <span class="d-none d-md-inline">To Sale Order</span></a>
+                    <a href="javascript:void(0);" id="PrintInv" class="btn btn-default btn-sm"><i class="fa fa-print"></i> <span class="d-none d-md-inline">Print</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="div_CustInvoice" class="bg-white p-2">
+    @*<p id="bg-text">UNPAID</p>*@
+    <div id="divshowCustInvoice">
+        @Html.Raw(@ViewBag.TMPData)
+    </div>
+    <div id="divshowCustContract" style="display:none"></div>
+    <div id="divshowCustReceipt" style="display:none"></div>
+    @*<div style="padding:50px">&nbsp;</div>*@
+</div>
+
+<script>
+    $(function () {
+        var ExpenseType = "@ViewBag.ExpenseType";
+        var PaymentMethod = "@ViewBag.PaymentMethod";
+        var ExpensesID = "@ViewBag.ExpensesID";
+        var PostStatus = "@ViewBag.PostStatus";
+
+        if (PaymentMethod == "Cheque") {
+            $("div[name=divChqno]").show();
+        }
+
+        $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+        $("#SaveChange2").click(function () {
+            $("#div_CustInvoice").printThis();
+        });
+        var PVNo = "@ViewBag.PVNo";
+        Invoice_Type = "Invoice";
+        $("#PrintInv").click(function () {            
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response, "", true);
+            });
+        });
+        $("#View_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                OpenNewTap(response);
+            });
+        });
+        $("#Download_PDF_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            let FileName = PVNo;
+            HTMLDataToPDF(HTMLData, FileName, function (response) {
+                let file_name = Invoice_Type + "-" + response.substring(response.lastIndexOf('/') + 1);
+                let link = document.createElement('a');
+                link.href = response;
+                link.download = file_name;
+                link.click();
+                link.remove();
+            });
+        });
+        $("#Download_Excel_Customer").click(function () {
+            let HTMLData = $("#div_CustInvoice").html();
+            ExportToExcel(HTMLData);
+        });
+
+        if (ExpenseType == "Petty Cash Voucher") {
+            $("div[name=divHead]").hide();
+        }
+
+        var ShowBtnCheckApproval = "@ViewBag.ShowBtnCheckApproval";
+
+        if (ShowBtnCheckApproval == "True") {
+            var btn = "<div><button type=\"button\" id=\"btnCheck\" class=\"btn btn-primary\" onclick=\"Check(" + ExpensesID +", 'Checked', '" + ExpenseType +"');\">Check</button>&nbsp;";
+            btn += "<button type=\"button\" id=\"btnCheck\" class=\"btn btn-danger\" onclick=\"Check(" + ExpensesID + ", 'Disapproved', '" + ExpenseType + "');\">Disapprove</button>";
+            btn += '</div>';
+            $("#SaveChange2").before(btn);
+        }
+
+        var ShowBtnPost = "@ViewBag.ShowBtnPost";
+
+        if (ShowBtnPost == "True" && PostStatus =="Pending") {
+            var btn = "<div><button type=\"button\" id=\"btnPost\" class=\"btn btn-primary\" onclick=\"PostNow(" + ExpensesID + ", '" + ExpenseType + "');\">Post Now</button></div>";
+            $("#SaveChange2").before(btn);
+        }
+
+    });
+
+    function PostNow(ExpensesID, ExpenseType) {
+        var Data = { ExpenseID: ExpensesID, ExpenseType: ExpenseType };
+        DoSaveChangeSweetCofirm("Expenses/PostNow", Data, function (response) {
+            $("#BunSearch").click();
+            $("#CloseModal2").click();
+        });
+    }
+</script>
+

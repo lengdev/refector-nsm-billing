@@ -1,0 +1,210 @@
+﻿@{
+    Layout = null;
+}
+
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<!-- ExcelJS + FileSaver -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+    /* Style for custom export button */
+    #btnCustomExcel {
+        margin-left: 5px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        function getGrid() {
+            return $("#grid").data("kendoGrid")
+                || $("#Grid").data("kendoGrid")
+                || $("[data-role='grid']").data("kendoGrid")
+                || $(".k-grid").data("kendoGrid")
+                || null;
+        }
+
+        // Wait for grid and add custom button next to existing Excel button
+        var checkInterval = setInterval(function () {
+            const grid = getGrid();
+
+            // Look for the existing "Export to Excel" button
+            var existingExcelBtn = $('button:contains("Export to Excel")').first();
+
+            if (existingExcelBtn.length > 0 && !$('#btnCustomExcel').length) {
+                clearInterval(checkInterval);
+                
+                // Add custom button right after the existing one
+                existingExcelBtn.after(
+                    '<button id="btnCustomExcel" class="btn btn-primary" style="margin-left: 5px;font-size: 13px;">' +
+                    '<span class="k-icon k-i-file-excel k-button-icon"></span>New Format Excel' +
+                    '</button>'
+                );
+
+                // Bind click event
+                $('#btnCustomExcel').click(function () {
+                    customExcelExport(grid);
+                });
+
+                console.log("✓ Custom Excel button added");
+            }
+        }, 200);
+
+        // Stop checking after 10 seconds
+        setTimeout(function () {
+            clearInterval(checkInterval);
+        }, 10000);
+
+        // Custom Excel Export Function
+        async function customExcelExport(grid) {
+
+            if (!grid) {
+                alert("Grid not ready");
+                return;
+            }
+
+            const data = grid.dataSource.data();
+            if (!data.length) {
+                alert("No data");
+                return;
+            }
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet("Subscribers");
+
+            /* COLUMN WIDTHS */
+            ws.columns = [
+                { width: 10 },
+                { width: 45 },
+                { width: 25 },
+                { width: 25 },
+                { width: 25 },
+                { width: 25 },
+                { width: 70 },
+                { width: 30 }
+            ];
+
+            /* TITLE ROW (KHMER) */
+            ws.addRow([
+                "បញ្ជីរុករកអតិថិជនសម្រាប់សេវាអ៊ីនធឺណិតមានល្បឿនលើសពី 100Mbps ឬខ្ពស់ ក្នុងខែមករា ឆ្នាំ២០២៦"
+            ]);
+            ws.mergeCells("A1:H1");
+            ws.getRow(1).height = 60;
+            ws.getRow(1).eachCell(cell => {
+                cell.font = { name: "Khmer OS Siemreap", size: 18, bold: false };
+                cell.alignment = { vertical: "middle", horizontal: "center" };
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFE2EFDA" }
+                };
+            });
+
+            /* TITLE ROW (ENGLISH) */
+            ws.addRow([
+                "Subscriber list for internet services with speeds of 100Mbps and above in January, 2026"
+            ]);
+            ws.mergeCells("A2:H2");
+            ws.getRow(2).height = 40;
+            ws.getRow(2).eachCell(cell => {
+                cell.font = { name: "Times New Roman", size: 18, bold: true };
+                cell.alignment = { vertical: "top", horizontal: "center" };
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFE2EFDA" }
+                };
+            });
+
+            /* HEADER ROW */
+            const header = ws.addRow([
+                "ល.រ\nNo.",
+                "ឈ្មោះអតិថិជន\nSubscriber Name",
+                "កាលបរិច្ឆេទជាវសេវា\nSubscription date",
+                "ប្រភេទសេវា\nType of Service",
+                "ល្បឿនប្រើប្រាស់\nSpeed (Mbps)",
+                "រាជធានី/ខេត្ត\nMunicipal/Province",
+                "អាសយដ្ឋាន\nAddress",
+                "លេខទំនាក់ទំនង\nContact Number"
+            ]);
+
+            header.height = 70;
+
+            header.eachCell(cell => {
+                cell.font = {
+                    name: "Khmer OS Siemreap",
+                    size: 11,
+                    bold: true,
+                    color: { argb: "FFFFFFFF" }
+                };
+                cell.alignment = {
+                    vertical: "middle",
+                    horizontal: "center",
+                    wrapText: true
+                };
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FF1E4E79" }
+                };
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+            });
+
+            /* DATA ROWS */
+            data.forEach((item, i) => {
+
+                const row = ws.addRow([
+                    i + 1,
+                    item.CustomerName || "",
+                    item.SubscriptionDate ? kendo.toString(new Date(item.SubscriptionDate), "dd-MMM-yy") : "",
+                    item.ConnectionType || "",
+                    item.Bandwidth || "",
+                    item.Location || "",
+                    (item.InstallAddress || "").replace(/<br\s*\/?>/gi, "\n"),
+                    item.CustomerMobile || ""
+                ]);
+                row.height = 60;
+                row.eachCell((cell, col) => {
+
+                    cell.font = { name: "Khmer OS Siemreap", size: 11 };
+                    cell.border = {
+                        top: { style: "thin" },
+                        left: { style: "thin" },
+                        bottom: { style: "thin" },
+                        right: { style: "thin" }
+                    };
+
+                    if (col === 1 || col === 3 || col === 4 || col === 5 || col === 6 || col === 8) {
+                        cell.alignment = { vertical: "middle", horizontal: "center" };
+                    }
+
+                    if (col === 2 || col === 7) {
+                        cell.alignment = {
+                            vertical: "middle",
+                            horizontal: "left",
+                            wrapText: true
+                        };
+                    }
+                });
+            });
+
+            /* DOWNLOAD */
+            const buffer = await wb.xlsx.writeBuffer();
+            saveAs(
+                new Blob([buffer], {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }),
+                "Subscribers_100Mbps_" + new Date().toISOString().slice(0, 10) + ".xlsx"
+            );
+
+            console.log("✓ Excel exported successfully!");
+        }
+    });
+</script>

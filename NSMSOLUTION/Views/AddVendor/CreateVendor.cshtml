@@ -1,0 +1,50 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var isEdit = "@ViewBag.IsEdit" || 0;
+
+    $(function () {
+        const prefix = $("#PrefixVD").val();
+        const vendorId = "@ViewBag.PrimaryFieldValue" || 0;
+        //console.log(prefix, isEdit, vendorId);
+        LoadData(`AddVendor/GetCurrentNumberPrefix?Prefix=${prefix}&IsEdit=${isEdit}&VendorID=${vendorId}`, function (res) {
+            if (JSON.parse(res).data == '[]') {
+                $("#VendorCode_CurrentNumber").val(1);
+                return;
+            };
+            const rst = JSON.parse(JSON.parse(res).data);
+            $("#VendorCode_CurrentNumber").val(rst[0].CurrentNumber);
+        }) 
+    });
+
+    function AddNewBankerName() {
+        ShowDialogBox2("Add New Banker Name", "", "", "AddVendor/CreateBankerName?PrimaryFieldValue=0&Type=AddNewBankerName", 0, "DialogAddNewBankerName", function () {
+            $("#DialogAddNewBankerName").on('hide.bs.modal', function () {
+                if (SaveChangeResponse.length > 0) {
+                    var name = SaveChangeResponse[0].value;
+                    var id = SaveChangeResponse['Data'].Data;
+                    $("#BankerName").val('');
+                    Reload_BankerName(function () {
+                        $("#BankerName").val(name);
+                        $("#BankerName").typeahead('val', name).trigger("change");
+                        $("#BankerName").focus();
+                        $("#BankerName").typeahead("close");
+                    });
+                    SaveChangeResponse = [];
+                }
+            });
+        });
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        //let data = JSON.parse(response.Data)[0];
+        const vendorId = response.Data;
+        PostData(`AddVendor/UpdatePrefixVD?VendorID=${vendorId}&IsEdit=${isEdit}`, "", function (res) {
+            //console.log(res);
+        });
+
+        $("#modal-default").modal('hide');
+    }
+</script>

@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace NSMSOLUTION.Models.EFCore.DataFields
+{
+    [Table("TblOtherInformationCategory")]
+    public class TblOtherInformationCategory
+    {
+        [Key]
+        [Column("CategoryID")]
+        public int OtherInformationCategoryID { get; set; }
+
+        public string CategoryName { get; set; }
+        public string CreateBy { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public int? SystemID { get; set; }
+        public int? WarehouseID { get; set; }
+        public string DomainID { get; set; }
+
+        // Navigation property
+        public virtual ICollection<TblOtherInformation> Informations { get; set; }
+
+        public TblOtherInformationCategory()
+        {
+            Informations = new List<TblOtherInformation>();
+        }
+    }
+}

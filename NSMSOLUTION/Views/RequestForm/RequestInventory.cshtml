@@ -1,0 +1,10 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function ShowRequestInventoryInvoice(RequestFormID, ReqeustNumber) {
+        var URL = "Profile/InvoiceTMPRI?RequestFormID=" + RequestFormID + "&Type=RF";
+        ShowDialogBox("Preview Request Inventory No.: " + ReqeustNumber, "Auto", "500", URL);
+    }
+</script>

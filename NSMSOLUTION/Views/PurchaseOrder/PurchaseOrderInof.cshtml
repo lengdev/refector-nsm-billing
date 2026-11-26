@@ -1,0 +1,88 @@
+﻿@{ Layout = null; }
+
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    var VendorID = "@ViewBag.VendorID";
+    $(function () {
+        if (VendorID != "") {
+            setTimeout(function () {
+                $("#CboSearchText").val(VendorID).trigger("change");
+            }, 700);
+        }
+        $("#SaveChange2").html('<i class="fa-solid fa-plus"></i> Add');
+        $("#SaveChange2").click(function () {
+            var PurchaseOrderIDs = $("input[name=PurchaseOrderID]:checkbox:checked").map(function () {
+                return $(this).val();
+            }).toArray();
+
+            var GridDatatblpo = $("#tblpo").data("kendoGrid").dataSource.data();
+            var filteredData = GridDatatblpo.filter(item =>
+                PurchaseOrderIDs.includes(item.PurchaseOrderID.toString())
+            ).map(item => ({
+                PurchaseOrderID: item.PurchaseOrderID,
+                PONumber: item.PONumber,
+                VendorID: item.VendorID
+            }));
+            var pID = filteredData.map(item => item.PurchaseOrderID).join(',');
+            var PoN = filteredData.map(item => item.PONumber).join(',');
+
+            var PoNs = PoN.split(',');
+            var pIDs = pID.split(',');
+            for (i = 0; i < PoNs.length; i++) {
+                if (responsetagsInputData_PO_No) {
+                    responsetagsInputData_PO_No.push(
+                        {
+                            "HiddenFeild": "{}",
+                            "id": pIDs[i],
+                            "image": "",
+                            "label": PoNs[i],
+                            "value": PoNs[i],
+                            "fields": "{}"
+                        });
+                }
+                else {
+                    responsetagsInputData_PO_No = {
+                        "HiddenFeild": "{}",
+                        "id": pIDs[i],
+                        "image": "",
+                        "label": PoNs[i],
+                        "value": PoNs[i],
+                        "fields": "{}"
+                    }
+                }
+            }
+
+            $('#PO_No').importTags(PoN);
+            $("#PurchaseOrderID").val(pID);
+
+            $("#CloseModal2").click();
+
+            VendorID = filteredData[0].VendorID;
+
+            // Get the Kendo MultiColumnComboBox instance
+            var comboBox = $("#PayeeID").data("kendoMultiColumnComboBox");
+
+            // Set the value based on the ID and Type
+            var targetID = VendorID; // The ID you want to set (replace VendorID with the actual ID)
+            var targetType = 'Vendor'; // The Type you want to match
+            // Convert the observable array to a standard array using the spread operator
+            var dataItems = [...comboBox.dataSource.view()];
+            // Find the item in the dataSource with the matching ID and Type
+            var itemIndex = dataItems.findIndex(item => item.ID === targetID && item.Type === targetType);
+
+            // Set the value if the item exists
+            if (itemIndex > -1) {
+                // Select the item
+                comboBox.select(itemIndex);
+                // For debugging
+                //var selectedItem = comboBox.dataSource.view()[itemIndex]; // Use view() here
+            } else {
+                console.log(`No matching item found for ID: ${targetID} and Type: ${targetType}`);
+            }
+            setTimeout(function () {
+                //GetPODetail();
+            }, 200);
+        });
+    });
+</script>

@@ -1,0 +1,345 @@
+﻿@{
+    Layout = null;
+}
+<div id="DivCustomerInformation">
+    <form id="FormCustomerInformation" name="FormCustomerInformation" novalidate autocomplete="off">
+        <div class="row">
+            <div class="col-auto">
+                <label for="Customer_Type" class="col-form-label khmerFont1">
+                    តំបន់/Block:
+                </label>
+            </div>
+            <div class="col align-text-bottom">
+                <div class="wrap-input2 validate-input" data-validate="Customer Type is required">
+                    <input type="text" alt="CustomerType" class="input2 CustInfo" id="Customer_Type" name="Customer_Type" readonly>
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto">
+                <label for="Customer_Code" class="col-form-label khmerFont1">
+                    លេខសម្គាល់/CID:
+                </label>
+            </div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="CID is required">
+                    <input type="text" alt="CustomerCode" class="input2 CustInfo" id="Customer_Code" name="Customer_Code" readonly>
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-sm-auto" name="div_CustomerGroup_label">
+                <label for="CustomerGroups" class="col-form-label khmerFont1">Customer Group:</label>
+            </div>
+            <div class="col-sm-auto" name="div_CustomerGroup_data">
+                <div class="wrap-input2 validate-input" data-validate="Customer Group is required">
+                    <input type="text" alt="CustomerGroup" class="input2 CustInfo" id="CustomerGroups" name="CustomerGroups" />
+                    <input type="hidden" alt="CustomerGroupID" class="input2 CustInfo" id="CustomerGroupIDs" name="CustomerGroupIDs" />
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <label for="Customer_Name" class="col-form-label khmerFont1">
+                    ឈ្មោះខ្មែរ/Name KH:
+                </label>
+            </div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Customer Name is required">
+                    <input type="text" alt="CustomerName" class="input2 CustInfo" id="Customer_Name" name="Customer_Name">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto">
+                <label for="Customer_Name_Latin" class="col-form-label khmerFont1">
+                    ឈ្មោះឡាតាំង/Name Latin:
+                </label>
+            </div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Customer Name Latin is required">
+                    <input type="text" alt="CustomerNameLatin" class="input2 CustInfo" id="Customer_Name_Latin" name="Customer_Name_Latin">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto"><label for="Customer_Gender" class="col-form-label khmerFont1">ភេទ/Gender:</label></div>
+            <div class="col-auto">
+                <div class="wrap-input2 validate-input" data-validate="Gender is required">
+                    <input type="text" alt="CustomerGender" class="input2 CustInfo" id="Customer_Gender" name="Customer_Gender">
+                    <input type="hidden" alt="CustomerGenderID" class="input2 CustInfo" id="CustomerGenderID" name="CustomerGenderID">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto"><label for="Customer_Address" class="col-form-label khmerFont1">អាសយដ្ឋាន/Address:</label></div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Address is required">
+                    <input type="text" alt="CustomerAddress" class="input2 CustInfo" id="Customer_Address" name="Customer_Address">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto"><label for="Customer_Commune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>
+            <div class="col-auto">
+                <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                    <input type="text" alt="CustomerCommune" class="input2 CustInfo" id="Customer_Commune" name="Customer_Commune">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto"><label for="Customer_District" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="District is required">
+                    <input type="text" alt="CustomerDistrict" class="input2 CustInfo" id="Customer_District" name="Customer_District">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto"><label for="Customer_ProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                    <input type="text" alt="CustomerProvinceCity" class="input2 CustInfo" id="Customer_ProvinceCity" name="Customer_ProvinceCity">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto"><label for="Customer_Mobile" class="col-form-label khmerFont1">ទូរស័ព្ទដៃ/H/P:</label></div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Hand Phone is required">
+                    <input type="text" alt="CustomerMobile" class="input2 CustInfo" id="Customer_Mobile" name="Customer_Mobile">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            <div class="col-auto"><label for="Customer_Email" class="col-form-label khmerFont1">អ៊ីមែល/Email:</label></div>
+            <div class="col">
+                <div class="wrap-input2">
+                    <input type="email" alt="CustomerEmail" class="input2 CustInfo" id="Customer_Email" name="Customer_Email">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto"><label for="Customer_Nationality" class="col-form-label khmerFont1">សញ្ជាតិ/Nationality:</label></div>
+            <div class="col">
+                <div class="wrap-input2 validate-input" data-validate="Nationality is required">
+                    <input type="text" alt="CustomerNationality" class="input2 CustInfo" id="Customer_Nationality" name="Customer_Nationality">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+            @*<div class="col-auto">
+                <label for="CustomerContactName" class="col-form-label">ATT Name:</label>
+            </div>
+            <div class="col">
+                <div class="wrap-input2">
+                    <input type="text" class="input2 CustInfo" alt="ATTName" id="Customer_ATTName" name="Customer_ATTName">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>*@
+        @*</div>
+        <div class="row">*@
+            <div class="col-auto"><label for="Customer_Identification" class="col-form-label khmerFont1">អត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន/Identification/Passport No:</label></div>
+            <div class="col">
+                <div class="wrap-input2">
+                    <input type="text" alt="CustomerIdentification" class="input2 CustInfo" id="Customer_Identification" name="Customer_Identification">
+                    <span class="focus-input2"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="cust_savechangeinfo" class="row p-2 bg-gray-light justify-content-end">
+            <div class="col-12 text-right">
+                <button type="button" id="Save_Change" class="btn btn-outline-primary"><i class="fa fa-save" aria-hidden="true"></i> Save Change</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    var roleEditCustomer = "@ViewBag.roleEditCustomer";
+    $(function () {
+        if (roleEditCustomer != "True") {
+            $("#cust_savechangeinfo").hide();
+        }
+        let CustomerGroup = JSON.parse(`@Html.Raw(ViewBag.CustomerGroup)`);
+        ApplyTypeahead("CustomerGroups", CustomerGroup,
+            {
+                CustomerGroupID: 'CustomerGroupID',
+            },
+            {
+                Name: 'CustomerGroup'
+            },
+        );
+        //LoadData('/AddCustomer/LoadCustType', function (result) {
+        //    var data = JSON.parse(result).data;
+        //    data = JSON.parse(data);
+        //    $("#Customer_Type").typeahead({
+        //        hint: true,
+        //        highlight: true,
+        //        minLength: 0
+        //    },
+        //        {
+        //            limit: 9999,
+        //            display: "Name",
+        //            source: function (query, cb) {
+        //                var matches = [];
+        //                $.each(data, function (i, str) {
+        //                    const value = str.CustomerType;
+        //                    const globalRegex = new RegExp(query, '\ig');
+        //                    if (globalRegex.test(value)) {
+        //                        matches.push({ Name: str.CustomerType, ID: str.CustomerTypeID });
+        //                    }
+        //                });
+        //                cb(matches);
+        //            }
+        //        }).bind("typeahead:selected", function (obj, data, name) {
+        //            CustomerTypeID = data.ID;
+        //        });
+        //    $("#Customer_Type").on("click", function () {
+        //        $("#Customer_Type").typeahead("open");
+        //    });
+        //});
+        LoadData('/AddCustomer/LoadNationality', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            $("#Customer_Nationality").typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 0
+            },
+                {
+                    display: "Name",
+                    source: function (query, cb) {
+                        var matches = [];
+                        $.each(data, function (i, str) {
+                            const value = str.CustomerNationality;
+                            const globalRegex = new RegExp(query, '\ig');
+                            if (globalRegex.test(value)) {
+                                matches.push({ Name: str.CustomerNationality });
+                            }
+                        });
+                        cb(matches);
+                    }
+                });
+            $("#Customer_Nationality").on("click", function () {
+                $("#Customer_Nationality").typeahead("open");
+            });
+        });
+
+        let CustomerGender = [{ CustomerGenderID: "Male", CustomerGender: "Male" }, { CustomerGenderID: "Female", CustomerGender: "Female" }, { CustomerGenderID: "Other", CustomerGender: "Other" }];
+        ApplyTypeahead("Customer_Gender", CustomerGender,
+            {
+                CustomerGenderIDs: 'CustomerGenderID',
+            },
+            {
+                Name: 'CustomerGender'
+            },
+        );
+
+        //var Gender = ['Male', 'Female'];
+        //$("#Customer_Gender").typeahead({
+        //    hint: true,
+        //    highlight: true,
+        //    minLength: 0
+        //},
+        //    {
+        //        display: "Gender",
+        //        source: function (query, cb) {
+        //            var filteredList = $.grep(Gender, function (item, index) {
+        //                return item;
+        //            });
+        //            mapped = $.map(filteredList, function (item) { return { Gender: item } });
+        //            cb(mapped);
+        //        }
+        //    });
+        ApplyTypeahead("Customer_Commune", Commune,
+            {
+                Customer_District: 'District',
+                Customer_ProvinceCity: 'ProvinceCity',
+            },
+            {
+                Name: 'Commune',
+                ID: 'CommuneID',
+                DistrictID: 'DistrictID',
+                District: 'District',
+                ProvinceCityID: 'ProvinceCityID',
+                ProvinceCity: 'ProvinceCity'
+            }
+        );
+
+        $("#Customer_Name").keyup(function () {
+            var CustName = $(this).val();
+            $("#CustomerContactName").val(CustName);
+        });
+        $("#Customer_Mobile").keyup(function () {
+            var CustMobile = $(this).val();
+            $("#CustomerContactMobileNumber").val(CustMobile);
+        });
+        $("#Customer_Email").keyup(function () {
+            var CustEmail = $(this).val();
+            $("#CustomerContactEmail").val(CustEmail);
+        });
+
+        $('.input2').on('change', function () {
+            $('.validate-input input').each(function () {
+                if ($(this).val().trim() != "") {
+                    $(this).parent().removeClass('alert-validate');
+                }
+            });
+        });
+        $('.input2').each(function () {
+            $(this).on('blur', function () {
+                if ($(this).val().trim() != "") {
+                    $(this).addClass('has-val');
+                }
+                else {
+                    $(this).removeClass('has-val');
+                }
+            });
+            $(this).on('focus', function () {
+                $(this).parent().removeClass('alert-validate');
+            });
+        });
+    });
+
+    $("input[name=Customer_Code]").on('blur', function () {
+        var CustCode = $(this).val();
+        var thisAlert = $(this).parent();
+        $(thisAlert).removeClass('alert-validate');
+        $(thisAlert).attr("data-validate", "CID is required");
+        if (CustCode != "") {
+            checkCustCode(CustomerCode, CustCode, $("input[name=Customer_Code]"), function (ch) {
+                return ch;
+            });
+        }
+    });
+
+    $("#Save_Change").click(function () {
+        var check = validateInput("FormCustomerInformation");
+        var Customer_Code = $("input[name=Customer_Code]").val();
+        if (check) {
+            //if (Customer_Code != "") {
+            //  checkCustCode(CustomerCode, Customer_Code, $("input[name=Customer_Code]"), function (ch) {
+            //    if (ch) {
+            var URL = "/AddCustomer/SaveChangeCustInfo";
+            var obj = {};
+            var dataobj = [];
+            obj["CustomerID"] = Customer_ID;
+            //obj["CustomerTypeID"] = CustomerTypeID;
+            $("#FormCustomerInformation input.input2").each(function (key, value) {
+                var id = (typeof $(value).attr("id") == "undefined" ? "" : $(value).attr("id"));
+                if (id != "") {
+                    if ($(value).attr("alt") != "CustomerCode" && $(value).attr("alt") != "CustomerTypeID" && $(value).attr("alt") != "CustomerType" && $(value).attr("alt") != "CustomerGenderID")
+                        obj[$(value).attr("alt")] = $(value).val();
+                }
+            });
+            dataobj.push(obj);
+            var DATA = { CustomerData: JSON.stringify(dataobj) };
+            DoSaveChangeData(URL, DATA, function (response) {
+                CustomerCode = Customer_Code;
+                LoadCustInfo(Customer_ID);
+            });
+            //}
+            //})
+            //}
+        }
+    });
+</script>

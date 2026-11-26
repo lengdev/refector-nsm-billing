@@ -1,0 +1,92 @@
+﻿.mynav li a {
+    position: relative;
+    transition: all 0.4s ease-in;
+}
+
+    .mynav li a:hover {
+        background-color: #E5E5E5;
+        border-radius: 0;
+        opacity: 1
+    }
+
+    .mynav li a:focus {
+        background-color: #E5E5E5;
+        border-radius: 0;
+        color: #3A95F7;
+    }
+
+    .mynav li a:before {
+        content: '';
+        background-color: aliceblue;
+        border-radius: 50%;
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: scale(0.001, 0.001);
+    }
+
+    .mynav li a:focus:before {
+        -webkit-animation: effect_dylan 0.8s ease-out;
+        animation: effect_dylan 0.8s ease-out;
+    }
+
+@-webkit-keyframes effect_dylan {
+    50% {
+        transform: scale(1.5, 1.5);
+        opacity: 0;
+    }
+
+    99% {
+        transform: scale(0.001, 0.001);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(0.001, 0.001);
+        opacity: 1;
+    }
+}
+
+@keyframes effect_dylan {
+    50% {
+        transform: scale(1.5, 1.5);
+        opacity: 0;
+    }
+
+    99% {
+        transform: scale(0.001, 0.001);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(0.001, 0.001);
+        opacity: 1;
+    }
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+    /* To show the lines on right 
+and left sides of the text */
+    .divider::after,
+    .divider::before {
+        content: "";
+        border: 1px solid black;
+        flex: 1;
+    }
+
+    /* Space on left and right sides of text */
+    .divider:not(:empty)::before {
+        margin-right: 0.25em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: 0.25em;
+    }

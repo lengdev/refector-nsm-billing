@@ -1,0 +1,1113 @@
+@{ Layout = null; }
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+
+<!-- Google Fonts & Khmer Fonts (Matching Balance Sheet / Profit & Loss) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&family=Noto+Sans+Khmer:wght@400;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div id="cash-flow-view-wrapper">
+    <div class="custom-search-toolbar">
+        <div class="toolbar-left">
+            <label>From Date:</label>
+            <input id="TxtFromDate" />
+            <label style="margin-left: 10px;">To Date:</label>
+            <input id="TxtToDate" />
+            <button class="btn-custom-search" onclick="generateCashFlowReport();">
+                <i class="fa fa-search"></i> Search
+            </button>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn-pill btn-pill-excel" onclick="ExportExcel();" title="Export Excel">
+                <i class="fa fa-file-excel"></i> Export to Excel
+            </button>
+            <button class="btn-pill btn-pill-pdf" onclick="PrintReport();" title="Print / PDF">
+                <i class="fa fa-file-pdf-o"></i> Print PDF
+            </button>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Shared/_AccountingAdvanceFilter.cshtml", new ViewDataDictionary { { "ReportType", "CF" } })
+
+    <div class="pl-report-header" id="cfReportHeader" style="margin-top: 15px; margin-bottom: 20px;">
+        <div class="print-date-line" id="lblPrintDate">Print Date: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</div>
+        <div class="bs-company-kh" id="lblCompanyNameKh">@(ViewBag.CompanyNameKh ?? ViewBag.CompanyKH ?? "")</div>
+        <div class="bs-company-en" id="lblCompanyNameEn">@(ViewBag.CompanyNameEn ?? ViewBag.CompanyEN ?? "")</div>
+        <div class="bs-company-divider">
+            ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+        </div>
+        <h3 id="lblReportTitle">CASH FLOW STATEMENT</h3>
+        <div class="tb-date-range-bar" id="lblDateRangeBar">
+            <span id="lblCfFrom">01/01/2026</span> - <span id="lblCfTo">31/01/2026</span>
+        </div>
+    </div>
+
+    <!-- Demo Data Warning Banner -->
+    <div id="DemoDataBanner" class="demo-banner" style="display: none;">
+        <i class="fa fa-info-circle"></i>
+        <span><strong>Note:</strong> Showing sample/mock report data. No transactions were found in the database for the selected date range.</span>
+    </div>
+
+    <div class="table-responsive">
+        <table id="TableGride" class="table table-bordered report-table">
+            <thead>
+                <tr>
+                    <th>Activities / Accounts</th>
+                    <th style="text-align: right; width: 30%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM OPERATING ACTIVITIES</td></tr>
+                <tr class="cf-group-header"><td colspan="2" style="padding-left: 44px !important;">Operating Inflows:</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Customer Payments</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Advance Payments</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Receipts</td><td align="right">—</td></tr>
+                <tr class="cf-group-header"><td colspan="2" style="padding-left: 44px !important;">Operating Outflows:</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Rent</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Utilities</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Expenses</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Payments</td><td align="right">—</td></tr>
+                <tr class="cf-section-total"><td style="padding-left: 44px !important;">Net cash provided by operating activities</td><td align="right">—</td></tr>
+                <tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM INVESTING ACTIVITIES</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 44px !important;">Software &amp; Equipment</td><td align="right">—</td></tr>
+                <tr class="cf-section-total"><td style="padding-left: 44px !important;">Net cash provided by (used in) investing activities</td><td align="right">—</td></tr>
+                <tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM FINANCING ACTIVITIES</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 44px !important;">Owner Investment</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 44px !important;">Loan Received</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td style="padding-left: 44px !important;">Loan Repayment</td><td align="right">—</td></tr>
+                <tr class="cf-section-total"><td style="padding-left: 44px !important;">Net cash provided by (used in) financing activities</td><td align="right">—</td></tr>
+                <tr class="cf-kpi-row"><td>NET INCREASE IN CASH</td><td align="right">—</td></tr>
+                <tr class="cf-account-row"><td>Cash at beginning of period</td><td align="right">—</td></tr>
+                <tr class="cf-kpi-row"><td>CASH AT END OF PERIOD</td><td align="right">—</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* ── Balance Sheet Style Report Header ── */
+    .pl-report-header {
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+    }
+    .pl-report-header .bs-company-kh {
+        font-family: 'Moul', 'Khmer OS Muol Light', 'Khmer OS Muol', cursive, serif !important;
+        font-size: 20px !important;
+        font-weight: normal;
+        line-height: 1.6;
+        margin-bottom: 4px;
+        color: #000;
+        text-shadow: 0 0 1px rgba(0,0,0,0.15);
+    }
+    .pl-report-header .bs-company-en {
+        font-family: 'Times New Roman', 'Roboto', 'Kantumruy Pro', serif, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        color: #000;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .bs-company-divider {
+        font-size: 10px;
+        margin-bottom: 12px;
+        color: #000;
+        letter-spacing: 2px;
+    }
+    .pl-report-header h3 {
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px !important;
+        font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .pl-report-header .print-date-line {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pl-report-header .tb-date-range-bar {
+        margin-top: 12px;
+        border-top: 0;
+        border-bottom: 0;
+        padding: 5px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        text-align: left;
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+
+    /* Container styling */
+    #cash-flow-view-wrapper {
+        background-color: #ffffff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-top: 10px;
+    }
+
+    .custom-search-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8fafc;
+        padding: 16px 20px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 24px;
+        gap: 20px;
+    }
+
+    .toolbar-left, .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .toolbar-left label {
+        font-weight: 600;
+        margin: 0;
+        color: #475569;
+        font-size: 13px;
+    }
+
+    .toolbar-left .k-datepicker {
+        width: 160px;
+    }
+
+    .btn-custom-search {
+        background-color: #4f46e5;
+        color: #ffffff;
+        border: 1px solid #4f46e5;
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        font-size: 13px;
+    }
+
+    .btn-custom-search:hover {
+        background-color: #4338ca;
+        border-color: #4338ca;
+        transform: translateY(-1px);
+    }
+
+    .btn-pill {
+        background-color: #fff;
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-size: 13px;
+    }
+
+    .btn-pill-excel {
+        color: #10b981;
+        border: 1px solid #a7f3d0;
+        background-color: #ecfdf5;
+    }
+
+    .btn-pill-excel:hover {
+        background-color: #d1fae5;
+        border-color: #10b981;
+        transform: translateY(-1px);
+    }
+
+    .btn-pill-pdf {
+        color: #ef4444;
+        border: 1px solid #fca5a5;
+        background-color: #fef2f2;
+    }
+
+    .btn-pill-pdf:hover {
+        background-color: #fee2e2;
+        border-color: #ef4444;
+        transform: translateY(-1px);
+    }
+
+    .demo-banner {
+        background-color: #fef3c7;
+        border: 1px solid #fcd34d;
+        color: #92400e;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    /* Premium Report Grid Styling */
+    .report-table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        background-color: #ffffff;
+    }
+
+    .report-table th {
+        background-color: #f1f5f9 !important; /* Light Slate Header */
+        color: #334155 !important;
+        font-weight: 600 !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 14px 20px !important;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .report-table td {
+        padding: 12px 20px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    #cash-flow-view-wrapper .table-responsive {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+    }
+
+    #TableGride.cf-period-table {
+        table-layout: fixed;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    #TableGride.cf-period-table thead th:first-child,
+    #TableGride.cf-period-table tbody tr:not(.cf-section-header):not(.cf-group-header) td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        width: 320px;
+        min-width: 320px;
+        max-width: 320px;
+        white-space: normal;
+        overflow-wrap: break-word;
+        box-shadow: 2px 0 4px rgba(15, 23, 42, 0.08);
+    }
+
+    #TableGride.cf-period-table thead th:first-child {
+        z-index: 3;
+        background-color: #f1f5f9 !important;
+    }
+
+    #TableGride.cf-period-table tbody tr:not(.cf-section-header):not(.cf-group-header) td:first-child {
+        background-color: #fff;
+    }
+
+    #TableGride.cf-period-table tbody tr.cf-section-total td:first-child,
+    #TableGride.cf-period-table tbody tr.cf-group-total td:first-child {
+        background-color: #fafafa;
+    }
+
+    #TableGride.cf-period-table tbody tr.cf-kpi-row td:first-child {
+        background-color: #fafafa;
+    }
+
+    #TableGride.cf-period-table thead th:not(:first-child),
+    #TableGride.cf-period-table tbody tr:not(.cf-section-header):not(.cf-group-header) td:not(:first-child) {
+        width: 150px;
+        min-width: 150px;
+        white-space: nowrap;
+    }
+
+    /* Row Hierarchy Classes */
+    .cf-section-header td {
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        color: #0f172a !important;
+        padding-top: 24px !important;
+        padding-bottom: 10px !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+        background-color: #f8fafc !important;
+        letter-spacing: 0.5px;
+    }
+
+    .cf-group-header td {
+        font-weight: 700 !important;
+        color: #2563eb !important; /* Premium modern blue */
+        padding-left: 24px !important;
+        padding-top: 16px !important;
+        padding-bottom: 6px !important;
+        font-size: 13px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: none !important;
+    }
+
+    .cf-account-row td {
+        padding-left: 44px !important;
+        color: #475569;
+        font-size: 13.5px !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .cf-account-row:hover td {
+        background-color: #f8fafc;
+        color: #0f172a;
+    }
+
+    .cf-group-total td {
+        font-weight: 700 !important;
+        border-top: 1px solid #e2e8f0 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-left: 24px !important;
+        color: #0f172a !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        background-color: #fafafa !important;
+    }
+
+    .cf-section-total td {
+        font-weight: 700 !important;
+        border-top: 1.5px solid #cbd5e1 !important;
+        border-bottom: 1.5px solid #cbd5e1 !important;
+        font-size: 14px !important;
+        color: #0f172a !important;
+        padding-top: 14px !important;
+        padding-bottom: 14px !important;
+        background-color: #f8fafc !important;
+    }
+
+    .cf-kpi-row td {
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        color: #0f172a !important;
+        background-color: #fafafa !important;
+        border-top: 2px solid #cbd5e1 !important;
+        border-bottom: 3px double #cbd5e1 !important;
+        padding-top: 16px !important;
+        padding-bottom: 16px !important;
+    }
+
+    .report-header-print {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .report-header-print .metadata-bar {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: bold;
+        border-bottom: 1.5px solid #475569;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+</style>
+
+<script>
+    var cfSystemCompanyHeader = null;
+    var cfCompanyHeaderRequest = 0;
+    var cashFlowReportRequest = 0;
+
+    function setCashFlowCompanyHeader(companyKh, companyEn) {
+        $("#cfReportHeader #lblCompanyNameKh").text(companyKh || "");
+        $("#cfReportHeader #lblCompanyNameEn").text(companyEn || "");
+    }
+
+    function showCashFlowReportHeader() {
+        $("#cfReportHeader").css("visibility", "visible");
+    }
+
+    function getCashFlowRequestParam(key) {
+        var search = new URLSearchParams(window.location.search);
+        if (search.get(key)) return search.get(key);
+        if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+            var hashSearch = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+            if (hashSearch.get(key)) return hashSearch.get(key);
+        }
+        return localStorage.getItem(key) || '';
+    }
+
+    function updateCashFlowCompanyHeader() {
+        if (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.isBinding) return;
+
+        var $classes = $("#cash-flow-view-wrapper #gjFilterClass");
+        var selectedClasses = $classes.val() || [];
+        if (!Array.isArray(selectedClasses)) selectedClasses = [selectedClasses];
+        selectedClasses = selectedClasses.filter(function (value) { return !!value; });
+
+        var requestId = ++cfCompanyHeaderRequest;
+        if (selectedClasses.length !== 1) {
+            setCashFlowCompanyHeader(cfSystemCompanyHeader.kh, cfSystemCompanyHeader.en);
+            showCashFlowReportHeader();
+            return;
+        }
+
+        var selectedName = $classes.find("option:selected").first().text();
+        $.ajax({
+            url: "/ExpenseDetailReport/GetCompanyHeader",
+            type: "POST",
+            dataType: "json",
+            data: {
+                className: selectedName,
+                classId: "",
+                SystemID: getCashFlowRequestParam("SystemID")
+            },
+            success: function (res) {
+                if (requestId !== cfCompanyHeaderRequest) return;
+                if (!res || !res.success) {
+                    setCashFlowCompanyHeader(cfSystemCompanyHeader.kh, cfSystemCompanyHeader.en);
+                    showCashFlowReportHeader();
+                    alert((res && res.message) || "Could not load the selected class company header.");
+                    return;
+                }
+                setCashFlowCompanyHeader(
+                    res.companyNameKh || cfSystemCompanyHeader.kh,
+                    res.companyNameEn || selectedName
+                );
+                showCashFlowReportHeader();
+            },
+            error: function () {
+                if (requestId !== cfCompanyHeaderRequest) return;
+                setCashFlowCompanyHeader(cfSystemCompanyHeader.kh, cfSystemCompanyHeader.en);
+                showCashFlowReportHeader();
+                alert("Error loading the selected class company header.");
+            }
+        });
+    }
+
+    function formatNumber(num, isNeutral = false) {
+        var isNegative = num < 0;
+        var absVal = Math.abs(num);
+        if (absVal === 0) return '<span style="color: #94a3b8; font-weight: 500;">$0.00</span>';
+        var formatted = absVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        var displayStr = isNegative ? `($${formatted})` : `$${formatted}`;
+        
+        if (isNeutral) {
+            return `<span style="color: #0f172a; font-weight: 600;">${displayStr}</span>`;
+        }
+        
+        if (isNegative) {
+            return `<span style="color: #dc2626; font-weight: 600;">${displayStr}</span>`; // Soft red for outflows
+        } else {
+            return `<span style="color: #16a34a; font-weight: 600;">${displayStr}</span>`; // Soft green for inflows
+        }
+    }
+
+    function showCashFlowTableMessage(message, columnCount) {
+        $("#TableGride tbody").empty().append(
+            $("<tr></tr>").append(
+                $("<td></td>")
+                    .attr("colspan", columnCount || 2)
+                    .addClass("text-center text-muted")
+                    .css("padding", "20px")
+                    .text(message)
+            )
+        );
+    }
+
+    function getCashFlowPeriods(startDate, endDate, reportType) {
+        var periods = [];
+        var cursor = reportType === "year"
+            ? new Date(startDate.getFullYear(), 0, 1)
+            : new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+
+        while (cursor <= endDate) {
+            var periodStart = reportType === "year"
+                ? new Date(cursor.getFullYear(), 0, 1)
+                : new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+            var periodEnd = reportType === "year"
+                ? new Date(cursor.getFullYear(), 11, 31)
+                : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+            if (periodStart < startDate) periodStart = new Date(startDate);
+            if (periodEnd > endDate) periodEnd = new Date(endDate);
+
+            periods.push({
+                label: reportType === "year"
+                    ? String(cursor.getFullYear())
+                    : kendo.toString(cursor, "MMM yyyy"),
+                fromDate: kendo.toString(periodStart, "yyyy-MM-dd"),
+                toDate: kendo.toString(periodEnd, "yyyy-MM-dd")
+            });
+
+            cursor = reportType === "year"
+                ? new Date(cursor.getFullYear() + 1, 0, 1)
+                : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+        }
+
+        return periods;
+    }
+
+    function getCashFlowRequestData(fromDate, toDate, advFilter) {
+        return {
+            fromDate: fromDate,
+            toDate: toDate,
+            location: advFilter.location || "",
+            account: advFilter.account || "",
+            className: advFilter.className || "",
+            txType: advFilter.txType || "",
+            refNo: advFilter.refNo || "",
+            createdBy: advFilter.createdBy || "",
+            sortBy: advFilter.sortBy || "",
+            orderBy: advFilter.orderBy || "asc"
+        };
+    }
+
+    function loadCashFlowPeriodData(periods, advFilter, requestId) {
+        var deferred = $.Deferred();
+        var results = new Array(periods.length);
+        var nextIndex = 0;
+        var activeRequests = 0;
+        var completedRequests = 0;
+        var failed = false;
+        var maxConcurrentRequests = 3;
+
+        function loadNext() {
+            if (failed || deferred.state() !== "pending") return;
+            if (requestId !== cashFlowReportRequest) {
+                deferred.reject({ stale: true });
+                return;
+            }
+            if (completedRequests === periods.length) {
+                deferred.resolve(results);
+                return;
+            }
+
+            while (activeRequests < maxConcurrentRequests && nextIndex < periods.length) {
+                (function (index) {
+                    activeRequests++;
+                    $.ajax({
+                        url: '@Url.Action("Read", "CashFlowReport")',
+                        type: 'POST',
+                        data: getCashFlowRequestData(periods[index].fromDate, periods[index].toDate, advFilter)
+                    }).done(function (res) {
+                        activeRequests--;
+                        if (requestId !== cashFlowReportRequest) {
+                            deferred.reject({ stale: true });
+                            return;
+                        }
+                        if (!res || !res.Success || !res.Data) {
+                            failed = true;
+                            deferred.reject(new Error((res && res.Message) || "A Cash Flow period could not be loaded."));
+                            return;
+                        }
+                        results[index] = res.Data;
+                        completedRequests++;
+                        loadNext();
+                    }).fail(function (xhr) {
+                        activeRequests--;
+                        failed = true;
+                        deferred.reject(xhr);
+                    });
+                })(nextIndex++);
+            }
+        }
+
+        if (!periods.length) {
+            deferred.reject(new Error("No periods fall within the selected date range."));
+        } else {
+            loadNext();
+        }
+        return deferred.promise();
+    }
+
+    function renderGroupedCashFlowReport(periodData, periods, fromStr, toStr) {
+        var columnCount = periods.length + 1;
+        var tbodyHtml = "";
+        var periodHeaders = periods.map(function (period) {
+            return `<th style="text-align:right;">${escapeCashFlowHeaderText(period.label)}</th>`;
+        }).join("");
+
+        $("#TableGride")
+            .addClass("cf-period-table")
+            .css("width", (320 + periods.length * 150) + "px");
+        $("#TableGride thead tr").html(`<th>Activities / Accounts</th>${periodHeaders}`);
+
+        function hasAmount(property) {
+            return periodData.some(function (data) { return (Number(data[property]) || 0) !== 0; });
+        }
+
+        function addSection(title) {
+            tbodyHtml += `<tr class="cf-section-header"><td colspan="${columnCount}">${title}</td></tr>`;
+        }
+
+        function addGroup(title, padding) {
+            tbodyHtml += `<tr class="cf-group-header"><td colspan="${columnCount}" style="padding-left:${padding}px !important;">${title}</td></tr>`;
+        }
+
+        function addAmountRow(title, property, options) {
+            options = options || {};
+            var present = hasAmount(property);
+            if (!present && !options.always) return false;
+            var labelStyle = options.muted && !present
+                ? "padding-left:" + (options.padding || 44) + "px !important; color:#94a3b8; font-style:italic;"
+                : "padding-left:" + (options.padding || 44) + "px !important;";
+            var rowTitle = !present && options.emptyLabel ? options.emptyLabel : title;
+            var values = periodData.map(function (data) {
+                var amount = Number(data[property]) || 0;
+                amount *= options.multiplier || 1;
+                return `<td align="right">${formatNumber(amount, options.neutral)}</td>`;
+            }).join("");
+            tbodyHtml += `<tr class="${options.rowClass || "cf-account-row"}"><td style="${labelStyle}">${rowTitle}</td>${values}</tr>`;
+            return present;
+        }
+
+        addSection("CASH FLOWS FROM OPERATING ACTIVITIES");
+        addGroup("Operating Inflows:", 44);
+        var hasInflows = addAmountRow("Customer Payments", "CustomerPayments", { padding: 64 }) |
+            addAmountRow("Advance Payments", "AdvancePayments", { padding: 64 }) |
+            addAmountRow("Other Receipts", "OtherReceipts", { padding: 64 });
+        if (!hasInflows) {
+            addAmountRow("No operating inflows", "CustomerPayments", { padding: 64, always: true, muted: true });
+        }
+
+        addGroup("Operating Outflows:", 44);
+        var hasOutflows = addAmountRow("Rent", "Rent", { padding: 64, multiplier: -1 }) |
+            addAmountRow("Utilities", "Utilities", { padding: 64, multiplier: -1 }) |
+            addAmountRow("Other Expenses", "OtherExpenses", { padding: 64, multiplier: -1 }) |
+            addAmountRow("Other Payments", "OtherPayments", { padding: 64, multiplier: -1 });
+        if (!hasOutflows) {
+            addAmountRow("No operating outflows", "Rent", { padding: 64, always: true, muted: true });
+        }
+        addAmountRow("Net cash provided by operating activities", "NetOperatingCash", { padding: 44, rowClass: "cf-section-total", always: true });
+
+        addSection("CASH FLOWS FROM INVESTING ACTIVITIES");
+        addAmountRow("Software & Equipment", "SoftwareEquipment", {
+            padding: 44,
+            multiplier: -1,
+            always: true,
+            muted: true,
+            emptyLabel: "No investing activities"
+        });
+        addAmountRow("Net cash provided by (used in) investing activities", "NetInvestingCash", { padding: 44, rowClass: "cf-section-total", always: true });
+
+        addSection("CASH FLOWS FROM FINANCING ACTIVITIES");
+        var hasFinancing = addAmountRow("Owner Investment", "OwnerInvestment", { padding: 44 }) |
+            addAmountRow("Loan Received", "LoanReceived", { padding: 44 }) |
+            addAmountRow("Loan Repayment", "LoanRepayment", { padding: 44, multiplier: -1 });
+        if (!hasFinancing) {
+            addAmountRow("No financing activities", "OwnerInvestment", { padding: 44, always: true, muted: true });
+        }
+        addAmountRow("Net cash provided by (used in) financing activities", "NetFinancingCash", { padding: 44, rowClass: "cf-section-total", always: true });
+
+        tbodyHtml += `<tr style="height:30px;"><td colspan="${columnCount}"></td></tr>`;
+        addAmountRow("NET INCREASE IN CASH", "NetCashIncrease", { rowClass: "cf-kpi-row", always: true });
+        addAmountRow("Cash at beginning of period", "BeginningBalance", { padding: 44, neutral: true, always: true });
+        addAmountRow("CASH AT END OF PERIOD", "EndingBalance", { rowClass: "cf-kpi-row", neutral: true, always: true });
+
+        var hasCashActivity = periodData.some(function (data) {
+            return Number(data.BeginningBalance) !== 0 ||
+                Number(data.EndingBalance) !== 0 ||
+                Number(data.NetCashIncrease) !== 0;
+        });
+        if (!hasCashActivity) {
+            tbodyHtml += `<tr><td colspan="${columnCount}" class="text-center text-muted" style="padding:20px;">No cash flow data available for this period.</td></tr>`;
+        }
+
+        $("#TableGride tbody").html(tbodyHtml);
+        $("#DemoDataBanner").slideUp();
+        $(".discrepancy-alert").remove();
+
+    }
+
+    function generateCashFlowReport() {
+        var requestId = ++cashFlowReportRequest;
+        showCashFlowTableMessage("Loading cash flow report...");
+        $("#cfReportHeader #lblPrintDate").text("Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm"));
+
+        var fromDate = $("#TxtFromDate").data("kendoDatePicker").value();
+        var toDate = $("#TxtToDate").data("kendoDatePicker").value();
+        var fromStr = $("#TxtFromDate").val() || '';
+        var toStr = $("#TxtToDate").val() || '';
+        var reportType = $("#cfFilterReportType").val() || "total";
+        var reportTitle = reportType === "month"
+            ? "CASH FLOW BY MONTH"
+            : reportType === "year"
+                ? "CASH FLOW BY YEAR"
+                : "CASH FLOW STATEMENT";
+        $("#cfReportHeader #lblReportTitle").text(reportTitle);
+        if (reportType === "total") {
+            $("#TableGride")
+                .removeClass("cf-period-table")
+                .css("width", "");
+            $("#TableGride thead tr").html(`
+                <th>Activities / Accounts</th>
+                <th style="text-align: right; width: 30%;">Amount</th>
+            `);
+        }
+        if (fromStr || toStr) {
+            $("#cfReportHeader #lblDateRangeBar").text(fromStr + ' - ' + toStr);
+        }
+        var advFilter = (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.getFilters)
+            ? window.AccountingAdvanceFilter.getFilters()
+            : {};
+
+        if (fromDate && toDate && fromDate > toDate) {
+            showCashFlowTableMessage("The start date must be on or before the end date.");
+            return;
+        }
+
+        if (reportType === "month" || reportType === "year") {
+            var periods = getCashFlowPeriods(fromDate, toDate, reportType);
+            showCashFlowTableMessage("Loading cash flow periods...", periods.length + 1);
+            loadCashFlowPeriodData(periods, advFilter, requestId)
+                .done(function (periodData) {
+                    if (requestId !== cashFlowReportRequest) return;
+                    renderGroupedCashFlowReport(periodData, periods, fromStr, toStr);
+                })
+                .fail(function (error) {
+                    if (requestId !== cashFlowReportRequest || (error && error.stale)) return;
+                    showCashFlowTableMessage("Unable to load the Cash Flow periods. Please try again.", periods.length + 1);
+                    alert("Cash Flow period error: " + ((error && error.message) || "Please check the server response."));
+                });
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Read", "CashFlowReport")',
+            type: 'POST',
+            data: getCashFlowRequestData(
+                fromDate ? kendo.toString(fromDate, "yyyy-MM-dd") : "",
+                toDate ? kendo.toString(toDate, "yyyy-MM-dd") : "",
+                advFilter
+            ),
+            success: function (res) {
+                if (requestId !== cashFlowReportRequest) return;
+                if (!res || !res.Success || !res.Data) {
+                    var message = (res && res.Message) || "The Cash Flow report returned no data.";
+                    showCashFlowTableMessage(message);
+                    alert("Error: " + message);
+                    return;
+                }
+
+                var data = res.Data;
+
+                // Show/hide banner
+                if (data.IsDemoData) {
+                    $("#DemoDataBanner").slideDown();
+                } else {
+                    $("#DemoDataBanner").slideUp();
+                }
+
+                var tbodyHtml = '';
+
+                // --- 1. Cash Flow from Operating Activities ---
+                tbodyHtml += `<tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM OPERATING ACTIVITIES</td></tr>`;
+                
+                // Inflows
+                tbodyHtml += `<tr class="cf-group-header"><td colspan="2" style="padding-left: 44px !important;">Operating Inflows:</td></tr>`;
+                if (data.CustomerPayments !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Customer Payments</td><td align="right">${formatNumber(data.CustomerPayments)}</td></tr>`;
+                }
+                if (data.AdvancePayments !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Advance Payments</td><td align="right">${formatNumber(data.AdvancePayments)}</td></tr>`;
+                }
+                if (data.OtherReceipts && data.OtherReceipts !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Receipts</td><td align="right">${formatNumber(data.OtherReceipts)}</td></tr>`;
+                }
+                if (data.CustomerPayments === 0 && data.AdvancePayments === 0 && (!data.OtherReceipts || data.OtherReceipts === 0)) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important; color: #94a3b8; font-style: italic;">No operating inflows</td><td align="right">${formatNumber(0)}</td></tr>`;
+                }
+                
+                // Outflows
+                tbodyHtml += `<tr class="cf-group-header"><td colspan="2" style="padding-left: 44px !important;">Operating Outflows:</td></tr>`;
+                if (data.Rent !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Rent</td><td align="right">${formatNumber(-data.Rent)}</td></tr>`;
+                }
+                if (data.Utilities !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Utilities</td><td align="right">${formatNumber(-data.Utilities)}</td></tr>`;
+                }
+                if (data.OtherExpenses !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Expenses</td><td align="right">${formatNumber(-data.OtherExpenses)}</td></tr>`;
+                }
+                if (data.OtherPayments && data.OtherPayments !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important;">Other Payments</td><td align="right">${formatNumber(-data.OtherPayments)}</td></tr>`;
+                }
+                if (data.Rent === 0 && data.Utilities === 0 && data.OtherExpenses === 0 && (!data.OtherPayments || data.OtherPayments === 0)) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 64px !important; color: #94a3b8; font-style: italic;">No operating outflows</td><td align="right">${formatNumber(0)}</td></tr>`;
+                }
+                
+                tbodyHtml += `<tr class="cf-section-total">
+                    <td style="padding-left: 44px !important;">Net cash provided by operating activities</td>
+                    <td align="right">${formatNumber(data.NetOperatingCash)}</td>
+                </tr>`;
+
+                // --- 2. Cash Flow from Investing Activities ---
+                tbodyHtml += `<tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM INVESTING ACTIVITIES</td></tr>`;
+                if (data.SoftwareEquipment !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important;">Software & Equipment</td><td align="right">${formatNumber(-data.SoftwareEquipment)}</td></tr>`;
+                } else {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important; color: #94a3b8; font-style: italic;">No investing activities</td><td align="right">${formatNumber(0)}</td></tr>`;
+                }
+                tbodyHtml += `<tr class="cf-section-total">
+                    <td style="padding-left: 44px !important;">Net cash provided by (used in) investing activities</td>
+                    <td align="right">${formatNumber(data.NetInvestingCash)}</td>
+                </tr>`;
+
+                // --- 3. Cash Flow from Financing Activities ---
+                tbodyHtml += `<tr class="cf-section-header"><td colspan="2">CASH FLOWS FROM FINANCING ACTIVITIES</td></tr>`;
+                if (data.OwnerInvestment !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important;">Owner Investment</td><td align="right">${formatNumber(data.OwnerInvestment)}</td></tr>`;
+                }
+                if (data.LoanReceived !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important;">Loan Received</td><td align="right">${formatNumber(data.LoanReceived)}</td></tr>`;
+                }
+                if (data.LoanRepayment !== 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important;">Loan Repayment</td><td align="right">${formatNumber(-data.LoanRepayment)}</td></tr>`;
+                }
+                if (data.OwnerInvestment === 0 && data.LoanReceived === 0 && data.LoanRepayment === 0) {
+                    tbodyHtml += `<tr class="cf-account-row"><td style="padding-left: 44px !important; color: #94a3b8; font-style: italic;">No financing activities</td><td align="right">${formatNumber(0)}</td></tr>`;
+                }
+                
+                tbodyHtml += `<tr class="cf-section-total">
+                    <td style="padding-left: 44px !important;">Net cash provided by (used in) financing activities</td>
+                    <td align="right">${formatNumber(data.NetFinancingCash)}</td>
+                </tr>`;
+
+                // --- 4. Net Cash Increase & Balance ---
+                tbodyHtml += `<tr style="height: 30px;"><td colspan="2"></td></tr>`;
+
+                tbodyHtml += `<tr class="cf-kpi-row" style="border-top: 1px solid #cbd5e1 !important; border-bottom: none !important;">
+                    <td>NET INCREASE IN CASH</td>
+                    <td align="right">${formatNumber(data.NetCashIncrease)}</td>
+                </tr>`;
+                
+                tbodyHtml += `<tr class="cf-account-row">
+                    <td>Cash at beginning of period</td>
+                    <td align="right">${formatNumber(data.BeginningBalance, true)}</td>
+                </tr>`;
+
+                tbodyHtml += `<tr class="cf-kpi-row">
+                    <td>CASH AT END OF PERIOD</td>
+                    <td align="right">${formatNumber(data.EndingBalance, true)}</td>
+                </tr>`;
+
+                if (data.BeginningBalance === 0 && data.EndingBalance === 0 && data.NetCashIncrease === 0) {
+                    tbodyHtml += `<tr><td colspan="2" class="text-center text-muted" style="padding: 20px;">No cash flow data available for this period.</td></tr>`;
+                }
+
+                $('#TableGride tbody').html(tbodyHtml);
+
+                // Clear any existing discrepancy alerts
+                $('.discrepancy-alert').remove();
+
+                // Discrepancy Warning Alert
+                if (data.Discrepancy && data.Discrepancy !== 0) {
+                    let alertHtml = `
+                    <div class="alert alert-warning discrepancy-alert" style="margin-top: 15px; border-left: 4px solid #f59e0b; background-color: #fef3c7; color: #92400e; padding: 12px; border-radius: 4px;">
+                        <strong><i class="fa fa-exclamation-triangle"></i> Database Imbalance Detected:</strong> 
+                        The system detected unbalanced journal entries (Debits do not equal Credits) in your raw accounting data for this period amounting to <strong>${formatNumber(data.Discrepancy)}</strong>. 
+                        Please review your manual journal entries to correct this imbalance. Note that this report now shows the actual unadjusted amounts, so your total cash flow may not tie to your actual bank balances until this is fixed.
+                    </div>`;
+                    $('#TableGride').before(alertHtml);
+                }
+
+                // Update date header text
+                var today = new Date();
+                var defaultStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                var defaultEnd = today;
+                var fromStr = fromDate ? kendo.toString(fromDate, "dd/MM/yyyy") : kendo.toString(defaultStart, "dd/MM/yyyy");
+                var toStr = toDate ? kendo.toString(toDate, "dd/MM/yyyy") : kendo.toString(defaultEnd, "dd/MM/yyyy");
+                var headerText = `Period: ${fromStr} - ${toStr}`;
+
+                $('#TableGride thead tr').html(`
+                    <th>Activities / Accounts</th>
+                    <th style="text-align: right; width: 35%;">
+                        <div style="border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; margin-bottom: 5px; text-align: center;">${headerText}</div>
+                        <div style="text-align: right; padding-right: 15px;">Amount</div>
+                    </th>
+                `);
+
+            },
+            error: function (xhr) {
+                if (requestId !== cashFlowReportRequest) return;
+                showCashFlowTableMessage("Unable to load the Cash Flow report. Please try again.");
+                alert("Server error. Please see console.");
+                console.log(xhr.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $("#TxtFromDate").kendoDatePicker({ format: "dd/MM/yyyy" });
+        $("#TxtToDate").kendoDatePicker({ format: "dd/MM/yyyy" });
+
+        // Set default date range to the current month dynamically
+        var today = new Date();
+        var defaultStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        var defaultEnd = today;
+        
+        $("#TxtFromDate").data("kendoDatePicker").value(defaultStart);
+        $("#TxtToDate").data("kendoDatePicker").value(defaultEnd);
+
+        cfSystemCompanyHeader = {
+            kh: $.trim($("#cfReportHeader #lblCompanyNameKh").text()),
+            en: $.trim($("#cfReportHeader #lblCompanyNameEn").text())
+        };
+        $("#cash-flow-view-wrapper").on("change", "#gjFilterClass", updateCashFlowCompanyHeader);
+
+        generateCashFlowReport();
+    });
+
+    function PrintReport() {
+        var fromDateObj = $("#TxtFromDate").data("kendoDatePicker").value();
+        var toDateObj = $("#TxtToDate").data("kendoDatePicker").value();
+        
+        var today = new Date();
+        var defaultStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        var defaultEnd = today;
+        
+        var fromStr = fromDateObj ? kendo.toString(fromDateObj, "dd/MM/yyyy") : kendo.toString(defaultStart, "dd/MM/yyyy");
+        var toStr = toDateObj ? kendo.toString(toDateObj, "dd/MM/yyyy") : kendo.toString(defaultEnd, "dd/MM/yyyy");
+        var printDateStr = kendo.toString(new Date(), "dd-MMM-yyyy HH:mm");
+        
+        var tableCopy = $(".table-responsive").clone();
+        if (!tableCopy.find("#TableGride").hasClass("cf-period-table")) {
+            tableCopy.find("#TableGride thead th:nth-child(2) > div").each(function () {
+                if ($.trim($(this).text()).indexOf("Period:") === 0) {
+                    $(this).remove();
+                }
+            });
+        }
+        var tableContent = tableCopy.html();
+        var companyKh = $("#cfReportHeader #lblCompanyNameKh").text();
+        var companyEn = $("#cfReportHeader #lblCompanyNameEn").text();
+        var reportTitle = $("#cfReportHeader #lblReportTitle").text();
+        var companyHeader = `
+            <div style="text-align: center; position: relative; margin-bottom: 20px;">
+                <div style="position: absolute; left: 0; top: 0;">
+                    <img src="/Content/images/logo.png" style="height: 60px;" onerror="this.style.display='none'" />
+                </div>
+                <div style="font-family: 'Khmer OS Muol Light', sans-serif; font-size: 20px; margin-bottom: 5px; color: #000;">
+                    ${escapeCashFlowHeaderText(companyKh)}
+                </div>
+                <div style="font-size: 16px; margin-bottom: 5px; color: #000;">
+                    ${escapeCashFlowHeaderText(companyEn)}
+                </div>
+                <div style="font-size: 10px; margin-bottom: 15px; color: #000;">
+                    ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+                </div>
+                <div style="font-weight: 600; font-size: 14px; text-transform: uppercase;">
+                    ${escapeCashFlowHeaderText(reportTitle)}
+                </div>
+            </div>
+            <div class="report-header-print" style="margin-top: 15px; margin-bottom: 20px; width: 100%;">
+                <div class="metadata-bar" style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; border-bottom: 1.5px solid #475569; padding-bottom: 8px; margin-bottom: 12px;">
+                    <div>${fromStr} - ${toStr}</div>
+                    <div>Print Date : ${printDateStr}</div>
+                </div>
+            </div>
+        `;
+
+        var win = window.open('', '', 'width=1200,height=900');
+        win.document.write(`
+            <html>
+            <head>
+                <meta charset="utf-8" />
+                <title>Cash Flow Statement</title>
+                <style>
+                    @@page { margin: 0; }
+                    body { font-family: Arial, sans-serif; font-size: 14px; padding: 20px; background-color: #fff; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    th { background: #f1f5f9; padding: 12px 16px; border-bottom: 2px solid #cbd5e1; text-align: left; text-transform: uppercase; font-size: 12px; font-weight: bold; }
+                    td { padding: 8px 16px; border: none; font-size: 13px; }
+                    .cf-section-header td { font-weight: bold; font-size: 14px; padding-top: 18px; padding-bottom: 6px; border-bottom: 1.5px solid #cbd5e1; }
+                    .cf-group-header td { font-weight: bold; padding-left: 20px; color: #475569; }
+                    .cf-account-row td { padding-left: 35px; color: #334155; }
+                    .cf-group-total td { font-weight: bold; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding-left: 20px; }
+                    .cf-section-total td { font-weight: bold; border-top: 1.5px solid #475569; border-bottom: 1.5px solid #475569; padding-top: 8px; padding-bottom: 8px; }
+                    .cf-kpi-row td { font-weight: bold; font-size: 14px; border-top: 2px solid #334155; border-bottom: 3px double #334155; padding-top: 10px; padding-bottom: 10px; background-color: #f8fafc; }
+                </style>
+            </head>
+            <body>
+                ${companyHeader}
+                ${tableContent}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        setTimeout(function () { win.print(); }, 800);
+    }
+
+    function ExportExcel() {
+        var table = document.getElementById("TableGride");
+        if (!table) {
+            alert("No Cash Flow data is available to export.");
+            return;
+        }
+        var headerRows = [
+            [getCashFlowExportHeaderText($("#cfReportHeader #lblCompanyNameKh").text(), "")],
+            [getCashFlowExportHeaderText($("#cfReportHeader #lblCompanyNameEn").text(), "")],
+            [getCashFlowExportHeaderText($("#cfReportHeader #lblReportTitle").text(), "Cash Flow Statement")],
+            [$.trim($("#cfReportHeader #lblDateRangeBar").text())],
+            ["Print Date: " + kendo.toString(new Date(), "dd-MMM-yyyy HH:mm")]
+        ];
+        var tableSheet = XLSX.utils.table_to_sheet(table);
+        var tableRows = XLSX.utils.sheet_to_json(tableSheet, { header: 1, raw: true });
+        var tableRange = tableSheet["!ref"] ? XLSX.utils.decode_range(tableSheet["!ref"]) : { e: { c: 1 } };
+        var columnCount = Math.max(1, tableRange.e.c + 1);
+        var worksheet = XLSX.utils.aoa_to_sheet(headerRows.concat(tableRows));
+        worksheet["!merges"] = headerRows.map(function (_, rowIndex) {
+            return { s: { r: rowIndex, c: 0 }, e: { r: rowIndex, c: columnCount - 1 } };
+        });
+        var headerStyles = [
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Khmer OS Muol Light", sz: 16, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Times New Roman", sz: 14, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 12, bold: true } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } },
+            { alignment: { horizontal: "center", vertical: "center" }, font: { name: "Arial", sz: 10 } }
+        ];
+        headerStyles.forEach(function (style, rowIndex) {
+            var cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex, c: 0 })];
+            if (cell) cell.s = style;
+        });
+        worksheet["!cols"] = Array.from({ length: columnCount }, function (_, columnIndex) {
+            return { wch: columnIndex === 0 ? 54 : 18 };
+        });
+        worksheet["!rows"] = [{ hpt: 30 }, { hpt: 24 }, { hpt: 22 }, { hpt: 20 }, { hpt: 20 }];
+        (tableSheet["!merges"] || []).forEach(function (merge) {
+            worksheet["!merges"].push({
+                s: { r: merge.s.r + headerRows.length, c: merge.s.c },
+                e: { r: merge.e.r + headerRows.length, c: merge.e.c }
+            });
+        });
+        var workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Cash Flow Statement");
+        XLSX.writeFile(workbook, "CashFlowReport.xlsx");
+    }
+
+    function getCashFlowExportHeaderText(value, fallback) {
+        value = $.trim(value || "");
+        return !value || /^(unknown|undefined|null)$/i.test(value) ? fallback : value;
+    }
+
+    function escapeCashFlowHeaderText(value) {
+        return String(value || "").replace(/[&<>"']/g, function (character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[character];
+        });
+    }
+</script>

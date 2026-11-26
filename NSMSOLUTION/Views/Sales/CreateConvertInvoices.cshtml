@@ -1,0 +1,294 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+@Html.Raw(ViewBag.AccountTypeGroup)
+<script>
+    var ItemName = "@ViewBag.ItemName";
+    var ItemID = "@ViewBag.ItemID";
+    var Clone = "@ViewBag.Clone";
+    var Type = "@ViewBag.Type";
+    var KVendorName = "@ViewBag.VendorName";
+    var primaryFieldValue = "@ViewBag.PrimaryFieldValue";
+    var saleNote = "@ViewBag.SaleNote";
+    var soNumber = "@ViewBag.SONumber";
+    var soId = "@ViewBag.SOID";
+    var isEdit = "@ViewBag.IsEdit";
+
+    $(function () {
+        // Replace VAT label with input
+        var $label = $('label[name="VAT"]');
+        var $input = $('<input>', {
+            type: 'hidden',
+            name: 'VATRate',
+            class: 'input2 text-center text-bold',
+            value: 0,
+            onclick: 'this.select()'
+        });
+        var td = $label.parent();
+        $label.replaceWith($input);
+        var div = $('<div>', { class: 'wrap-input3' });
+        td.append(div);
+        div.append($input).append('<span class="focus-input2"></span>');
+        div.append('<label name="VATAmount"></label>');
+
+        // Event delegation → apply to future rows as well
+        const element = `
+             input[name="QTY"],
+             input[name="UnitPrice"],
+             input[name="DisP"],
+             input[name="DisUSD"],
+             input[name="VAT"],
+             input[name="TxtDeposit"]
+         `;
+        $(document).on('keyup change', `${element}`, function () {
+            calculateTotals();
+        });
+
+        // ItemStatus change: load item info
+        $(document).on('change', "input[name='ItemStatus']", function () {
+            var idx = $(this).closest("tr").index();
+            var itemStatus = $(this).val();
+            var itemID = $(this).closest("tr").find('input[name="ItemID"]').val();
+            if (itemID) {
+                LoadData("Sales/LoadItemInfo?ItemID=" + itemID + "&ItemStatus=" + itemStatus, function (response) {
+                    var rst = JSON.parse(JSON.parse(response).data);
+                    $("input[name=UM]").eq(idx).val(rst[0].UM);
+                    $("input[name=UomID]").eq(idx).val(rst[0].UomID);
+                    $("input[name=UnitPrice]").eq(idx).val(accounting.formatMoney(rst[0].SalePrice, ''));
+                    calculateTotals();
+                });
+            }
+        });
+
+        // Append Tax options
+        $('#Customer_Notes').closest('div.row').before(`
+            <div class="row mt-3 mb-4 d-none" id="divTypeOfInvoice">
+                <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input type="checkbox" name="TypeOfInvoice" id="IncludedVAT" data-value="VAT" value="true" disabled>
+                        <label for="IncludedVAT">Included VAT</label>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input type="checkbox" name="TypeOfInvoice" id="CommercialINV" data-value="CM" value="true" disabled>
+                        <label for="CommercialINV">Commercial Inv.</label>
+                    </div>
+                </div>
+                 <div class="col-auto">
+                    <div class="icheck-material-cyan icheck-inline">
+                        <input type="checkbox" name="TypeOfInvoice" id="NonVAT" data-value="NonVAT">
+                        <label for="NonVAT">None VAT</label>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        if (systemId === 25) {
+            $('#IncludedVAT, #CommercialINV, #NonVAT')
+                .prop({ 'checked': false, 'disabled': true })
+                .val(false);
+        }
+
+        //Change class tigger tax
+        $(document).on(
+            'typeahead:change',
+            '#ClassName',
+            handleClassNameChange
+        );
+
+        // Change BankInfo to SaleNote
+        $("#BankInfo").attr({
+            id: "SaleNote",
+            placeholder: "Invoices Note",
+            name: "SaleNote"
+        }).siblings("label").attr({
+            for: "SaleNote"
+        }).html("Invoices Note");
+
+        if (primaryFieldValue) {
+            $("textarea[name='SaleNote']").val(saleNote);
+        }
+
+        // Move Terms & Conditions above Remark
+        var remark = $('#Customer_Notes').closest('.row');
+        var terms = $('#TermsConditions').closest('.row');
+        terms.insertBefore(remark);
+
+        // Load term & condition
+        LoadData("Sales/LoadCompanyInfo", function (res) {
+            const rst = JSON.parse(JSON.parse(res).data);
+            if (rst.length) $("#TermsConditions").val(decode(rst[0].TermConditionNonVAT));
+        });
+
+        // Load exchange rate (disabled)
+        LoadData("Sales/LoadExchangeRate", function () { return false; });
+
+        // Remove sales_id if clone
+        if (Clone == "True") $("#SalesID").val('');
+    });
+
+    // Change VAT options based on ClassName
+    function handleClassNameChange(isCommercialInv = false) {
+        const classID = Number($('#ClassName_ClassID').val());
+
+        $('#IncludedVAT, #CommercialINV, #NonVAT')
+            .prop({ 'checked': false, 'disabled': true })
+            .val(false);
+        $('input[name="VATRate"]').val(0);
+
+        const cm = @ViewBag.IsCommercialINV.ToString().ToLower() || isCommercialInv;
+
+        if (classID === 12) { // BS Co.,Ltd
+            if (cm) {
+                $('#CommercialINV').prop('checked', true).val(true);
+                $('#IncludedVAT').val(false);
+                $('input[name="VATRate"]').val(0);
+            } else {
+                $('#IncludedVAT').prop('checked', true).val(true);
+                $('#CommercialINV').val(false);
+                $('input[name="VATRate"]').val(10);
+            }
+        }
+        else if (classID === 11) { // None VAT
+            $('#NonVAT').prop('checked', true).val(true);
+            $('#IncludedVAT, #CommercialINV').val(false);
+            $('input[name="VATRate"]').val(0);
+        }
+
+        /// Hanlde SO prefix when clone
+        if (!isEdit) {
+            getPrefixNumber(classID, cm);
+        }
+
+        calculateTotals();
+    }
+
+    // Calculate totals for a single row
+    function calculateRow(row) {
+        const qty = parseFloat(accounting.unformat(row.find('input[name="QTY"]').val())) || 0;
+        const unitPrice = parseFloat(accounting.unformat(row.find('input[name="UnitPrice"]').val())) || 0;
+        const disP = parseFloat(accounting.unformat(row.find('input[name="DisP"]').val())) || 0;
+        const disUSD = parseFloat(accounting.unformat(row.find('input[name="DisUSD"]').val())) || 0;
+        const disKHR = parseFloat(accounting.unformat(row.find('input[name="DisKHR"]').val())) || 0;
+        const exchangeRate = $('input[name="ExchangeRate"]').val();
+
+        const calc = new TotalCalculator({
+            qty,
+            unitPrice,
+            discountUSD: disUSD,
+            discountKHR: disKHR,
+            discountPercent: disP,
+            exchangeRate
+        });
+
+        const result = calc.calculate();
+
+        // Update row Amount field
+        row.find('input[name="Amount"]').val(accounting.formatMoney(result.total, ''));
+        // Return both total and totalDiscount
+
+        return result;
+    }
+
+    // Calculate subtotal and total discount for all rows
+    function calcSubtotal() {
+        let subtotal = 0;
+        let totalDiscount = 0;
+
+        $('table[name="TblItemInfo"] tbody tr').each(function () {
+            const rowResult = calculateRow($(this));
+            subtotal += parseFloat(accounting.toFixed(rowResult.subtotal, 2));
+            totalDiscount += rowResult.totalDiscount;
+        });
+
+        $('label[name="SubTotal"]').text(accounting.formatMoney(subtotal, ''));
+        $('input[name="TxtDisUSD"]').val(accounting.formatMoney(totalDiscount, '')); // sum of all row discounts
+
+        return { subtotal, totalDiscount };
+    }
+
+    // Calculate totals for the entire order
+    function calculateTotals() {
+        setTimeout(function () {
+            const { subtotal, totalDiscount } = calcSubtotal();
+            const vatRate = parseFloat(accounting.unformat($('input[name="VATRate"]').val())) || 0;
+            const deposit = parseFloat(accounting.unformat($('input[name="TxtDeposit"]').val())) || 0;
+
+            // Use TotalCalculator for the whole order (subtotal only)
+            const calc = new TotalCalculator({
+                qty: 1,
+                unitPrice: subtotal - totalDiscount,
+                vatRate,
+                deposit
+            });
+
+            const result = calc.calculate();
+
+            // Update UI
+            $('label[name="VATAmount"]').text(accounting.formatMoney(result.amtVAT, ''));
+            $('label[name="Total"]').text(accounting.formatMoney(result.total, ''));
+            $('label[name="GrandTotal"]').text(accounting.formatMoney(result.grandTotal, ''));
+            $('input[name="TxtBalance"]').val(accounting.formatMoney(result.balanceUSD, ''));
+
+            return result;
+        }, 10);
+    }
+
+    function getPrefixNumber(classID) {
+        const module = "FINV";
+        setTimeout(function () {
+            LoadData(`Sales/GetPrefixCallBack?ClassID=${classID}&Module=${module}`, function (res) {
+                const rst = JSON.parse(JSON.parse(res).data);
+                $("#NewInvoiceNumber").val(rst[0].PrefixNumber);
+                $("#PrefixFINV").val(rst[0].Prefix);
+            });
+        }, 100);
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        let data = JSON.parse(response.Data)[0];
+        PostData("Sales/SendNotificationToTelegram", { SalesID: data.SalesID });
+    }
+
+    function changeInvoiceNumber() {
+        const salesID = Number($('#InvoiceNumber_INVID').val());
+        if (salesID) {
+            LoadData(`Sales/LoadInvoices?SalesID=${salesID}`, function (response) {
+                var rst = JSON.parse(JSON.parse(response).data);
+                var tblData = rst;
+                rst = rst[0];
+                $("#InvoicesDate").val(rst.InvoiceDate);
+                $("#ExchangeRate").val(rst.ExchangeRate);
+                $("#ClassName").val(rst.ClassName);
+                $("#ClassName_ClassID").val(rst.ClassID);
+                $("#SallerName").val(rst.SellerName);
+                $("#SallerName_SellerID").val(rst.SellerID);
+                $("#CustomerName").val(rst.CustomerName);
+                $("#CustomerName_CustomerID").val(rst.CustomerID);
+                $("#CustomerCode").val(rst.CustomerCode);
+                $("#CustomerType").val(rst.CustomerType);
+                $("#CustomerMobile").val(rst.CustomerMobile);
+                $("#WarehouseName").val(rst.WarehouseName);
+                $("#WarehouseName_LocationID").val(rst.LocationID);
+                $("#NeedApproveBy").val(rst.NeedApproveBy);
+                $("#NeedApproveBy_NeedApproveByID").val(rst.NeedApproveByID);
+                $("#NeedApproveBy_ApproveUsername").val(rst.ApproveUsername);
+                $("#Customer_Notes").val(rst.Remark);
+                $("#DueDate").val(rst.DueDate);
+                $("#InvoiceNumber_SONumber").val(rst.SONumber);
+                $("#SaleNote").val(rst.SaleNote);
+                $('#ClassName_ClassID').trigger('change', true);
+                $('#TableItemInformation tbody').empty();
+                if (!isEdit) getPrefixNumber(rst.ClassID);
+                setTimeout(function () {
+                    SetValueTableRow(tblData, 'ItemName', 'TableItemInformation', 'TRNo', rowData_TableItemInformation, 'TDNo', this, `CallSetAutoComplete_ItemName`, '', '', '', '', '', '', RowFields2_TableItemInformation);
+                    setTimeout(function () {
+                        calculateTotals();
+                    }, 1000)
+                }, 300);
+            });
+        }
+    }
+</script>

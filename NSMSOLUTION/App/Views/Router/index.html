@@ -1,0 +1,177 @@
+﻿<div class="rw-page" ng-controller="RouterController">
+    <link rel="stylesheet" href="App/Views/Router/style.css" />
+
+    <div class="rw-layout">
+
+        <!-- ===== Sidebar: router list ===== -->
+        <div class="rw-sidebar">
+            <div class="rw-sidebar-heading">
+                <i class="ti ti-router"></i>
+                Routers
+            </div>
+
+            <div class="rw-skeleton-row" ng-if="loadingRouters">
+                <div class="rw-skeleton-chip" ng-repeat="n in [1,2,3,4,5]"></div>
+            </div>
+
+            <div class="rw-empty-state rw-empty-state-compact" ng-if="!loadingRouters && !routers.length">
+                <i class="ti ti-router-off"></i>
+                <p>No routers found.</p>
+            </div>
+
+            <div class="rw-nav" ng-if="routers.length">
+                <button type="button" class="rw-nav-item" ng-repeat="r in routers track by $index"
+                    ng-class="{'rw-nav-item-active': selectedRouterId === r.RouterID}" ng-click="selectRouter(r)">
+                    <i class="ti ti-router"></i>
+                    <span class="rw-nav-item-label">{{ r.RouterName }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Content ===== -->
+        <div class="rw-content">
+
+            <div class="rw-content-topbar">
+                <div class="rw-breadcrumb">
+                    <span>Reports</span>
+                    <i class="ti ti-chevron-right"></i>
+                    <span class="rw-breadcrumb-current">Router</span>
+                </div>
+            </div>
+
+            <h1 class="rw-title">
+                Router Information
+                <span class="rw-title-accent" ng-if="selectedRouterName">{{ selectedRouterName }}</span>
+            </h1>
+            <p class="rw-subtitle">Live device logs</p>
+
+            <div class="rw-empty-state" ng-if="!loadingRouters && !selectedRouterId">
+                <i class="ti ti-hand-click"></i>
+                <p>Select a router on the left to see connection status.</p>
+            </div>
+
+            <div ng-if="selectedRouterId">
+                <!-- ===== PPPoE / Static tabs ===== -->
+                <div class="rw-connection-tabs" role="tablist" aria-label="Connection type">
+                    <button type="button" class="rw-connection-tab"
+                        ng-class="{'rw-connection-tab-active': activeTab === 'PPPoE'}"
+                        ng-attr-aria-selected="{{ activeTab === 'PPPoE' }}"
+                        ng-click="selectConnectionType('PPPoE', selectedRouterId)" role="tab">
+                        PPPoE <span class="rw-badge rw-badge-active">{{ pppoeData.length }}</span>
+                    </button>
+
+                    <button type="button" class="rw-connection-tab"
+                        ng-class="{'rw-connection-tab-active': activeTab === 'Static'}"
+                        ng-attr-aria-selected="{{ activeTab === 'Static' }}"
+                        ng-click="selectConnectionType('Static', selectedRouterId)" role="tab">
+                        Static <span class="rw-badge rw-badge-active">{{ staticData.length }}</span>
+                    </button>
+                </div>
+
+                <div class="rw-search-row">
+                    <div class="rw-search-wrap">
+                        <input type="text" class="rw-search-input" id="filterId" ng-model="filters.text"
+                            ng-change="applyFilter()"
+                            ng-attr-placeholder="{{ activeTab === 'PPPoE' ? 'Search by name, id, group…' : 'Search by name, iface…' }}" />
+                    </div>
+                    <span class="rw-search-count" ng-if="filters.text">{{ filteredCount }} match<span
+                            ng-if="filteredCount !== 1">es</span></span>
+                </div>
+
+                <div class="rw-card-body">
+                    <div ng-if="activeTab === 'PPPoE'">
+                        <div ng-if="loadingPPPoE"
+                            style="display:flex;align-items:center;justify-content:center;gap:8px;padding:40px;color:var(--text3);font-size:13px">
+                            <i class="ti ti-loader-2 rw-spin"></i> Loading pppoe...
+                        </div>
+
+                        <table ng-if="!loadingPPPoE" class="rw-table">
+                            <thead>
+                                <tr>
+                                    <th>no</th>
+                                    <th>id</th>
+                                    <th>name</th>
+                                    <th>password</th>
+                                    <th>disabled</th>
+                                    <th>group</th>
+                                    <th>actual profile</th>
+                                    <th>last seen</th>
+                                    <th>comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="pppoeData.length" ng-repeat="row in pppoeData track by $index">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ row.id }}</td>
+                                    <td nowrap>{{ row.name }}</td>
+                                    <td>{{ row.password }}</td>
+                                    <td>
+                                        <span class="rw-badge"
+                                            ng-class="row.disabled == 'true' ? 'rw-badge-inactive' : 'rw-badge-active'">
+                                            {{ row.disabled == 'true' ? 'Disabled' : 'Active' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row.group }}</td>
+                                    <td>{{ row.actualProfile }}</td>
+                                    <td>{{ row.lastSeen }}</td>
+                                    <td>
+                                        <span>{{ row.comment }}<br></span>
+                                    </td>
+                                </tr>
+                                <tr colspan="9" ng-if="!pppoeData.length">
+                                    <td>No data.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div ng-if="activeTab === 'Static'">
+
+                        <div ng-if="loadingStatic"
+                            style="display:flex;align-items:center;justify-content:center;gap:8px;padding:40px;color:var(--text3);font-size:13px">
+                            <i class="ti ti-loader-2 rw-spin"></i> Loading pppoe...
+                        </div>
+
+                        <table ng-if="!loadingStatic" class="rw-table">
+                            <thead>
+                                <tr>
+                                    <th>no</th>
+                                    <th>id</th>
+                                    <th>name</th>
+                                    <th>vlanId</th>
+                                    <th>disabled</th>
+                                    <th>iface</th>
+                                    <th>mtu</th>
+                                    <th>comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="staticData.length" ng-repeat="row in staticData track by $index">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ row.id }}</td>
+                                    <td nowrap>{{ row.name }}</td>
+                                    <td>{{ row.vlanId }}</td>
+                                    <td>
+                                        <span class="rw-badge"
+                                            ng-class="row.disabled == 'true' ? 'rw-badge-inactive' : 'rw-badge-active'">
+                                            {{ row.disabled == 'true' ? 'Disabled' : 'Active' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row.iface }}</td>
+                                    <td>{{ row.mtu }}</td>
+                                    <td>
+                                        <span>{{ row.comment }}<br></span>
+                                    </td>
+                                </tr>
+                                <tr colspan="9" ng-if="!staticData.length">
+                                    <td>No data.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

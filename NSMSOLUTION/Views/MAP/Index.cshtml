@@ -1,0 +1,159 @@
+﻿@{
+    Layout = null;
+}
+
+@*<script src="~/Scripts/Map/locationpicker.jquery.js" crossorigin="anonymous"></script>*@
+
+<div class="row">
+    <div class="col">
+        <div class="mb-3 floating-label">
+            <input type="text" id="Location_Map" class="form-control" placeholder=" ">
+            <label for="Location_Map">Location</label>
+        </div>
+    </div>
+</div>
+<div class="row justify-content-end">
+    <div class="col">
+        <div id="Cust_Map" class="text-center" style="width: 100%; height: 500px"><img src="~/Scripts/Map/icons/icons8-location.gif" class="img-fluid" style="height:120px" /></div>
+    </div>
+</div>
+
+<script>
+    var MapData = "@ViewBag.Data";
+    var map_Center = "";
+    var map = "";
+    var uniqueMapId = 1;
+    var MapMarkerData = [];
+    var Map_Marker = [];
+    var info_window = [];
+    var currentInfoWindow = null;
+    $(document).ready(function () {
+        MapData = MapData.replace(/&quot;/ig, '"');
+        MapData = JSON.parse(MapData.substring(1, MapData.length - 1));
+        map_initialize();
+        function map_initialize() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+                function showPosition(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    map_Center = new google.maps.LatLng(lat, lng);
+                    var googleMapOptions = {
+                        center: map_Center,
+                        //panControl: true,
+                        //draggable: true,
+                        //zoomControl: true,
+                        //mapTypeControl: true,
+                        //scaleControl: true,
+                        //scrollwheel: true,
+                        //navigationControl: true,
+                        //mapTypeControlOptions: {
+                        //    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                        //    position: google.maps.ControlPosition.TOP_CENTER
+                        //},
+                        //streetViewControl: true,
+                        //overviewMapControl: true,
+                        //rotateControl: true,
+                        zoom: 12,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        //zoomControlOptions: {
+                        //    style: google.maps.ZoomControlStyle.SMALL //zoom control size
+                        //},
+                    };
+                    map = new google.maps.Map(document.getElementById("Cust_Map"), googleMapOptions);
+
+                    $.each(MapData, function (key, val) {
+                        var location = { lat: val.GoogleMap_Latitude, lng: val.GoogleMap_Longitude };
+                        Map_Marker[key] = new google.maps.Marker({
+                            position: location,
+                            map: map,
+                            draggable: false,
+                            animation: google.maps.Animation.BOUNCE,
+                            title: "Customer Location",
+                            icon: "Scripts/Map/icons/NSM-ISP.png"
+                        });
+                        var obj = { ID: uniqueMapId, Location: location };
+                        uniqueMapId++;
+                        MapMarkerData.push(obj);
+                        google.maps.event.addListener(Map_Marker[key], 'click', function () {
+                            var locationName = val.GoogleMap_FullAddress;
+                            $("#Location_Map").val(locationName);
+                            var contentString = '<div name="markermap" class="marker-info-win">' +
+                                '<b>Location</b><br /><br /><a target="_blank" href="https://www.google.com/maps/place/' +
+                                val.GoogleMap_Latitude + ',' + val.GoogleMap_Longitude + '/@@' + val.GoogleMap_Latitude + ',' + val.GoogleMap_Longitude + ',15z' +
+                                '">' + locationName + '</a>' +
+                                '</div>';
+                            info_window[key] = new google.maps.InfoWindow({
+                                content: contentString
+                            });
+
+                            if (currentInfoWindow != null) {
+                                currentInfoWindow.close();
+                            }
+                            info_window[key].open(map, Map_Marker[key]);
+                            currentInfoWindow = info_window[key];
+                        });
+                    });
+                }
+            }
+        }
+    });
+
+    var ClickMarker = [];
+    function gotoMapLocation(GoogleMap_FullAddress, Latitude, Longitude) {
+        var location = { lat: Latitude, lng: Longitude };
+        var i = 0;
+        for (i = 0; i < MapMarkerData.length; i++) {
+            if (MapMarkerData[i].Location.lat == location.lat && MapMarkerData[i].Location.lng == location.lng) {
+                Map_Marker[i].setMap(null);
+                ClickMarker[i] = (typeof ClickMarker[i] == "undefined" ? "" : ClickMarker[i]);
+                if (ClickMarker[i] != "")
+                    ClickMarker[i].setMap(null);
+                break;
+            }
+        }
+        ClickMarker[i] = new google.maps.Marker({
+            position: location,
+            map: map,
+            draggable: false,
+            animation: google.maps.Animation.BOUNCE, //bounce animation
+            title: "Customer Location",
+            icon: "Scripts/Map/icons/NSM-ISP.png"
+        });
+        $("#Location_Map").val(GoogleMap_FullAddress);
+        var locationName = GoogleMap_FullAddress;
+        var contentString = '<div name="markermap" class="marker-info-win">' +
+            '<b>Location</b><br /><br /><a target="_blank" href="https://www.google.com/maps/place/' +
+            Latitude + ',' + Longitude + '/@@' + Latitude + ',' + Longitude + ',15z' +
+            '">' + locationName + '</a>' +
+            '</div>';
+        var info_window = new google.maps.InfoWindow({
+            content: contentString
+        });
+
+        if (currentInfoWindow != null) {
+            currentInfoWindow.close();
+        }
+        info_window.open(map, ClickMarker[i]);
+        currentInfoWindow = info_window;
+        Map_Marker[i] = ClickMarker[i];
+        google.maps.event.addListener(Map_Marker[i], 'click', function () {
+            var locationName = GoogleMap_FullAddress;
+            var contentString = '<div name="markermap" class="marker-info-win">' +
+                '<b>Location</b><br /><br /><a target="_blank" href="https://www.google.com/maps/place/' +
+                Latitude + ',' + Longitude + '/@@' + Latitude + ',' + Longitude + ',15z' +
+                '">' + locationName + '</a>' +
+                '</div>';
+            info_window[i] = new google.maps.InfoWindow({
+                content: contentString
+            });
+
+            if (currentInfoWindow != null) {
+                currentInfoWindow.close();
+            }
+            info_window[i].open(map, Map_Marker[i]);
+            currentInfoWindow = info_window[i];
+        });
+    }
+</script>
+@*<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyp56z33xH2M5YbQV95RdXB8vlqPTprAA&callback=initMap&sensor=false&libraries=places&language=km" async defer></script>*@

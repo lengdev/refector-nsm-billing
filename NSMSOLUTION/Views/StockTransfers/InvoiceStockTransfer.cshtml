@@ -1,0 +1,194 @@
+﻿
+@{
+    Layout = null;
+    System.Data.DataRow dataRow = ViewBag.Data.Rows[0];
+}
+<link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
+<style>
+    .mytable th, .mytable td {
+        border: 0.5px solid #000 !important;
+    }
+
+    .mytable th {
+        background-color: @(dataRow["SystemID"].ToString() == "25" ? "#c5d9f1" : "#f89c39");
+        color: @(dataRow["SystemID"].ToString() == "25" ? "#000" : "#fff") ;
+    }
+
+    .moul-regular {
+        font-family: "Moul", serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    @@media print {
+        @@page {
+            size: A3 !important;
+            margin: 0px 20px 0px 50px !important;
+        }
+    }
+</style>
+<div style="padding:5px;" id="DivPrintStockTransfer">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-between align-items-end mt-4 mb-3">
+            <div class="img">
+                <img class="img-fluid" src="@ViewBag.Logo" width="200" />
+            </div>
+        </div>
+
+        <div style="margin: 0 auto 10px;text-align: center;">
+            <h4 class="page-header mb-2 moul-regular" ​>ប័ណ្ណ​ផ្ទេរទំនិញ</h4>
+            <h5 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">Stock Transfer</h5>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col">
+            <label><b>Transfer Name:</b> @dataRow["CreatedBy"]</label><br />
+            <label><b>Tel:</b> @dataRow["Telephone"]</label><br />
+        </div>
+        <div class="col text-right">
+            <label><b>Transfer No:</b> @dataRow["TransferNo"].ToString()</label><br />
+            <label><b>Transfer Date:</b> @dataRow["TransferDate"].ToString()</label>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <table class="table mytable">
+                <thead class="text-center">
+                    <tr>
+                        <th width="5%">No.</th>
+                        <th width="10%">Item Code</th>
+                        <th width="25%">Item Name</th>
+                        <th width="10%">Serial Number</th>
+                        <th width="10%">QTY</th>
+                        <th width="5%">UOM</th>
+                        <th width="10%">From Warehouse</th>
+                        <th width="10%">To Warehouse</th>
+                        <th width="15%">Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 0;
+                        foreach (System.Data.DataRow dr in ViewBag.Data.Rows)
+                        {
+                            i++;
+                            <tr>
+                                <td align="center">@i</td>
+                                <td align="center" nowrap>@dr["ItemCode"]</td>
+                                <td>@dr["ItemName"]</td>
+                                <td align="center">@dr["SerialNumber"]</td>
+                                <td align="right" nowrap>@dr["QTYOUT"]</td>
+                                <td align="center" nowrap>@dr["UM"]</td>
+                                <td nowrap>@dr["FromWarehouse"]</td>
+                                <td nowrap>@dr["ToWarehouse"]</td>
+                                <td>@dr["Reason"]</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div id="divFooterPrint">
+            <div class="row" style="margin-top:50px">
+                <div class="col-4">
+                    @{string[] aa = dataRow["PreparedBySignature"].ToString().Split('~');
+                        if (aa[0].ToString() != "")
+                        {
+                            <div class="text-center" style="height:50px">
+                                <img height="60" src="../Uploads/Users/@aa[0]" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center" style="height:50px"></div>
+                        }
+                    }
+                    <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                    <div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label text-uppercase text-nowrap">Prepared By</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="col-form-label text-nowrap">Name: @dataRow["PreparedBy"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Position: @dataRow["PreparedByPosition"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Date: @dataRow["TransferDate"].ToString()</label><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    @{aa = dataRow["CheckSignature"].ToString().Split('~');
+                        if (aa[0].ToString() != "")
+                        {
+                            <div class="text-center" style="height:50px">
+                                <img height="60" src="../Uploads/Users/@aa[0]" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center" style="height:50px"></div>
+                        }
+                    }
+                    <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                    <div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label text-uppercase text-nowrap">
+                                Checked By
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="col-form-label text-nowrap">Name: @dataRow["CheckBy"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Position: @dataRow["CheckByPosition"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Date: @(dataRow["TransferDate"].ToString() != "" ? dataRow["TransferDate"].ToString():"")</label><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    @{aa = dataRow["ReceivedBySignature"].ToString().Split('~');
+                        if (aa[0].ToString() != "")
+                        {
+                            <div class="text-center" style="height:50px">
+                                <img height="60" src="../Uploads/Users/@aa[0]" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center" style="height:50px"></div>
+                        }
+                    }
+                    <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                    <div class="row">
+                        <div class="col text-center">
+                            <label class="col-form-label text-uppercase text-nowrap">
+                                Received By
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="col-form-label text-nowrap">Name: @dataRow["ReceivedBy"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Position: @dataRow["ReceivedByPosition"].ToString()</label><br>
+                            <label class="col-form-label text-nowrap">Date: @(dataRow["TransferDate"].ToString() != "" ? dataRow["TransferDate"].ToString():"")</label><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        var contentHeight = $("#DivPrintStockTransfer").height();
+        var a3Height = 1587; 
+
+        if (contentHeight >= a3Height) {
+            $(".footer").css("cssText", "position: static !important;width: 100%;");
+        }
+    });
+</script>

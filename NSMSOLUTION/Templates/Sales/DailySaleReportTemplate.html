@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin />
+    <title>{Title}</title>
+</head>
+<body id="BoyMasterPage" class="khmerFont1" style="background-color:#fff!important">
+    <style>
+        .mytable th, .mytable td {
+            border: 1px solid #000000 !important;
+        }
+
+        /* Remove the empty space on the right: table fills the full width */
+        .wrapper, .invoice {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-right: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .mytable {
+            width: 100% !important;
+            margin-right: 0 !important;
+        }
+
+            /* Keep header colors when printing / exporting to PDF */
+            .mytable thead th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Weekly / monthly reports can span many pages */
+            .mytable tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+        @media print {
+            .invoice {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Repeat the table header on every page */
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+
+            @page {
+                size: A3 !important;
+                margin: 40px 10px 20px 50px !important;
+            }
+
+            .footer {
+                width: calc(100% - 20px);
+                position: fixed;
+                bottom: 0 !important;
+            }
+
+            .page-break {
+                display: block;
+                page-break-before: always;
+            }
+
+            .showPageNo {
+                display: block !important;
+            }
+        }
+    </style>
+    <div class="wrapper" id="Div_Content">
+        <section class="invoice">
+            <div class="report-header" style="position: relative; width: 100%; margin-bottom: 1.5rem;">
+                <!-- Logo stays on the left without pushing the title off-center -->
+                <div class="img" style="position: absolute; left: 0; top: 0;">
+                    {LOGO}
+                </div>
+                <!-- Title block is centered on the full page width -->
+                <div class="text-center" style="width: 100%; text-align: center;">
+                    <span style="font-family: 'Times New Roman', 'Moul'; font-size: 24px">
+                        {SystemName}
+                    </span><br />
+
+                    <span style="font-size: 22px">
+                        {TitleKH}
+                    </span><br />
+                    <span style="font-family: 'Times New Roman'; font-size: 22px;">
+                        {Title}
+                    </span><br />
+                    <span>{DailyDate}</span>
+                </div>
+            </div>
+            <table class="table table-bordered mytable">
+                {TblHead}
+                {TblBody}
+            </table>
+        </section>
+    </div>
+</body>
+</html>

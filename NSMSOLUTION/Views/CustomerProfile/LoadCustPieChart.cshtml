@@ -1,0 +1,220 @@
+﻿@{
+    Layout = null;
+}
+@*<canvas id="summaryCustBalanceChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>*@
+<div id="summaryCustBalanceChart"></div>
+<script>
+    //Chart.register(ChartDataLabels);
+
+    var Data = "@ViewBag.CustBalanceData";
+    if (Data != "")
+        Data = JSON.parse(Data.replace(/&quot;/ig, '"'))[0];
+    $(function () {
+        if (Data != "") {
+            //var ctx = $('#summaryCustBalanceChart').get(0).getContext('2d');
+            //if (myChart != "") {
+            //    myChart.destroy();
+            //}
+            //myChart = new Chart(ctx, {
+            //    type: 'pie',
+            //    data: {
+            //        labels: ['Balance', 'Paid', 'Unpaid', 'Partially Paid', 'Deposit', 'Total', 'Input Amount', 'Credit Note'],
+            //        datasets: [{
+            //            //label: '# of Votes',
+            //            data: [
+            //                (Data.AdvancePaymentAmount == "" ? 0 : accounting.unformat(Data.AdvancePaymentAmount)),
+            //                (Data.PaidAmount == "" ? 0 : accounting.unformat(Data.PaidAmount)),
+            //                (Data.UnpaidAmount == "" ? 0 : accounting.unformat(Data.UnpaidAmount)),
+            //                (Data.PartiallyPaid == "" ? 0 : accounting.unformat(Data.PartiallyPaid)),
+            //                (Data.DepositFee == "" ? 0 : accounting.unformat(Data.DepositFee)),
+            //                (Data.InvoiceAmount == "" ? 0 : accounting.unformat(Data.InvoiceAmount)),
+            //                (Data.InputAmount == "" ? 0 : accounting.unformat(Data.InputAmount)),
+            //                (Data.CreditNote == "" ? 0 : accounting.unformat(Data.CreditNote))
+            //            ],
+            //            backgroundColor: [
+            //                '#4FCA9E', //rgba(255, 99, 132, 0.2)
+            //                '#387CFF',// rgba(54, 162, 235, 0.2)
+            //                '#DC3545',// cd1076
+            //                '#F89C39',// rgba(255, 206, 86, 0.2)
+            //                '#6A6CFF',
+            //                '#7FBDFF',
+            //                '#4BC0C0',
+            //                'rgba(54, 162, 235, 0.2)'
+            //            ],
+            //            borderWidth: 1
+            //        }]
+            //    },
+            //    options: {
+            //        maintainAspectRatio: false,
+            //        responsive: true,
+            //        plugins: {
+            //            datalabels: {
+            //                //anchor: "end", //start, center, end
+            //                //rotation: function (ctx) {
+            //                //    const valuesBefore = ctx.dataset.data.slice(0, ctx.dataIndex).reduce((a, b) => a + b, 0);
+            //                //    const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+            //                //    const rotation = ((valuesBefore + ctx.dataset.data[ctx.dataIndex] / 2) / sum * 360);
+            //                //    return rotation < 180 ? rotation - 90 : rotation + 90;
+            //                //},
+            //                color: 'white',
+            //                formatter: (val, ctx) => {
+            //                    const totalDatasetSum = ctx.chart.data.datasets[ctx.datasetIndex].data.reduce((a, b) => (parseInt(a) + parseInt(b)), 0);
+            //                    const percentage = val * 100 / totalDatasetSum;
+            //                    const roundedPercentage = Math.round(percentage * 100) / 100;
+            //                    //return `${roundedPercentage}% \n\r${accounting.formatMoney(val)}`;
+            //                    //return `${roundedPercentage}%`;
+            //                    return (val == 0 ? '' : `${accounting.formatMoney(val)}`);
+            //                },
+            //            },
+            //            legend: {
+            //                position: 'left',
+            //                labels: {
+            //                    font: {
+            //                        size: 16
+            //                    },
+            //                    generateLabels: function (chart) {
+
+            //                        // Get the default label list
+            //                        const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
+            //                        const labelsOriginal = original.call(this, chart);
+
+            //                        // Build an array of colors used in the datasets of the chart
+            //                        var datasetColors = chart.data.datasets.map(function (e) {
+            //                            return e.backgroundColor;
+            //                        });
+            //                        var datasetData = function (index) {
+            //                            return chart.data.datasets.map(function (e) {
+            //                                return e.data[index];
+            //                            })[0];
+            //                        };
+
+            //                        datasetColors = datasetColors.flat();
+
+            //                        // Modify the color and hide state of each label
+            //                        labelsOriginal.forEach(label => {
+            //                            var value = datasetData(label.index);
+            //                            label.text = label.text + " : " + accounting.formatMoney(value),
+            //                                // Change the color to match the dataset
+            //                                label.fillStyle = datasetColors[label.index];
+            //                        });
+
+            //                        return labelsOriginal;
+            //                    }
+            //                },
+            //                onClick: function (mouseEvent, legendItem, legend) {
+            //                    // toggle the visibility of the dataset from what it currently is
+            //                    legend.chart.getDatasetMeta(
+            //                        legendItem.datasetIndex
+            //                    ).hidden = legend.chart.isDatasetVisible(legendItem.datasetIndex);
+            //                    legend.chart.update();
+            //                }
+            //            },
+            //            tooltip: {
+            //                callbacks: {
+            //                    label: function (context) {
+            //                        const labelIndex = (context.datasetIndex * 2) + context.dataIndex;
+            //                        return context.chart.data.labels[labelIndex] + ': ' + accounting.formatMoney(context.formattedValue);
+            //                    },
+            //                },
+            //                //titleFont: {
+            //                //    size: 22
+            //                //},
+            //                bodyFont: {
+            //                    size: 18
+            //                },
+            //                //bodyColor: '#cd1076',
+            //                //backgroundColor: '#FFF',
+            //            }
+            //        }
+            //    },
+            //});
+            var options = {
+                series: [
+                    Data.AdvancePaymentAmount == "" ? 0 : accounting.unformat(Data.AdvancePaymentAmount),
+                    (Data.PaidAmount == "" ? 0 : accounting.unformat(Data.PaidAmount)),
+                    (Data.UnpaidAmount == "" ? 0 : accounting.unformat(Data.UnpaidAmount)),
+                    (Data.PartiallyPaid == "" ? 0 : accounting.unformat(Data.PartiallyPaid)),
+                    (Data.DepositFee == "" ? 0 : accounting.unformat(Data.DepositFee)),
+                    (Data.InvoiceAmount == "" ? 0 : accounting.unformat(Data.InvoiceAmount)),
+                    (Data.InputAmount == "" ? 0 : accounting.unformat(Data.InputAmount)),
+                    (Data.CreditNote == "" ? 0 : accounting.unformat(Data.CreditNote))
+                ],
+                chart: {
+                    height: 300,
+                    type: 'pie',
+                },
+                labels: ['Balance: ' + Data.AdvancePaymentAmount, 'Paid: ' + Data.PaidAmount, 'Unpaid: ' + Data.UnpaidAmount, 'Partially Paid: ' + Data.PartiallyPaid, 'Deposit: ' + Data.DepositFee,
+                    'Total: ' + Data.InvoiceAmount, 'Input Amount: ' + Data.InputAmount, 'Credit Note: ' + Data.CreditNote],
+                legend: {
+                    //show: true,
+                    //showForSingleSeries: false,
+                    //showForNullSeries: true,
+                    //showForZeroSeries: true,
+                    position: 'left',
+                    //horizontalAlign: 'center',
+                    fontSize: '14px',
+                    //fontFamily: 'Helvetica, Arial',
+                    //fontWeight: 400,
+                    //itemMargin: {
+                    //   horizontal: 15,
+                    //  vertical: 0
+                    //},
+                },
+                colors: ['#4FCA9E', //rgba(255, 99, 132, 0.2)
+                        '#387CFF',// rgba(54, 162, 235, 0.2)
+                        '#DC3545',// cd1076
+                        '#F89C39',// rgba(255, 206, 86, 0.2)
+                        '#6A6CFF',
+                        '#7FBDFF',
+                        '#4BC0C0',
+                        'rgba(54, 162, 235, 0.2)'],
+                dataLabels: {
+                    formatter: function (val, opts) {
+                        return accounting.formatNumber(opts.w.config.series[opts.seriesIndex]);
+                    },
+                },
+                tooltip: {
+                    theme: 'light',
+                    custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                        return '<div class="arrow_box">' +
+                            '<span>' + w.globals.labels[seriesIndex] + '</span>' +
+                            '</div>'
+                    }
+                    //x: {
+                    //    show: false
+                    //},
+                    //y: {
+                    //    title: {
+                    //        formatter: function (val, opts) {
+                    //            //console.log(val);
+                    //            console.log(opts.w.config.series[opts.seriesIndex]);
+                    //            return accounting.formatNumber(val);
+                    //        }
+                    //    }
+                    //}
+                },
+                //responsive: [{
+                //    breakpoint: 480,
+                //    options: {
+                //        chart: {
+                //            width: 200
+                //        },
+                //        legendlegend: {
+                //            position: 'bottom'
+                //        },
+                //    }
+                //}]
+            };
+
+            //var myChart = new ApexCharts(, options);
+            //chart.render
+
+            // Destroy if exists in order to re-update the data
+            if (window.myChart)
+                window.myChart.destroy();
+
+            window.myChart = new ApexCharts(document.querySelector("#summaryCustBalanceChart"), options);
+            window.myChart.render();
+        }
+    });
+</script>

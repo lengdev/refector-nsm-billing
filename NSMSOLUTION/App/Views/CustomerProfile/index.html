@@ -1,0 +1,2949 @@
+<link rel="stylesheet" href="App/Views/CustomerProfile/style.css">
+
+<div ng-controller="TemplateToggleCtrl" ng-cloak>
+  <div class="auto-lock" ng-if="showTemplateSwitch"
+    style="margin: 10px 0; background: #f8f9fc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e9ecef; display: inline-flex; align-items: center; gap: 8px;">
+    <label class="toggle">
+      <input type="checkbox" ng-model="template.isNew">
+      <span class="toggle-slider"></span>
+    </label>
+    Switch Template
+  </div>
+
+  <!-- Old Template -->
+  <div ng-if="!template.isNew" ng-controller="CustomerProfileCtrl" ng-cloak>
+    <div ng-bind-html="HtmlData"></div>
+  </div>
+
+  <!-- New Template -->
+  <div ng-if="template.isNew" ng-cloak>
+    <div class="copy-tooltip" id="copy-tip">Copied!</div>
+    <div class="customer-profile" ng-controller="CustomerProfileV2Ctrl">
+      <div class="profile-scale">
+        <div class="topbar">
+          <div class="topbar-brand d-none">
+            <div class="brand-icon"><i class="ti ti-building-community"></i></div>
+            Customer Manager
+          </div>
+          <div class="topbar-search">
+            <i class="ti ti-search"></i>
+            <input id="quick-search" class="quick--search" type="text" placeholder="Quick Search [CID, Name]" />
+            <input type="hidden" id="CustomerID">
+          </div>
+          <div class="topbar-right">
+            <button class="icon-btn d-none" tooltip title="Notifications">
+              <i class="ti ti-bell"></i>
+              <span class="notif-dot"></span>
+            </button>
+            <button class="icon-btn" ng-click="refreshCustomer()" ng-disabled="refreshingAll"
+              title="Refresh customer data" data-toggle="tooltip" data-placement="bottom">
+              <i class="ti ti-refresh" ng-class="{ 'ti-spin': refreshingAll }"></i>
+            </button>
+            <button class="btn btn-primary" style="gap:5px" ng-click="editProfile()">
+              <i class="ti ti-edit"></i> Edit Profile
+            </button>
+          </div>
+        </div>
+        <div class="hero">
+          <div class="hero-inner">
+            <div class="hero-top">
+              <div class="avatar-wrap">
+                <div class="avatar">
+                  <svg ng-if="profile.CustomerGender == 'Male'" width="70" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" aria-label="editor talking customer" viewBox="0 0 241 213">
+                    <path
+                      d="M92.9 11.5c-10.2 2-17.6 6-20.7 10.9a24 24 0 0 1-5.6 6.1 16 16 0 0 0-4.8 5.5 33 33 0 0 0 .2 22.2 17 17 0 0 1 1.4 8.5c-1.5 8.1 2.9 15.8 9.6 16.9 3.4.6 4 1.1 5.5 4.9.9 2.4 2.3 4.9 3.1 5.5 1.7 1.5 1.7 3.2.4 8.1l-1 3.6-7 .7c-17.7 1.8-31.3 9.4-37.1 20.8-2.3 4.4-2.3 4.8-.6 4.8.8 0 1.9-1.2 2.6-2.7 4.7-10.3 17.1-17.9 32.4-19.8 5.4-.7 5.4-.7 7.4 2.8 7.5 12.7 29.3 15.8 34.3 4.9 1.4-3.2 1.7-3.3 5.9-2.8 7.1.9 15.8 5.4 20.2 10.4 2.1 2.5 3.9 4.8 3.9 5.1 0 .4-1.5 5.2-3.3 10.6-3.3 9.8-3.4 9.9-4.1 6.3-.4-2.1-1.2-4-1.8-4.4-.8-.5-.9 1.4-.5 6.7.4 6.2.1 8.6-1.9 14.3a73 73 0 0 0-2.4 7.8c0 .5 1.5 1.7 3.3 2.8l3.2 2v13.7c0 10 .3 13.7 1.3 14s1.2-2.7 1.2-13.1c0-10.9.3-13.6 1.4-13.6a29 29 0 0 1 14.3 7c4.8 4.2 35.8 20 39.2 20 2.6 0 4.4-2.8 7.2-11.6 1.9-6.3 2.6-7.2 5.5-8.3 10.8-3.9 18.3-24.5 12.5-34.6l-2.2-4.1 7-11.9a66 66 0 0 0 7.1-14.2c0-1.8-.9-2.8-3.5-3.9-3.1-1.3-3.4-1.6-2.5-4q2.4-6.4-1.2-8.8c-3-1.8-59.4-17.8-61.5-17.4q-1.5.2-9.3 21.1l-7.7 20.8-2.7-3.5c-1.5-2-4.7-4.8-7.3-6.2a57 57 0 0 0-20.5-6.4q-2.7 0-2.8-1.5t2.8-1.5c4.3 0 12.4-4.3 16.1-8.5 7.2-8.2 10.3-19.9 10.1-37.5 0-5.2.2-14.3.4-20.2.5-10.4.4-10.7-2.1-13.2-1.4-1.4-2.9-2.6-3.4-2.6q-.7-.2-.3-1.5c1-2.5-1.6-4.5-5.7-4.5q-4 0-3.9-1.5c0-2-4.4-4.1-11.5-5.4a47 47 0 0 0-20.6.4m34.5 23.6c3.6.9 4.7 1.7 6 4.7a79 79 0 0 1-.9 49.4 31 31 0 0 1-12 12.1 28 28 0 0 1-19.9.3c-4.6-1.9-4.6-1.9-4.6-.3s3.4 3.3 8.4 4.2c2.8.6 3.6 1.2 3.6 2.9 0 2.8 1.5 5 2.9 4.2 2.4-1.5.9 1.4-2 3.8-6.1 5.1-18.6 2.8-25.7-4.7l-3.4-3.5 2.1-2.1c1.1-1.1 2.4-3.9 2.7-6.1s1.1-4.3 1.6-4.6-.3-2.1-1.7-4a35 35 0 0 1-4.2-7.9C78.9 79.2 78.6 79 75 79c-7.9 0-12.2-10.9-6.5-16.5 3.1-3.2 5-3.1 8.2.1 3.4 3.4 5.2 2.4 7.5-4.2 1.2-3.4 1.7-7.3 1.5-12.7-.2-6.6 0-7.6 1.3-7 .8.3 3.3.8 5.6 1.1 3.6.3 4.4 0 6.3-2.4 2-2.6 2.3-2.6 6-1.6q7.5 2.4 12.1-.3c3.1-1.7 4.9-1.8 10.4-.4M192.5 94c15.4 4.5 28.6 8.7 29.3 9.4 1.2 1.1.1 4.3-6.2 19.3l-7.6 17.9-3.8-.4c-3.8-.4-9.2 2.6-9.2 5.1 0 .7-.9 1.8-2 2.5q-2 1.3-2 4.1c0 1.7-.4 3.2-.9 3.5s-.8 2.9-.8 5.7c.1 4.2.5 5.4 2.9 7.4 1.5 1.3 3.2 2.5 3.8 2.7 1.5.5-4.9 17.8-6.5 17.8-1.8 0-55.8-19-56.8-20-.8-.7 7.2-24.2 21.3-62.5l6.3-17.3c.6-1.8 1.7-3.2 2.6-3.2s14.2 3.6 29.6 8m33.9 22.3c1.6 1.2 1.2 2.2-4.9 12.7a199 199 0 0 1-8 12.9c-3.4 3.5-2.3-2.3 2.6-14.3 5.4-12.9 6.5-14.1 10.3-11.3m-16.1 28.1c5.6 2.3 7.2 5 7.1 12-.1 10.6-7.3 22.3-14.9 24.2q-6.1 1.7-4.5-3.6c.5-1.8 1.4-3.8 2-4.5.8-1 0-1.9-3.5-3.9-4.3-2.6-6-5.6-3.1-5.6.7 0 3.3.7 5.6 1.5 5.4 1.9 6.6 1.9 5 0-.7-.8-3.6-2.2-6.6-3.2-8.4-2.6-6.6-6.7 1.9-4.3 2.3.6 5.3 1.4 6.7 1.6 2.4.5 2.5.5.5-1.1-1.1-.9-4.4-2.3-7.2-3.1-8.8-2.6-6.3-6.8 2.6-4.5 9.7 2.5 9.8 2.5 8.1.7a17 17 0 0 0-6.8-2.8q-7.1-1.7-4.5-4.1c1.1-1.2 8.2-.8 11.6.7m-36 42.3c15.1 5.3 15.8 5.5 17.7 3.8 1-.9 2.2-3 2.5-4.6q.7-3 2.6-2.9c2.4 0 2.4.6-.2 9.1-1.7 5.5-2.5 6.9-4 6.9-2.3 0-28.4-12.6-34.4-16.5q-3.5-2.3-2-2z">
+                    </path>
+                    <path
+                      d="M124.5 49.1c-.9 1.4-.7 1.5 4.3 2.3 4.7.7 5.6-.5 1.7-2.2q-4.8-2.2-6-.1m-24.7 1.5c-3.4 1.8-3.8 3.9-.5 2.9 1.2-.4 3.5-.9 5-1.2s2.6-1 2.4-1.7c-.6-1.7-3.9-1.7-6.9 0m26.4 8.6c-1.5 1.5-1.6 6.5-.2 7.3 1.6 1 4-1.4 4-4 0-3-2.2-4.9-3.8-3.3m-23.8 2.2c-1.1 2.8 0 6.1 2.1 6.1 1.6 0 2-.7 2-3.5q0-3.6-1.8-3.8c-.9-.2-2 .3-2.3 1.2M118 65c0 .5 1 2.9 2.1 5.4q3.8 7.6-1.6 7.6c-2.6 0-3.3 1.4-1.4 2.5s5.9-.5 7.1-2.9c.8-2 .6-3.4-1.5-8-2.3-5-4.7-7.3-4.7-4.6m-13.6 21.2c-.4.5.2 2.2 1.3 3.6 2.6 3.5 8.1 4.2 10.7 1.3 2.2-2.4 1.3-4.1-2.2-4.1-1.5 0-4.2-.4-5.9-.9q-3.3-1-3.9.1m8.1 3.8c.8 1.3-1.5 1.3-3.5 0q-1.9-1.1.7-1c1.2 0 2.5.4 2.8 1m54.5 8c0 1.3 25.3 9.1 26.4 8 .5-.5-4.6-2.6-12.1-4.9C167 96.6 167 96.6 167 98m-2.5 6.1q-.5.9.7 1.3c5.9 2 18.1 5.6 18.9 5.6q.8-.1.9-.8c0-.8-3.6-2.1-15.7-5.8-2.6-.8-4.5-.9-4.8-.3m35 5c-.4.5 0 1.8.9 2.8 2.4 2.6 2 3.5-2.3 6.6q-4 2.8-6.1 2-2.5-1-1.6 1.2.8 1.8-3.6 4.6c-2.2 1.6-3.8 3.1-3.5 3.3.7.8 3.5-.8 12.4-7.2 7.4-5.3 7.8-5.5 8.7-3.5q.9 2 1.8 2.1c1.1 0 1-.7-.2-3-.8-1.6-.3-2.3 3-4.7q5.8-4.2 3.2-4.3a15 15 0 0 0-4.2 2.5c-3.2 2.4-3.6 2.4-4.7.8a6 6 0 0 1-1.3-3c0-1.6-1.6-1.7-2.5-.2m-37.5 1.6c0 .5 4.1 2.1 9 3.6 8.8 2.7 9 2.8 8.4 5.5-.5 2.6-.5 2.6 1.1.7 2.7-3.3 1.4-4.7-7.5-7.7-8.7-2.9-11-3.3-11-2.1m-1.8 6.3c.2.8 3 2.2 6.1 3.3l5.6 1.8-1.7 3.3-1.7 3.3-4.8-1.6c-4.2-1.3-4.7-1.8-4.2-3.8.8-3.2-.9-2.9-2.4.4q-1.2 2.6-.1 3.7.9.8 1 .4c0-.4 2.5.2 5.7 1.3 3.1 1 5.9 1.9 6.3 1.9s1.1-1.7 1.5-3.8 1.1-4.2 1.6-4.9c1.2-1.4.4-1.9-5.3-3.7l-6.2-2.1q-2-.9-1.4.5">
+                    </path>
+                    <path
+                      d="M196 131.9c1.8 3.3 3.7 5.8 4.2 5.5 1.1-.7-4.3-10.6-6.2-11.2-.7-.3.2 2.3 2 5.7m-17 2c0 1.2 14.4 6.1 15.3 5.2.4-.4-2.6-2-6.7-3.5-8.2-2.9-8.6-3-8.6-1.7m-27 2.3c0 .8 6.3 3.4 14.6 6.3l15.6 5.4q1 .2.6-.9c-.2-.7-6-3.2-12.8-5.6s-13.3-4.8-14.2-5.4q-3.7-2-3.8.2m-1.8 6.8a47 47 0 0 0 11.4 4.9c13.1 4.6 15.7 5.8 14.8 7.3q-.6 1 .7.6 1.3-.6 1.4-2.3c0-1.3-3-2.8-13.5-6.6-14.5-5.2-15.3-5.4-14.8-3.9m-2 6c.4 1.3 20.7 8.9 24.1 9q6.4.1-10.4-5.5l-13.1-4.4q-1-.2-.6.9m-2.2 6.7c0 1 21.1 8.5 21.9 7.8.9-1-1.9-2.3-11.4-5.5-9.7-3.2-10.5-3.4-10.5-2.3m-1.8 6.3c.2.8 4.9 2.9 10.3 4.7 10.7 3.6 11.5 3.7 11.5 2.5a35 35 0 0 0-9.7-4.2l-11.2-3.8q-1.3-.4-.9.8m39.2 6.1c-1.7 5.3-2.2 6-4.2 5.6-4.1-.8-3.2 1 1.4 2.8 4.7 1.8 7 1.4 4.1-.8-1.6-1.1-1.6-1.6.3-6.5 2.2-5.7 2.4-7.2 1.2-7.2-.5 0-1.7 2.7-2.8 6.1M13.7 130.8q-3.9 4.3 3.5 8.4c6.6 3.7 6.7 4.3 2 14.9-9.7 22.3-10.5 35.8-2.8 43.5 8.2 8.2 22.3 6.2 30.1-4.4a85 85 0 0 0 9.5-24.6c0-.7.7-2 1.7-2.7 5.4-4.5 8.3-19.6 4.3-22.1-1.1-.7-2-2.1-2-3 0-1-1.1-2.5-2.5-3.4-2.1-1.4-3.1-1.5-5.1-.5s-3 .8-5-.5q-2.4-1.7-6.5-1.1c-3.4.4-4.8 0-8.5-2.6a17 17 0 0 0-10.7-3.5c-5.3-.3-6.5-.1-8 1.6m17.9 4.7c3 1.9 6 3.3 6.6 2.9 1.9-1.2 6.9-.6 8.8 1.1 1.4 1.3 2.3 1.4 3.9.6 2.9-1.6 5.8-1.3 6.5.6.4.9-.8 4.8-2.9 9.1a29 29 0 0 0-3 8c1 1 3.5-2.1 5.6-7.4 1.3-3 2.6-5.4 3-5.4 3.2 0 .4 14.1-3.6 18.5a10 10 0 0 1-10.9 2.7c-1.7-.6-4.9-1.4-7.1-1.8-7.4-1.2-11.9-7.7-11.3-16.5.2-3.8-.2-4.5-3.7-7.6a16 16 0 0 0-5-3.3c-.7 0-1.9-.7-2.6-1.6-1.1-1.4-1-1.8.6-3.1 3-2.2 8.9-1 15.1 3.2M26.3 158q.5 1.6-4.9 7.5c-5 5.5-5.4 5.7-4.8 3 .4-1.7 2.3-6.8 4.3-11.5l3.6-8.5.6 4c.3 2.2.9 4.7 1.2 5.5m4.7 6.5c3.4 3.7 9.9 5.8 16.4 5.3l5.7-.3-.7 3a58 58 0 0 1-9 20.3c-8.3 9.8-22.5 9.3-27.6-.9-2.5-4.9-2.4-12.9.3-16l6.7-8.1c2.6-3.2 5-5.8 5.3-5.8s1.6 1.1 2.9 2.5">
+                    </path>
+                    <path
+                      d="M45.7 148.4c-1.9 3.7-3.1 6.8-2.7 7.1 1.9 1.2 8.8-11.1 7.2-12.7q-1-.8-4.5 5.6m-8.7-.9c-.6.8-1 2-.8 2.6s1.2 0 2.1-1.5c1.8-2.7.8-3.7-1.3-1.1m24.7 14.2c-1.8 2.9-4.5 39.3-2.9 39.3 1.5 0 2.2-2.6 2.2-8.8.1-3.1.7-11.1 1.5-17.7 1.2-10.6.9-15.5-.8-12.8">
+                    </path>
+                  </svg>
+                  <svg ng-if="profile.CustomerGender == 'Female'" width="70" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" aria-label="auditor" viewBox="0 0 210 228">
+                    <path
+                      d="M61 10.9a21 21 0 0 0-15.6 15.7c-2.4 8.3-.2 15.6 6 19.6l3.3 2.2-1.5 3.5c-.9 2.1-1.6 6.6-1.6 10.6 0 5.8.4 7.8 2.5 11.5 1.5 2.5 3.2 6.2 3.8 8.2 1.4 4.3 6.2 8.8 9.4 8.8 3.4 0 8.1 10.5 7.2 15.9s-2.2 6.6-9 8.1a42 42 0 0 0-21.9 10.1l-5.3 4.9-9.9 1c-5.5.6-10.9 1.8-12.1 2.6-2.7 1.7-2.9 5.5-.9 18.7 1.2 8.1 1.2 8.9-.4 9.7-1 .5-2.5 2.6-3.5 4.6-1.4 3.1-1.6 5.5-1 17.7.9 18.3 3.6 25.1 11.7 29.3a24 24 0 0 0 15.1.3c3.3-1.7 7.7-6 9.3-9.2q3.8-7 3.2 4c-.2 5.5 0 6.8 1.2 6.8s1.6-1.6 1.8-7.1l.3-7.2 7.4-.7q7.5-.7 9.7-2.5l2.2-1.8-1.7-14.3c-3.1-26.8-6-47.4-6.8-49.7-1.5-4-5.9-4.6-18.3-2.6l-3 .4 2.4-2.5a45 45 0 0 1 17.7-8.9l4.8-1.3 2 3.6c4.3 7.5 16.6 12.5 25.2 10.2 5.4-1.5 9-4.5 9.8-8.2.7-3 .8-3.1 4.9-2.5a35 35 0 0 1 17.1 6.9l3.7 3.2-6.7 30.3c-3.6 16.6-6.5 31-6.3 31.9q.4 1.7 4.8 2.8l4.5 1.1.5 9.9c.5 10.4 2.1 13.4 3 5.7l.5-4.4 2.5 2.7a21.4 21.4 0 0 0 31.5-.5c2.8-2.9 3.3-3.1 7.7-2.5 4.6.7 4.7.6 5.4-2.2 2.1-9.4 2.3-9.9 5.6-11.1 14.7-5.3 22.5-32.4 11.4-39.7l-2.3-1.5 4-17.1c3.5-15.3 3.7-17.3 2.4-18.6a29 29 0 0 0-9.9-3.2c-7.7-1.6-8.3-1.9-8.6-4.3-.3-2.5-.8-2.7-11-4.6-10.9-2-13.2-1.8-13.2 1.5q-.1 1.3-1.3 1a90 90 0 0 0-9.2-1.8c-9.2-1.4-9.5-1.3-11.4 7.8l-2.2 9.5-.9 3.6-4.9-3.2a57 57 0 0 0-21.3-7.1c-5.5-.9-4.9-3.1 1.1-3.9s13.3-5.5 16.7-10.6c5.1-7.7 6.7-13.7 6.9-26a98 98 0 0 1 1.4-15.9c3.4-12-5.3-25.2-20.6-31.2a37 37 0 0 0-15.5-2.3c-8.9-.1-9.8-.3-9.8-2 0-1-1-3.6-2.2-5.7-3.7-6.7-13.9-10.4-21.8-8m56.6 36.9c2.5 1.8 5.1 5 6.5 7.8 2.1 4.3 2.3 6.2 2.3 18.4 0 15.7-1.8 21.8-8.1 28.4a22 22 0 0 1-24.7 6c-4.7-1.6-6.9-1.3-4.9.7a20 20 0 0 0 4.9 2.4c3.3 1.1 4 1.8 4.4 4.7q.5 3.5 2.3 3.2c2.1-.2 2.2 2.4.2 5.3-4.7 6.7-21.8 4.3-27.6-3.8l-2.1-3 2.5-2.3c2.5-2.3 4.7-8 4.7-12.1 0-1.1-1.1-4.2-2.5-6.9a23 23 0 0 1-2.5-6.8c0-1.4-.8-1.8-3.5-1.8-6.5 0-11-7-8.5-13 1.6-3.8 4.9-4.7 8.8-2.4 4.1 2.3 5.7 1.4 8.9-5 2.4-5 3.3-5.8 9.2-8.6 9.3-4.4 13.8-7.7 17.2-12.7 2.9-4.2 3.1-4.3 5.7-2.9 1.5.8 4.6 2.8 6.8 4.4m51.7 60.4 7.7 1.1-.6 3.6a21 21 0 0 1-1 4c-.5.5-16.4-2.6-17.1-3.3-.9-.9.8-6.6 2-6.6.7 0 4.7.5 9 1.2m-21.4 1c6.8 1.2 7 1.3 7.3 4.2s.5 3.1 8.8 4.8c11.6 2.3 14 2.3 14-.1 0-1.1.3-2.2.8-2.4a73 73 0 0 1 17.6 3.4c.3.3-1 7.4-2.9 15.9l-3.5 15.7c0 .1-1.9 0-4.3-.3-4.5-.6-7.7 1.1-7.7 4q-.1 1.4-1.5 2.6c-.8.7-1.5 2.5-1.5 4.1s-.5 3.1-1.1 3.5-.9 2.1-.6 4 .1 3.6-.4 3.9q-2.8 2 3 7.4l3.8 3.6-2.4 10.5a113 113 0 0 1-2.8 10.8c-.5.5-53.4-12.4-54.2-13.2-.3-.3 3.6-18.9 8.6-41.3s9.1-41.1 9.1-41.6c0-1 1.8-.9 9.9.5m-87.2 23a753 753 0 0 1 8 56.9c.5 6 .4 6.7-1.3 7.2-2.6.8-26.6 3.5-33.4 3.9l-5.5.2-.3-3.5c-.3-3.1.2-4 3.2-6.3 2-1.5 3.6-2.2 3.6-1.7q.2 1 1.5 1.1 1.4-.2 1.5-2 0-1.8-1-2c-1 0-1.1-.7-1-8.8.1-2.3-.3-4.2-.8-4.2s-.7-1.3-.4-2.9c.3-2.2-.1-3.3-1.7-4.3a4 4 0 0 1-2.1-3.4q0-5-7.4-4.1l-4.5.6-.7-5.7c-.4-3.1-.8-8.4-.8-11.7l-.1-5.9 5-.8c4.5-.7 29.7-3.4 35.1-3.7 1.2 0 2.6.5 3.1 1.1m128.9 22.7c5.5 2.5 7.4 5.4 7.4 11.6 0 9.5-5.9 20.3-13.2 24.1l-3 1.6.7-3.4c.4-1.8 1.2-3.9 1.8-4.6.7-1 .4-1.7-1.4-3-4.7-3.2-7.2-6.3-6.1-7.4.8-.8 2.4-.3 5.6 1.6 2.4 1.4 4.7 2.2 5 1.7q1-1.4-6.6-6c-3.9-2.3-5.1-5.1-2.2-5.1.9 0 3.8 1.2 6.5 2.7 4.8 2.6 7.2 2.6 5.1 0a27 27 0 0 0-6.2-3.7q-5-2.4-5-4.2c0-2.5 2.6-2.3 8.9.8 2.8 1.5 5.5 2.3 5.9 1.9.9-.9-2.2-3.2-7.5-5.7-4.6-2-5.8-4.8-2-4.8 1.2 0 4.1.9 6.3 1.9M28 162.2c-.1.7-2.4 2.6-5.3 4.3-2.8 1.6-5.3 3.8-5.5 4.8-.3 1.7.1 1.6 4-.7 4.8-2.8 10.8-3.5 10.8-1.3 0 .8-1.7 2.2-3.7 3.1-4.9 2.2-9 5.3-8.1 6.1.4.4 2.7-.3 5.2-1.5 4.5-2.1 8.1-2.4 8.1-.5 0 .6-2.4 2.5-5.2 4.4-2.9 1.8-5.3 4-5.3 4.7 0 1.6 1.6 1.9 2.5.4 1.3-2.1 6.7-4.2 7.8-3.1q1.2 1-3.6 5.3c-3.8 3.4-4.7 4.8-4.7 7.5 0 1.8-.5 3.3-1.1 3.3-2.5 0-7.8-6.8-9.3-12-1.9-6.3-2.1-17.8-.3-20.1 3.3-4.4 13.8-7.9 13.7-4.7m-3.5 39.6c3.8 1.3 6.7 1.5 12.5 1a50 50 0 0 1 7.8-.3c.2.2-1.4 2.3-3.6 4.6-3.6 3.9-4.4 4.3-9.8 4.7-5 .3-6.5 0-9.4-2a20 20 0 0 1-7.6-12.8l-.7-3.4 2.9 3.3c1.7 1.9 5 3.9 7.9 4.9m122.6-.3c18.7 4.6 17.6 4.1 15.3 6.6-5.2 5.7-15.7 7.9-22.1 4.5-6.5-3.3-13.4-14.6-9-14.6.7 0 7.8 1.6 15.8 3.5">
+                    </path>
+                    <path
+                      d="M90.8 61.1c-2.6 1.5-2.4 4.3.1 2.9 1.1-.5 3.2-1 4.6-1q2.6 0 2.3-1.3c-.6-1.6-4.8-2-7-.6m23.9-.5c-1.4 1.5-.6 1.9 3.3 2q4 .1 3.7-1c-.4-1.3-5.9-2.1-7-1m1.3 9.9c-1.7 2.1-.4 6.7 1.8 6.3s2.8-5.1.9-6.6c-1.1-1-1.7-.9-2.7.3m-23.3 1.6c-.7 2.6 1 6.2 2.6 5.6 1.9-.6 1.5-7.1-.4-7.5q-1.6-.2-2.2 1.9m16.3 2.3c0 .7.7 3.2 1.5 5.5 1.6 4.5 1.7 4.2-3.3 5.7-1.9.5-.5 2.4 1.8 2.4 5.3 0 6.3-3.1 3.4-10.7-1.6-4.2-3.4-5.7-3.4-2.9M95.7 92.7c-1.7 2.7 6.7 6.8 10.8 5.3 3.8-1.4 3-3-1.5-3-2.3 0-5.1-.7-6.4-1.6-1.3-.8-2.7-1.1-2.9-.7m55.2 37.8-3.4 2.6-1.7-2.1c-.9-1.1-1.9-2-2.2-2-1.3 0-.5 3.6 1.3 5.9l1.9 2.5 4.6-3.8c6.6-5.4 6.2-8-.5-3.1m-2.7 19.1-3.3 2.6-2.5-2.3c-2-1.9-2.4-2-2.4-.5 0 1.9 2.8 6.6 4 6.6 1.6 0 10-7.2 9.5-8.1-.9-1.4-1.7-1.1-5.3 1.7m-4 20-3.3 2.7-1.5-2.2c-.8-1.1-1.9-2.1-2.5-2.1-1.6 0-1 2.4 1.4 5.3l2.2 2.8 4.8-3.7c2.6-2 4.7-4.1 4.7-4.5 0-1.6-2.5-.9-5.8 1.7M36 138.7c-6.9.8-12.9 1.8-13.4 2.3-1.3 1.3.3 14 1.9 14.6s32.4-2.4 33.8-3.3c1-.6.4-12.3-.7-14.2-.9-1.4-5.6-1.2-21.6.6m20.2 6c.3 2.7.3 4.9.2 5.1-.5.7-29.5 3.4-30.1 2.8-.4-.3-.7-2.8-.7-5.4l-.1-4.7 10.5-1.1c5.8-.6 12.6-1.2 15.1-1.3l4.7-.1zm-3.9 14.9c-1.5.6-1.7 5.2-.5 7.2q.8 1.3 5.1.6c4.1-.7 4.2-.7 3.9-4.3-.3-3.3-.5-3.6-3.8-3.8-1.9-.1-4.1 0-4.7.3m5.7 3.9q-.2 1.4-2 1.5-1.8-.1-2-1.5.2-1.4 2-1.5 1.8.1 2 1.5m-17.2-2.8c-2.5.4-2.8.8-2.8 4.4v4l4.8-.3 4.7-.3v-4c0-4.3-.8-4.7-6.7-3.8m4.2 3.8q-.2 1.4-2 1.5-1.8-.1-2-1.5.2-1.4 2-1.5 1.8.1 2 1.5m7.7 7.2c-.3.5-.2 2.3 0 4 .5 3.1.7 3.3 4.9 3.3H62v-8h-4.4c-2.5 0-4.7.3-4.9.7m6.6 2.7q.4 1.3-1.4 1.9c-2.3.6-3.7-1.2-1.8-2.4s2.6-1.1 3.2.5m-17.5-1.7c-2.3.4-2.8 1-2.8 3.1 0 4.6 1.3 5.5 6.4 4.8 4-.6 4.6-1 4.6-3.1 0-5.3-1-5.9-8.2-4.8m4.5 2.7q1 2.6-2.5 2.6c-1.8 0-2.5-2-1.1-3.3 1.1-1.2 3.1-.8 3.6.7m14.4 9.6c.5 2.6.3 3-1.6 3q-2.2.2-2.1-2.5 0-2.4-1.6-2.5c-1.2 0-1.4.9-1.2 3.7.3 3.8.3 3.8 4.8 3.8 4.8 0 5.8-1.2 4.6-6.1-1-3.7-3.7-3.2-2.9.6m-14.4-1.3c-1.8.7-1.6 2.3.2 2.3 2 0 1.9 2.6-.1 3.4-1.9.7-3.7-.2-2.9-1.5s-.9-3.9-2.2-3.1c-1.8 1.1-.1 7.7 2 7.6 8.5-.4 7.8 0 7.5-4.6q-.3-6.2-4.5-4.1">
+                    </path>
+                  </svg>
+                  <svg ng-if="profile.CustomerGender == 'Other'" width="70" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" aria-label="isometric office building" viewBox="0 0 197 236">
+                    <path
+                      d="M61.7 28.9a497 497 0 0 0-33.8 19.2c-.5.8-.8 24.9-.7 53.9l.2 52.5-8.3 4.7a52 52 0 0 0-9.2 6c-1.1 1.6-1.1 7.9-.1 9.4.4.6 15.5 9.8 33.7 20.4 49.3 28.9 51.3 30 53.2 30 1.5 0 51.2-27.1 82.6-45l7.8-4.4-.3-5.6-.3-5.5-10.7-6-10.8-6V46.2l-5.2-3C142.9 33.8 98 11 96.4 11.1c-1 .1-16.7 8.1-34.7 17.8m66.1 1.1a348 348 0 0 1 30.4 16.7c-.1.4-4.2 3-9 5.6-36.1 20-52.6 28.8-53.6 28.5C93 80.2 33 48.5 33 47.7q0-.6.9-.7a1630 1630 0 0 0 62.3-33c.5 0 14.7 7.2 31.6 16m33.9 79.1-.2 59-13.5 7.8A1477 1477 0 0 1 97.5 204c-.7 0-.5-99.6.2-111.8.5-7.6.7-8.3 3.2-9.7 13.4-7.8 58.9-32.4 59.8-32.5 1 0 1.2 12.7 1 59.1M62.2 67.2a457 457 0 0 1 31.4 17.2c.2.6.3 27.7.2 60.3l-.3 59.2L85 199l-8.5-4.9-.5-13.8-.5-13.7-13.5-7.8c-7.4-4.2-14.1-7.7-14.7-7.7-1-.1-1.3 3-1.3 12.4 0 6.9-.2 12.5-.5 12.5l-8-4.6-7.5-4.5v-58c0-31.8.3-57.9.6-57.9s14.5 7.3 31.6 16.2m-3.2 105V184l-5-3.1-5-3.1v-22.6l5 2.7 5 2.6zm121.9-7.2c1.9 1.4 1.2 2-12.2 9.4-60.4 33.7-71.2 39.6-72.1 39.6s-13.7-7.4-49.6-28.3l-26.2-15.3A38 38 0 0 1 14 166c0-.6 11.4-7 12.4-7 .3 0 .6 1.9.6 4.2s.4 4.8.8 5.4A1467 1467 0 0 0 95 207.7c1 .3 4.8-1.2 8.7-3.3l50.1-28.1 11.2-6.5v-13.9l7 3.8c3.8 2.1 7.9 4.5 8.9 5.3M73 179.7c0 6.6-.4 11.3-1 11.3s-3-1.2-5.5-2.7l-4.5-2.8v-23.4l5.5 3.2 5.5 3.1zm-33.7 5c34.8 20.2 36 20.9 46.6 26.9 6.9 3.8 9.5 5.8 9.6 7.3q0 2-.6 2.1c-.4 0-9-4.8-19.1-10.7-48.1-28-63.2-37.2-63.4-38.7q-.1-1.5.7-1.6c.6 0 12.4 6.6 26.2 14.7M184 171.8c0 1.8-4.6 4.9-19 12.7l-35.7 19.8c-15.5 8.6-28.8 16-29.7 16.3q-1.6.7-1.6-1.4c0-1.5 5.8-5.2 27.3-17l42.2-23.6c8.3-4.7 15.3-8.6 15.8-8.6q.7.2.7 1.8">
+                    </path>
+                    <path
+                      d="m148 67.2-5.5 3.3-.3 6.4c-.5 9.6-.2 9.8 6.5 6 3.2-1.8 6.1-3.7 6.6-4.3 1.1-1.6.4-13.9-.8-14.3-.6-.2-3.5 1.2-6.5 2.9m5 5.2c0 4-.4 4.7-3.4 6.5a15 15 0 0 1-4 2.1c-.3 0-.6-2-.6-4.5 0-4.1.3-4.6 3.8-6.4l4-2.1c.1 0 .2 2 .2 4.4m-24.2 5.2-5.8 3.5V88c0 3.8.4 7.1.9 7.4s3.5-.9 6.7-2.7l5.9-3.3V82c0-4-.4-7.4-1-7.6s-3.6 1.3-6.7 3.2m5.2 5.1c0 4.5-.2 4.9-4 7.1l-4 2.3v-4.8c0-4.5.3-4.9 3.8-7l4-2.3c.1 0 .2 2.1.2 4.7m-23 4.7-5.5 3.2-.3 7.7q-.3 7.5.8 7.7c.6 0 3.5-1.4 6.5-3.1l5.5-3.1v-7.3c0-4.1-.3-7.6-.8-7.8s-3.2.9-6.2 2.7m4 6c0 4-.4 4.7-3.4 6.5a15 15 0 0 1-4 2.1c-.3 0-.5-2-.3-4.5.2-3.8.8-4.9 3.2-6.5 1.7-1.1 3.3-2 3.8-2s.7 2 .7 4.4m33-.2-5.5 3.3-.3 6.9c-.2 3.8.1 7.3.6 7.8s3.4-.6 7.1-2.8l6.2-3.7-.3-7c-.2-3.9-.8-7.2-1.3-7.4s-3.5 1.2-6.5 2.9m4.8 5.9c-.3 3.6-.8 4.5-4 6.6L145 108v-4.8c0-4.1.4-5 2.8-6.4 4.4-2.8 5.4-2.3 5 2.3m-22.9 4.1c-3 1.7-5.7 3.6-6.1 4.2-1.4 2-.9 13.6.5 14.2.8.3 3.9-1 7-2.8l5.7-3.2v-7.3a23 23 0 0 0-.8-7.7c-.5-.3-3.3.9-6.3 2.6m4.1 6.2c0 4-.3 4.6-3.6 6.5a19 19 0 0 1-4 2.1c-.2 0-.4-2-.4-4.5 0-4 .4-4.7 3.3-6.5a14 14 0 0 1 4-2c.4 0 .7 2 .7 4.4m-23.7 4.7-5.3 3.1v7.9c0 4.3.3 7.9.6 7.9.4 0 3.3-1.6 6.5-3.6l5.9-3.5v-7.5c0-5.3-.4-7.4-1.2-7.4s-3.7 1.4-6.5 3.1m4.7 5.7c0 5 .1 4.9-6.2 8-.5.2-.8-1.8-.8-4.5 0-4.6.2-5.1 3.3-6.6l3.5-1.6c.1-.1.2 2.1.2 4.7m32.3.2-5.3 3v7.5c0 5.3.4 7.5 1.3 7.5.6 0 3.7-1.5 6.7-3.3l5.5-3.3v-7c-.1-8.3-.8-8.7-8.2-4.4m5.7 5.3c0 4-.3 4.5-4 6.6l-4 2.2v-4.6c0-4 .3-4.7 3.3-6.5a14 14 0 0 1 4-2c.4 0 .7 1.9.7 4.3m-23.1 4c-6.7 4-6.9 4.4-6.9 11.8 0 3.7.4 7 .9 7.4.5.3 3.7-1.1 7-3l6.1-3.6v-7.4c0-8.5-.7-9-7.1-5.2m4.1 6.2c0 4-.4 4.7-3.2 6.5-1.8 1.1-3.6 2-4 2-.5 0-.8-2-.8-4.4 0-3.9.4-4.7 3.3-6.4 1.7-1.1 3.5-2.1 4-2.1.4-.1.7 1.9.7 4.4m-23.7 4.8-5.3 3.2v7.7q0 7.7 1.1 7.8c.6 0 3.5-1.5 6.5-3.2l5.4-3.3v-7.7c0-5.6-.3-7.8-1.2-7.7-.7 0-3.7 1.5-6.5 3.2m4.7 6.1c0 4-.3 4.6-3.6 6.5a19 19 0 0 1-4 2.1c-.2 0-.4-2-.4-4.5 0-4 .4-4.7 3.3-6.5a14 14 0 0 1 4-2c.4 0 .7 2 .7 4.4m26.3 4.4-8.3 4.7v9.7c0 5.4.3 9.8.8 9.8s4.3-2 8.7-4.4l8-4.3.7-8.9c.7-8.9.5-11.5-.9-11.3-.4 0-4.5 2.1-9 4.7m6.7 6.6v6.5l-5.4 3a37 37 0 0 1-6 3.1c-.3 0-.6-2.9-.6-6.4v-6.4l5.3-3c2.8-1.7 5.5-3.1 6-3.1.4-.1.7 2.8.7 6.3m-29.7 6.2-8.3 4.5v9.4c0 5.2.3 9.6.8 9.8a32 32 0 0 0 8.9-4.2l8.3-4.6v-9.8a34 34 0 0 0-.7-9.7c-.5 0-4.5 2.1-9 4.6m6.7 6.6v6.3l-5.2 3-6 3.3c-.5.2-.8-2.6-.8-6.2V170l5.3-3c2.8-1.6 5.5-3 6-3s.7 2.8.7 6.2M36.7 65.6c-.4.4-.7 3.8-.7 7.5 0 6.2.2 6.9 2.8 8.7 4.6 3.3 9.4 5.4 10.1 4.5.4-.4.5-4.1.3-8.1l-.4-7.3-5.1-2.7-5.8-3q-.5-.1-1.2.4m7.3 5.9c2.6 1.4 3 2.1 3 5.9 0 2.3-.3 4.5-.6 4.9-.3.3-2.1-.4-4-1.5-3-1.8-3.4-2.4-3.4-6.4 0-4.8.6-5.2 5-2.9m11 11.3v7.7l5.8 3.3c3.3 1.7 6.2 2.9 6.5 2.5.4-.3.7-3.9.7-7.9v-7.2l-5.7-3.1c-3.1-1.7-6-3.1-6.5-3.1s-.8 3.5-.8 7.8m10 4.4c0 2.7-.3 4.8-.6 4.8l-3.5-1.7C58.3 88.8 58 88 58 83.8V79l3.5 1.8c3.2 1.6 3.5 2 3.5 6.4m8.4-.8c-.3.7-.4 4.2-.2 7.7l.3 6.4 6 3.2c3.3 1.7 6.3 2.9 6.7 2.7.5-.3.8-3.8.8-7.9v-7.3l-5.7-3.1c-6.4-3.5-7.1-3.7-7.9-1.7m10.4 10.9c.2 2.6-.1 4.7-.5 4.7s-2.3-.9-4-2c-2.8-1.7-3.3-2.6-3.3-5.8 0-5 .7-5.6 4.4-3.4 2.7 1.6 3.1 2.5 3.4 6.5m-47.1-4.6c-.4.3-.7 3.4-.7 6.8 0 4.7.4 6.6 1.8 7.7 2.3 2 9.1 5.8 10.3 5.8.5 0 .9-3.5.9-7.8v-7.9l-4.9-2.6c-5.1-2.8-6.3-3.1-7.4-2m7.1 5.3c2.8 1.8 3.2 2.5 3.2 6.5 0 2.5-.3 4.5-.6 4.5-.4 0-2.2-.9-4-2.1-3-1.8-3.4-2.5-3.4-6.5 0-2.4.3-4.4.8-4.4s2.2.9 4 2m11.8 3.8c-.3.3-.6 3.8-.6 7.8v7.4l5.3 3c7.6 4.4 7.8 4.3 7.5-4.7l-.3-7.7-5.7-3.2c-3.1-1.8-5.9-2.9-6.2-2.6m9.4 12.4c0 2.7-.3 4.8-.7 4.6-6.5-3.1-6.3-2.9-6.3-8.4v-5.3l3.5 2c3.3 2 3.5 2.4 3.5 7.1m9 5v8.3l5 2.7c7.8 4.3 8.1 4.1 7.8-5l-.3-7.7-6.2-3.3-6.3-3.3zm6.9-1.5c2.8 1.6 3.1 2.3 3.1 6.5 0 2.7-.3 4.8-.6 4.8-.4 0-2.2-.9-4-2.1-3-1.8-3.4-2.5-3.4-6.5 0-4.9.5-5.2 4.9-2.7m-44.5 1.7c-.3.7-.4 4.2-.2 7.7l.3 6.3 5.9 3.3 6.2 3.3c.2 0 .4-3.6.4-8v-8l-5.2-3c-6-3.4-6.7-3.5-7.4-1.6m7 4.7c3.3 1.9 3.6 2.5 3.6 6.5 0 5-.9 5.3-5.1 2.3-2.5-1.7-2.9-2.7-2.9-6.5 0-2.4.2-4.4.4-4.4s2.1.9 4 2.1M55 135.8v7.8l5.6 3.2c3.1 1.8 6 3.2 6.5 3.2s.9-3.6.9-7.9v-7.9l-5.7-3.1c-3.1-1.7-6-3.1-6.5-3.1s-.8 3.5-.8 7.8m9.8 5 .3 5.2-3.5-2.1c-3.4-2-3.6-2.4-3.6-7.1v-5l3.3 1.9c2.9 1.7 3.2 2.4 3.5 7.1m8.7-.5c-.4 1.3-.5 4.8-.3 7.7.3 5.5.3 5.5 5.8 8.8 3 1.8 5.9 3.1 6.5 2.9s1-3.6 1-7.7v-7.4l-5.5-3.3c-3-1.8-5.8-3.3-6.2-3.3q-.7.2-1.3 2.3M84 151v5l-4-2c-3.9-2-4-2.2-4-7v-5l4 2c3.9 2 4 2.2 4 7">
+                    </path>
+                  </svg>
+                </div>
+                <div id="online-offline" class="status-pill" ng-show="isOnline !== undefined"
+                  ng-class="isOnline ? 'status-pill-green' : 'status-pill-red'">
+                  <span ng-class="isOnline ? 'status-pulse-green' : 'status-pulse-red'"></span>
+                  {{ isOnline ? 'Online' : 'Offline' }}
+                </div>
+              </div>
+
+              <div class="hero-meta" ng-if="profile">
+                <div class="d-flex mb-3 gap-6">
+                  <div class="hero-name">
+                    {{ profile.CustomerName }}
+                  </div>
+                  <span class="cust-id text-primary cursor-pointer" ng-click="copyText(profile.CustomerCode, $event)">
+                    {{ profile.CustomerCode }}
+                    <i class="ti" ng-class="copied ? 'ti-check' : 'ti-copy'"></i>
+                  </span>
+                </div>
+                <div class="hero-sub">
+                  {{ profile.CustomerType }} &nbsp;·&nbsp;
+                  {{ profile.CustomerProvinceCity }} &nbsp;·&nbsp;
+                  Registered {{ profile.RegisterDate | date:'dd-MMM-yyyy' }} by {{ profile.RegisterBy
+                  }}
+                </div>
+                <div class="hero-badges">
+                  <span class="badge badge-blue" tooltip title="Bussiness Type" ng-if="profile.IndustryType">
+                    <i class="ti ti-briefcase"></i> {{ profile.IndustryType }}
+                  </span>
+                  <span class="badge badge-neutral" data-toggle="tooltip" data-placement="top"
+                    title="National ID / Passport" ng-if="profile.CustomerIdentification">
+                    <i class="ti ti-id-badge"></i> {{ profile.CustomerIdentification }}
+                  </span>
+                </div>
+              </div>
+              <div class="hero-right" ng-if="balance">
+                <div class="exrate">
+                  <i class="ti ti-currency-dollar"></i>
+                  1 USD = {{ balance.ExchangeRate | number }} KHR &nbsp;·&nbsp;
+                  <span current-time="'d/M/yy h:mm:ss a'"></span>
+                </div>
+                <div class="stats-row">
+                  <div class="stat" ng-click="setSubTab('inv-unpaid'); setTab('invoice')">
+                    <div class="stat-val">{{ balance.Balance | currency }}</div>
+                    <div class="stat-lbl">Balance</div>
+                  </div>
+                  <div class="stat" ng-click="setSubTab('inv-paid'); setTab('invoice')">
+                    <div class="stat-val green">{{ balance.Paid | currency }}</div>
+                    <div class="stat-lbl">Paid</div>
+                  </div>
+                  <div class="stat" ng-click="setSubTab('inv-unpaid'); setTab('invoice')">
+                    <div class="stat-val red">{{ balance.Unpaid | currency }}</div>
+                    <div class="stat-lbl">Unpaid</div>
+                  </div>
+                  <div class="stat" ng-click="setSubTab('inv-deposit'); setTab('invoice')">
+                    <div class="stat-val">{{ balance.Deposit || 0 | currency }}</div>
+                    <div class="stat-lbl">Deposit</div>
+                  </div>
+                </div>
+                <div class="hero-actions">
+                  <button class="btn btn-sm btn-warning" ng-click="openDelayPayment()" ng-show="!isHidden">
+                    <i class="ti ti-calendar-dollar"></i> Delay Payment
+                  </button>
+                  <button class="btn btn-sm btn-secondary" ng-click="openTelegram()" ng-show="!isHidden">
+                    <i class="ti ti-brand-telegram"></i> Telegram
+                  </button>
+                  <button class="btn btn-sm btn-primary" ng-click="openFeedback()">
+                    <i class="ti ti-message-star"></i> Feedback
+                  </button>
+                  <button class="btn btn-sm btn-info" ng-click="printServiceForm()">
+                    <i class="ti ti-printer"></i> Agreement Form
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-strip info-strip-4" ng-if="profile">
+              <div class="info-cell">
+                <div class="info-cell-icon"><i class="ti ti-phone-ringing"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Mobile</div>
+                  <div class="info-cell-val">{{ profile.CustomerMobile }}</div>
+                </div>
+              </div>
+              <div class="info-cell">
+                <div class="info-cell-icon"><i class="ti ti-mail"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Email</div>
+                  <div class="info-cell-val">{{ profile.CustomerEmail || 'N/A' }}</div>
+                </div>
+              </div>
+              <div class="info-cell">
+                <div class="info-cell-icon"><i class="ti ti-map-pin"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Address</div>
+                  <div class="info-cell-val">{{ profile.CustomerAddress }}</div>
+                </div>
+              </div>
+              <div class="info-cell">
+                <div class="info-cell-icon"><i class="ti ti-globe"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Nationality</div>
+                  <div class="info-cell-val">{{ profile.CustomerNationality }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="all-connection" style="display:flex;flex-direction:column;gap:.55rem;padding:1.5rem">
+
+          <!-- Header: always visible so refresh button + spinner stay on screen -->
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="card-title-sm" style="margin:0;font-size:13px;">
+              <i class="ti ti-server"></i>
+              All Connection
+              <span class="total-badge pill-info">{{ connections.length }}</span>
+              <button class="btn-icon-refresh" ng-click="refreshConnections()" ng-disabled="connLoading" tooltip
+                title="Refresh connections"
+                style="margin-left:6px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:14px;vertical-align:middle">
+                <i class="ti ti-refresh" ng-class="{ 'ti-spin': connLoading }"></i>
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px" ng-show="!connLoading && connections.length > 1">
+
+              <!-- Backdrop to catch outside clicks -->
+              <div ng-show="sidOpen" ng-click="sidOpen=false" style="position:fixed;inset:0;z-index:99">
+              </div>
+
+              <!-- Select sid dropdown -->
+              <div style="position:relative;margin-right:10px;z-index:100" ng-init="sidOpen=false">
+                <div ng-click="sidOpen=!sidOpen" class="sid-dropdown-trigger" ng-class="{active: sidOpen}">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0"
+                      ng-style="{background: connections[+svcIdx].ConnectivityStatus === 40 ? '#22c55e' : '#ef4444'}"></span>
+                    <span style="font-weight:500">{{ connections[+svcIdx].SID }}</span>
+                  </div>
+                  <i class="ti ti-chevron-down" style="font-size:16px;transition:transform .2s"
+                    ng-style="{transform: sidOpen ? 'rotate(180deg)' : 'rotate(0)'}"></i>
+                </div>
+                <div ng-show="sidOpen" class="sid-dropdown-list">
+                  <div ng-repeat="conn in connections track by $index" ng-click="$parent.sidOpen=false; goSvc($index);"
+                    class="sid-dropdown-item" ng-class="{selected: $index === +$parent.svcIdx}">
+                    <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0"
+                      ng-style="{background: conn.ConnectivityStatus === 40 ? '#22c55e' : '#ef4444'}"></span>
+                    <span style="font-weight:500">{{ conn.SID }}</span>
+                    <i class="ti ti-check" ng-show="$index === +$parent.svcIdx"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:4px;align-items:center">
+                <div ng-repeat="conn in connections track by $index" ng-click="$parent.goSvc($index)"
+                  style="cursor:pointer;transition:all .25s" ng-style="{
+                                        width:      $index === +svcIdx ? '14px' : '5px',
+                                        height:     '5px',
+                                        borderRadius: $index === +svcIdx ? '3px' : '50%',
+                                        background: $index === +svcIdx ? 'var(--accent)' : 'var(--border2)'
+                                    }"></div>
+              </div>
+
+              <button ng-click="goSvc(+svcIdx - 1)"
+                style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:12px">
+                <i class="ti ti-chevron-left"></i>
+              </button>
+              <button ng-click="goSvc(+svcIdx + 1)"
+                style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:12px">
+                <i class="ti ti-chevron-right"></i>
+              </button>
+
+            </div>
+          </div>
+
+          <div class="d-flex gap-6 m-2" ng-if="!connLoading && connections.length > 1">
+            <span class="pill pill-green fw-500" ng-if="routerActiveCount > 0">
+              <span class="dot"></span> Active <span class="count">{{ routerActiveCount }}</span>
+            </span>
+            <span class="pill pill-red fw-500" ng-if="routerDisableCount > 0">
+              <span class="dot"></span> Disabled <span class="count">{{ routerDisableCount }}</span>
+            </span>
+          </div>
+
+          <!-- Loading -->
+          <div ng-if="connLoading"
+            style="display:flex;align-items:center;justify-content:center;gap:8px;padding:40px;color:var(--text3);font-size:13px">
+            <i class="ti ti-loader-2 ti-spin"></i> Loading connections...
+          </div>
+
+          <!-- Empty -->
+          <div ng-if="!connLoading && connections.length === 0"
+            style="display:flex;align-items:center;justify-content:center;gap:8px;padding:40px;color:var(--text3);font-size:13px">
+            <i class="ti ti-plug-off"></i> No connections found
+          </div>
+
+          <!-- Connections carousel -->
+          <div ng-if="!connLoading && connections.length > 0" class="sv-viewport">
+            <div class="svc-slider sv-track" ng-style="{ transform: 'translateX(-' + (svcIdx * 100) + '%)' }">
+
+              <div class="sv-slide" ng-repeat="conn in connections">
+                <div class="svc-card" ng-class="{ suspended: conn.ConnectivityStatus !== 40 }"
+                  data-activate-id="{{ conn.ActivateCustomerID }}">
+
+                  <!-- ① HEADER: plan + speed + status -->
+                  <div class="sv-head">
+                    <div class="sv-head-main">
+                      <div class="sv-eyebrow"><i class="ti ti-bolt"></i> Current Plan</div>
+                      <div class="svc-plan">{{ conn.cycle.packageName }}</div>
+                      <div class="sv-speeds">
+                        <span class="sv-speed sv-speed-main">
+                          <i class="ti ti-gauge"></i><span>{{ conn.cycle.bandwidth }}</span> Mbps
+                        </span>
+                        <span class="sv-speed" data-toggle="tooltip" tooltip title="Download">
+                          <i class="ti ti-arrow-down"></i><span>{{ conn.cycle.dowSpeed }}</span>
+                        </span>
+                        <span class="sv-speed" data-toggle="tooltip" tooltip title="Upload">
+                          <i class="ti ti-arrow-up"></i><span>{{ conn.cycle.upSpeed }}</span>
+                        </span>
+                        <span class="sv-speed">
+                          <i class="ti ti-calendar-repeat"></i>{{ conn.cycle.um }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span class="badge sv-status" tooltip title="System Status"
+                      ng-class="conn.ConnectivityStatus === 40 ? 'badge-green' : 'badge-danger'">
+                      <i class="ti" ng-class="conn.ConnectivityStatus === 40 ? 'ti-wifi' : 'ti-wifi-off'"></i>
+                      {{ conn.statusText }}
+                    </span>
+                  </div>
+
+                  <!-- ② IDs: label-over-value mini tiles -->
+                  <div class="sv-ids">
+                    <div class="sv-id">
+                      <span class="sv-id-lbl">Connection ID</span>
+                      <span class="sv-id-val" ng-class="conn.ConnectivityStatus === 40 ? '' : 'text-danger'">{{
+                        conn.ConnectionID }}</span>
+                    </div>
+                    <div class="sv-id">
+                      <span class="sv-id-lbl">SID</span>
+                      <span class="sv-id-val" ng-class="conn.ConnectivityStatus === 40 ? '' : 'text-danger'">{{ conn.SID
+                        }}</span>
+                    </div>
+                    <div class="sv-id">
+                      <span class="sv-id-lbl">Room #</span>
+                      <span class="sv-id-val">{{ conn.ATTName || 'N/A' }}</span>
+                    </div>
+                    <div class="sv-id">
+                      <span class="sv-id-lbl">Invoice #</span>
+                      <span class="sv-id-val td-link" ng-click="previewInvoice(conn.cycle.invoiceNo)">{{
+                        conn.cycle.invoiceNo }}</span>
+                    </div>
+                    <div class="sv-id">
+                      <span class="sv-id-lbl">Ticket #</span>
+                      <span class="sv-id-val td-link" ng-click="previewTicket(conn.TicketNumber)">{{ conn.TicketNumber
+                        || 'N/A' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- ③ CONNECTION / ROUTER -->
+                  <div class="conn-info sv-conn">
+                    <!-- <img class="sv-router-img" src="../Content/images/router-img.png" width="40" /> -->
+
+                    <div class="sv-cells">
+
+                      <!-- Type -->
+                      <div class="sv-cell">
+                        <div class="sv-cell-ic d-none"><i class="ti ti-plug-connected"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">Type</span>
+                          <span class="sv-v">
+                            <span class="sv-type" ng-class="conn.ConnectionType === 'PPPoE' ? 'is-pppoe' : 'is-static'">
+                              {{ conn.ConnectionType || 'N/A' }}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Router -->
+                      <div class="sv-cell">
+                        <div class="sv-cell-ic d-none"><i class="ti ti-router"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">Router</span>
+                          <span class="sv-v" tooltip title="{{ conn.RouterID }}">{{
+                            conn.RouterName || 'N/A' }}</span>
+                        </div>
+                      </div>
+
+                      <!-- PPPoE only -->
+                      <div class="sv-cell" ng-if="conn.ConnectionType === 'PPPoE'">
+                        <div class="sv-cell-ic d-none"><i class="ti ti-user"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">PPPoE User</span>
+                          <span class="sv-v mono sv-copyable">
+                            <span class="sv-clip" tooltip title="{{ conn.PPPoEUserName }}">{{ conn.PPPoEUserName ||
+                              'N/A' }}</span>
+                            <button type="button" class="sv-copy" ng-if="conn.PPPoEUserName" tooltip
+                              title="Copy username" ng-click="copyText(conn.PPPoEUserName, $event)">
+                              <i class="ti ti-copy"></i>
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Static only -->
+                      <div class="sv-cell" ng-if="conn.ConnectionType === 'Static'">
+                        <div class="sv-cell-ic d-none"><i class="ti ti-topology-star-3"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">VLAN</span>
+                          <span class="sv-v sv-copyable">
+                            <span class="sv-clip" tooltip title="{{ conn.VLanName }}">{{ conn.VLanName || 'N/A'
+                              }}</span>
+                            <button type="button" class="sv-copy" ng-if="conn.VLanName" tooltip title="Copy VLAN"
+                              ng-click="copyText(conn.VLanName, $event)">
+                              <i class="ti ti-copy"></i>
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="sv-cell" ng-if="conn.ConnectionType === 'Static'">
+                        <div class="sv-cell-ic d-none"><i class="ti ti-world"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">IP Address</span>
+                          <span class="sv-v mono sv-ip">
+                            {{ conn.IPAddress || 'N/A' }}
+                            <button type="button" class="sv-copy" ng-if="conn.IPAddress" tooltip title="Copy IP"
+                              ng-click="copyText(conn.IPAddress, $event)">
+                              <i class="ti ti-copy"></i>
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Device status -->
+                      <div class="sv-cell sv-cell-device">
+                        <div class="sv-cell-ic"><i class="ti ti-activity"></i></div>
+                        <div class="sv-cell-body">
+                          <span class="sv-k">Device Status</span>
+                          <span class="sv-v" ng-if="conn.router.success">
+                            <span class="chip fw-500" tooltip title="Router Status"
+                              ng-class="conn.router.disabled === 'false' ? 'chip-green' : 'chip-red'">
+                              <i
+                                ng-class="conn.router.disabled === 'false' ? 'status-pulse-green' : 'status-pulse-red'"></i>
+                              {{ conn.router.disabled === 'false' ? 'Active' : 'Disabled' }}
+                            </span>
+                            <button class="btn-sync-mismatch" ng-if="conn.isMismatch" data-toggle="tooltip"
+                              data-placement="top"
+                              title="System is {{ conn.ConnectivityStatus === 40 ? 'Active' : 'Locked' }} but router is {{ conn.router.disabled === 'false' ? 'Active' : 'Disabled' }} — click to sync"
+                              ng-click="syncMismatch(conn)" ng-class="{ syncing: conn.syncing }">
+                              <i class="ti ti-refresh-alert"></i> Sync
+                            </button>
+                          </span>
+                          <span class="sv-v text-muted" ng-if="!conn.router.success">N/A</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <!-- ④ CYCLE -->
+                  <div class="cycle-panel">
+                    <div class="cycle-panel-top">
+                      <div class="cycle-dates">
+                        <div class="cycle-date-icon"
+                          ng-class="{ 'cycle-date-icon-expired': conn.cycle.state === 'expired' }">
+                          <i class="ti ti-history"></i>
+                        </div>
+                        <div class="cycle-date-text">
+                          <div class="prev-cycle-row">
+                            <span class="prev-cycle-label">
+                              {{ conn.cycle.state === 'upcoming' ? 'Upcoming' : 'Current Usage' }}
+                            </span>
+                            <span class="prev-cycle-dot">·</span>
+                            <span class="cycle-date-val" tooltip title="Start Date">{{ conn.cycle.startDate |
+                              date:'dd-MMM-yyyy' }}</span>
+                            <i class="ti ti-arrow-right cycle-date-arrow"></i>
+                            <span class="cycle-date-val cycle-date-end" tooltip title="End Date">{{ conn.cycle.endDate |
+                              date:'dd-MMM-yyyy' }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- state pill (one place, three states) -->
+                      <div class="sv-cycle-pill" ng-if="conn.cycle.state === 'active'"
+                        ng-class="{ 'is-urgent': conn.cycle.daysLeft <= 1 }">
+                        <i class="ti ti-hourglass"></i>
+                        <b>{{ conn.cycle.daysLeft }}</b> {{ conn.cycle.daysLeft === 1 ? 'day' : 'days' }} left
+                        <span class="sv-pill-sub">· {{ conn.cycle.daysUsed }} {{ conn.cycle.daysUsed === 1 ? 'day' :
+                          'days' }} used</span>
+                      </div>
+
+                      <div class="sv-cycle-pill is-upcoming" ng-if="conn.cycle.state === 'upcoming'">
+                        <i class="ti ti-clock"></i>
+                        Starts in <b>{{ conn.cycle.daysUntilStart }}</b> {{ conn.cycle.daysUntilStart === 1 ? 'day' :
+                        'days' }}
+                      </div>
+
+                      <div class="sv-cycle-pill is-expired" ng-if="conn.cycle.state === 'expired'">
+                        <i class="ti ti-alert-triangle"></i>
+                        Expired
+                        <span ng-if="conn.cycle.expiredDays === 0">· Today</span>
+                        <span ng-if="conn.cycle.expiredDays !== 0">· {{ conn.cycle.expiredDays }} {{
+                          conn.cycle.expiredDays === 1 ? 'day' : 'days' }} ago</span>
+                      </div>
+                    </div>
+
+                    <div class="cycle-progress-track">
+                      <div class="progress-fill progress-fill-blue"
+                        ng-class="{ 'progress-fill-red': conn.cycle.state === 'expired' }"
+                        ng-style="{ width: conn.cycle.percent + '%' }"></div>
+                    </div>
+
+                    <!-- Queued renewal / change plan -->
+                    <div class="cycle-upcoming-row" ng-if="conn.queued">
+                      <span>
+                        <i class="ti" ng-class="conn.queued.isChangePlan ? 'ti-switch-3' : 'ti-arrow-right'"></i>
+                        {{ conn.queued.isChangePlan ? 'Changes to' : 'Renews to' }}
+                        <b>{{ conn.queued.packageName }} · {{ conn.queued.bandwidth }} Mbps · {{ conn.queued.um }}</b>
+                        <span class="td-link" ng-click="previewInvoice(conn.queued.invoiceNo)">{{ conn.queued.invoiceNo
+                          }}</span>
+                      </span>
+                      <span class="cycle-upcoming-dates">
+                        <span>{{ conn.queued.isChangePlan ? 'Effective' : 'Will extend on' }}</span>
+                        {{ conn.queued.startDate | date:'dd-MMM' }} → {{ conn.queued.endDate | date:'dd-MMM-yyyy' }}
+                      </span>
+                    </div>
+
+                    <div class="cycle-panel-bottom">
+                      <div class="cycle-meta-item" ng-if="conn.cycle.invoiceType == 'Renew Invoice'">
+                        <span class="cycle-meta-lbl">Renew Date</span>
+                        <span class="cycle-meta-val">{{ conn.cycle.renewDate | date:'dd-MMM-yyyy' }}</span>
+                      </div>
+                      <div class="cycle-meta-item">
+                        <span class="cycle-meta-lbl">Due Date</span>
+                        <span class="cycle-meta-val text-red">{{ conn.PaymentDueDate | date:'dd-MMM-yyyy' }}</span>
+                      </div>
+                      <div class="cycle-meta-item">
+                        <span class="cycle-meta-lbl">Next Invoice</span>
+                        <span class="cycle-meta-val">{{ conn.NextInvoiceDate | date:'dd-MMM-yyyy' }}</span>
+                      </div>
+
+                      <div class="auto-lock">
+                        <div class="sv-auto-row">
+                          <label class="toggle">
+                            <input type="checkbox" ng-model="conn.AutoLock" ng-change="onAutoLockChange(conn)">
+                            <span class="toggle-slider"></span>
+                          </label>
+                          Auto Lock
+                        </div>
+                        <div class="sv-auto-note text-muted"
+                          ng-if="!conn.AutoLock && conn.SetAutoLockBy != '' && conn.ActivateCustomerID">
+                          Off by {{ conn.SetAutoLockBy }} · {{ conn.SetAutoLockDate | date:'dd-MMM-yyyy' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ⑤ ACTIONS (inside the card now) -->
+                  <div class="svc-actions sv-actions">
+                    <div class="sv-actions-left">
+                      <button class="btn btn-primary btn-sm" ng-click="renewDialog(conn)" ng-if="!conn.isTerminated">
+                        <i class="ti ti-recycle"></i> Renew
+                      </button>
+                      <button class="btn btn-sm sv-btn-outline" ng-click="changePlanDialog(conn)"
+                        ng-if="!conn.isTerminated">
+                        <i class="ti ti-switch-3"></i> Change Plan
+                      </button>
+                      <button class="btn btn-sm sv-btn-ghost" ng-click="activateService(conn)">
+                        <i class="ti ti-router"></i> Activate
+                      </button>
+                      <button class="btn btn-sm sv-btn-ghost" ng-click="showLog(conn)">
+                        <i class="ti ti-history"></i> Log
+                      </button>
+                      <button class="btn btn-sm sv-btn-ghost" ng-click="newTicket(conn)">
+                        <i class="ti ti-ticket"></i> Ticket
+                      </button>
+                    </div>
+
+                    <span class="badge badge-warning"
+                      ng-if="conn.cycle.state === 'expired' && conn.router.disabled === 'false'">
+                      <i class="ti ti-alert-triangle"></i> Expired — still active on router
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs-bar-wrap">
+        <div class="tabs-bar" slide-indicator=".tab.active">
+          <div class="tab" ng-click="setTab('invoice')" ng-class="{ active: activeTab === 'invoice' }">
+            <i class="ti ti-file-invoice"></i> Invoices
+            <span class="tab-badge green" ng-show="totalTransactions > 0">{{ totalTransactions }}</span>
+          </div>
+          <div class="tab" ng-show="proformaInvoices.length && !isHidden" ng-click="setTab('PI')"
+            ng-class="{ active: activeTab === 'PI' }">
+            <i class="ti ti-file-text"></i> PI
+          </div>
+          <div class="tab" ng-click="setTab('quotation')" ng-class="{ active: activeTab === 'quotation' }">
+            <i class="ti ti-quote"></i> Quotation
+          </div>
+          <div class="tab" ng-click="setTab('services')" ng-class="{ active: activeTab === 'services' }"
+            ng-show="!isHidden">
+            <i class="ti ti-server"></i> Services &amp; Products
+          </div>
+          <div class="tab" ng-click="setTab('device')" ng-class="{ active: activeTab === 'device' }"
+            ng-show="!isHidden">
+            <i class="ti ti-router"></i> Devices
+          </div>
+          <div class="tab" ng-click="setTab('info')" ng-class="{ active: activeTab === 'info' }">
+            <i class="ti ti-user"></i> Customer Info
+          </div>
+          <div class="tab" ng-click="setTab('billing')" ng-class="{ active: activeTab === 'billing' }">
+            <i class="ti ti-building"></i> Billing &amp; Contact
+          </div>
+          <div class="tab" ng-click="setTab('agency')" ng-class="{ active: activeTab === 'agency' }"
+            ng-show="!isHidden">
+            <i class="ti ti-users"></i> Agency Commission
+          </div>
+          <div class="tab" ng-click="setTab('files')" ng-class="{ active: activeTab === 'files' }">
+            <i class="ti ti-paperclip"></i> Files
+          </div>
+          <div class="tab" ng-click="setTab('serviceform')" ng-class="{ active: activeTab === 'serviceform' }"
+            ng-show="!isHidden">
+            <i class="ti ti-file-description"></i> Service Form
+          </div>
+          <div class="tab" ng-click="setTab('map')" ng-class="{ active: activeTab === 'map' }">
+            <i class="ti ti-map-pin"></i> Map
+          </div>
+          <div class="tab" ng-click="setTab('ticket')" ng-class="{ active: activeTab === 'ticket' }">
+            <i class="ti ti-ticket"></i> Tickets
+          </div>
+        </div>
+      </div>
+
+      <div class="body">
+        <!-- INVOICES -->
+        <div class="panel" ng-class="{ active: activeTab === 'invoice' }">
+          <div class="alert-banner" ng-show="overdueCount > 0">
+            <i class="ti ti-alert-circle"></i>
+            <div class="alert-text">
+              <strong>{{ overdueCount }} {{ overdueCount > 1 ? 'overdue invoices' : 'overdue invoice'
+                }}</strong>
+              totalling {{ overdueTotal | currency }} — the most recent was due {{ latestDue |
+              date:'dd-MMM-yyyy' }}.
+            </div>
+            <button class="btn btn-danger btn-sm" ng-click="setSubTab('inv-unpaid'); setTab('invoice')">
+              <i class="ti ti-credit-card"></i> Pay All
+            </button>
+          </div>
+
+          <!-- Sub Tabs -->
+          <div class="sub-tabs" id="invoice-tabs" slide-indicator=".sub-tab.active">
+            <div class="sub-tab" ng-click="setSubTab('inv-transaction')"
+              ng-class="{ active: activeSubTab === 'inv-transaction' }">
+              <i class="ti ti-transfer"></i>
+              Transactions
+            </div>
+            <div class="sub-tab" ng-click="setSubTab('inv-unpaid')"
+              ng-class="{ active: activeSubTab === 'inv-unpaid' }"><i class="ti ti-clock"></i> Unpaid
+              <span class="tab-badge red" ng-show="unpaidCount > 0">{{ unpaidCount }}</span>
+            </div>
+            <div class="sub-tab" ng-click="setSubTab('inv-paid')" ng-class="{ active: activeSubTab === 'inv-paid' }">
+              <i class="ti ti-circle-check"></i>
+              Paid
+            </div>
+            <div class="sub-tab d-none" ng-click="setSubTab('inv-creditnotes')"
+              ng-class="{ active: activeSubTab === 'inv-creditnotes' }"><i class="ti ti-receipt-refund"></i> Credit
+              Notes</div>
+            <div class="sub-tab" ng-click="setSubTab('inv-attachment')"
+              ng-class="{ active: activeSubTab === 'inv-attachment' }"><i class="ti ti-paperclip"></i>
+              Bank Slips</div>
+            <div class="sub-tab d-none" ng-click="setSubTab('inv-cancel')"
+              ng-class="{ active: activeSubTab === 'inv-cancel' }"><i class="ti ti-ban"></i> Cancelled
+            </div>
+            <div class="sub-tab" ng-click="setSubTab('inv-deposit')"
+              ng-class="{ active: activeSubTab === 'inv-deposit' }"><i class="ti ti-wallet"></i>
+              Deposits</div>
+            <div class="sub-tab d-none" ng-click="setSubTab('inv-returndeposit')"
+              ng-class="{ active: activeSubTab === 'inv-returndeposit' }"><i class="ti ti-corner-down-left"></i>
+              Return Deposit</div>
+            <div class="sub-tab" ng-click="setSubTab('inv-noted')" ng-class="{ active: activeSubTab === 'inv-noted' }">
+              <i class="ti ti-note"></i> Customer
+              Notes
+            </div>
+          </div>
+
+          <!-- Sub-panels for each invoice category -->
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-transaction' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-history"></i> Transaction History</div>
+                <search-box search-term="txSearch" placeholder="Search transactions…"></search-box>
+              </div>
+              <div class="tbl-wrap" ng-if="!loading.transaction">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Invoice Date</th>
+                      <th>Invoice #</th>
+                      <th>Ref. #</th>
+                      <th>SID</th>
+                      <th>ConnectionID</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Class</th>
+                      <th>Amount</th>
+                      <th>Created By</th>
+                      <th>Created Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="inv in transactions | filter:matchTransactions track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td>{{ inv.InvoiceDate | date:'dd-MMM-yyyy' }}</td>
+                      <td> <span class="td-link" ng-click="previewInvoice(inv.InvoiceNo)">{{
+                          inv.InvoiceNo }}</span> <br>
+                      </td>
+                      <td><span class="td-link" ng-click="previewInvoice(inv.OldInvoiceNo)">{{
+                          inv.OldInvoiceNo || '-'
+                          }}</span>
+                      </td>
+                      <td>{{ inv.ServiceID ? inv.SID : '-' }}</td>
+                      <td>{{ inv.ServiceID ? inv.ConnectionID : '-'}}</td>
+                      <td>{{ inv.ServiceID ? (inv.StartDate | date:'dd-MMM-yyyy') : '-' }}
+                      </td>
+                      <td>{{ inv.ServiceID ? (inv.EndDate | date:'dd-MMM-yyyy') : '-' }}</td>
+                      <td>{{ inv.ClassName }}</td>
+                      <td class="td-mono">{{ inv.Amount | currency }}</td>
+                      <td>{{ inv.CreateBy }}</td>
+                      <td>{{ inv.CreateDate | date:'dd-MMM-yyyy' }}</td>
+                    </tr>
+                    <tr ng-if="!transactions.length">
+                      <td colspan="20" class="td-mono text-center fw-500">No invoices history.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.transaction" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading transactions...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-unpaid' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-clock"></i> Unpaid Invoices</div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <search-box search-term="unpaidSearch" placeholder="Search unpaid…"></search-box>
+                </div>
+              </div>
+              <div class="tbl-wrap" ng-if="!loading.unpaid">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Invoice Date</th>
+                      <th>Invoice #</th>
+                      <th>Invoice Age</th>
+                      <th>Due Date</th>
+                      <th>Due Period</th>
+                      <th>Amount</th>
+                      <th>Paid</th>
+                      <th>Unpaid</th>
+                      <th>Status</th>
+                      <th>Payment</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="inv in unpaidList | filter:matchUnpaid track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td>{{ inv.InvoiceDate | date:'dd-MMM-yyyy' }}</td>
+                      <td><span class="td-link" ng-click="previewInvoice(inv.InvoiceNo)">{{
+                          inv.InvoiceNo }}</span>
+                      </td>
+                      <td class="td-mono text-red">{{ inv.InvoiceAge }} {{ inv.InvoiceAge > 1
+                        ? 'Days' : 'Day' }}</td>
+                      <td style="color:var(--red);font-weight:600">{{ inv.PaymentDueDate |
+                        date:'dd-MMM-yyyy' }}</td>
+                      <td class="td-mono text-red">{{ inv.DuePeriod }} {{ inv.DuePeriod > 1 ?
+                        'Days' : 'Day' }}</td>
+                      <td class="td-mono fw-500">{{ inv.GrandTotal | currency }}</td>
+                      <td class="td-mono text-success fw-500">{{ inv.Paid | currency }}</td>
+                      <td class="td-mono text-danger fw-500">{{ inv.Unpaid | currency }}</td>
+                      <td><span class="badge" ng-class="inv.badge">{{ inv.status }}</span>
+                      </td>
+                      <td>
+                        <button class="btn btn-primary btn-sm" ng-click="payNow(inv)">
+                          <i class="ti ti-credit-card"></i> Pay Now
+                        </button>
+                      </td>
+                      <td>
+                        <button class="btn btn-info btn-no-txt" ng-click="editInvoice(inv)">
+                          <i class="ti ti-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-no-txt" ng-click="deleteInvoice(inv)">
+                          <i class="ti ti-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr ng-if="!unpaidList.length">
+                      <td colspan="12" class="td-mono text-center fw-500">No Unpaid Data</td>
+                    </tr>
+                    <tr class="fw-500" ng-if="unpaidList.length">
+                      <td colspan="6" align="right">Total:</td>
+                      <td class="td-mono">{{ totalAmount | currency }}</td>
+                      <td class="td-mono">{{ amtPaid | currency }}</td>
+                      <td class="td-mono">{{ totalUnpaid | currency }}</td>
+                      <td colspan="4"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.unpaid" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading unpaid invoices...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-paid' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-circle-check"></i> Paid Invoices</div>
+                <search-box search-term="paidSearch" placeholder="Search paid…"></search-box>
+              </div>
+              <div class="tbl-wrap" ng-if="!loading.paid">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Invoice #</th>
+                      <th>Receipt #</th>
+                      <th>Method</th>
+                      <th>Account Name</th>
+                      <th>Paid Amount</th>
+                      <th>Paid By</th>
+                      <th>Paid Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="inv in paidList | filter:matchPaid track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td><span class="td-link" ng-click="previewInvoice(inv.InvoiceNo)">{{
+                          inv.InvoiceNo }}</span>
+                      </td>
+                      <td class="td-link">{{ inv.ReceiptNo || '-' }}</td>
+                      <td>{{ inv.PaymentMethod || '-' }}</td>
+                      <td>{{ inv.AccountName || '-' }}</td>
+                      <td class="td-mono text-primary">{{ inv.Paid | currency }}</td>
+                      <td>{{ inv.PaidBy || '-' }}</td>
+                      <td>{{ inv.PaidDate | date:'dd-MMM-yyyy' }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-warning" ng-click="rollBackInvoice(inv)">
+                          <i class="ti ti-restore"></i> Rollback
+                        </button>
+                      </td>
+                    </tr>
+                    <tr ng-if="paidList.length">
+                      <td colspan="5" align="right">Total:</td>
+                      <td class="td-mono">{{ totalPaid | currency }}</td>
+                      <td colspan="3"></td>
+                    </tr>
+                    <tr ng-if="!paidList.length">
+                      <td colspan="10" class="td-mono text-center fw-500">No Paid Data</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.paid" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading paid invoices...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-rollback' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-history"></i> Rollback Invoices</div>
+              </div>
+              <div class="empty-state"><i class="ti ti-circle-off"></i>
+                <p>No rollback invoices.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-creditnotes' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-receipt-refund"></i> Credit Notes</div>
+                <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Credit
+                  Note</button>
+              </div>
+              <div class="empty-state"><i class="ti ti-receipt-refund"></i>
+                <p>No credit notes.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-attachment' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-paperclip"></i> Attachments</div>
+              </div>
+
+              <div>
+                <div class="file-grid" ng-if="!loading.attachment && attachments.length">
+                  <div class="file-thumb" ng-repeat="file in attachments track by $index">
+                    <img ng-src="{{ file.DestinationFolder }}{{ file.AttachmentFile }}"
+                      onerror="this.onerror=null;src='Content/images/placeholder.jpg'">
+                    <div class="file-thumb-overlay" ng-click="previewInvoice(file.InvoiceNo)">{{
+                      file.InvoiceNo }}</div>
+                    <div class="d-flex justify-between">
+                      <a href="{{ file.DestinationFolder }}{{ file.AttachmentFile }}" data-toggle="lightbox"
+                        data-gallery="example-gallery" class="file-dl"><i class="ti ti-eye"></i></a>
+                      <a href="{{ file.DestinationFolder }}{{ file.AttachmentFile }}" class="file-dl" download><i
+                          class="ti ti-download"></i></a>
+                    </div>
+                  </div>
+                </div>
+                <div class="empty-state" ng-if="!loading.attachment && !attachments.length">
+                  <i class="ti ti-paperclip"></i>
+                  <p>No attachments.</p>
+                </div>
+                <div class="empty-state" ng-if="loading.attachment">
+                  <i class="ti ti-loader-2 ti-spin"></i>
+                  <p>Loading attachments...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-cancel' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-ban"></i> Cancelled Invoices</div>
+              </div>
+              <div class="empty-state"><i class="ti ti-ban"></i>
+                <p>No cancelled invoices.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-deposit' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-wallet"></i> Deposit</div>
+              </div>
+              <div class="tbl-wrap" ng-if="!loading.deposit">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Date</th>
+                      <th>Invoice #</th>
+                      <th>Amount</th>
+                      <th>Memo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="inv in deposits | filter:matchDeposits track by $index">
+                      <td>{{ inv.no }}</td>
+                      <td>{{ inv.CreateDate | date:'dd-MMM-yyyy' }}</td>
+                      <td><span class="td-link" ng-click="previewInvoice(inv.InvoiceNo)">{{
+                          inv.InvoiceNo }}</span>
+                      </td>
+                      <td class="td-mono">{{ inv.DepositFee | currency }}</td>
+                      <td>{{ inv.Memo }}</td>
+                    </tr>
+                    <tr ng-if="!deposits.length">
+                      <td colspan="5" class="td-mono text-center fw-500">No Deposit Data</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.deposit" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading deposits...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-returndeposit' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-corner-down-left"></i> Return Deposit</div>
+                <button class="btn btn-danger btn-sm"><i class="ti ti-corner-down-left"></i> Process
+                  Return</button>
+              </div>
+              <div class="empty-state"><i class="ti ti-corner-down-left"></i>
+                <p>No deposit returns.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSubTab === 'inv-noted' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-note"></i> Customer Notes</div>
+              </div>
+              <textarea class="note-area" ng-model="profile.CustomerNote"></textarea>
+              <div style="display:none;justify-content:flex-end;margin-top:.75rem">
+                <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save
+                  Notes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PI -->
+        <div class="panel" ng-class="{ active: activeTab === 'PI' }">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-file-text"></i> Proforma Invoices</div>
+              <search-box search-term="piSearch" placeholder="Search proforma invoices…"></search-box>
+            </div>
+            <div class="tbl-wrap" ng-if="!loading.pi">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Date</th>
+                    <th>PI #</th>
+                    <th>Service Plan</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="pi in proformaInvoices | filter:matchPI track by $index">
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ pi.InvoiceDate | date:'dd-MMM-yyyy' }}</td>
+                    <td class="td-link" ng-bind-html="pi.InvoiceNo"></td>
+                    <td>{{ pi.ItemDescription }}</td>
+                    <td class="td-mono">{{ pi.Amount | currency }}</td>
+                    <td><span class="badge" ng-class="pi.InvoiceStatus == 'Approve' ? 'badge-green' : 'badge-amber'">{{
+                        pi.InvoiceStatus }}</span></td>
+                  </tr>
+                  <tr ng-if="!proformaInvoices.length">
+                    <td colspan="6" class="td-mono text-center fw-500">No PI Data</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div ng-if="loading.pi" class="empty-state">
+              <i class="ti ti-loader-2 ti-spin"></i>
+              <p>Loading proforma invoices...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quotations -->
+        <div class="panel" ng-class="{ active: activeTab === 'quotation' }">
+          <!-- Sub Tabs -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div class="sub-tabs" slide-indicator=".sub-tab.active" style="margin:0">
+              <div class="sub-tab" ng-click="setQuoteTab('quoteList')"
+                ng-class="{ active: activeQuoteTab === 'quoteList' }"><i class="ti ti-server"></i>
+                List</div>
+              <div class="sub-tab" ng-click="setQuoteTab('quoteModify')"
+                ng-class="{ active: activeQuoteTab === 'quoteModify' }"><i class="ti ti-package"></i>
+                Detail</div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeQuoteTab === 'quoteList' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-quote"></i> Quotations</div>
+                <search-box search-term="quoSearch" placeholder="Search quotations…"></search-box>
+              </div>
+              <div class="tbl-wrap" ng-if="!loading.quotation">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Date</th>
+                      <th>Quotation #</th>
+                      <th>Class</th>
+                      <th>SID</th>
+                      <th>ConnectionID</th>
+                      <th>Created By</th>
+                      <th>Status To Invoice</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="q in quotations | filter:matchQuotation track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td>{{ q.InvoiceDate | date:'dd-MMM-yyyy' }}</td>
+                      <td>
+                        <span class="td-link" ng-click="previewInvoice(q.InvoiceNo)">{{
+                          q.InvoiceNo
+                          }}</span>
+                      </td>
+                      <td>{{ q.ClassName }}</td>
+                      <td>{{ q.ServiceID ? q.SID : '' }}</td>
+                      <td>{{ q.ServiceID ? q.ConnectionID : ''}}
+                      <td>{{ q.CreateBy }}</td>
+                      <td>
+                        <span ng-if="q.ToInvoice && q.IsChangeFlow == 1">
+                          <button class="btn btn-warning btn-sm" ng-click="toInvoiceDialog(q);">
+                            <i class="ti ti-arrow-right"></i> To Invoice</button>
+                        </span>
+                        <span ng-if="!q.ToInvoice && q.IsChangeFlow == 1" class="badge badge-blue">
+                          <i class="ti ti-check"></i> Done</span>
+                      </td>
+                    </tr>
+                    <tr ng-if="!quotations.length">
+                      <td colspan="10" class="td-mono text-center fw-500">No Data</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.quotation" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading quotations...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeQuoteTab === 'quoteModify' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-quote"></i> Quotations</div>
+                <search-box search-term="quoSearch" placeholder="Search quotations…"></search-box>
+              </div>
+
+              <div ng-if="loading.quotation" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading quotations...</p>
+              </div>
+
+              <div ng-if="!loading.quotation && !quotations.length" class="empty-state">
+                <i class="ti ti-quote"></i>
+                <p>No quotations found.</p>
+              </div>
+
+              <div class="bill-list" ng-if="!loading.quotation && quotations.length">
+                <div class="bill-card" ng-repeat="quote in quotations | filter: matchQuotation track by $index"
+                  ng-class="{ expanded: expandedQuote[quote.InvoiceNo] }">
+                  <div class="bill-card-header" ng-click="toggleExpandQuote($event, quote.InvoiceNo)">
+                    <div class="bill-card-info">
+                      <div class="bill-card-main fw-500">
+                        Quotation #: <span class="font-mono">{{ quote.InvoiceNo }}</span>
+                      </div>
+                      <div class="bill-card-sub">
+                        <span>
+                          <i class="ti ti-calendar"></i>
+                          {{ quote.InvoiceDate | date:'dd-MMM-yyyy' }}
+                        </span>
+                        <span class="badge badge-blue">
+                          <i class="ti ti-coins"></i> {{ quote.Amount | currency }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button class="btn btn-sm btn-info" ng-hide="editingQuote[quote.InvoiceNo]"
+                      ng-click="toggleEditQuote($event, quote)">
+                      <i class="ti ti-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-success" ng-show="editingQuote[quote.InvoiceNo]"
+                      ng-click="toggleEditQuote($event, quote)" ng-disabled="savingQuote[quote.InvoiceNo]">
+                      <i class="ti"
+                        ng-class="savingQuote[quote.InvoiceNo] ? 'ti-loader-2 ti-spin' : 'ti-device-floppy'"></i>
+                      {{ savingQuote[quote.InvoiceNo] ? 'Saving...' : 'Save' }}
+                    </button>
+                    <button class="btn btn-sm btn-danger" ng-show="editingQuote[quote.InvoiceNo]"
+                      ng-click="cancelEditQuote($event, quote)">
+                      <i class="ti ti-x"></i> Cancel
+                    </button>
+
+                    <div class="bill-card-toggle">
+                      <i class="ti ti-chevron-down"></i>
+                    </div>
+                  </div>
+
+                  <div class="bill-card-body" ng-if="expandedQuote[quote.InvoiceNo]">
+
+                    <div class="section-title">Company</div>
+                    <div class="three-col">
+                      <div class="field">
+                        <div class="field-lbl">Company Name (EN)</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.CompanyName || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.CompanyName" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">Company Name (KH)</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.CompanyNameKH || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.CompanyNameKH" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">VAT TIN</div>
+                        <div class="field-val mono" ng-hide="editingQuote[quote.InvoiceNo]">
+                          {{
+                          quote.VATNumber || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input mono" type="text"
+                          ng-model="quote.VATNumber" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">Desk Phone</div>
+                        <div class="field-val mono" ng-hide="editingQuote[quote.InvoiceNo]">
+                          {{
+                          quote.CompanyDeskPhone || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input mono" type="text"
+                          ng-model="quote.CompanyDeskPhone" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">Mobile</div>
+                        <div class="field-val mono" ng-hide="editingQuote[quote.InvoiceNo]">
+                          {{
+                          quote.CompanyContactMobileNumber || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input mono" type="text"
+                          ng-model="quote.CompanyContactMobileNumber" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">Billing Email</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.CompanyEmail || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="email"
+                          ng-model="quote.CompanyEmail" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">ATT Name</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.ATTName || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.ATTName" />
+                      </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="section-title">Company Address</div>
+                    <div class="two-col">
+                      <div class="field">
+                        <div class="field-lbl">Address</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">
+                          {{
+                          quote.CompanyAddress || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.CompanyAddress" />
+                      </div>
+                      <div class="three-col">
+                        <div class="field">
+                          <div class="field-lbl">Commune</div>
+                          <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                            quote.CompanyCommune || 'N/A' }}</div>
+                          <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="quote.CompanyCommune" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">District</div>
+                          <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                            quote.CompanyDistrict || 'N/A' }}</div>
+                          <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="quote.CompanyDistrict" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">Province</div>
+                          <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                            quote.CompanyProvinceCity || 'N/A' }}</div>
+                          <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="quote.CompanyProvinceCity" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="two-col">
+                      <div>
+                        <div class="section-title">Install Address</div>
+                        <div class="field">
+                          <div class="field-lbl">Address</div>
+                          <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">
+                            {{
+                            quote.InstallAddress || 'N/A' }}</div>
+                          <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="quote.InstallAddress" />
+                        </div>
+                        <div class="three-col">
+                          <div class="field">
+                            <div class="field-lbl">Commune</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.InstallCommune || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.InstallCommune" />
+                          </div>
+                          <div class="field">
+                            <div class="field-lbl">District</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.InstallDistrict || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.InstallDistrict" />
+                          </div>
+                          <div class="field">
+                            <div class="field-lbl">Province</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.InstallProvinceCity || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.InstallProvinceCity" />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="section-title">Bill To Address</div>
+                        <div class="field">
+                          <div class="field-lbl">Address</div>
+                          <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">
+                            {{ quote.BillToAddress || 'N/A' }}</div>
+                          <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="quote.BillToAddress" />
+                        </div>
+                        <div class="three-col">
+                          <div class="field">
+                            <div class="field-lbl">Commune</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.BillToCommune || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.BillToCommune" />
+                          </div>
+                          <div class="field">
+                            <div class="field-lbl">District</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.BillToDistrict || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.BillToDistrict" />
+                          </div>
+                          <div class="field">
+                            <div class="field-lbl">Province</div>
+                            <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                              quote.BillToProvinceCity || 'N/A' }}</div>
+                            <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                              ng-model="quote.BillToProvinceCity" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="section-title">Contact Person</div>
+                    <div class="two-col">
+                      <div class="field">
+                        <div class="field-lbl">Contact Name</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.CompanyContactName || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.CompanyContactName" />
+                      </div>
+                      <div class="field">
+                        <div class="field-lbl">Position</div>
+                        <div class="field-val" ng-hide="editingQuote[quote.InvoiceNo]">{{
+                          quote.CompanyContactPosition || 'N/A' }}</div>
+                        <input ng-show="editingQuote[quote.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="quote.CompanyContactPosition" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVICES & PRODUCTS -->
+        <div class="panel" ng-class="{ active: activeTab === 'services' }">
+
+          <!-- Sub Tabs -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div class="sub-tabs" slide-indicator=".sub-tab.active" style="margin:0">
+              <div class="sub-tab" ng-click="setSvcTab('services')" ng-class="{ active: activeSvcTab === 'services' }">
+                <i class="ti ti-server"></i>
+                Services
+              </div>
+              <div class="sub-tab" ng-click="setSvcTab('products')" ng-class="{ active: activeSvcTab === 'products' }">
+                <i class="ti ti-package"></i>
+                Products
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm d-none"><i class="ti ti-plus"></i> New Service &amp;
+              Product</button>
+          </div>
+
+          <!-- Sub-panels for each serivce & product category -->
+          <div class="sub-panel" ng-class="{ active: activeSvcTab === 'services' }">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="ti ti-server"></i> Services</div>
+                <search-box search-term="servicesSearch" placeholder="Search services"></search-box>
+              </div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>SID</th>
+                      <th>ConnectionID</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Connection Status</th>
+                      <th>Activate Date</th>
+                      <th>Activate By</th>
+                      <th>Install Address</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="con in connections | filter:matchServices track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td>{{ con.SID }}</td>
+                      <td>{{ con.ConnectionID }}</td>
+                      <td><span class="text-primary">{{ con.StartDate | date:'dd-MMM-yyyy'
+                          }}</span></td>
+                      <td><span class="text-danger">{{ con.EndDate | date:'dd-MMM-yyyy'
+                          }}</span></td>
+                      <td ng-bind-html="getStatusBadge(con.ConnectivityStatus)"></td>
+                      <td>{{ con.ActivateDate | date:'dd-MMM-yyyy' }}</td>
+                      <td>{{ con.ActivateBy }}</td>
+                      <td>{{ con.InstallAddress }}</td>
+                    </tr>
+                    <tr ng-if="!connections.length">
+                      <td colspan="9" class="td-mono text-center fw-500">No Data</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeSvcTab === 'products' }">
+            <div class="card">
+              <div class="tbl-wrap" ng-if="!loading.products">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Product</th>
+                      <th>Serial No.</th>
+                      <th>Qty</th>
+                      <th>UM</th>
+                      <th>Unit Price</th>
+                      <th>Status</th>
+                      <th>Install Date</th>
+                      <th>Install By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="prod in products track by $index">
+                      <td>{{ $index + 1 }}</td>
+                      <td>{{ prod.ItemName }}</td>
+                      <td class="td-mono">{{ prod.SerialNo }}</td>
+                      <td>{{ prod.QTY }}</td>
+                      <td>{{ prod.UM }}</td>
+                      <td class="td-mono">${{ prod.CostPrice | number:2 }}</td>
+                      <td>{{ prod.Status }}</td>
+                      <td>{{ prod.CompleteInstallDate | date:'dd-MMM-yyyy' }}</td>
+                      <td>{{ prod.InstallBy }}</td>
+                    </tr>
+                    <tr ng-if="!products.length">
+                      <td colspan="8" class="td-mono text-center fw-500">No Data</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div ng-if="loading.products" class="empty-state">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading products...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEVICES -->
+        <div class="panel" ng-class="{ active: activeTab === 'device' }">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-router"></i> Device Information</div>
+              <search-box search-term="devicesSearch" placeholder="Search devices"></search-box>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:1rem">
+                <button class="btn btn-primary btn-sm" ng-click="receiveDevice()"><i class="ti ti-package-import"></i>
+                  Receive Return</button>
+                <button class="btn btn-secondary btn-sm" ng-click="changeDevice()"><i
+                    class="ti ti-switch-horizontal"></i>
+                  Change Device
+                </button>
+              </div>
+            </div>
+
+            <div ng-if="loading.devices" class="empty-state">
+              <i class="ti ti-loader-2 ti-spin"></i>
+              <p>Loading devices...</p>
+            </div>
+
+            <div ng-if="!loading.devices && !devicesByConn.length" class="empty-state">
+              <i class="ti ti-router-off"></i>
+              <p>No devices found.</p>
+            </div>
+
+            <div class="device-list" ng-if="!loading.devices && devicesByConn.length">
+              <div class="device-card" ng-repeat="conn in devicesByConn | filter: matchDevices track by $index"
+                ng-class="{ expanded: expandedConn[conn.ConnectionID] }">
+
+                <div class="device-card-header"
+                  ng-click="expandedConn[conn.ConnectionID] = !expandedConn[conn.ConnectionID]">
+                  <div class="device-card-icon">
+                    <i class="ti ti-router"></i>
+                  </div>
+
+                  <div class="device-card-info">
+                    <div class="device-card-main">
+                      <span class="device-card-id">{{ conn.ConnectionID }}</span> -
+                      <span class="device-card-id">{{ conn.SID }}</span>
+                      <span class="badge badge-danger">{{ conn.ConnectionType }}</span>
+                    </div>
+                    <div class="device-card-sub">
+                      <span tooltip title="Router Name: {{ conn.DeviceName }}" ng-if="conn.DeviceName">
+                        <i class="ti ti-broadcast"></i> {{ conn.DeviceName || 'No router assigned' }}
+                      </span>
+                      <span tooltip title="PPPoE Username: {{ conn.PPPoEUserName }}"
+                        ng-if="conn.PPPoEUserName && conn.ConnectionType == 'PPPoE'">
+                        <i class="ti ti-user"></i> {{ conn.PPPoEUserName }}
+                      </span>
+                      <span tooltip title="VLAN Name: {{ conn.VLanName }}" ng-if="conn.VLanName">
+                        <i class="ti ti-vector-bezier-2"></i> {{ conn.VLanName }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="device-card-toggle">
+                    <i class="ti ti-chevron-down"></i>
+                  </div>
+                </div>
+
+                <div class="device-card-body" ng-if="expandedConn[conn.ConnectionID]">
+
+                  <div class="card-title-sm"><i class="ti ti-history"></i> Device History</div>
+                  <div class="tbl-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>No.</th>
+                          <th>Item Name</th>
+                          <th>Serial No</th>
+                          <th>MAC Address</th>
+                          <th>Status</th>
+                          <th>Reason</th>
+                          <th>Installed Date</th>
+                          <th>Installed By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="h in conn.history track by $index"
+                          ng-if="conn.history.length && conn.history[0].SerialNo">
+                          <td>{{ $index + 1 }}</td>
+                          <td>{{ h.ItemName || '—' }}</td>
+                          <td class="td-mono">{{ h.SerialNo || '—' }}</td>
+                          <td class="td-mono">{{ h.MACAddress || '—' }}</td>
+                          <td>
+                            <span class="badge" ng-class="h.Status === 'New Install' ? 'badge-primary'
+                                                                    : h.Status === 'Return' ? 'badge-warning'
+                                                                    : h.Status === 'Changed' ? 'badge-info'
+                                                                    : 'badge-success'">
+                              {{ h.Status || '' }}
+                            </span>
+                          </td>
+                          <td class="col-reason">{{ stripHtml(h.Reason) || '—' }}</td>
+                          <td>{{ (h.CompleteInstallDate | date:'dd-MMM-yyyy h:mm a') ||
+                            '—' }}</td>
+                          <td>{{ h.InstallBy || '—' }}</td>
+                        </tr>
+                        <tr ng-if="!conn.history.length || !conn.history[0].SerialNo">
+                          <td colspan="9" class="td-mono text-center fw-500">No device
+                            history</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="card-title-sm" style="margin-top:1.25rem">
+                    <i class="ti ti-settings"></i> Network Configuration
+                  </div>
+                  <div class="net-config-grid">
+
+                    <!-- Always shown -->
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-calendar-event"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Activate Date</div>
+                        <div class="net-config-val">{{ (conn.ActivateDate |
+                          date:'dd-MMM-yyyy h:mm a') || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-user-check"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Activate By</div>
+                        <div class="net-config-val">{{ conn.ActivateBy || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-hash"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Service ID</div>
+                        <div class="net-config-val mono">{{ conn.SID || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-plug-connected"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Connection Type</div>
+                        <div class="net-config-val">{{ conn.ConnectionType || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-router"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Device Name</div>
+                        <div class="net-config-val">{{ conn.DeviceName || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-file-description"></i>
+                      </div>
+                      <div>
+                        <div class="net-config-lbl">PPPoE Profile</div>
+                        <div class="net-config-val">{{ conn.PPPoEProfileName || 'N/A' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-users-group"></i></div>
+                      <div>
+                        <div class="net-config-lbl">User Group</div>
+                        <div class="net-config-val">{{ conn.UserGroup || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item">
+                      <div class="net-config-icon"><i class="ti ti-adjustments"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Actual Profile</div>
+                        <div class="net-config-val">{{ conn.ActualProfile || 'N/A' }}</div>
+                      </div>
+                    </div>
+
+                    <!-- PPPoE fields -->
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'PPPoE'">
+                      <div class="net-config-icon"><i class="ti ti-user"></i></div>
+                      <div>
+                        <div class="net-config-lbl">PPPoE Username</div>
+                        <div class="net-config-val mono">{{ conn.PPPoEUserName || 'N/A' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'PPPoE'">
+                      <div class="net-config-icon"><i class="ti ti-key"></i></div>
+                      <div>
+                        <div class="net-config-lbl">PPPoE Password</div>
+                        <div class="net-config-val mono" style="display:flex;align-items:center;gap:8px">
+                          <span>{{ showPassword[conn.ConnectionID] ? (conn.PPPoEPassword
+                            || 'N/A') : '••••••••' }}</span>
+                          <i class="ti" ng-class="showPassword[conn.ConnectionID] ? 'ti-eye-off' : 'ti-eye'"
+                            style="cursor:pointer;color:var(--text3)"
+                            ng-click="showPassword[conn.ConnectionID] = !showPassword[conn.ConnectionID]"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'PPPoE' && conn.PPPoEIPAddress">
+                      <div class="net-config-icon"><i class="ti ti-world"></i></div>
+                      <div>
+                        <div class="net-config-lbl">PPPoE IP Address</div>
+                        <div class="net-config-val mono">{{ conn.PPPoEIPAddress || 'N/A' }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Static / VLAN fields -->
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-vector-bezier-2"></i></div>
+                      <div>
+                        <div class="net-config-lbl">VLAN Name</div>
+                        <div class="net-config-val">{{ conn.VLanName || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static' && conn.VLanIPAddress">
+                      <div class="net-config-icon"><i class="ti ti-topology-ring"></i></div>
+                      <div>
+                        <div class="net-config-lbl">VLAN IP Address</div>
+                        <div class="net-config-val mono">{{ conn.VLanIPAddress || 'N/A' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-world"></i></div>
+                      <div>
+                        <div class="net-config-lbl">IP Address</div>
+                        <div class="net-config-val mono">{{ conn.IPAddress || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-arrow-right-circle"></i>
+                      </div>
+                      <div>
+                        <div class="net-config-lbl">Gateway IP</div>
+                        <div class="net-config-val mono">{{ conn.GetwayIP || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-topology-star"></i></div>
+                      <div>
+                        <div class="net-config-lbl">Subnet IP</div>
+                        <div class="net-config-val mono">{{ conn.SubnetIP || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-server-2"></i></div>
+                      <div>
+                        <div class="net-config-lbl">DNS 1</div>
+                        <div class="net-config-val mono">{{ conn.DNS1 || 'N/A' }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.ConnectionType === 'Static'">
+                      <div class="net-config-icon"><i class="ti ti-server-2"></i></div>
+                      <div>
+                        <div class="net-config-lbl">DNS 2</div>
+                        <div class="net-config-val mono">{{ conn.DNS2 || 'N/A' }}</div>
+                      </div>
+                    </div>
+
+                    <!-- WiFi fields — shown only when values exist -->
+                    <div class="net-config-item" ng-if="conn.WifiName">
+                      <div class="net-config-icon"><i class="ti ti-wifi"></i></div>
+                      <div>
+                        <div class="net-config-lbl">WiFi Name</div>
+                        <div class="net-config-val">{{ conn.WifiName }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.WifiIP">
+                      <div class="net-config-icon"><i class="ti ti-wifi"></i></div>
+                      <div>
+                        <div class="net-config-lbl">WiFi IP</div>
+                        <div class="net-config-val mono">{{ conn.WifiIP }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.WifiKey">
+                      <div class="net-config-icon"><i class="ti ti-wifi-lock"></i></div>
+                      <div>
+                        <div class="net-config-lbl">WiFi Key</div>
+                        <div class="net-config-val mono" style="display:flex;align-items:center;gap:8px">
+                          <span>{{ showWifiKey[conn.ConnectionID] ? conn.WifiKey :
+                            '••••••••' }}</span>
+                          <i class="ti" ng-class="showWifiKey[conn.ConnectionID] ? 'ti-eye-off' : 'ti-eye'"
+                            style="cursor:pointer;color:var(--text3)"
+                            ng-click="showWifiKey[conn.ConnectionID] = !showWifiKey[conn.ConnectionID]"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.WifiLoginName">
+                      <div class="net-config-icon"><i class="ti ti-user"></i></div>
+                      <div>
+                        <div class="net-config-lbl">WiFi Login Name</div>
+                        <div class="net-config-val mono">{{ conn.WifiLoginName }}</div>
+                      </div>
+                    </div>
+                    <div class="net-config-item" ng-if="conn.WifiLoginPassword">
+                      <div class="net-config-icon"><i class="ti ti-key"></i></div>
+                      <div>
+                        <div class="net-config-lbl">WiFi Login Password</div>
+                        <div class="net-config-val mono" style="display:flex;align-items:center;gap:8px">
+                          <span>{{ showWifiLoginPwd[conn.ConnectionID] ?
+                            conn.WifiLoginPassword : '••••••••' }}</span>
+                          <i class="ti" ng-class="showWifiLoginPwd[conn.ConnectionID] ? 'ti-eye-off' : 'ti-eye'"
+                            style="cursor:pointer;color:var(--text3)"
+                            ng-click="showWifiLoginPwd[conn.ConnectionID] = !showWifiLoginPwd[conn.ConnectionID]"></i>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMER INFO -->
+        <div class="panel" ng-class="{ active: activeTab === 'info' }" ng-if="profile">
+          <div class="two-col">
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title"><i class="ti ti-user"></i> Personal Information</div>
+                  <button class="btn btn-info btn-sm" ng-click="editProfile()"><i class="ti ti-edit"></i>
+                    Edit</button>
+                </div>
+                <div class="four-col">
+                  <div class="field">
+                    <div class="field-lbl">Type</div>
+                    <div class="field-val">{{ profile.CustomerType }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Code</div>
+                    <div class="field-val mono">{{ profile.CustomerCode }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Group</div>
+                    <div class="field-val">{{ profile.CustomerGroup }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Gender</div>
+                    <div class="field-val">{{ profile.CustomerGender }}</div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="two-col">
+                  <div class="field">
+                    <div class="field-lbl">Full Name (Khmer)</div>
+                    <div class="field-val">{{ profile.CustomerNameKH }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Full Name (Latin)</div>
+                    <div class="field-val">{{ profile.CustomerNameLatin }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Mobile</div>
+                    <div class="field-val mono">{{ profile.CustomerMobile }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Email</div>
+                    <div class="field-val">{{ profile.CustomerEmail || 'N/A' }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Nationality</div>
+                    <div class="field-val">{{ profile.CustomerNationality }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">ID / Passport</div>
+                    <div class="field-val mono">{{ profile.CustomerIdentification }}</div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="three-col">
+                  <div class="field">
+                    <div class="field-lbl">Address</div>
+                    <div class="field-val">{{ profile.CustomerAddress }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Commune</div>
+                    <div class="field-val">{{ profile.CustomerCommune }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">District</div>
+                    <div class="field-val">{{ profile.CustomerDistrict }}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Province / City</div>
+                    <div class="field-val">{{ profile.CustomerProvinceCity }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title"><i class="ti ti-briefcase"></i> Business Details</div>
+                </div>
+                <div class="field">
+                  <div class="field-lbl">Business Type</div>
+                  <div class="field-val">{{ profile.IndustryType }}</div>
+                </div>
+                <div class="divider"></div>
+                <div class="card-title-sm"><i class="ti ti-calendar"></i> Registration</div>
+                <div class="two-col">
+                  <div class="field">
+                    <div class="field-lbl">Register Date</div>
+                    <div class="field-val">{{ profile.RegisterDate | date:'dd MMMM yyyy' }}
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="field-lbl">Registered By</div>
+                    <div class="field-val">{{ profile.RegisterBy }}</div>
+                  </div>
+                </div>
+                <div class="d-none">
+                  <div class="divider"></div>
+                  <div class="card-title-sm"><i class="ti ti-chart-pie"></i> Summary</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <div class="stat">
+                      <div class="stat-val">24</div>
+                      <div class="stat-lbl">Months</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat-val green">$980</div>
+                      <div class="stat-lbl">Total paid</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat-val red">$0</div>
+                      <div class="stat-lbl">Outstanding</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat-val">3</div>
+                      <div class="stat-lbl">Tickets</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card d-none">
+                <div class="card-title-sm"><i class="ti ti-activity"></i> Recent Activity</div>
+                <div class="activity-item">
+                  <div class="activity-icon ticket"><i class="ti ti-ticket"></i></div>
+                  <div class="activity-text"><strong>New ticket opened</strong> — No internet
+                    after power
+                    outage</div>
+                  <div class="activity-time">2 May</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon info"><i class="ti ti-bell"></i></div>
+                  <div class="activity-text">Invoice <strong>INV-2026-0044</strong> generated —
+                    $120.00
+                  </div>
+                  <div class="activity-time">1 Apr</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                  <div class="activity-text"><strong>Payment received</strong> — INV-2026-0018 ·
+                    $120.00
+                  </div>
+                  <div class="activity-time">5 Feb</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon pay"><i class="ti ti-check"></i></div>
+                  <div class="activity-text"><strong>Payment received</strong> — INV-2026-0005 ·
+                    $120.00
+                  </div>
+                  <div class="activity-time">3 Jan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BILLING & CONTACT -->
+        <div class="panel" ng-class="{ active: activeTab === 'billing' }">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-building"></i> Billing Information</div>
+              <search-box search-term="billSearch" placeholder="Search..."></search-box>
+            </div>
+
+            <div ng-if="loading.billInfo" class="empty-state">
+              <i class="ti ti-loader-2 ti-spin"></i>
+              <p>Loading bill information...</p>
+            </div>
+
+            <div ng-if="!loading.billInfo && !billInformation.length" class="empty-state">
+              <i class="ti ti-file-invoice"></i>
+              <p>No bill found.</p>
+            </div>
+
+            <div class="bill-list" ng-if="!loading.billInfo && billInformation.length">
+              <div class="bill-card" ng-repeat="bill in billInformation | filter: matchBillInfo track by $index"
+                ng-class="{ expanded: expandedBill[bill.InvoiceNo] }">
+                <div class="bill-card-header" ng-click="toggleExpandBill($event, bill.InvoiceNo)">
+                  <div class="bill-card-info">
+                    <div class="bill-card-main fw-500">
+                      Invoice #: <span class="font-mono">{{ bill.InvoiceNo }}</span>
+                    </div>
+                    <div class="bill-card-sub">
+                      <span
+                        ng-class="{'text-primary': bill.ConnectivityStatusID === 40, 'text-danger': bill.ConnectivityStatusID !== 40 }">
+                        <i class="ti ti-wifi"></i>
+                        {{ bill.ConnectionID }} - {{ bill.SID }}
+                      </span>
+                      <span class="badge"
+                        ng-class="{'badge-green': bill.ConnectivityStatusID === 40,'badge-danger': bill.ConnectivityStatusID !== 40}">
+                        {{ getStatusText(bill.ConnectivityStatusID) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-sm btn-info" ng-hide="editingBill[bill.InvoiceNo]"
+                    ng-click="toggleEditBill($event, bill)">
+                    <i class="ti ti-edit"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-success" ng-show="editingBill[bill.InvoiceNo]"
+                    ng-click="toggleEditBill($event, bill)" ng-disabled="savingBill[bill.InvoiceNo]">
+                    <i class="ti"
+                      ng-class="savingBill[bill.InvoiceNo] ? 'ti-loader-2 ti-spin' : 'ti-device-floppy'"></i>
+                    {{ savingBill[bill.InvoiceNo] ? 'Saving...' : 'Save' }}
+                  </button>
+                  <button class="btn btn-sm btn-danger" ng-show="editingBill[bill.InvoiceNo]"
+                    ng-click="cancelEditBill($event, bill)">
+                    <i class="ti ti-x"></i> Cancel
+                  </button>
+
+                  <div class="bill-card-toggle">
+                    <i class="ti ti-chevron-down"></i>
+                  </div>
+                </div>
+
+                <div class="bill-card-body" ng-if="expandedBill[bill.InvoiceNo]">
+
+                  <div class="section-title">Company</div>
+                  <div class="three-col">
+                    <div class="field">
+                      <div class="field-lbl">Company Name (EN)</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyName || 'N/A' }}
+                      </div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.CompanyName" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Company Name (KH)</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyNameKH || 'N/A'
+                        }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.CompanyNameKH" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">VAT TIN</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.VATNumber || 'N/A'
+                        }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.VATNumber" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Desk Phone</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyDeskPhone
+                        || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.CompanyDeskPhone" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Mobile</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyContactMobileNumber || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.CompanyContactMobileNumber" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Billing Email</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyEmail || 'N/A'
+                        }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="email"
+                        ng-model="bill.CompanyEmail" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">ATT Name</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.ATTName || 'N/A' }}
+                      </div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.ATTName" />
+                    </div>
+                  </div>
+
+                  <div class="divider"></div>
+                  <div class="two-col">
+                    <div>
+                      <div class="section-title">Company Address</div>
+                      <div class="field">
+                        <div class="field-lbl">Address</div>
+                        <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                          bill.CompanyAddress ||
+                          'N/A' }}</div>
+                        <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="bill.CompanyAddress" />
+                      </div>
+                      <div class="three-col">
+                        <div class="field">
+                          <div class="field-lbl">Commune</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.CompanyCommune
+                            || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.CompanyCommune" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">District</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.CompanyDistrict
+                            || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.CompanyDistrict" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">Province</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.CompanyProvinceCity || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.CompanyProvinceCity" />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="section-title">Bill To Address</div>
+                      <div class="field">
+                        <div class="field-lbl">Address</div>
+                        <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                          bill.BillToAddress ||
+                          'N/A' }}</div>
+                        <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                          ng-model="bill.BillToAddress" />
+                      </div>
+                      <div class="three-col">
+                        <div class="field">
+                          <div class="field-lbl">Commune</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.BillToCommune
+                            || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.BillToCommune" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">District</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.BillToDistrict
+                            || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.BillToDistrict" />
+                        </div>
+                        <div class="field">
+                          <div class="field-lbl">Province</div>
+                          <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                            bill.BillToProvinceCity || 'N/A' }}</div>
+                          <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                            ng-model="bill.BillToProvinceCity" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="divider"></div>
+                  <div class="section-title">Installation Address</div>
+                  <div class="field">
+                    <div class="field-lbl">Full Address</div>
+                    <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">
+                      {{ bill.InstallAddress }}, {{ bill.InstallCommune }}, {{
+                      bill.InstallDistrict }}, {{
+                      bill.InstallProvinceCity }}
+                    </div>
+                    <div ng-show="editingBill[bill.InvoiceNo]" style="display:flex;gap:8px;flex-wrap:wrap">
+                      <input class="form-control field-input" style="flex:2" type="text" ng-model="bill.InstallAddress"
+                        placeholder="Address" />
+                      <input class="form-control field-input" style="flex:1" type="text" ng-model="bill.InstallCommune"
+                        placeholder="Commune" />
+                      <input class="form-control field-input" style="flex:1" type="text" ng-model="bill.InstallDistrict"
+                        placeholder="District" />
+                      <input class="form-control field-input" style="flex:1" type="text"
+                        ng-model="bill.InstallProvinceCity" placeholder="Province" />
+                    </div>
+                  </div>
+
+                  <div style="display:flex;gap:8px">
+                    <div class="field" style="flex:1">
+                      <div class="field-lbl">Latitude</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.GoogleMap_Latitude
+                        || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.GoogleMap_Latitude" />
+                    </div>
+                    <div class="field" style="flex:1">
+                      <div class="field-lbl">Longitude</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.GoogleMap_Longitude || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.GoogleMap_Longitude" />
+                    </div>
+                    <div class="field" style="flex:2">
+                      <div class="field-lbl">Google Map Address</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.GoogleMap_FullAddress
+                        || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.GoogleMap_FullAddress" />
+                    </div>
+                  </div>
+
+                  <div class="divider"></div>
+                  <div class="section-title">Contact Person</div>
+                  <div class="three-col">
+                    <div class="field">
+                      <div class="field-lbl">Name</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyContactName ||
+                        'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.CompanyContactName" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Position</div>
+                      <div class="field-val" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyContactPosition
+                        || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input" type="text"
+                        ng-model="bill.CompanyContactPosition" />
+                    </div>
+                    <div class="field">
+                      <div class="field-lbl">Contact Number</div>
+                      <div class="field-val mono" ng-hide="editingBill[bill.InvoiceNo]">{{
+                        bill.CompanyContactMobileNumber || 'N/A' }}</div>
+                      <input ng-show="editingBill[bill.InvoiceNo]" class="form-control field-input mono" type="text"
+                        ng-model="bill.CompanyContactMobileNumber" />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" ng-class="{ active: activeTab === 'agency' }">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-users"></i> Agency Commission</div>
+              <button class="btn bg-primary btn-sm"><i class="ti ti-device-floppy"></i> Save</button>
+            </div>
+            <div class="empty-state"><i class="ti ti-users"></i>
+              <p>Agency data loads here.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" ng-class="{ active: activeTab === 'files' }">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div class="sub-tabs" slide-indicator=".sub-tab.active" style="border:none;margin:0">
+              <div class="sub-tab" ng-click="setFileTab('id')" ng-class="{ active: activeFileTab === 'id' }"><i
+                  class="ti ti-id-badge"></i> ID
+                Documents</div>
+              <div class="sub-tab" ng-click="setFileTab('bank')" ng-class="{ active: activeFileTab === 'bank' }"><i
+                  class="ti ti-receipt"></i> Bank
+                Slips</div>
+            </div>
+            <!-- Files tab header -->
+            <button class="btn btn-primary btn-sm" ng-click="openUploadModal(activeFileTab === 'bank' ? 'bank' : 'id')">
+              <i class="ti ti-upload"></i> Upload File
+            </button>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeFileTab === 'id' }">
+            <div class="card">
+              <div class="file-grid" ng-if="!loading.files && idFiles.length">
+                <div class="file-thumb" ng-repeat="file in idFiles track by $index">
+                  <img ng-src="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}"
+                    onerror="this.onerror=null;src='Content/images/placeholder.jpg'">
+                  <div class="file-thumb-overlay" ng-click="previewInvoice(file.InvoiceNo)">
+                    {{ file.InvoiceNo }}
+                  </div>
+                  <div class="d-flex justify-between">
+                    <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" data-toggle="lightbox"
+                      data-gallery="example-gallery" class="file-dl"><i class="ti ti-eye"></i></a>
+                    <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" class="file-dl" download><i
+                        class="ti ti-download"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="empty-state" ng-if="!loading.files && !idFiles.length">
+                <i class="ti ti-paperclip"></i>
+                <p>No ID Document.</p>
+              </div>
+              <div class="empty-state" ng-if="loading.files">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading ID Document...</p>
+              </div>
+            </div>
+          </div>
+          <div class="sub-panel" ng-class="{ active: activeFileTab === 'bank' }">
+            <div class="card">
+              <div class="file-grid" ng-if="!loading.files && bankFiles.length">
+                <div class="file-thumb" ng-repeat="file in bankFiles track by $index">
+                  <img ng-src="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}"
+                    onerror="this.onerror=null;src='Content/images/placeholder.jpg'">
+                  <div class="file-thumb-overlay" ng-click="previewInvoice(file.InvoiceNo)">
+                    {{ file.InvoiceNo }}
+                  </div>
+                  <div class="d-flex justify-between">
+                    <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" data-toggle="lightbox"
+                      data-gallery="example-gallery" class="file-dl"><i class="ti ti-eye"></i></a>
+                    <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" class="file-dl" download><i
+                        class="ti ti-download"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="empty-state" ng-if="!loading.files && !bankFiles.length">
+                <i class="ti ti-paperclip"></i>
+                <p>No bank slip.</p>
+              </div>
+              <div class="empty-state" ng-if="loading.files">
+                <i class="ti ti-loader-2 ti-spin"></i>
+                <p>Loading bank slip...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" ng-class="{ active: activeTab === 'serviceform' }">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-file-description"></i> Service Form Files
+              </div>
+              <!-- Service Form tab header -->
+              <button class="btn btn-primary btn-sm" ng-click="openUploadModal('serviceform')">
+                <i class="ti ti-upload"></i> Upload Form
+              </button>
+            </div>
+            <div class="file-grid" ng-if="!loading.files && serviceForms.length">
+              <div class="file-thumb" ng-repeat="file in serviceForms track by $index">
+                <img ng-if="isImage(file.AttachmentFileName)"
+                  ng-src="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}"
+                  onerror="this.onerror=null;this.src='/Content/images/placeholder.jpg';">
+                <div class="file-thumb-overlay" ng-click="previewInvoice(file.InvoiceNo)">
+                  {{ file.UploadBy }} <br>
+                  {{ file.CreateDate | date:'dd-MMM-yyyy HH:mm'}}
+                </div>
+                <div class="file-placeholder" ng-if="isPdf(file.AttachmentFileName)">
+                  <i class="ti ti-file-type-pdf"></i> - <span>{{ file.AttachmentFileName }}</span>
+                </div>
+                <div class="file-placeholder"
+                  ng-if="!isImage(file.AttachmentFileName) && !isPdf(file.AttachmentFileName)">
+                  <i class="ti ti-file"></i>
+                  <span>{{ file.AttachmentFileName }}</span>
+                </div>
+                <div class="d-flex justify-between">
+                  <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" data-toggle="lightbox"
+                    data-gallery="example-gallery" class="file-dl"><i class="ti ti-eye"></i></a>
+                  <a href="{{ file.DestinationFolder }}/{{ file.AttachmentFileName }}" class="file-dl" download><i
+                      class="ti ti-download"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="empty-state" ng-if="!loading.files && !serviceForms.length">
+              <i class="ti ti-paperclip"></i>
+              <p>No Service Form.</p>
+            </div>
+            <div class="empty-state" ng-if="loading.files">
+              <i class="ti ti-loader-2 ti-spin"></i>
+              <p>Loading Service Form...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" ng-class="{ active: activeTab === 'map' }" ng-if="profile">
+          <div class="card">
+            <div class="card-header" style="border-bottom: none;">
+              <div class="card-title">
+                <i class="ti ti-map-2"></i> Customer Location
+                <span class="badge badge-blue" ng-if="mapCoord.connectionID">
+                  {{ mapCoord.connectionID }}
+                </span>
+                <span class="badge badge-neutral" ng-if="mapCoord.sid">
+                  {{ mapCoord.sid }}
+                </span>
+              </div>
+              <a ng-if="mapCoord.embedUrl"
+                href="https://www.google.com/maps?q={{ mapCoord.lat && mapCoord.lng ? (mapCoord.lat + ',' + mapCoord.lng) : mapCoord.installAddress }}"
+                target="_blank" class="btn btn-sm btn-primary">
+                <i class="ti ti-external-link"></i> Open in Google Maps
+              </a>
+            </div>
+
+            <!-- loading -->
+            <div class="empty-state" ng-if="mapLoading">
+              <i class="ti ti-loader-2 ti-spin"></i>
+              <p>Loading map...</p>
+            </div>
+
+            <!-- address info strip -->
+            <div class="info-strip info-strip-3" style="margin-bottom:0"
+              ng-if="!mapLoading && mapCoord.embedUrl && mapCoord.installAddress">
+              <div class="info-cell">
+                <div class="info-cell-icon"><i class="ti ti-map-pin"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Install Address</div>
+                  <div class="info-cell-val">{{ mapCoord.installAddress }}</div>
+                </div>
+              </div>
+              <div class="info-cell" ng-if="mapCoord.googleMapAddress">
+                <div class="info-cell-icon"><i class="ti ti-map-2"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Google Map Address</div>
+                  <div class="info-cell-val">{{ mapCoord.googleMapAddress }}</div>
+                </div>
+              </div>
+              <div class="info-cell" ng-if="mapCoord.lat && mapCoord.lng">
+                <div class="info-cell-icon"><i class="ti ti-current-location"></i></div>
+                <div>
+                  <div class="info-cell-lbl">Coordinates</div>
+                  <div class="info-cell-val mono">{{ mapCoord.lat }}, {{ mapCoord.lng }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- map embed -->
+            <div ng-if="!mapLoading && mapCoord.embedUrl"
+              style="margin-top:1rem;border-radius:10px;overflow:hidden;height:420px">
+              <iframe width="100%" height="100%" frameborder="0" style="border:0;display:block"
+                ng-src="{{ mapCoord.embedUrl }}" allowfullscreen>
+              </iframe>
+            </div>
+
+            <!-- no location -->
+            <div class="empty-state" ng-if="!mapLoading && !mapCoord.embedUrl">
+              <i class="ti ti-map-off"></i>
+              <p>No location data available.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" ng-class="{ active: activeTab === 'ticket' }">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div style="display:flex;gap:6px">
+              <span class="badge badge-neutral"><i class="ti ti-stack-2"></i> All: {{ tickets.length
+                }}</span>
+              <span class="badge badge-red"><i class="ti ti-circle"></i> Open: {{ ticketCounts.open
+                }}</span>
+              <span class="badge badge-amber"><i class="ti ti-loader"></i> In Progress: {{
+                ticketCounts.inprogress }}</span>
+              <span class="badge badge-green"><i class="ti ti-circle-check"></i> Closed: {{
+                ticketCounts.closed }}</span>
+            </div>
+            <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New Ticket</button>
+          </div>
+          <div class="card">
+            <div class="ticket-item" ng-repeat="t in tickets track by $index">
+              <div class="ticket-dot" ng-class="t.StatusClass"><i class="ti" ng-class="t.StatusIcon"></i></div>
+              <div class="ticket-body" style="flex:1">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+                  <div class="ticket-title">#{{ t.TicketNo }} — {{ t.Subject }}</div>
+                  <span class="badge" ng-class="t.BadgeClass">{{ t.Status }}</span>
+                </div>
+                <div class="ticket-meta">Opened: {{ t.OpenDate | date:'dd-MMM-yyyy' }} · ConnID: {{
+                  t.ConnectionID }} · Assigned: {{ t.AssignedTo }}</div>
+                <div style="margin-top:8px;display:flex;gap:6px">
+                  <button class="btn btn-primary btn-sm"><i class="ti ti-eye"></i> View</button>
+                  <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Update</button>
+                </div>
+              </div>
+            </div>
+            <div class="empty-state" ng-if="!tickets.length">
+              <i class="ti ti-ticket"></i>
+              <p>No tickets found.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="up-modal-backdrop" ng-if="uploadModal.open" ng-click="closeUploadModal()">
+        <div class="up-modal" ng-click="$event.stopPropagation()">
+          <div class="up-modal-head">
+            <h6>
+              <i class="ti ti-upload"></i> Upload Files
+              <span class="up-file-count" ng-if="uploadModal.files.length">{{ uploadModal.files.length }}
+                selected</span>
+            </h6>
+            <button class="up-modal-close" ng-click="closeUploadModal()">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+          <div class="up-modal-body">
+            <div class="up-drop-zone" ng-click="triggerFilePicker()">
+              <i class="ti ti-cloud-upload"></i>
+              <p>Click to browse or drag &amp; drop</p>
+              <small>PNG, JPG, GIF, WEBP, PDF — max 5 MB each — multiple allowed</small>
+            </div>
+            <input type="file" id="uploadFilePicker" accept="image/*,.pdf" multiple style="display:none"
+              file-model="selectedFiles" file-model-change="onFilesSelected($files)">
+
+            <div class="up-file-list">
+              <div class="up-file-item" ng-repeat="entry in uploadModal.files track by $index">
+                <span class="up-file-name">{{ entry.name }}</span>
+                <div class="up-progress" ng-if="entry.status === 'uploading'">
+                  <div class="up-progress-bar" ng-style="{ width: entry.progress + '%' }"></div>
+                </div>
+                <i class="ti ti-check text-success" ng-if="entry.status === 'done'"></i>
+                <i class="ti ti-x text-danger" ng-if="entry.status === 'error'"></i>
+                <button class="up-file-remove" ng-click="removeSelectedFile($index)" ng-if="entry.status === 'pending'">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="up-modal-foot">
+            <button class="up-btn up-btn-ghost" ng-click="closeUploadModal()">
+              <i class="ti ti-x"></i> Cancel
+            </button>
+            <button class="up-btn up-btn-primary" ng-click="submitUpload()"
+              ng-disabled="!uploadModal.files.length || uploadModal.uploading">
+              <i class="ti ti-upload"></i> {{ uploadModal.uploading ? 'Uploading...' : 'Upload' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="av-backdrop" ng-if="act.open" ng-click="actClose()">
+        <div class="av" ng-class="{ 'av-tall': act.ctx && act.mode === 'wizard' }" role="dialog" aria-modal="true"
+          ng-click="$event.stopPropagation()">
+
+          <!-- HEADER -->
+          <header class="av-head">
+            <div class="av-head-main">
+              <h3>{{
+                act.mode === 'manage'
+                ? 'Manage connection' : act.isEdit
+                ? 'Edit connection' : 'Activate connection' }}</h3>
+              <p ng-if="act.ctx">
+                <span>{{ act.ctx.plan.PackageLabel || act.ctx.plan.PackageName }}</span>
+                <span class="av-tag" ng-if="act.ctx.plan.CustomerCode">{{ act.ctx.plan.CustomerCode }}</span>
+                <span class="av-tag" ng-if="act.ctx.plan.SID">{{ act.ctx.plan.SID }}</span>
+              </p>
+            </div>
+            <button class="av-x" ng-click="actClose()" ng-disabled="act.busy" tooltip title="Close"><i
+                class="ti ti-x"></i></button>
+          </header>
+
+          <!-- LOADING / ERROR -->
+          <div class="av-body av-state" ng-if="act.loading || act.error">
+            <div class="av-empty" ng-if="act.loading"><span class="av-spinner"></span> Loading…</div>
+            <div class="av-note bad" ng-if="act.error"><i class="ti ti-alert-octagon"></i> {{ act.error }}</div>
+          </div>
+
+          <!-- ═════════ MANAGE ═════════ -->
+          <div class="av-body av-sum" ng-if="act.ctx && act.mode === 'manage'">
+            <section>
+              <h4 class="av-sum-t">Plan</h4>
+              <dl class="av-grid">
+                <div ng-repeat="t in act.tiles.slice(0, 6) track by $index">
+                  <dt>{{ t[0] }}</dt>
+                  <dd ng-class="{ empty: !t[1] || t[1] === '—' }" tooltip title="{{ t[1] }}">{{ t[1] || '—' }}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section ng-if="act.tiles.length > 6">
+              <h4 class="av-sum-t">Connection</h4>
+              <dl class="av-grid">
+                <div ng-repeat="t in act.tiles.slice(6) track by $index">
+                  <dt>{{ t[0] }}</dt>
+                  <dd style="white-space: pre-line;" ng-class="{ empty: !(t[1] || '').toString().trim() }"
+                    title="{{ t[1] }}">{{ (t[1] ||
+                    '').toString().trim() || '—' }}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <div class="av-note" ng-if="act.conn.isMismatch">
+              <i class="ti ti-alert-triangle"></i> Router status differs from the system status. Use Sync on the
+              connection card.
+            </div>
+
+            <section ng-if="act.ctx.activate">
+              <h4 class="av-sum-t">
+                Movement history
+                <span class="av-count" ng-if="act.moves.length">{{ act.moves.length }}</span>
+              </h4>
+
+              <div class="av-empty" ng-if="act.movesLoading"><span class="av-spinner"></span> Loading…</div>
+              <div class="av-empty" ng-if="!act.movesLoading && !act.moves.length">
+                <i class="ti ti-history-off"></i> No movements recorded yet.
+              </div>
+
+              <div class="mv" ng-if="act.moveGroups.length">
+                <div class="mv-group" ng-repeat="g in act.moveGroups track by g.key">
+                  <div class="mv-day"><span>{{ g.label }}</span></div>
+                  <div class="mv-item" ng-repeat="m in g.items track by m.MovementID" ng-class="actMoveClass(m)"
+                    ng-init="changes = actChanges(m); note = actNote(m)">
+                    <span class="mv-node">
+                      <i class="ti" ng-class="actMoveIcon(m)"></i>
+                    </span>
+                    <div class="mv-card">
+                      <!-- Header -->
+                      <div class="mv-header">
+                        <div class="mv-heading">
+                          <div class="mv-title">
+                            <strong>{{ m.ActionType }}</strong>
+                            <span class="mv-flow" ng-if="m.OldStatus != null && m.OldStatus !== m.NewStatus">
+                              <span class="mv-st" ng-class="actStatusClass(m.OldStatus)">
+                                {{ getStatusText(m.OldStatus) }}
+                              </span>
+                              <i class="ti ti-arrow-right"></i>
+                              <span class="mv-st" ng-class="actStatusClass(m.NewStatus)">
+                                {{ getStatusText(m.NewStatus) }}
+                              </span>
+                            </span>
+                          </div>
+
+                          <time class="mv-time" tooltip title="{{ m.CreateDate | date:'dd-MMM-yyyy h:mm:ss a' }}">
+                            {{ m.CreateDate | date:'h:mm a' }}
+                          </time>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="mv-meta">
+                          <small class="mv-user">
+                            <i class="ti ti-user-circle"></i>
+                            {{ m.CreateBy }}
+                          </small>
+                        </div>
+                      </div>
+
+                      <!-- Configuration Changes -->
+                      <div class="mv-changes" ng-if="changes.length">
+                        <div class="mv-changes-header">
+                          <span>
+                            <i class="ti ti-adjustments-horizontal"></i>
+                            Configuration changes
+                          </span>
+
+                          <span class="mv-change-count">
+                            {{ changes.length }}
+                            {{ changes.length === 1 ? 'change' : 'changes' }}
+                          </span>
+                        </div>
+
+                        <div class="mv-change-list" ng-class="{ 'is-new': changes.allNew }">
+                          <div class="mv-change-row" ng-repeat="c in changes track by $index">
+                            <span class="mv-change-field">
+                              {{ c.field }}
+                            </span>
+                            <div class="mv-change-values">
+                              <del ng-if="c.from">{{ c.from }}</del>
+                              <i class="ti ti-arrow-right" ng-if="c.from"></i>
+                              <ins>{{ c.to }}</ins>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Note -->
+                      <div class="mv-note" ng-if="note">
+                        <i class="ti ti-message-2"></i>
+                        <span>{{ note }}</span>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <footer class="av-foot" ng-if="act.ctx && act.mode === 'manage'">
+            <div class="av-foot-spacer"></div>
+
+            <button class="av-btn av-btn-danger" ng-disabled="act.busy" ng-click="actManage(41)"
+              ng-if="act.conn.ConnectivityStatus === 40">
+              <span class="av-spinner" ng-if="act.busyAction === 41"></span>
+              <i class="ti ti-lock-pause" ng-if="act.busyAction !== 41"></i>
+              {{ act.busyAction === 41 ? 'Locking…' : 'Lock' }}
+            </button>
+
+            <button class="av-btn av-btn-danger" ng-disabled="act.busy" ng-click="actManage(42)"
+              ng-if="act.conn.ConnectivityStatus === 40 && !(act.ctx.plan.IsChangePlan && !act.ctx.plan.IsAlreadyApplyProfile)">
+              <span class="av-spinner" ng-if="act.busyAction === 42"></span>
+              <i class="ti ti-wifi-off" ng-if="act.busyAction !== 42"></i>
+              {{ act.busyAction === 42 ? 'Terminating…' : 'Terminate' }}
+            </button>
+
+            <button class="av-btn av-btn-primary" ng-disabled="act.busy" ng-click="actApplyPlan()"
+              ng-if="act.conn.ConnectivityStatus === 40 && act.ctx.plan.IsChangePlan && !act.ctx.plan.IsAlreadyApplyProfile">
+              <span class="av-spinner" ng-if="act.busyAction === 'plan'"></span>
+              <i class="ti ti-switch-3" ng-if="act.busyAction !== 'plan'"></i>
+              {{ act.busyAction === 'plan' ? 'Applying…' : 'Apply change plan now' }}
+            </button>
+
+            <button class="av-btn av-btn-danger" ng-disabled="act.busy" ng-click="actManage(40)"
+              ng-if="act.conn.ConnectivityStatus !== 40">
+              <span class="av-spinner" ng-if="act.busyAction === 40"></span>
+              <i class="ti ti-refresh" ng-if="act.busyAction !== 40"></i>
+              {{ act.busyAction === 40 ? 'Re-activating…' : 'Re-activate' }}
+            </button>
+
+            <button class="av-btn av-btn-primary" ng-disabled="act.busy" ng-click="actEdit()">
+              <i class="ti ti-edit"></i> Edit configuration
+            </button>
+          </footer>
+
+          <!-- ═════════ ACTIVATE / EDIT ═════════ -->
+          <div class="av-main" ng-if="act.ctx && act.mode === 'wizard'"
+            ng-init="act.tab = act.isEdit ? 'connection' : 'service'">
+
+            <nav class="av-tabs" role="tablist">
+              <button type="button" class="av-tab" role="tab" ng-class="{ on: act.tab === 'service' }"
+                ng-click="act.tab = 'service'"><i class="ti ti-file-info"></i> Service</button>
+
+              <button type="button" class="av-tab" role="tab" ng-class="{ on: act.tab === 'connection' }"
+                ng-click="act.tab = 'connection'"><i class="ti ti-plug-connected"></i> Connection
+                <span class="av-dot-err"
+                  ng-if="act.errs.routerId || act.errs.pppoeUser || act.errs.pppoePass || act.errs.vlanId || act.errs.ip || act.errs.gateway || act.errs.subnet || act.errs.dns1 || act.errs.dns2"></span></button>
+
+              <button type="button" class="av-tab" role="tab" ng-class="{ on: act.tab === 'device' }"
+                ng-click="act.tab = 'device'"><i class="ti ti-router"></i> Device
+                <span class="av-dot-err"
+                  ng-if="act.errs.deviceName || act.errs.pon || act.errs.splitter || act.errs.port || act.errs.installBy || act.errs.installDate"></span></button>
+
+              <button type="button" class="av-tab" role="tab" ng-class="{ on: act.tab === 'equipment' }"
+                ng-click="act.tab = 'equipment'"><i class="ti ti-package"></i> Equipment
+                <span class="av-count" ng-if="act.items.length">{{ act.items.length }}</span>
+                <span class="av-dot-err" ng-if="act.errs.items"></span></button>
+            </nav>
+
+            <div class="av-body">
+
+              <!-- router check result after saving -->
+              <div class="av-verify" ng-if="act.verify"
+                ng-class="{ ok: act.verify.state === 'ok', warn: act.verify.state === 'warn' || act.verify.state === 'wait', bad: act.verify.state === 'bad' }">
+                <i class="ti"
+                  ng-class="{ 'ti-circle-check': act.verify.state === 'ok', 'ti-alert-triangle': act.verify.state === 'warn', 'ti-alert-octagon': act.verify.state === 'bad', 'ti-loader-2 ti-spin': act.verify.state === 'wait' }"></i>
+                <div><b>{{ act.verify.title }}</b><span ng-bind-html="act.verify.sub"></span></div>
+              </div>
+
+              <!-- SERVICE -->
+              <div class="av-tabpane" ng-show="act.tab === 'service'">
+                <dl class="av-kv">
+                  <div ng-repeat="t in act.tiles track by $index">
+                    <dt class="k">{{ t[0] }}</dt>
+                    <dd class="v" tooltip title="{{ t[1] }}" style="margin:0">{{ t[1] || '—' }}</dd>
+                  </div>
+                </dl>
+                <div class="av-fields av-narrow">
+                  <div class="av-f"><span class="av-lbl">Activate date</span>
+                    <input type="datetime-local" ng-model="act.f.date" ng-disabled="act.busy">
+                  </div>
+                </div>
+              </div>
+
+              <!-- CONNECTION -->
+              <div class="av-tabpane" ng-show="act.tab === 'connection'">
+                <div class="av-fields">
+                  <div class="av-f">
+                    <span class="av-lbl">Connection type</span>
+                    <ui-combo model="act.f.type" options="act.typeOpts" disabled="act.busy" placeholder="Select type"
+                      on-change="actSetType(opt.value)"></ui-combo>
+                  </div>
+
+                  <div class="av-f" ng-class="{ bad: act.errs.routerId }">
+                    <span class="av-lbl">Router <span class="text-danger">*</span></span>
+                    <ui-combo model="act.f.routerId" options="act.routerOpts" placeholder="Select router"
+                      on-change="actOnRouter()"></ui-combo>
+                    <div class="av-spin" ng-if="act.opts.loading">
+                      <span class="av-spinner" aria-hidden="true"></span> Reading router…
+                    </div>
+                  </div>
+                </div>
+
+                <div class="av-note" ng-if="act.f.type === 'Manual'">
+                  <i class="ti ti-info-circle"></i> Manual connection: nothing is created on the router. Only the status
+                  changes.
+                </div>
+
+                <div class="av-group" ng-if="act.f.type === 'PPPoE'">
+                  <div class="av-group-t">PPPoE account</div>
+                  <div class="av-f full" ng-if="act.userOpts.length"><span class="av-lbl">Use an existing PPPoE
+                      user</span>
+                    <ui-combo model="act.f.existingUserName" options="act.userOpts" placeholder="Search existing users…"
+                      clearable="true" on-change="actPickUser(opt)"></ui-combo>
+                  </div>
+                  <div class="av-fields">
+                    <div class="av-f" ng-class="{ bad: act.errs.pppoeUser }"><span class="av-lbl">Username <span
+                          class="text-danger">*</span></span>
+                      <input ng-model="act.f.pppoeUser" autocomplete="off">
+                    </div>
+                    <div class="av-f" ng-class="{ bad: act.errs.pppoePass }"><span class="av-lbl">Password <span
+                          class="text-danger">*</span></span>
+                      <div class="av-pwd"><input ng-model="act.f.pppoePass" autocomplete="off">
+                        <button type="button" ng-click="actGenPwd()" tooltip title="Generate"><i
+                            class="ti ti-dice"></i></button>
+                      </div>
+                    </div>
+                    <div class="av-f"><span class="av-lbl">Profile Name</span>
+                      <ui-combo model="act.f.pppoeProfileName" options="act.profileOpts" placeholder="Default"
+                        clearable="true"></ui-combo>
+                    </div>
+                    <div class="av-f"><span class="av-lbl">User group</span>
+                      <ui-combo model="act.f.userGroup" options="act.groupOpts" placeholder="Default"
+                        clearable="true"></ui-combo>
+                    </div>
+                    <div class="av-f"><span class="av-lbl">Fixed IP (optional)</span>
+                      <input ng-model="act.f.pppoeIp" placeholder="0.0.0.0">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="av-group" ng-if="act.f.type === 'Static'">
+                  <div class="av-group-t">VLAN and addressing</div>
+                  <div class="av-fields">
+                    <div class="av-f" ng-class="{ bad: act.errs.vlanId }"><span class="av-lbl">VLAN <span
+                          class="text-danger">*</span></span>
+                      <ui-combo model="act.f.vlanId" options="act.vlanOpts" placeholder="Select VLAN…"
+                        on-change="actOnVlan()"></ui-combo>
+                    </div>
+                    <div class="av-f"><span class="av-lbl">VLAN address</span><input ng-model="act.f.vlanIp" readonly>
+                    </div>
+                    <div class="av-f" ng-class="{ bad: act.errs.ip }"><span class="av-lbl">Customer IP <span
+                          class="text-danger">*</span></span><input ng-model="act.f.ip"></div>
+                    <div class="av-f" ng-class="{ bad: act.errs.gateway }"><span class="av-lbl">Gateway <span
+                          class="text-danger">*</span></span><input ng-model="act.f.gateway"></div>
+                    <div class="av-f" ng-class="{ bad: act.errs.subnet }"><span class="av-lbl">Subnet <span
+                          class="text-danger">*</span></span><input ng-model="act.f.subnet"></div>
+                    <div class="av-f"><span class="av-lbl">DNS 1 / DNS 2 <span class="text-danger">*</span></span>
+                      <div class="av-pair">
+                        <input ng-model="act.f.dns1" ng-class="{ bad: act.errs.dns1 }">
+                        <input ng-model="act.f.dns2" ng-class="{ bad: act.errs.dns2 }">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <details class="av-more">
+                  <summary>Customer router and WiFi (optional)</summary>
+                  <div class="av-fields c3">
+                    <div class="av-f"><span class="av-lbl">Device name</span><input ng-model="act.f.custDevice"></div>
+                    <div class="av-f"><span class="av-lbl">Router IP</span><input ng-model="act.f.wifiIP"></div>
+                    <div class="av-f"><span class="av-lbl">WiFi name</span><input ng-model="act.f.wifiName"></div>
+                    <div class="av-f"><span class="av-lbl">WiFi key</span><input ng-model="act.f.wifiKey"></div>
+                    <div class="av-f"><span class="av-lbl">Router login</span><input ng-model="act.f.wifiLoginName">
+                    </div>
+                    <div class="av-f"><span class="av-lbl">Router password</span><input
+                        ng-model="act.f.wifiLoginPassword"></div>
+                  </div>
+                </details>
+              </div>
+
+              <!-- DEVICE -->
+              <div class="av-tabpane" ng-show="act.tab === 'device'">
+                <div class="av-fields c3">
+                  <div class="av-f" ng-class="{ bad: act.errs.deviceName }"><span class="av-lbl">OLT / device <span
+                        class="text-danger">*</span></span>
+                    <ui-combo model="act.dev.deviceName" options="act.deviceOpts" remote="true"
+                      on-search="actSearchLookup('device', q)" placeholder="Select OLT / device…"
+                      on-change="actPickDevice(opt)"></ui-combo>
+                  </div>
+                  <div class="av-f" ng-class="{ bad: act.errs.pon }"><span class="av-lbl">PON / port <span
+                        class="text-danger">*</span></span><input ng-model="act.dev.pon"></div>
+                  <div class="av-f"><span class="av-lbl">ONT ID</span><input ng-model="act.dev.oltId"></div>
+                  <div class="av-f" ng-class="{ bad: act.errs.splitter }"><span class="av-lbl">Splitter <span
+                        class="text-danger">*</span></span>
+                    <ui-combo model="act.dev.splitter" options="act.splitterOpts" remote="true"
+                      on-search="actSearchLookup('splitter', q)" on-change="actPickSplitter(opt)"
+                      placeholder="Select splitter…"></ui-combo>
+                  </div>
+                  <div class="av-f" ng-class="{ bad: act.errs.port }"><span class="av-lbl">Splitter port <span
+                        class="text-danger">*</span></span><input ng-model="act.dev.port"></div>
+                  <div class="av-f"><span class="av-lbl">Length / Loss dB</span>
+                    <div class="av-pair"><input ng-model="act.dev.length"><input ng-model="act.dev.lossDb"></div>
+                  </div>
+                  <div class="av-f" ng-class="{ bad: act.errs.installBy }"><span class="av-lbl">Installed by <span
+                        class="text-danger">*</span></span>
+                    <ui-combo model="act.dev.installBy" options="act.installerOpts" remote="true"
+                      on-search="actSearchLookup('installer', q)" placeholder="Select installer…"></ui-combo>
+                  </div>
+                  <div class="av-f" ng-class="{ bad: act.errs.installDate }"><span class="av-lbl">Installed date
+                      <span class="text-danger">*</span></span>
+                    <input type="datetime-local" ng-model="act.dev.installDate">
+                  </div>
+                  <div class="av-f"><span class="av-lbl">Google map</span><input ng-model="act.dev.googleMap"></div>
+                  <div class="av-f full"><span class="av-lbl">Customer notes</span><textarea
+                      ng-model="act.dev.notes"></textarea></div>
+                </div>
+              </div>
+
+              <!-- EQUIPMENT -->
+              <div class="av-tabpane" ng-show="act.tab === 'equipment'">
+
+                <div class="eq-picker">
+                  <div class="av-f eq-wh">
+                    <span class="av-lbl">Warehouse</span>
+                    <ui-combo model="act.dev.wid" options="act.warehouseOpts" remote="true"
+                      on-search="actSearchLookup('warehouse', q)" placeholder="Select warehouse…"
+                      on-change="actPickWarehouse(opt)"></ui-combo>
+                  </div>
+                  <div class="av-f eq-prod">
+                    <span class="av-lbl">Add product</span>
+                    <ui-combo model="act.stock.sel" options="act.productOpts" remote="true" disabled="!act.dev.wid"
+                      placeholder="{{ act.dev.wid ? 'Search item name or serial…' : 'Select a warehouse first' }}"
+                      on-search="actLoadProducts(q)" on-change="actPickProduct(opt)"></ui-combo>
+                  </div>
+                </div>
+
+                <!-- stock status line -->
+                <div class="eq-status" ng-if="act.dev.wid">
+                  <span class="eq-st is-loading" ng-if="act.stock.loading">
+                    <span class="av-spinner"></span> Loading stock…
+                  </span>
+                  <span class="eq-st is-warn" ng-if="!act.stock.loading && act.stock.loaded && !act.stock.rows.length">
+                    <i class="ti ti-package-off"></i> No available stock in this warehouse
+                  </span>
+                </div>
+                <!-- added items -->
+                <div class="eq-list" ng-class="{ bad: act.errs.items }">
+                  <div class="eq-item" ng-repeat="i in act.items track by $index">
+                    <div class="eq-ic"><i class="ti ti-router"></i></div>
+
+                    <div class="eq-main">
+                      <div class="eq-name" tooltip title="{{ i.ItemName }}">{{ i.ItemName }}</div>
+                      <div class="eq-meta">
+                        <span class="chip" ng-if="i.WarehouseName"><i class="ti ti-building-warehouse"></i>{{
+                          i.WarehouseName }}</span>
+                        <span class="chip" ng-if="i.UM">{{ i.UM }}</span>
+                        <span class="chip chip-blue" ng-if="i.ItemSerialDetailID"><i
+                            class="ti ti-barcode"></i>Serialized</span>
+                      </div>
+                    </div>
+
+                    <div class="eq-qty" ng-class="{ locked: i.ItemSerialDetailID }">
+                      <button type="button" ng-click="actQty(i, -1)" ng-disabled="i.ItemSerialDetailID || i.QTY <= 1"><i
+                          class="ti ti-minus"></i></button>
+                      <input ng-model="i.QTY" ng-disabled="i.ItemSerialDetailID" inputmode="numeric">
+                      <button type="button" ng-click="actQty(i, 1)" ng-disabled="i.ItemSerialDetailID"><i
+                          class="ti ti-plus"></i></button>
+                    </div>
+
+                    <button type="button" class="av-del" ng-click="actDelItem($index)" tooltip title="Remove">
+                      <i class="ti ti-trash"></i>
+                    </button>
+
+                    <div class="eq-fields">
+                      <label class="eq-f"><span>Serial number</span>
+                        <input ng-model="i.SerialNumber" placeholder="Enter serial"></label>
+                      <label class="eq-f"><span>MAC address</span>
+                        <input ng-model="i.MACAddress" placeholder="AA:BB:CC:DD:EE:FF"></label>
+                    </div>
+                  </div>
+
+                  <div class="av-empty" ng-if="!act.items.length">
+                    <i class="ti ti-package-off"></i>
+                    No equipment added yet.
+                    <small>
+                      {{ act.dev.wid
+                      ? 'Search a product above to add it.'
+                      : 'Choose a warehouse, then search a product.' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FOOTER -->
+            <footer class="av-foot">
+              <div class="av-foot-msg" ng-if="act.msg"><i class="ti ti-alert-circle"></i> {{ act.msg }}</div>
+              <div class="av-foot-spacer" ng-if="!act.msg"></div>
+
+              <button class="av-btn" ng-click="actClose()" ng-disabled="act.busy" ng-if="!act.done">Cancel</button>
+
+              <button class="av-btn av-btn-primary" ng-click="actSave()" ng-disabled="act.busy">
+                <span class="av-spinner" ng-if="act.busy"></span>
+                <span ng-if="act.done">Close</span>
+                <span ng-if="!act.done && act.busy">{{ act.isEdit ? 'Saving…' : 'Activating…' }}</span>
+                <span ng-if="!act.done && !act.busy"><i class="ti ti-bolt"></i> {{ act.isEdit ? 'Save and apply' :
+                  'Activate now' }}</span>
+              </button>
+            </footer>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

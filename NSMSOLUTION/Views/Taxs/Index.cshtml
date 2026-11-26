@@ -1,0 +1,560 @@
+﻿@{ Layout = null; }
+<style>
+    .red-row, .red-row .k-button-text {
+        background-color: red !important;
+        color: white !important;
+    }
+    .remove-cell {
+        display: none;
+    }
+
+    .k-grid tbody tr:hover .remove-cell {
+        display: table-cell;
+    }
+
+    .remove-row-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+        .remove-row-btn:hover {
+            background-color: darkred;
+        }
+</style>
+
+<div class="row">
+    <div class="col-auto">
+        <div class="mb-3">
+            <input type="file" id="excelFile" class="form-control" />
+        </div>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-danger" onclick="Export();">Export To E-Filling</button>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" onclick="SetColumn();">Set Column</button>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" onclick="showUserLogin();">User Login</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="export-efilling-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="efilling-tab1" data-toggle="pill" href="#show-efilling-tab1" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Imported Excel</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="ShowPurchasingGoodsandServices(1);" id="efilling-tab2" data-toggle="pill" href="#show-efilling-tab2" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">ការទិញទំនិញ និងសេវា(ធាតុចូល)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="ShowPurchasingGoodsandServices(2);" id="efilling-tab3" data-toggle="pill" href="#show-efilling-tab3" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">ការលក់ទំនិញ និងសេវា(ធាតុចេញ)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="GetNonTaxablePerson();" id="Non-taxable-person" data-toggle="pill" href="#Non-taxable-person-tab" role="tab" aria-controls="Non-taxable-person" aria-selected="false">បុគ្គលមិនជាប់អាករ</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="show-efilling-tab">
+                    <div class="tab-pane fade active show" id="show-efilling-tab1" role="tabpanel" aria-labelledby="show-efilling-tab1">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card card-primary card-outline card-outline-tabs">
+                                    <div class="card-header p-0 border-bottom-0">
+                                        <ul class="nav nav-tabs" id="tabstrip" role="tablist"></ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="tab-content" id="tab-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="show-efilling-tab2" role="tabpanel" aria-labelledby="show-efilling-tab2">
+                        <div id="showefillingtype1"></div>
+                    </div>
+                    <div class="tab-pane fade" id="show-efilling-tab3" role="tabpanel" aria-labelledby="show-efilling-tab3">
+                        <div id="showefillingtype2"></div>
+                    </div>
+                    <div class="tab-pane fade" id="Non-taxable-person-tab" role="tabpanel" aria-labelledby="Non-taxable-person-tab">
+                        <div id="showNon-taxable-person-tab"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/kendo/xlsx.full.min.js"></script>
+<script>
+    var SheetsName = [];
+    $(document).ready(function () {
+        $("#export-efilling-tab").click(function (e) {
+            e.preventDefault();
+        });
+
+        var firstSheet = "";
+        var tabsContainer = $("#tabstrip");
+        var tabContent = $("#tab-content");
+
+        $("#excelFile").change(function () {
+            var fileInput = $("#excelFile")[0];
+            if (fileInput.files.length === 0) {
+                alert("Please select a file.");
+                return;
+            }
+
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+
+                // Create tabs for each sheet
+                tabsContainer.empty();
+                tabContent.empty();
+                SheetsName = [];
+                workbook.SheetNames.forEach(function (sheetName, index) {
+                    var obj = {
+                        sheetName: sheetName,
+                        index: index
+                    };
+                    SheetsName.push(obj);
+                    tabsContainer.append(`
+                                    <li class="nav-item">
+    <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="pill" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : ''}">${sheetName}</a>
+</li>`);
+                    tabContent.append(`
+                                                <div class="tab-pane fade ${index === 0 ? 'show active' : ''}" id="content-${index}" role="tabpanel" aria-labelledby="tab-${index}">
+                                                    <div id="grid-${index}"></div>
+                                                </div>
+                                            `);
+                });
+                // Automatically select the first tab
+                firstSheet = workbook.SheetNames[0];
+                $("#tabstrip li a").click(function (e) {
+                    var sheetName = $(e.target).text();
+                    var tabIndex = $(e.target).attr('id').split('-')[1];
+                    e.preventDefault();
+                    loadSheetData(sheetName, tabIndex);
+
+                });
+                loadSheetData(firstSheet, 0);
+            };
+
+            reader.readAsArrayBuffer(file);
+
+        });
+    });
+
+    function ShowPurchasingGoodsandServices(Type) {
+        LoadData("Taxs/ShowPurchasingGoodsandServices?Type=" + Type, function (response) {
+            if (Type == 1)
+                $("#showefillingtype1").html(response)
+            else if (Type == 2)
+                $("#showefillingtype2").html(response)
+        });
+    }
+
+    function excelDateToJSDate(serial) {
+        // Excel serial date starts from 1900-01-01 which is considered day 1
+        const excelStartDate = new Date(Date.UTC(1899, 11, 30)); // December 30, 1899
+
+        // Calculate the JavaScript date
+        const date = new Date(excelStartDate.getTime() + (serial * 86400 * 1000));
+
+        return date;
+    }
+
+
+    async function loadSheetData(sheetName, tabIndex) {
+        var fileInput = $("#excelFile")[0];
+        var file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a file first.");
+            return;
+        }
+
+        try {
+            // Read the file asynchronously using a Promise wrapper
+            var data = await readFileAsArrayBuffer(file);
+
+            // Initialize or update the Kendo Grid for the selected tab
+            var gridSelector = "#grid-" + tabIndex;
+            var workbook = XLSX.read(data, { type: 'array' });
+            var sheet = workbook.Sheets[sheetName];
+            var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+            if (jsonData.length === 0) {
+                alert("The selected sheet is empty.");
+                return;
+            }
+
+            // Exclude rows that have "S1" or "P4" in column 0 or 3
+            var excludedRows = ["S1", "P4"];
+            jsonData = jsonData.filter(function (row) {
+                return excludedRows.indexOf(row[0]) === -1 && excludedRows.indexOf(row[3]) === -1;
+            });
+
+            // Further filter rows where both column 1 and 2 are not empty
+            jsonData = jsonData.filter(function (row) {
+                return row[0] !== "" && row[1] !== "";
+            });
+
+            // Exclude the first two rows
+            jsonData = jsonData.slice(2);
+
+            // Use a fixed pattern for columns
+            var columns = [];
+            for (var i = 1; i <= 15; i++) {
+                columns.push({ field: 'S' + i, title: 'S' + i });
+            }
+
+            // Map the data to handle Excel dates and rows
+            var dataSource = jsonData.map(function (row) {
+                var obj = {};
+                columns.forEach(function (col) {
+                    var index = parseInt(col.field.slice(1)) - 1;
+                    var cellValue = row[index] || "";
+
+                    // Handle Excel date conversion
+                    if (col.field === 'S1' && !isNaN(cellValue) && parseFloat(cellValue) > 25569) {
+                        var jsDate = excelDateToJSDate(cellValue);
+                        if (jsDate) {
+                            cellValue = jsDate.toISOString().slice(0, 10);//date.toISOString().split('T')[0];
+                        }
+                    }
+
+                    obj[col.field] = cellValue;
+                });
+                return obj;
+            });
+
+            // Define row template to put "Remove" button in S14
+            var rowTemplate = function (dataItem) {
+                var rowHtml = "<tr>";
+                columns.forEach(function (col, index) {
+                    if (col.field === 'S15') {
+                        rowHtml += "<td class='remove-cell'><button class='remove-row-btn' data-id='" + dataItem.S1 + "'>Remove</button></td>";
+                    } else {
+                        rowHtml += "<td>" + (dataItem[col.field] || "") + "</td>";
+                    }
+                });
+                rowHtml += "</tr>";
+                return rowHtml;
+            };
+
+            // Initialize or update Kendo Grid
+            if ($(gridSelector).data("kendoGrid")) {
+                $(gridSelector).data("kendoGrid").setOptions({
+                    toolbar: ["search"],
+                    pageable: false,
+                    selectable: "single",
+                    sortable: {
+                        mode: "single",
+                        allowUnsort: false
+                    },
+                    resizable: true,
+                    reorderable: true,
+                    columns: columns,
+                    dataSource: {
+                        data: dataSource,
+                        pageSize: 1000000,
+                    },
+                    rowTemplate: rowTemplate
+                });
+            } else {
+                $(gridSelector).kendoGrid({
+                    toolbar: ["search"],
+                    pageable: false,
+                    selectable: "single",
+                    sortable: {
+                        mode: "single",
+                        allowUnsort: false
+                    },
+                    resizable: true,
+                    reorderable: true,
+                    columns: columns,
+                    dataSource: {
+                        data: dataSource,
+                        pageSize: 1000000,
+                    },
+                    rowTemplate: rowTemplate
+                });
+            }
+
+            // Attach event listener for row removal
+            $(gridSelector).off('click').on('click', '.remove-row-btn', function () {
+                var rowId = $(this).data('id');
+                var grid = $(gridSelector).data("kendoGrid");
+                var dataSource = grid.dataSource;
+
+                var item = dataSource.data().find(function (dataItem) {
+                    return dataItem.S1 == rowId;  // Match based on unique identifier (S1)
+                });
+
+                if (item) {
+                    dataSource.remove(item);
+                }
+            });
+        } catch (error) {
+            console.error("Error loading the file:", error);
+            alert("An error occurred while reading the file.");
+        }
+    }
+
+    // Helper function to read the file as ArrayBuffer
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                resolve(e.target.result);
+            };
+            reader.onerror = function (e) {
+                reject(e);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+
+    function showUserLogin() {
+        ModalDialogBox("User Login", "Taxs/UserLogin", "", "DialogUserLogin", "", "", "", true);
+    }
+    function SetColumn() {
+        ModalDialogBox("Set Column", "Taxs/ColumnTemplate", "", "DialogUserLogin", "", "", "", true);
+    }
+    function Export() {
+        if (SheetsName.length == 0) {
+            DialogSweetAlert('error', 'Please browse file first.');
+            return false;
+        }
+        ShowDialogBox("Export To E-Filling", "auto", "500", "Taxs/ExportToEFilling", "", "DialogExportToEFilling");
+    }
+    function formatDate(value) {
+        if (value) {
+            // Try parsing with standard formats using kendo.parseDate
+            var date = kendo.parseDate(value, "yyyy-MM-dd"); // Try yyyy-MM-dd
+            if (!date) {
+                date = kendo.parseDate(value, "MM-dd-yyyy"); // Try MM-dd-yyyy
+            }
+
+            // Check for dd-MM-yyyy format and manually parse
+            if (!date && value.match(/^\d{2}-\d{2}-\d{4}$/)) {
+                var parts = value.split("-");
+                var day = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+                var year = parseInt(parts[2], 10);
+
+                // Validate the parts (check for valid date)
+                date = new Date(year, month, day);
+                if (date.getFullYear() != year || date.getMonth() != month || date.getDate() != day) {
+                    date = null; // Invalid date
+                }
+            }
+
+            if (date && !isNaN(date.getTime())) {
+                // If the date is valid, format it as MM/dd/yyyy
+                return kendo.toString(date, "MM/dd/yyyy");
+            } else {
+                // Return "Invalid Date" or empty string if parsing fails
+                return "Invalid Date";
+            }
+        }
+        return ""; // Return empty string if value is null or undefined
+    }
+
+
+    async function onChangeSheetName(index, sheetName) {
+        if (sheetName != "") {
+            var template = $("#TxtColumnTemplateName").val();
+            if (template != "")
+                template = JSON.parse(template);
+
+            var gridSelector = "#grid-" + index;
+            await loadSheetData(sheetName, index);
+            var data = $(gridSelector).data("kendoGrid").dataSource.view();//.dataSource.data();
+
+            // Create a new array to hold the matched data
+            var matchedData = [];
+
+            // Iterate through each entry in data
+            for (var key in data) {
+                if (data.hasOwnProperty(key) && key !== "length") {
+                    var newEntry = {};
+
+                    // Check for matching keys in the template
+                    for (var templateKey in template) {
+                        if (template.hasOwnProperty(templateKey)) {
+                            var originalKey = template[templateKey];
+
+                            // If the original key exists in the current data entry, add it to the new entry
+                            if (data[key].hasOwnProperty(originalKey)) {
+                                newEntry[templateKey] = data[key][originalKey];
+                            }
+                        }
+                    }
+
+                    // Add the new entry to the matchedData array if it's not empty
+                    if (Object.keys(newEntry).length > 0) {
+                        matchedData.push(newEntry);
+                    }
+                }
+            }
+
+            
+            matchedData.forEach(item => {
+                if (item.TID === undefined) {
+                    item.TID = "";
+                }
+            });
+
+            destroyKendoGrid();
+
+            // Initialize Kendo Grid
+            $("#grid_willexpot").kendoGrid({
+                dataSource: {
+                    data: matchedData,
+                    schema: {
+                        model: {
+                            fields: {
+                                InvoiceDate: { type: "date" },
+                                InvoiceNumber: { type: "string" },
+                                InvoiceAmount: { type: "number" },
+                                TID: { type: "string" },
+                                Name: { type: "string" },
+                                VAT: { type: "string" },
+                                VATPrice: { type: "number" },
+                                Descript: { type: "string" }
+                            }
+                        }
+                    },
+                    pageSize: 1000000,
+                },
+                pageable: false,
+                sortable: true,
+                editable: "inline",
+                resizable: true,
+                reorderable: true,
+                columns: [
+                    {
+                        field: "InvoiceDate", title: "កាលបរិច្ឆេទ",
+                        format: "{0:MM/dd/yyyy}",
+                        //template: function (dataItem) {
+                        //    return formatDate(dataItem.InvoiceDate);
+                        //}
+                    },
+                    { field: "InvoiceNumber", title: "លេខវិក្កយបត្រ ឬប្រតិវេទគយ" },
+                    { field: "InvoiceAmount", title: "តម្លៃសរុបលើវិក្កយបត្រ (៛)", format: "{0:n}" },
+                    { field: "Name", title: "ឈ្មោះ" },
+                    { field: "VAT", title: "លេខអត្តសញ្ញាណសារពើពន្ធ" },
+                    { field: "TID", title: "លេខអត្តសញ្ញាណប័ណ្ណ / TID / លិខិតឆ្លងដែន" },
+                    { field: "VATPrice", title: "តម្លៃជាប់អាករ", format: "{0:n}" },
+                    { field: "Descript", title: "បរិយាយ" },
+                    {
+                        command: [
+                            { name: "edit", text: "Edit" },
+                            { name: "destroy", text: "Remove" }
+                        ],
+                        title: "&nbsp;",
+                        width: "200px"
+                    }
+                ],
+                toolbar: [{ name: "create", text: "Add New" }],
+                dataBound: function (e) {
+                    var grid = this;
+                    var items = grid.items();
+
+                    items.each(function () {
+                        var dataItem = grid.dataItem(this);
+                        // Use jQuery trim to ensure there are no leading/trailing spaces
+                        if ($.trim(dataItem.TID) === "" && $.trim(dataItem.VAT) === "") {
+                            $(this).addClass("red-row");
+                        }
+                    });
+                }
+            });            
+        }
+    }
+
+    // Function to destroy the Kendo Grid
+    function destroyKendoGrid() {
+        $("#grid_willexpot").off(); // Unbind events
+
+        var grid = $("#grid_willexpot").data("kendoGrid");
+        if (grid) {
+            grid.destroy();
+            $("#grid_willexpot").empty(); // Clear the grid contents
+        }
+        //else {
+        //    console.error("Kendo Grid not found.");
+        //}
+    }
+
+    function GetNonTaxablePerson() {
+        LoadData("Taxs/GetNonTaxablePerson", function (response) {
+            var rst = response;
+            if (rst != "" && rst != "[]") {
+                rst = JSON.parse(JSON.parse(response).Data);
+                setTimeout(function () {
+                    $("#showNon-taxable-person-tab").kendoGrid({
+                        dataSource: {
+                            data: rst,  // Make sure rst is an array containing the data
+                            schema: {
+                                model: {
+                                    fields: {
+                                        IdentificationNumber: { type: "string" },
+                                        NameInKhmer: { type: "string" },
+                                        NameInLatin: { type: "string" },
+                                        PhoneNumber: { type: "string" },
+                                        Status: { type: "string" },
+                                        CreateBy: { type: "string" },
+                                        CreateDate: { type: "date" }
+                                    }
+                                }
+                            },
+                            pageSize: 10
+                        },
+                        toolbar: ["search"],
+                        selectable: "single",
+                        resizable: true,
+                        reorderable: true,
+                        pageable: {
+                            alwaysVisible: true,
+                            pageSizes: [10, 20, 30, 50, 100, "All"],
+                            info: true  // This option shows the record count (e.g., 1-10 of 100)
+                        },
+                        columnMenu: { filterable: true },
+                        filterable: true,
+                        sortable: {
+                            mode: "single",
+                            allowUnsort: false
+                        },
+                        columns: [
+                            { field: "IdentificationNumber", title: "Identification Number" },
+                            { field: "NameInKhmer", title: "Name (Khmer)" },
+                            { field: "NameInLatin", title: "Name (Latin)" },
+                            { field: "PhoneNumber", title: "Phone" },
+                            { field: "Status", title: "Status" },
+                            { field: "CreateBy", title: "Create By" },
+                            { field: "CreateDate", title: "Create Date", format: "{0:yyyy-MM-dd HH:mm}" }
+                        ]
+                    });
+                }, 200);
+            }
+        });
+    }
+</script>
+

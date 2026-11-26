@@ -1,0 +1,1420 @@
+@{
+    Layout = null;
+}
+
+<section class="content" id="CustomerProfile">
+    <div class="container-fluid" name="CustomerProfile" id="CustomerProfile">
+        <div class="row khmerFont1">
+            <div class="col">
+                <div class="card card-widget widget-user p-1">
+                    <div class="widget-user-header bg-info p-1 m-0">
+                        <div class="row g-2">
+                            <div class="col" id="CustInfo"></div>
+                            <div class="col" id="CustInfo-left"></div>
+                        </div>
+                    </div>
+                    <div class="widget-user-image" style="z-index:2!important; margin-left:-65px">
+                        <div id="Cust_profilepic" class="profilepic elevation-2 bg-white" style="border:white 2px solid; border-top:none">
+                            <div class="profilepic__image">
+                                <i class="fa fa-8x fa-user-circle text-info"></i>
+                            </div>
+                            <div class="profilepic__content" id="AddCustPicProfile" style="cursor:pointer">
+                                <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                                <span class="profilepic__text">Edit Profile</span>
+                            </div>
+                        </div>
+
+                        <!--<div class="img-circle elevation-2 bg-white" style="padding:2px">-->
+                        @*style="padding: 10px 20px 20px 20px;"*@
+                        <!--<i class="fa fa-6x fa-user-circle text-info"></i>
+                        </div>-->
+                        @*<img class="img-circle elevation-2" src="../dist/img/user1-128x128.jpg" alt="User Avatar">*@
+                    </div>
+                    <div class="card-footer p-3" id="div_custfooterinfo">
+                        <div class="row">
+                            <div class="col-sm-6 border-right">
+                                <div id="divCustServices"></div>
+                            </div>
+                            @*<div class="col-sm-1 border-right text-nowrap">
+                                    <div id="billcycle"></div>
+                                </div>*@
+                            <div class="col-sm-6">
+                                <div class="row justify-content-end text-sm">
+                                    <div class="col-auto">
+                                        <label class="col-form-label">Exchange Rate:</label>
+                                    </div>
+                                    <div class="col-auto" id="ExchangeRate"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col"><div id="divShowCustPieChart"></div></div>
+                                </div>
+                                <div class="row"><div class="col">&nbsp;</div></div>
+                                <div class="row" style="position: absolute; bottom: 0; right: 0">
+                                    <div class="col"><span id='ct7'></span></div>
+                                </div>
+                                @*<div class="text-right">
+                                    <div id="divConnectivityStatus"></div>
+                                                    </div>*@
+                                @*<div id="CustomerBalance"></div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <br />
+                                        </div>
+                                    </div>*@
+
+                                @*<div class="row"><div class="col">&nbsp;</div></div>*@
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card card-info card-outline card-outline-tabs">
+                    <div class="card-header p-0 border-bottom-0">
+                        <div class="scroller scroller-left float-left mt-2"><i class="fa fa-chevron-left"></i></div>
+                        <div class="scroller scroller-right float-right mt-2"><i class="fa fa-chevron-right"></i></div>
+                        <div class="wrapper-nav" id="divwrapperTap">
+                            <ul class="nav nav-tabs list" id="customer-info-tab" role="tablist">
+                                <!--<li class="nav-item">
+                                    <a class="nav-link active" id="Customer-Invoice-tab" data-toggle="pill" href="#Customer-Invoice" role="tab" aria-controls="Customer-Invoice" aria-selected="true">Invoices</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-Services-tab" data-toggle="pill" href="#Customer-Services" role="tab" aria-controls="Customer-Services" aria-selected="false">Services & Products</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-Connection-tab" data-toggle="pill" href="#Customer-Connection" role="tab" aria-controls="Customer-Connection" aria-selected="false">Device Info</a>
+                                </li>
+                                <li class="nav-item">-->
+                                @*<a class="nav-link" id="Customer-Contract-tab" data-toggle="pill" href="#Customer-Contract" role="tab" aria-controls="Customer-Contract" aria-selected="false">Contract</a>*@
+                                <!--</li>-->
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="Customer-Info-tab" data-toggle="pill" href="#Customer-Info" role="tab" aria-controls="Customer-Info" aria-selected="false">Customer Info</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-Contact-tab" data-toggle="pill" href="#Customer-Contact" role="tab" aria-controls="Customer-Contact" aria-selected="false">Billing Info & Contact</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-Agency-Commission-tab" data-toggle="pill" href="#Customer-Agency-Commission" role="tab" aria-controls="Customer-Agency-Commission" aria-selected="false">Agency Commission</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-AttFile-tab" data-toggle="pill" href="#Customer-AttFile" role="tab" aria-controls="Customer-AttFile" aria-selected="false">Attachment File</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-MAP-tab" data-toggle="pill" href="#Customer-MAP" role="tab" aria-controls="Customer-MAP" aria-selected="false">MAP</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="Customer-Quotation-tab" data-toggle="pill" href="#Customer-Quotation" role="tab" aria-controls="Customer-Quotation" aria-selected="false">Quotation</a>
+                                </li>
+                                @*<li class="nav-item">
+                                        <a class="nav-link" id="Customer-Ticket-tab" data-toggle="pill" href="#Customer-Ticket" role="tab" aria-controls="Customer-Ticket" aria-selected="false">Ticket</a>
+                                    </li>*@
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body khmerFont1">
+                        <div class="tab-content">
+                            <!--<div class="tab-pane fade show active" id="Customer-Invoice" role="tabpanel" aria-labelledby="Customer-Invoice-tab">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <div class="nav flex-column nav-tabs h-100" id="cust-invoice-tab" role="tablist" aria-orientation="vertical">
+                                            <a class="nav-link active" id="unpaid-tab" data-toggle="pill" href="#unpaid" role="tab" aria-controls="unpaid" aria-selected="true">Unpaid</a>
+                                            <a class="nav-link" id="paid-tab" data-toggle="pill" href="#paid" role="tab" aria-controls="paid" aria-selected="false">Paid</a>
+                                            <a class="nav-link" id="Transaction-tab" data-toggle="pill" href="#Transaction" role="tab" aria-controls="Transaction" aria-selected="false" onclick="LoadTransaction();">Transaction</a>
+                                            <a class="nav-link" id="rollback-tab" data-toggle="pill" href="#rollback" role="tab" aria-controls="rollback" aria-selected="false">Rollback</a>
+                                            <a class="nav-link" id="CreditNotes-tab" data-toggle="pill" href="#CreditNotes" role="tab" aria-controls="CreditNotes" aria-selected="false" onclick="LoadInvoiceForCreditNotes();">Credit Notes</a>
+                                            <a class="nav-link" id="history-tab" data-toggle="pill" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
+                                            <a class="nav-link" id="attachmentfile-tab" data-toggle="pill" href="#attachmentfile" role="tab" aria-controls="attachmentfile" aria-selected="false">Attachment File</a>
+                                            <a class="nav-link" id="cancelInvoice-tab" data-toggle="pill" href="#cancelInvoice" role="tab" aria-controls="cancelInvoice" aria-selected="false" onclick="LoadCustCancelInvoice();">Cancel Invoice</a>
+                                            <a class="nav-link" id="DepositList-tab" data-toggle="pill" href="#DepositList" role="tab" aria-controls="DepositList" aria-selected="false">Deposit List</a>
+                                            <a class="nav-link" id="ReturnDeposit-tab" data-toggle="pill" href="#ReturnDeposit" role="tab" aria-controls="ReturnDeposit" aria-selected="false">Return Deposit</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="tab-content table-responsive p-0">
+                                            <div class="tab-pane text-left fade active show" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+                                                <div id="DivCustInvoice"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="paid" role="tabpanel" aria-labelledby="paid-tab">
+                                                <div id="showPaidInvoice"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="Transaction" role="tabpanel" aria-labelledby="Transaction-tab">
+                                                <div id="showTransacton"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="rollback" role="tabpanel" aria-labelledby="rollback-tab">
+                                                <div id="showRollbackInvoice"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="CreditNotes" role="tabpanel" aria-labelledby="CreditNotes-tab">
+                                                <div id="showCreditNotes"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                                                <div id="showPaidInvoiceHistory"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="attachmentfile" role="tabpanel" aria-labelledby="attachmentfile-tab">
+                                                <div id="showAttachmentFile"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="cancelInvoice" role="tabpanel" aria-labelledby="cancelInvoice-tab">
+                                                <div id="showCancelInvoice"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="DepositList" role="tabpanel" aria-labelledby="DepositList-tab">
+                                                <div id="showDepositList"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="ReturnDeposit" role="tabpanel" aria-labelledby="ReturnDeposit-tab">
+                                                <div id="showReturnDeposit"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-Services" role="tabpanel" aria-labelledby="Customer-Services-tab">
+                                <div class="card">
+                                    <div class="p-0">
+                                        <ul class="nav nav-tabs" id="SevicesAndProducts-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="services-tab" data-toggle="pill" href="#showservices-tab">Services</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="products-tabs" data-toggle="pill" href="#showproducts-tab">Products</a>
+                                            </li>
+                                            <li class="ml-auto">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <button type="button" id="New_Customer_Invoice" class="btn btn-sm btn-primary">
+                                                            <i class="far fa-file"></i> New Service & Product
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="tab-content">
+                                            <div class="tab-pane fade active show" id="showservices-tab">
+                                                <div id="ShowCustomerServices"></div>
+                                            </div>
+                                            <div class="tab-pane fade" id="showproducts-tab">
+                                                <div id="ShowCustomerProducts"></div>
+                                            </div>
+
+                                        </div>
+                                    </div>-->
+                            <!-- /.card -->
+                            <!--</div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-Connection" role="tabpanel" aria-labelledby="Customer-Connection-tab">
+                                <div class="row justify-content-end">
+                                    <div class="col text-right">
+                                        <button type="button" id="ReceivedDevice" class="btn btn-sm btn-primary">
+                                            <i class="fa-solid fa-router"></i> Receive Return Device
+                                        </button>
+                                    </div>
+                                    <div class="col-auto text-right">
+                                        <button type="button" id="ChangeDevice" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-server"></i> Change Device
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="ShowCustomerDevice"></div>
+                            </div>-->
+                            <div class="tab-pane fade show active" id="Customer-Info" role="tabpanel" aria-labelledby="Customer-Info-tab">
+                                <div id="showCustomerInformation"></div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-Contact" role="tabpanel" aria-labelledby="Customer-Contact-tab">
+                                <div id="ShowBillingInformation"></div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-Agency-Commission" role="tabpanel" aria-labelledby="Customer-Agency-Commission-tab">
+                                <div id="ShowAgencyCommission">
+                                    <form onsubmit="return false;" id="frmAgencyCommission">
+                                        <div class="p-2">
+                                            <div class="row">
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyName" class="col-form-label khmerFont1">
+                                                        ឈ្មោះ / Full Name:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo tt-input" id="AgencyName" name="AgencyName" autocomplete="off" required />
+                                                        <input type="hidden" class="input2 CustInfo" id="AgencyCommissionID" name="AgencyCommissionID" value="0" />
+                                                        <span class="focus-input2"></span>                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyPhone" class="col-form-label khmerFont1">
+                                                        ទូរស័ព្ទដៃ / H/P:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="AgencyPhone" name="AgencyPhone" required>
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyCommissionType" class="col-form-label khmerFont1">
+                                                        ប្រភេទ កម្រៃជើងសារ / Commission Type:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input5">
+                                                        <span id="span_Agency_Commission_Type"><select style="width: 100%; border: medium none; padding: 0px; margin: 0px;" class="CustInfo select2-hidden-accessible" id="AgencyCommissionType" name="AgencyCommissionType" data-validate=" is required." data-select2-id="AgencyCommissionType" multiple="" tabindex="-1" aria-hidden="true"><option value="1" data-select2-id="93" style="border: medium none; padding: 0px; margin: 0px;">Once Time</option><option value="2" data-select2-id="94" style="border: medium none; padding: 0px; margin: 0px;">Monthly</option><option value="3" data-select2-id="95" style="border: medium none; padding: 0px; margin: 0px;">Yearly</option></select><span class="select2 select2-container select2-container--bootstrap4" dir="ltr" data-select2-id="92" style="width: 100%; border: medium none; padding: 0px; margin: 0px;"><span class="selection" style="border: medium none; padding: 0px; margin: 0px;"><span class="select2-selection select2-selection--multiple" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="-1" aria-disabled="false" style="border: medium none; padding: 0px; margin: 0px;"><ul class="select2-selection__rendered" style="border-color: currentcolor currentcolor rgb(173, 173, 173); border-style: none none solid; border-width: medium medium 1px; border-image: none 100% / 1 / 0 stretch; padding: 0px; margin: 0px;"><li class="select2-search select2-search--inline" style="border: medium none; padding: 0px; margin: 0px;"><input class="select2-search__field" type="search" tabindex="0" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" role="searchbox" aria-autocomplete="list" placeholder="" style="width: 0.75em; border: medium none; padding: 0px; margin: 0px;"></li></ul></span></span><span class="dropdown-wrapper" aria-hidden="true" style="border: medium none; padding: 0px; margin: 0px;"></span></span></span>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-auto">
+                                                    <label for="Commission_AmountUSD" class="col-form-label khmerFont1">
+                                                        កម្រៃជើងសារ / Commission Amount USD:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="CommissionAmountUSD" data-bind="CommissionAmountUSD" name="CommissionAmountUSD" value="0" />
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <label for="Commission_AmountP" class="col-form-label khmerFont1">
+                                                        កម្រៃជើងសារ / Commission Amount %:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="CommissionAmountP" name="CommissionAmountP" data-bind="CommissionAmountP" value="0" />
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyAddress" class="col-form-label khmerFont1">
+                                                        អាសយដ្ឋាន / Address:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="AgencyAddress" name="AgencyAddress">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyBankName" class="col-form-label khmerFont1">
+                                                        ឈ្មោះធានាគា / Bank's Name:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="AgencyBankName" name="AgencyBankName">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyAccountName" class="col-form-label khmerFont1">
+                                                        ឈ្មោះគណនី / Account Name:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="AgencyAccountName" name="AgencyAccountName">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <label for="AgencyAccountNumber" class="col-form-label khmerFont1">
+                                                        លេខគណនី / Account Number:
+                                                    </label>
+                                                </div>
+                                                <div class="col-sm">
+                                                    <div class="wrap-input2">
+                                                        <input type="text" class="input2 CustInfo" id="AgencyAccountNumber" name="AgencyAccountNumber">
+                                                        <span class="focus-input2"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-2">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <textarea class="CustInfo text-nowrap-pre text-sm p-2 border border-0 col-12" style="height: 150px; width:100%; resize: none;" id="CustomerNoted" placeholder="កំណត់សំគាល់ / Customer Noted"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="row p-2 bg-gray-light justify-content-end">
+                                                <div class="col-12 text-right">
+                                                    <button type="button" onclick="SaveChangeAgency(CustomerID);" id="Save_Change_Agency" class="btn btn-outline-primary"><i class="fa fa-save" aria-hidden="true"></i> Save Change</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-AttFile" role="tabpanel" aria-labelledby="Customer-AttFile-tab">
+                                <div class="row justify-content-end">
+                                    <div class="col text-right">
+                                        <button type="button" onclick="AddCustomerAttachmentFile();" id="AddCustAttachmentFile" class="btn btn-info"><i class="fas fa-paperclip" aria-hidden="true"></i> Add Attachment File</button>
+                                    </div>
+                                </div>
+                                <div id="CustAttFile"></div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-MAP" role="tabpanel" aria-labelledby="Customer-MAP-tab">
+                                <div class="row">
+                                    <div class="col">
+                                        <div id="ShowCustMap"></div>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-end">
+                                    <div class="col">
+                                        <div id="ShowMap" class="text-center">
+                                            <img src="~/Scripts/Map/icons/icons8-location.gif" class="img-fluid" style="height:120px" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Customer-Quotation" role="tabpanel" aria-labelledby="Customer-Quotation-tab">
+                                <div id="CustQuotation"></div>
+                            </div>
+                            @*<div class="tab-pane fade" id="Customer-Ticket" role="tabpanel" aria-labelledby="Customer-Ticket-tab">
+                                    <div id="ShowCustomersTicket"></div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var AgencyCommissionData = JSON.parse(`@Html.Raw(ViewBag.AgencyCommissionData)`)[0];
+    var CustomerID = "@ViewBag.CustomerID";
+    var ISSO = "@ViewBag.ISSO";
+    var isRegisterForm = "@ViewBag.isRegisterForm";
+    var Customer_ID = "";
+    //var Cust_Info = "@ViewBag.CustInfo";
+    var CustDetail = "@ViewBag.CustDetail";
+    var ExchangeRate = "@ViewBag.ExchangeRate";
+    ExchangeRate = JSON.parse(ExchangeRate.replace(/&quot;/ig, '"'))[0];
+    var CustomerTypeID = 0;
+    var CustomerCode = "";
+    var Commune = "", District = "", ProvinceCity = "";
+    var BusinessTypeID = 0;
+    var Cust_Name = "";
+    var ServiceID = "";
+    var ConnectionTypeID = "";
+    var PackageDetailID = "";
+    var BillingInvoiceID = "";
+    var IndustryTypeData = "";
+    var CommuneData = "";
+
+    function LoadCustInfo(CustomerID) {
+        LoadData("CustomerProfile/LoadCustInfo?ID=" + CustomerID, function (response) {
+            var CustInfo = JSON.parse(JSON.parse(response).data)[0];
+            Cust_Name = CustInfo.CustomerName;
+            Customer_ID = CustomerID;
+            var row = '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="far fa-star"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerType + '</div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-user"></i></div>';
+            row += '<div class="col text-left"><label>' + CustInfo.CustomerName + '</label></div>';
+            row += '</div>';
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-phone"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.CustomerMobile + '</div>';
+            row += '</div>';
+            if (CustInfo.CustomerEmail != "") {
+                row += '<div class="row">';
+                row += '<div class="col-auto text-left"><i class="fa fa-envelope"></i></div>';
+                row += '<div class="col text-left">' + CustInfo.CustomerEmail + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row">';
+            row += '<div class="col-auto text-left"><i class="fa fa-building"></i></div>';
+            row += '<div class="col text-left">' + CustInfo.Address + '.</div>';
+            row += '</div>';
+            $("div#CustInfo").html(row);
+            row = '';
+            if (CustInfo.IndustryType != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">Business Type:</div>';
+                row += '<div class="col-4 text-left">' + CustInfo.IndustryType + '</div>';
+                row += '</div>';
+            }
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Register Date:</div>';
+            row += '<div class="col-4 text-left">' + CustInfo.RegisterDate + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Nationality:</div>';
+            row += '<div class="col-4 text-left">' + CustInfo.CustomerNationality + '</div>';
+            row += '</div>';
+            row += '<div class="row justify-content-end">';
+            row += '<div class="col-auto">Identification / Passport No:</div>';
+            row += '<div class="col-4 text-left text-truncate" title="' + CustInfo.CustomerIdentification + '">' + CustInfo.CustomerIdentification + '</div>';
+            row += '</div>';
+            if (CustInfo.EmployeeName != null) {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Sale's Name:" + '</div>';
+                row += '<div class="col-4 text-left text-nowrap">' + CustInfo.EmployeeName + '</div>';
+                row += '</div>';
+            }
+            if (CustInfo.ContactName != null && CustInfo.ContactName != "") {
+                row += '<div class="row justify-content-end">';
+                row += '<div class="col-auto">' + "Contact Name:" + '</div>';
+                row += '<div class="col-4 text-left">' + CustInfo.ContactName + '</div>';
+                row += '</div>';
+            }
+            $("div#CustInfo-left").html(row);
+        });
+    }
+
+    function LoadCustomerInformation(CustomerID) {
+        LoadData("AddCustomer/CustomerInformation", function (response) {
+            $("#showCustomerInformation").html(response);
+            LoadData("CustomerProfile/LoadCustInfo?ID=" + CustomerID, function (response) {
+                var CustInfo = JSON.parse(JSON.parse(response).data);
+                $.each(CustInfo, function (key, value) {
+                    CustomerTypeID = value.CustomerTypeID;
+                    CustomerCode = value.CustomerCode;
+                    $.each(value, function (key, val) {
+                        $("input[alt=" + key + "]").val(val);
+                    });
+                });
+            });
+        });
+    }
+    function SaveChangeCustBillingInfo(i) {
+        let CustomerBillInformationID = $("#CustomerBillInformationID_" + i).val();
+        let CompanyName = $("#CompanyName_" + i).val();
+        let CompanyNameKH = $("#CompanyNameKH_" + i).val();
+        let CompanyDeskPhone = $("#CompanyDeskPhone_" + i).val();
+        let CompanyMobile = $("#CompanyMobile_" + i).val();
+        let CompanyEmail = $("#CompanyEmail_" + i).val();
+        let VATNumber = $("#VATNumber_" + i).val();
+        let IndustryTypeID = $("#IndustryTypeID_" + i).val();
+        let ATTName = $("#ATTName_" + i).val();
+        let CompanyAddress = $("#CompanyAddress_" + i).val();
+        let CompanyCommune = $("#CompanyCommune_" + i).val();
+        let CompanyDistrict = $("#CompanyDistrict_" + i).val();
+        let CompanyProvinceCity = $("#CompanyProvinceCity_" + i).val();
+        let CompanyContactName = $("#CompanyContactName_" + i).val();
+        let CompanyContactPosition = $("#CompanyContactPosition_" + i).val();
+        let CompanyContactMobileNumber = $("#CompanyContactMobileNumber_" + i).val();
+        let BillToAddress = $("#BillToAddress_" + i).val();
+        let BillToCommune = $("#BillToCommune_" + i).val();
+        let BillToDistrict = $("#BillToDistrict_" + i).val();
+        let BillToProvinceCity = $("#BillToProvinceCity_" + i).val();
+        let InstallAddress = $("#InstallAddress_" + i).val();
+        let InstallCommune = $("#InstallCommune_" + i).val();
+        let InstallDistrict = $("#InstallDistrict_" + i).val();
+        let InstallProvinceCity = $("#InstallProvinceCity_" + i).val();
+        let GoogleMap_FullAddress = $("#GoogleMap_FullAddress_" + i).val();
+        let GoogleMap_Latitude = $("#GoogleMap_Latitude_" + i).val();
+        let GoogleMap_Longitude = $("#GoogleMap_Longitude_" + i).val();
+        let obj = {};
+        obj = {
+            CustomerBillInformationID: CustomerBillInformationID,
+            CompanyName: CompanyName,
+            CompanyNameKH: CompanyNameKH,
+            CompanyDeskPhone: CompanyDeskPhone,
+            CompanyMobile: CompanyMobile,
+            CompanyEmail: CompanyEmail,
+            VATNumber: VATNumber,
+            CompanyAddress: CompanyAddress,
+            CompanyCommune: CompanyCommune,
+            CompanyDistrict: CompanyDistrict,
+            CompanyProvinceCity: CompanyProvinceCity,
+            CompanyContactName: CompanyContactName,
+            CompanyContactPosition: CompanyContactPosition,
+            CompanyContactMobileNumber: CompanyContactMobileNumber,
+            BillToAddress: BillToAddress,
+            BillToCommune: BillToCommune,
+            BillToDistrict: BillToDistrict,
+            BillToProvinceCity: BillToProvinceCity,
+            InstallAddress: InstallAddress,
+            InstallCommune: InstallCommune,
+            InstallDistrict: InstallDistrict,
+            InstallProvinceCity: InstallProvinceCity,
+            GoogleMap_FullAddress: GoogleMap_FullAddress,
+            GoogleMap_Latitude: GoogleMap_Latitude,
+            GoogleMap_Longitude: GoogleMap_Longitude,
+            ATTName: ATTName, IndustryTypeID: IndustryTypeID
+        };
+        var URL = "/AddCustomer/SaveChangeCustomerBillInfo";
+        var DATA = { CustomerBillData: JSON.stringify(obj) };
+        DoSaveChangeData(URL, DATA, function (response) {
+        });
+    }
+    function LoadCustServices(CustomerID) {
+        LoadData("CustomerProfile/LoadCustServices?ID=" + CustomerID, function (response) {
+            var CustService = JSON.parse(JSON.parse(response).data);
+            var row = '<form id="FormCustomerBillInformation" name="FormCustomerBillInformation" novalidate autocomplete="off">';
+            let i = 0;
+            $.each(CustService, function (key, value) {
+                i++;
+                if (value.ConnectionID != null) {
+                    row += '<div class="row">';
+                    row += '<div class="col-auto text-left"><label>' + i + '.</label></div>';
+                    row += '<div class="col text-left"><label>Connection ID: ' + value.ConnectionID + '</label></div>';
+                    row += '<div class="col text-left"><label>SID: ' + value.SID + '</label></div>';
+                    row += '<div class="col text-left"><label>Status: <span class="text-red">' + value.Status + '</span></label></div>';
+                    row += '<div class="col text-left"><label>Remain Day: <span class="text-primary">' + value.RemainDay + '</span></label></div>';
+                    row += '</div>';
+                }
+                row += `<div class="p-2">
+                                <div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyName_`+ i + `" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុន/Company Name:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="hidden" class="input2 CustInfo" id="CustomerBillInformationID_`+ i + `" name="CustomerBillInformationID_` + i + `" value="` + value.CustomerBillInformationID + `">
+                                            <input type="text" class="input2 CustInfo" id="CompanyName_`+ i + `" name="CompanyName_` + i + `" value="` + value.CompanyName + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyNameKH_`+ i + `" class="col-form-label khmerFont1">ឈ្មោះក្រុមហ៊ុនជាភាសាខ្មែរ/Company Name KH:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="text" class="input2 CustInfo" id="CompanyNameKH_`+ i + `" name="CompanyNameKH_` + i + `" value="` + value.CompanyNameKH + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyDeskPhone_`+ i + `" class="col-form-label khmerFont1">ទូរស័ព្ទលើតុ/Company Desk Phone:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="text" class="input2 CustInfo" id="CompanyDeskPhone_`+ i + `" name="CompanyDeskPhone_` + i + `" value="` + value.CompanyDeskPhone + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyMobile_`+ i + `" class="col-form-label khmerFont1">ទូរស័ព្ទដៃ/Company H/P:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="text" class="input2 CustInfo" id="CompanyMobile_`+ i + `" name="CompanyMobile_` + i + `" value="` + value.CompanyMobile + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyEmail_`+ i + `" class="col-form-label khmerFont1">អ៊ីមែលទូទាត់វិក្កយបត្រ/Billing Email:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="email" class="input2 CustInfo" id="CompanyEmail_`+ i + `" name="CompanyEmail_` + i + `" value="` + value.CompanyEmail + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="VATNumber_`+ i + `" class="col-form-label khmerFont1">លេខ VAT/VAT TIN:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="text" class="input2 CustInfo" id="VATNumber_`+ i + `" name="VATNumber_` + i + `" value="` + value.VATNumber + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="IndustryType_`+ i + `" class="col-form-label khmerFont1">ប្រភេទអាជីវកម្ម/Business Type:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2 validate-input" data-validate="Business Type is required">
+                                            <input type="text" class="input2 CustInfo tt-input" id="IndustryType_`+ i + `" name="IndustryType_` + i + `" value="` + value.IndustryType + `">
+                                            <input type="hidden" class="input2 CustInfo tt-input" id="IndustryTypeID_`+ i + `" name="IndustryTypeID_` + i + `" value="` + value.IndustryTypeID + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="ATTName_` + i + `" class="col-form-label">ATT Name:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2">
+                                            <input type="text" class="input2 CustInfo" id="ATTName_`+ i + `" name="ATTName_` + i + `" value="` + value.ATTName + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    </div><div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyAddress_`+ i + `" class="col-form-label khmerFont1">អាសយដ្ឋានក្រុមហ៊ុន/Company Add.:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2 validate-input" data-validate="Company Address is required">
+                                            <input type="text" class="input2 CustInfo" id="CompanyAddress_`+ i + `" name="CompanyAddress_` + i + `" value="` + value.CompanyAddress + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyCommune_`+ i + `" class="col-form-label khmerFont1">សង្កាត់/Commune:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                            <input type="text" class="input2 CustInfo tt-input" id="CompanyCommune_`+ i + `" name="CompanyCommune_` + i + `" value="` + value.CompanyCommune + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div></div>
+                                    <div class="row">
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyDistrict_`+ i + `" class="col-form-label khmerFont1">ខណ្ឌ/District:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2 validate-input" data-validate="District is required">
+                                            <input type="text" class="input2 CustInfo" id="CompanyDistrict_`+ i + `" name="CompanyDistrict_` + i + `" value="` + value.CompanyDistrict + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <label for="CompanyProvinceCity_`+ i + `" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                            <input type="text" class="input2 CustInfo" id="CompanyProvinceCity_`+ i + `" name="CompanyProvinceCity_` + i + `" value="` + value.CompanyProvinceCity + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12" style="background-color:papayawhip">
+                                        <div class="row">
+                                            <div class="col-sm-auto">
+                                                <label for="CompanyContactName_`+ i + `" class="col-form-label khmerFont1">ឈ្មោះទំនាក់ទំនង/Contact Person:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Company Contact Name is required">
+                                                    <input type="text" class="input2 CustInfo" id="CompanyContactName_`+ i + `" name="CompanyContactName_` + i + `" value="` + value.CompanyContactName + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="CompanyContactPosition_`+ i + `" class="col-form-label khmerFont1">តំណែង/Position:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2">
+                                                    <input type="text" class="input2 CustInfo" id="CompanyContactPosition_`+ i + `" name="CompanyContactPosition_` + i + `" value="` + value.CompanyContactPosition + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="CompanyContactMobileNumber_`+ i + `" class="col-form-label khmerFont1">លេខទំនាក់ទំនង/Contact Number:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Contact Mobile Number is required">
+                                                    <input type="text" class="input2 CustInfo" id="CompanyContactMobileNumber_`+ i + `" name="CompanyContactMobileNumber_` + i + `" value="` + value.CompanyContactMobileNumber + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" id="DivBillToAddress">
+                                            <div class="col-sm-auto">
+                                                <label for="BillToAddress_`+ i + `" class="col-form-label khmerFont1">អាសយដ្ឋានទូទាត់វិក្កយបត្រ/Bill Add.:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Bill To Address is required">
+                                                    <input type="text" class="input2 CustInfo" id="BillToAddress_`+ i + `" name="BillToAddress_` + i + `" value="` + value.BillToAddress + `" />
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="BillToCommune_`+ i + `" class="col-form-label khmerFont1">សង្កាត់/Commune:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                                    <input type="text" class="input2 CustInfo" id="BillToCommune_`+ i + `" name="BillToCommune_` + i + `" value="` + value.BillToCommune + `" />
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            </div>
+                                            <div class="row">
+                                            <div class="col-sm-auto">
+                                                <label for="BillToDistrict_`+ i + `" class="col-form-label khmerFont1">ខណ្ឌ/District:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="District is required">
+                                                    <input type="text" class="input2 CustInfo" id="BillToDistrict_`+ i + `" name="BillToDistrict_` + i + `" value="` + value.BillToDistrict + `" >
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="BillToProvinceCity_`+ i + `" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                                    <input type="text" class="input2 CustInfo" id="BillToProvinceCity_`+ i + `" name="BillToProvinceCity_` + i + `" value="` + value.BillToProvinceCity + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" id="DivInstallationBill_`+ i + `">
+                                            <div class="col-sm-auto">
+                                                <label for="InstallAddress_`+ i + `" class="col-form-label khmerFont1">អាសយដ្ឋានតម្លើង/Installation Add.:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Installation Address is required">
+                                                    <input type="text" class="input2 CustInfo" id="InstallAddress_`+ i + `" name="InstallAddress_` + i + `" value="` + value.InstallAddress + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="InstallCommune_`+ i + `" class="col-form-label khmerFont1">សង្កាត់/Commune:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Commune is required">
+                                                    <input type="text" class="input2 CustInfo tt-input" id="InstallCommune_`+ i + `" name="InstallCommune_` + i + `" value="` + value.InstallCommune + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            </div><div class="row">
+                                            <div class="col-sm-auto">
+                                                <label for="InstallDistrict_`+ i + `" class="col-form-label khmerFont1">ខណ្ឌ/District:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="District is required">
+                                                    <input type="text" class="input2 CustInfo" id="InstallDistrict_`+ i + `" name="InstallDistrict_` + i + `" value="` + value.InstallDistrict + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto">
+                                                <label for="InstallProvinceCity_`+ i + `" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="wrap-input2 validate-input" data-validate="Province/City is required">
+                                                    <input type="text" class="input2 CustInfo" id="InstallProvinceCity_`+ i + `" name="InstallProvinceCity_` + i + `" value="` + value.InstallProvinceCity + `">
+                                                    <span class="focus-input2"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="CustGoogleMap" style="background-color:cornsilk">
+                                <div class="row p-2">
+                                    <div class="col-sm-auto">
+                                        <label for="GoogleMap_FullAddress_`+ i + `" class="col-form-label khmerFont1">Googel Map:</label>
+                                    </div>
+                                    <div class="col">
+                                        <div class="wrap-input2">
+                                            <input type="hidden" class="input2 CustInfo" id="GoogleMap_Latitude_`+ i + `" name="GoogleMap_Latitude_` + i + `" value="` + value.GoogleMap_Latitude + `">
+                                            <input type="hidden" class="input2 CustInfo" id="GoogleMap_Longitude_`+ i + `" name="GoogleMap_Longitude_` + i + `" value="` + value.GoogleMap_Longitude + `">
+                                            <input type="text" class="input2 CustInfo" id="GoogleMap_FullAddress_`+ i + `" name="GoogleMap_FullAddress_` + i + `" value="` + value.GoogleMap_FullAddress + `">
+                                            <span class="focus-input2"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                            <div class="row p-2 bg-gray-light justify-content-end">
+                                <div class="col-12 text-right">
+                                    <button type="button" onclick="SaveChangeCustBillingInfo(`+ i + `);" id="Save_Change_` + i + `" class="btn btn-outline-primary"><i class="fa fa-save" aria-hidden="true"></i> Save Change</button>
+                                </div>
+                            </div>
+                            </div>`;
+                row += '<div class="row p-2"><div class="col">&nbsp;</div></div>';
+            });
+            row += '</form>';
+            $("#ShowBillingInformation").html(row);
+            for (let j = 0; j <= i; j++) {
+                $("input[name=GoogleMap_FullAddress_" + j + "]").focus(function () {
+                    GoogleMap_Latitude = $("input[name=GoogleMap_Latitude_" + j + "]").val();
+                    GoogleMap_Longitude = $("input[name=GoogleMap_Longitude_" + j + "]").val();
+                    Marker_Map(j);
+                });
+                let obj = {};
+                obj["IndustryTypeID_" + j] = "ID";
+                ApplyTypeahead("IndustryType_" + j, IndustryTypeData, obj, {
+                    Name: 'IndustryType',
+                    ID: 'IndustryTypeID'
+                });
+                obj = {};
+                obj["CompanyDistrict_" + j] = "District";
+                obj["CompanyProvinceCity_" + j] = "ProvinceCity";
+                ApplyTypeahead("CompanyCommune_" + j, CommuneData, obj,
+                    {
+                        Name: 'Commune',
+                        ID: 'CommuneID',
+                        District: 'District',
+                        ProvinceCity: 'ProvinceCity'
+                    }
+                );
+                obj = {};
+                obj["BillToDistrict_" + j] = "District";
+                obj["BillToProvinceCity_" + j] = "ProvinceCity";
+                ApplyTypeahead("BillToCommune_" + j, CommuneData, obj,
+                    {
+                        Name: 'Commune',
+                        ID: 'CommuneID',
+                        District: 'District',
+                        ProvinceCity: 'ProvinceCity'
+                    }
+                );
+                obj = {};
+                obj["InstallDistrict_" + j] = "District";
+                obj["InstallProvinceCity_" + j] = "ProvinceCity";
+                ApplyTypeahead("InstallCommune_" + j, CommuneData, obj,
+                    {
+                        Name: 'Commune',
+                        ID: 'CommuneID',
+                        District: 'District',
+                        ProvinceCity: 'ProvinceCity'
+                    }
+                );
+            };
+
+
+            //$.each(CustService, function (key, value) {
+            //    row += '<div class="row">';
+            //    row += '<div class="col-auto"><label>' + (key + 1) + '. Service Plan: ' + value.ServiceName + '</label></div>';
+            //    row += '</div>';
+            //    row += '<div class="row">';
+            //    row += '<div class="col text-left"><label>Connection ID: ' + value.ConnectionID + '</label></div>';
+            //    row += '<div class="col text-left"><label>SID: ' + value.SID + '</label></div>';
+            //    row += '<div class="col text-left"><label>Status: <span class="text-red">' + value.Status + '</span></label></div>';
+            //    row += '<div class="col text-left"><label>Remain Day: <span class="text-primary">' + value.RemainDay + '</span></label></div>';
+            //    row += '</div>';
+            //    //row += '<div class="row">';
+            //    //row += '<div class="col"><input class="input2" name="InvoiceNo" alt="InvoiceNo" type="hidden" value="' + value.Inv + '" /><label>Invoice No.: ' + value.InvoiceNo + '</label></div>';
+            //    //row += '</div>';
+            //    row += '<div class="p-2" style="background-color:papayawhip">';
+            //    row += '<div class="row">';
+            //    row += '<div class="col-auto"><label for="CompanyEmail" class="col-form-label khmerFont1">អ៊ីមែលទូទាត់វិក្កយបត្រ/Billing Email:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2">';
+            //    row += '<input type="email" class="input2 CustInfo" name="Company_Email" alt="CompanyEmail" value="' + value.CompanyEmail + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '<div class="col-auto"> <label for="Company_ContactMobile_Number" class="col-form-label khmerFont1">លេខទំនាក់ទំនង/Contact Number:</label></div > ';
+            //    row += '<div class="col"><div class="wrap-input2">';
+            //    row += '<input type="text" class="input2 CustInfo" name="Company_ContactMobile_Number" alt="CompanyContactMobileNumber" value="' + value.CompanyContactMobileNumber + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '</div>';
+            //    row += '<div class="row"><div class="col-auto"><label for="BillToAddress" class="col-form-label khmerFont1">អាសយដ្ឋានទូទាត់វិក្កយបត្រ/Bill Add.:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Bill To Address is required">';
+            //    row += '<input type="text" class="input2 CustInfo" name="Bill_To_Address" alt="BillToAddress" value="' + value.BillToAddress + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '<div class="col-auto"><label for="BillToCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Commune is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="BillToCommune" name="Bill_To_Commune" value="' + value.BillToCommune + '">';
+            //    row += '<span class="focus-input2"></span></div></div></div>';
+            //    row += '<div class="row">';
+            //    row += '<div class="col-auto"><label for="BillToDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="District is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="BillToDistrict" name="Bill_To_District" value="' + value.BillToDistrict + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '<div class="col-auto"><label for="BillToProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Province/City is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="BillToProvinceCity" name="Bill_To_ProvinceCity" value="' + value.BillToProvinceCity + '">';
+            //    row += '<span class="focus-input2"></span></div></div></div>';
+            //    row += '<div class="row">';
+            //    row += '<div class="col-auto"><label for="InstallAddress" class="col-form-label khmerFont1">អាសយដ្ឋានតម្លើង/Installation Add.:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Installation Address is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="InstallAddress" name="Install_Address" value="' + value.InstallAddress + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '<div class="col-auto"><label for="InstallCommune" class="col-form-label khmerFont1">សង្កាត់/Commune:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Commune is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="InstallCommune" name="Install_Commune" value="' + value.InstallCommune + '">';
+            //    row += '<span class="focus-input2"></span></div></div></div>';
+            //    row += '<div class="row">';
+            //    row += '<div class="col-auto"><label for="InstallDistrict" class="col-form-label khmerFont1">ខណ្ឌ/District:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="District is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="InstallDistrict" name="Install_District" value="' + value.InstallDistrict + '">';
+            //    row += '<span class="focus-input2"></span></div></div>';
+            //    row += '<div class="col-auto"><label for="InstallProvinceCity" class="col-form-label khmerFont1">ខេត្ត/ក្រុង/Province/City:</label></div>';
+            //    row += '<div class="col"><div class="wrap-input2 validate-input" data-validate="Province/City is required">';
+            //    row += '<input type="text" class="input2 CustInfo" alt="InstallProvinceCity" name="Install_ProvinceCity" value="' + value.InstallProvinceCity + '">';
+            //    row += '<span class="focus-input2"></span></div></div></div>';
+            //    row += '</div>';
+            //    var GoogleMapFullAddress = value.GoogleMap_FullAddress;
+            //    var GoogleMapLatitude = value.GoogleMap_Latitude;
+            //    var GoogleMapLongitude = value.GoogleMap_Longitude;
+            //    if (GoogleMapFullAddress != "") {
+            //        row += '<div style="background-color:cornsilk">';
+            //        row += '<div class="row p-2">';
+            //        row += '<div class="col-auto">';
+            //        row += '<label for="GoogleMapFullAddress" class="col-form-label khmerFont1">Googel Map:</label>';
+            //        row += '</div>';
+            //        row += '<div class="col"><div class="wrap-input2">';
+            //        row += '<a target="_blank" href="https://www.google.com/maps/place/' + GoogleMapLatitude + ',' + GoogleMapLongitude + '/@@' + GoogleMapLatitude + ',' + GoogleMapLongitude + ',15z" tabindex="0">' + GoogleMapFullAddress + '</a>';
+            //        row += '</div></div></div></div>';
+            //    }
+            //    row += '<div class="row p-2"><div class="col">&nbsp;</div></div>';
+            //    //row += '<div style="background-color:cornsilk">';
+            //    //row += '<div class="row p-2">';
+            //    //row += '<div class="col-auto">';
+            //    //row += '<label for="GoogleMapFullAddress" class="col-form-label khmerFont1">Googel Map:</label>';
+            //    //row += '</div>';
+            //    //row += '<div class="col"><div class="wrap-input2">';
+            //    //row += '<input type="text" class="input2 CustInfo" alt="GoogleMap_FullAddress" name="GoogleMapFullAddress" value="' + value.GoogleMap_FullAddress + '">';
+            //    //row += '<input type="hidden" class="input2 CustInfo" alt="GoogleMap_Latitude" name="GoogleMapLatitude" value="' + value.GoogleMap_Latitude + '">';
+            //    //row += '<input type="hidden" class="input2 CustInfo" alt="GoogleMap_Longitude" name="GoogleMapLongitude" value="' + value.GoogleMap_Longitude + '">';
+            //    //row += '<span class="focus-input2"></span></div></div></div></div>';
+            //});
+
+            //ApplyTypeahead("Bill_To_Commune", Commune,
+            //    {
+            //        Bill_To_Commune: 'Name',
+            //        Bill_To_District: 'District',
+            //        Bill_To_ProvinceCity: 'ProvinceCity',
+            //        Install_Commune: 'Name',
+            //        Install_District: 'District',
+            //        Install_ProvinceCity: 'ProvinceCity'
+            //    },
+            //    {
+            //        Name: 'Commune',
+            //        ID: 'CommuneID',
+            //        DistrictID: 'DistrictID',
+            //        District: 'District',
+            //        ProvinceCityID: 'ProvinceCityID',
+            //        ProvinceCity: 'ProvinceCity'
+            //    }, "Bill_To_Commune"
+            //);
+            //ApplyTypeahead("Install_Commune", Commune,
+            //    {
+            //        Install_Commune: 'Name',
+            //        Install_District: 'District',
+            //        Install_ProvinceCity: 'ProvinceCity'
+            //    },
+            //    {
+            //        Name: 'Commune',
+            //        ID: 'CommuneID',
+            //        DistrictID: 'DistrictID',
+            //        District: 'District',
+            //        ProvinceCityID: 'ProvinceCityID',
+            //        ProvinceCity: 'ProvinceCity'
+            //    }, "Install_Commune"
+            //);
+            //$("input[name=GoogleMapFullAddress]").click(function () {
+            //    Marker_Map(this);
+            //});
+
+            //$("input[name=GoogleMapFullAddress]").focus(function () {
+            //    Marker_Map(this);
+            //});
+            //$("#Save_ChangeBillInfo").click(function () {
+            //    var check = validateInput("FormCustomerBillInformation");
+            //    if (check) {
+            //        var URL = "/AddCustomer/SaveChangeCustomerBillInfo";
+            //        var obj = {};
+            //        var dataobj = [];
+            //        var i = 0;
+            //        $("#FormCustomerBillInformation input.input2").each(function (key, value) {
+            //            var name = (typeof $(value).attr("name") == "undefined" ? "" : $(value).attr("name"));
+            //            if (name != "") {
+            //                obj[$(value).attr("alt")] = $(value).val();
+            //                i++;
+            //            }
+            //            if (i == 14) {
+            //                i = 0;
+            //                dataobj.push(obj);
+            //                obj = {};
+            //            }
+            //        });
+            //        var DATA = { CustomerBillData: JSON.stringify(dataobj) };
+            //        DoSaveChangeData(URL, DATA, function (response) {
+            //            //LoadCustServices(CustomerID);
+            //        });
+            //    }
+            //    else {
+            //        DialogSweetAlert("error", "Please fill data required.");
+            //    }
+            //});
+        });
+    }
+
+    function LoadAttachmentFile(CustomerID) {
+        LoadData("CustomerProfile/LoadAttachmentFile?ID=" + CustomerID, function (response) {
+            $("#showAttachmentFile").html(JSON.parse(response).data);
+        });
+    }
+    function LoadCustAttachmentFile(CustomerID) {
+        LoadData("CustomerProfile/LoadCustAttachmentFile?ID=" + CustomerID, function (response) {
+            $("#CustAttFile").html(JSON.parse(response).data);
+        });
+    }
+    function LoadCustMAP(CustomerID) {
+        var Map_Data = [];
+        LoadData("CustomerProfile/LoadCustMap?ID=" + CustomerID, function (response) {
+            response = JSON.parse(response);
+            var data = JSON.parse(response.data);
+            //var mapAdd = (data[0].GoogleMap_FullAddress == null ? "" : data[0].GoogleMap_FullAddress);
+            //if (mapAdd != "") {
+            //MapData = data;
+            var row = '<div class="row">';
+            row += '<div class="col-auto"><label>Location: </label></div>';
+            row += '</div>';
+            row += '<ul class="row" style="list-style-type: none;">';
+            var i = 0;
+            $.each(data, function (key, val) {
+                var mapAdd = (val.GoogleMap_FullAddress == null ? "" : val.GoogleMap_FullAddress);
+                if (mapAdd != "") {
+                    i++;
+                    var obj = {};
+                    obj["GoogleMap_FullAddress"] = val.GoogleMap_FullAddress;
+                    obj["GoogleMap_Latitude"] = val.GoogleMap_Latitude;
+                    obj["GoogleMap_Longitude"] = val.GoogleMap_Longitude;
+                    Map_Data.push(obj);
+                    //row += '<div class="row">';
+                    //row += '<div class="col-auto"><label>Invoice No.: </label></div>';
+                    //row += '<div class="col-auto">' + val.InvoiceNo + '</div>';
+                    //row += '<div class="col-auto"><label>Invoice Date: </label></div>';
+                    //row += '<div class="col-auto">' + val.InvoiceDate + '</div>';
+                    //row += '</div>';
+                    row += "<li class=\"col-auto\">" + i + ". <a href=\"javascript:void(0);\" onclick=\"gotoMapLocation('" + val.GoogleMap_FullAddress + "'," + val.GoogleMap_Latitude + ", " + val.GoogleMap_Longitude + ");\">" + val.GoogleMap_FullAddress + "</a></li>";
+                }
+            });
+            row += '</ul>';
+            if (Map_Data.length > 0)
+                $("#ShowCustMap").html(row);
+
+            PostData("MAP", { Data: JSON.stringify(Map_Data) }, function (response) {
+                $("#ShowMap").html(response);
+            });
+            //LoadData("MAP?Data=" + JSON.stringify(Map_Data), function (response) {
+            //    $("#ShowMap").html(response);
+            //});
+        });
+    }
+    function LoadCustProfilePicture(CustomerID) {
+        LoadData("CustomerProfile/LoadCustProfilePicture?ID=" + CustomerID, function (response) {
+            var data = JSON.parse(JSON.parse(response).data);
+            var CustomerProfilePicture = data[0].CustomerProfilePicture;
+            CustomerProfilePicture = (typeof CustomerProfilePicture == "undefined" ? "" : CustomerProfilePicture);
+            CustomerProfilePicture = (CustomerProfilePicture == null ? "" : CustomerProfilePicture);
+            var DestinationFile = data[0].DestinationFile;
+            var img = ServerRoot + DestinationFile + CustomerProfilePicture;
+            img = '<img class="profilepic__image" src="' + img + '" />';
+            var row = '<div>';
+            row += img;
+            row += '</div>';
+            row += "<div id=\"addCustPic\" class=\"profilepic__content\" style=\"cursor:pointer\">";
+            row += '<span class="profilepic__icon"><i class="fas fa-camera"></i> <i name="deletepiccust" class="far fa-trash-alt"></i> ';
+            row += '<a id="apreviewpropic" href="' + ServerRoot + DestinationFile + CustomerProfilePicture + '">';
+            row += '<i name="viewprofilepic" class="far fa-eye"></i>';
+            row+='</a></span>';
+            row += '<span class="profilepic__text">Edit Profile</span>';
+            row += '</div>';
+            if (CustomerProfilePicture != "") {
+                $("#Cust_profilepic").html(row);
+                baguetteBox.run('#apreviewpropic');
+            }
+            else {
+                row = '<div class="profilepic__image"><i class="fa fa-8x fa-user-circle text-info"></i></div>';
+                row += '<div class="profilepic__content" id="addCustPic" style="cursor:pointer">';
+                row += '<span class="profilepic__icon"><i class="fas fa-camera"></i></span>';
+                row += '<span class="profilepic__text">Edit Profile</span></div>';
+                $("#Cust_profilepic").html(row);
+            }
+            $("#addCustPic").click(function (ev) {
+                elementClicked = $(ev.target);
+                var name = (typeof elementClicked.attr('name') == "undefined" ? "" : elementClicked.attr('name'));
+                if (name == "")
+                    AddCustomerAttachmentFile('AddCustomerProfilePic');
+                else if (name == "viewprofilepic") {
+
+                }
+                else {
+                    DialogSweetCofirm(function () {
+                        var URL = "CustomerProfile/SaveChangeCustomerProfilePicture";
+                        var DATA = {
+                            Data: JSON.stringify({ CustomerName: Cust_Name, CustomerID: Customer_ID, CustomerCode: CustomerCode })
+                        };
+                        DoSaveChangeData(URL, DATA);
+                        row = '<div class="profilepic__image"><i class="fa fa-8x fa-user-circle text-info"></i></div>';
+                        row += "<div class=\"profilepic__content\" id=\"addCustPic\" onclick=\"AddCustomerAttachmentFile('AddCustomerProfilePic');\" style=\"cursor:pointer\">";
+                        row += '<span class="profilepic__icon"><i class="fas fa-camera"></i></span>';
+                        row += '<span class="profilepic__text">Edit Profile</span></div>';
+                        $("#Cust_profilepic").html(row);
+                    }, '','Do you to delete this file?');
+                }
+            });
+        });
+    }
+    function AddCustomerAttachmentFile(AddCustomerProfilePic) {
+        AddCustomerProfilePic = (typeof AddCustomerProfilePic == "undefined" ? "" : AddCustomerProfilePic)
+        var URL = "CustomerProfile/SaveChangeCustomerUploadFile";
+        var Title = "Add Attachment File to Customer";
+        if (AddCustomerProfilePic != "") {
+            URL = "CustomerProfile/SaveChangeCustomerProfilePicture";
+            Title = "Add Customer Profile Picture";
+        }
+        var PrimaryFieldValue = {
+            SaveOnItsForm: true,
+            CustomerName: Cust_Name,
+            CustomerID: Customer_ID,
+            URL: URL,
+            CustomerCode: CustomerCode
+        };
+        var uri = "UploadFileForm?AllowOnlyImage=true&ShowAvatar=true";
+        if (AddCustomerProfilePic == "")
+            uri = "UploadFileForm";
+
+        ShowDialogBox2(Title, 700, 500, uri, PrimaryFieldValue, "DialogAddAttCustFile", function () {
+            $("#DialogAddAttCustFile").on('hide.bs.modal', function () {
+                if (AddCustomerProfilePic == "")
+                    LoadCustAttachmentFile(Customer_ID);
+                else
+                    LoadCustProfilePicture(Customer_ID);
+            });
+        });
+    }
+    function LoadCustConnection(CustomerID) {
+        LoadData("CustomerProfile/LoadCustConnection?CustomerID=" + CustomerID, function (response) {
+            $("#ShowCustomerConnection").html(JSON.parse(response).Data);
+        });
+    }
+
+    function ShowCustomerService() {
+        LoadData("CustomerProfile/CustomerService?CustomerID=" + Customer_ID, function (response) {
+            $("#ShowCustomerServices").html(response);
+        });
+    }
+
+    $(function () {
+        if (ISSO == 1) {
+            let AgencyCommission = JSON.parse(`@Html.Raw(ViewBag.AgencyCommission)`);
+            ApplyTypeahead("AgencyName", AgencyCommission,
+                {
+                    AgencyPhone: 'HP',
+                    //AgencyCommissionType: 'CommissionType',
+                    AgencyAddress: 'Address',
+                    AgencyBankName: 'BankName',
+                    AgencyAccountName: 'AccountName',
+                    AgencyAccountNumber: 'AccountNumber',
+                    AgencyCommissionID:'AgencyCommissionID'
+                },
+                {
+                    Name: 'FullName'
+                },
+            );
+            $("#div_custfooterinfo div").hide()
+            $("#div_custfooterinfo").height("100px");
+            let data = [
+                { CommissionID: 1, CommissionType: 'Once Time' },
+                { CommissionID: 2, CommissionType: 'Monthly' },
+                { CommissionID: 3, CommissionType: 'Yearly' },
+                { CommissionID: 4, CommissionType: 'On Renew' },
+            ];
+
+            //if ($("#AgencyCommissionType").hasClass("select2-hidden-accessible")) {
+            //    $("#AgencyCommissionType").select2("destroy");
+            //}
+            $("#frmAgencyCommission #AgencyCommissionType").remove();
+            $("#frmAgencyCommission #span_Agency_Commission_Type").html(`<select style="width:100%" class="CustInfo" id="AgencyCommissionType" name="AgencyCommissionType" data-validate=" is required."></select>`);
+            //var Data_CoWorker = JSON.parse(JSON.parse(response).Data);
+            var objData = [];
+            $.each(data, function (k, val) {
+                var obj = {};
+                obj["id"] = val.CommissionID;
+                obj["text"] = val.CommissionType;
+                objData.push(obj);
+            });
+            var $select2Elm = $('#frmAgencyCommission #AgencyCommissionType');
+            $select2Elm.select2({
+                multiple: true,
+                theme: "bootstrap4",
+                data: objData,
+                dropdownParent: $("#AgencyCommissionType").parent(),
+                placeholder: ``,
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            }).on('select2:open', () => {
+                $("span.select2-dropdown--below").css({ "border-top": "1px solid #80bdff", "border-top-right-radius": "0.25rem", "border-top-left-radius": "0.25rem" });
+            }).on('select2:select', function (e) { }).on('change', function (e) { }).data('select2').clearSearch = function () {
+                return false;
+            };
+            $("#frmAgencyCommission #AgencyCommissionType").parent().find("*").css({ "border": "none", "padding": "0", "margin": "0" });
+            $("#frmAgencyCommission #AgencyCommissionType").parent().find("ul.select2-selection__rendered").css({ "border-bottom": "1px solid #adadad" });
+            $('#frmAgencyCommission #AgencyCommissionType').val('')
+            setTimeout(function () {
+                $('#frmAgencyCommission #AgencyCommissionType').val('').trigger('change.select2');
+                $(".select2-selection__choice__remove").remove();
+                $("#frmAgencyCommission #AgencyCommissionType").parent().find("li.select2-selection__choice").css({ "border": "none", "padding": "0", "margin": "0" });
+            }, 300);
+
+            $.each(AgencyCommissionData, function (key, value) {
+                if ($("#" + key + "").is("select")) {
+                    let Values = new Array();
+                    let item = value.split(",");
+                    for (i = 0; i < item.length; i++) {
+                        Values.push(item[i]);
+                    }
+                    //let $d = [item.map(item => "'" + item + "'").join()];
+                    setTimeout(function () {
+                        $("#" + key + "").val(Values).trigger('change');
+                    }, 500);
+                }
+                else {
+                    $("#" + key + "").val(EscapeXml(value));
+                }
+            });
+        }
+
+        $("#customer-info-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#SevicesAndProducts-tabs a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#ConnectionAndDeviceInfo-tabs a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#cust-invoice-tab a").click(function (e) {
+            e.preventDefault();
+            $(this).tab("show");
+        });
+        $("#Customer-Services-tab").click(function () {
+            ShowCustomerService();
+        });
+        $("#New_Customer_Invoice").click(function () {
+            NewCustomerInvoice(Customer_ID);
+        });
+        $("#Customer-Quotation-tab").click(function () {
+            LoadCustQuotation(Customer_ID);
+        });
+        $("#ExchangeRate").html('<label class="col-form-label">' + ExchangeRate.ExchangeRate + '</label>');
+        var row = '<div class="col-auto">';
+        row += '<label class="col-form-label text-nowrap">Last Update: ' + ExchangeRate.DateEntry + '</label>';
+        row += '</div>';
+        $("#ExchangeRate").after(row);
+
+        var url = window.location.hash;
+        var ID = url.substring(url.indexOf('?'));
+        ID = ID.substring(ID.indexOf('=')).replace(/=/g, '');
+        LoadCustProfilePicture(ID);
+        LoadData('AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            Commune = data;
+        });
+        LoadCustomerInformation(ID);
+        $("#Customer-AttFile-tab").click(function () {
+            LoadCustAttachmentFile(Customer_ID);
+        });
+        $("#attachmentfile-tab").click(function () {
+            LoadAttachmentFile(Customer_ID);
+        });
+        $("#Customer-MAP-tab").click(function () {
+            LoadCustMAP(Customer_ID);
+        });
+
+
+        $("a[data-widget=pushmenu]").click();
+        $("#Customer-Contact-tab").click(function () {
+            LoadCustServices(Customer_ID);
+        });
+
+
+        LoadData('AddCustomer/LoadIndustryType', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            IndustryTypeData = data;
+        });
+
+        LoadData('AddCustomer/LoadCommune', function (result) {
+            var data = JSON.parse(result).data;
+            data = JSON.parse(data);
+            CommuneData = data;
+        });
+
+        TapScroll();
+
+        LoadCustInfo(CustomerID);
+
+        if (isRegisterForm == 1) {
+            $("#Customer-Info-tab").hide();
+            $("#Customer-Info").hide();
+            $("#Customer-Contact-tab").hide();
+            $("#Customer-Contact").hide();
+            $("#Customer-Agency-Commission-tab").hide();
+            $("#Customer-Agency-Commission").hide();
+            $("#Customer-AttFile-tab").hide();
+            $("#Customer-AttFile").hide();
+            $("#Customer-MAP-tab").hide();
+            $("#Customer-MAP").hide();
+            $("#Customer-Quotation-tab").click();
+        }
+
+    });
+
+    function Marker_Map(i) {
+        var GoogleMap_FullAddress = $("input[name=GoogleMap_FullAddress_" + i + "]").val();
+        var GoogleMap_Latitude = $("input[name=GoogleMap_Latitude_" + i + "]").val();
+        var GoogleMap_Longitude = $("input[name=GoogleMap_Longitude_" + i + "]").val();
+        if (GoogleMap_FullAddress != "" && GoogleMap_FullAddress != "null") {
+            GoogleMap.GoogleMap_FullAddress = GoogleMap_FullAddress;
+            GoogleMap.GoogleMap_Latitude = GoogleMap_Latitude;
+            GoogleMap.GoogleMap_Longitude = GoogleMap_Longitude;
+        }
+        var URL = "AddCustomer/SetCustomerLocationByGoogleMap";
+        ShowDialogBox2("Set Customer Location From Googel Map", "Auto", 500, URL, 0, "DialogGoogleMap", function () {
+            $("#DialogGoogleMap").on('hide.bs.modal', function () {
+                $("input[name=GoogleMap_FullAddress_" + i + "]").val(GoogleMap.GoogleMap_FullAddress);
+                $("input[name=GoogleMap_Latitude_" + i + "]").val(GoogleMap.GoogleMap_Latitude);
+                $("input[name=GoogleMap_Longitude_" + i + "]").val(GoogleMap.GoogleMap_Longitude);
+            });
+        });
+    }
+    function LoadCustQuotation(CustomerID) {
+        LoadData("CustomerProfile/LoadCustQuotation?ID=" + CustomerID, function (response) {
+            $("#CustQuotation").html(JSON.parse(response).data);
+            setTimeout(function () {
+                //$("#tblCustQuotation").DataTable({
+                //    "responsive": true,
+                //    "lengthChange": false,
+                //});
+                var row = '<button type="button" id="btnAddQuotation" class="btn btn-info" onclick=""><i class="far fa-address-book"></i> Createa Quotation</button>';
+                $("#tblCustQuotation").before(row);
+                //$("#tblCustQuotation_wrapper div.col-sm-12:first").append(row);
+                $("#btnAddQuotation").click(function () {
+                    //number 1 for create Quotation...
+                    var Data = [];
+                    var obj = {};
+                    obj = { PrimaryFieldValue: "1", InvoiceNo: "0", CustomerID: "" + CustomerID + "", FormStatus: "CreateQuotation" };//.replace(/"/g, '\'');
+                    Data.push(obj);
+                    AddQuotation(obj, "Create Customer Quotation");
+                });
+            }, 500);
+        });
+    }
+
+
+    function PreviewReceipt(paymentID, companyID, receiptNo, invoiceNo, systemID, warehouseID) {
+        paymentID   = (typeof paymentID   == "undefined" ? "0" : paymentID);
+        companyID   = (typeof companyID   == "undefined" ? "0" : companyID);
+        receiptNo   = (typeof receiptNo   == "undefined" ? "" : receiptNo);
+        invoiceNo   = (typeof invoiceNo   == "undefined" ? "" : invoiceNo);
+        systemID    = (typeof systemID    == "undefined" ? "" : systemID);
+        warehouseID = (typeof warehouseID == "undefined" ? "" : warehouseID);
+
+        var url = (typeof ServerRoot !== 'undefined' ? ServerRoot : '') + 'Payment/OfficialReceipt/?PaymentID=' + paymentID
+                + '&CompanyID='         + companyID
+                + '&OfficialReceiptNo=' + encodeURIComponent(receiptNo)
+                + '&InvoiceNo='         + encodeURIComponent(invoiceNo)
+                + '&SystemID='          + systemID
+                + '&WarehouseID='       + warehouseID;
+
+        var printWin = window.open(url, '_blank');
+        if (printWin) {
+            printWin.focus();
+        } else {
+            if (typeof DialogSweetAlert !== 'undefined') DialogSweetAlert('nopermission', 'Please allow popups.');
+            else alert('Please allow popups.');
+        }
+    }
+</script>

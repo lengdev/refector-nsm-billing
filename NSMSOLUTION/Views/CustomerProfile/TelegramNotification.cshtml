@@ -1,0 +1,1880 @@
+@{ Layout = null; }
+<style>
+    .form-floating .select2-container--bootstrap-5 .select2-selection {
+        height: calc(3.5rem + 1px);
+        padding: 1rem 0.60rem;
+    }
+
+        .form-floating .select2-container--bootstrap-5 .select2-selection > .select2-selection__rendered {
+            margin-top: 0.6rem;
+            margin-left: 0.25rem;
+        }
+
+            .form-floating .select2-container--bootstrap-5 .select2-selection > .select2-selection__rendered > li {
+                padding: 1px 3px 1px 3px;
+            }
+
+    .form-floating label {
+        z-index: 1;
+    }
+
+    .w-100 {
+        width: 300px !important;
+    }
+
+    .table-bordered {
+        border: 1px solid #000000 !important;
+    }
+
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+<div class="card card-primary card-outline card-outline-tabs">
+    <div class="card-header p-0 border-bottom-0">
+        <ul class="nav nav-tabs" id="custTelegramTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Notification</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="custom-tabs-five-messages-tab" data-toggle="pill" href="#custom-tabs-five-messages" role="tab" aria-controls="custom-tabs-five-messages" aria-selected="false">Notification Payment</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Setting</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#custom-tabs-four-messages" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">Contact</a>
+            </li>
+            <li class="nav-item navbar-nav ml-auto">
+                <div class="col-auto">
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="custom-tabs-four-tabContent">
+            <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                <div id="divCustTelegramNotification"></div>
+            </div>
+            <div class="tab-pane fade" id="custom-tabs-five-messages" role="tabpanel" aria-labelledby="custom-tabs-five-messages-tab">
+                <div class="row">
+                    <div class="col-sm-auto col-12 mb-3">
+                        <div id="divCustInvoice"></div>
+                    </div>
+                    <div class="col-sm-auto col-12 mb-3">
+                        <div id="divReviseNP"></div>
+                    </div>
+                    <div class="col">@Html.Raw(ViewBag.DrawInvDate)</div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-sm-auto col-12" data-validate="Package Name is required">
+                        <input type="text" id="PackageName" class="form-control PackageName w-100" name="PackageName" placeholder="Package Name">
+                        <input type="hidden" id="PackageID" class="input2" name="PackageID">
+                        <input type="hidden" id="PID" class="input2" name="PID">
+                        <input type="hidden" id="Duration" class="input2" name="Duration">
+                        <input type="hidden" id="PackageDetailID" class="input2" name="PackageDetailID">
+                        <input type="hidden" id="DownSpeed" class="input2" name="DownSpeed">
+                        <input type="hidden" id="UpSpeed" class="input2" name="UpSpeed">
+                        <input type="hidden" id="Bandwidth" class="input2" name="Bandwidth">
+                        <input type="hidden" id="Feature" class="input2" name="Feature">
+                        <input type="hidden" id="ChartOfAccountID" class="input2" name="ChartOfAccountID">
+                    </div>
+                    <div class="col-sm-auto col-12" data-validate="Checked By is required">
+                        <input type="text" id="CheckedBy" class="form-control CheckedBy w-100" name="CheckedBy" placeholder="Checked By" autocomplete="off">
+                        <input type="hidden" id="CheckedBy_CheckedByUserID" name="CheckedByUserID" value="0">
+                        <input type="hidden" id="CheckedBy_CheckedByTelegramUserName" name="CheckedByTelegramUserName" value="">
+                    </div>
+                    <div class="col-sm-auto col-12" data-validate="Approved By is required">
+                        <input type="text" id="ApprovedBy" class="form-control ApprovedBy w-100" name="ApprovedBy" placeholder="Approved By" autocomplete="off">
+                        <input type="hidden" id="ApprovedBy_ApprovedByUserID" name="ApprovedByUserID" value="0">
+                        <input type="hidden" id="ApprovedBy_ApprovedByTelegramUserName" name="ApprovedByTelegramUserName" value="">
+                    </div>
+                    <div class="col-sm-auto col-12 mt-1 mt-sm-0">
+                        <button class="btn btn-outline-success" type="button" name="btnAddServiceRow" id="btnAddServiceRow" title="Add Service Row"><i class="fa fa-plus mr-1"></i> Add Service</button>
+                    </div>
+                    <div class="col-sm-auto col-12 mt-1 mt-sm-0">
+                        <button class="btn btn-primary" name="btnSaveNotificationPayment" id="btnSaveNotificationPayment" title="Save & Send to Telegram"><i class="fa-regular fa-floppy-disk mr-1"></i> Save</button>
+                    </div>
+                    <div class="col-sm-auto col-12 mt-1 mt-sm-0">
+                        <button class="btn btn-outline-primary" name="btnSendNotificationPayment" id="btnSendNotificationPayment" title="Send"><i class="fa-regular fa-paper-plane-top"></i></button>
+                    </div>
+                    <div class="col-sm-auto col-12 mt-1 mt-sm-0">
+                        <button class="btn btn-outline-primary" name="btnDownload" id="btnDownload" title="Download"><i class="fa-regular fa-download"></i></button>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col table-responsive divNotificationPayment">
+                        <div id="divNotificationPayment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                <div class="row">
+                    <div class="col">
+                        <div class="card card-outline card-primary">
+                            <div class="card-body">
+                                <div id="divcboCustPhone"></div>
+                                <div class="row mt-3">
+                                    <div class="col">
+                                        <div class="card card-default">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Notification</h3>
+                                            </div>
+                                            <!-- /.card-header -->
+                                            <div class="card-body">
+                                                <form>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <!-- checkbox -->
+                                                            <div class="form-group" id="divNotificationList"></div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <!-- /.card-body -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col text-right">
+                                        <button type="button" id="SaveChangeNotification" name="SaveChangeNotification" class="btn btn-outline-primary"><i class="fa fa-save"></i> Save Change</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="custom-tabs-four-messages" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
+                @Html.Raw(ViewBag.DrawHTMLSearchForm)
+            </div>
+        </div>
+    </div>
+    <!-- /.card -->
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    var CustomerCode = "@ViewBag.CustomerCode";
+    var CustomerName = @Html.Raw(Json.Encode(ViewBag.CustomerName ?? ""));
+    var ExchangeRate = "@ViewBag.ExchangeRate";
+    var CustInvoice = @Html.Raw(Json.Encode(ViewBag.CustInvoice != null ? ViewBag.CustInvoice.ToString() : ""));
+    var CustomerID = "@ViewBag.CustomerID";
+    var CustPhone = JSON.parse(@Html.Raw(Json.Encode(ViewBag.CustPhone != null ? ViewBag.CustPhone.ToString() : "[]")));
+    var NotificationList = JSON.parse(@Html.Raw(Json.Encode(ViewBag.NotificationList != null ? ViewBag.NotificationList.ToString() : "[]")));
+    var ApprovedByData = JSON.parse(@Html.Raw(Json.Encode(ViewBag.ApprovedByJson != null ? ViewBag.ApprovedByJson.ToString() : "[]")));
+    var CheckedByData = JSON.parse(@Html.Raw(Json.Encode(ViewBag.CheckedByJson != null ? ViewBag.CheckedByJson.ToString() : (ViewBag.ApprovedByJson != null ? ViewBag.ApprovedByJson.ToString() : "[]"))));
+
+    // ── Lazy-init flags: tab content that depends on visible layout (select2,
+    // the injected invoice table, daterangepickers) must NOT be built while its
+    // pane is display:none, or it measures 0 width and renders wrong. We build
+    // it the first time each tab is actually shown instead of at page load.
+    var settingTabLoaded = false;
+    var invoiceTabLoaded = false;
+
+    $(function () {
+        var row = `<div class="form-floating"><select class="form-select" id="CboCustPhone" name="CboCustPhone">`;
+        $.each(CustPhone, function (key, value) {
+            row += `<option data-bind-value="` + value.TelegramNotificationID + `" value="` + value.TelegramCustomerID + `">` + value.CustomerPhone + `</option>`;
+        });
+        row += `</select><label for="floatingSelect">Customer Phone Number</label></div>`;
+        $("div#divcboCustPhone").html(row);
+
+        $("#custTelegramTab a").click(function (e) {
+            e.preventDefault();
+        });
+
+        row = "";
+        $.each(NotificationList, function (key, value) {
+            row += `<div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" name="chNotification" value="`+ value.TelegramNotificationID + `" id="chNotifcationList_` + value.TelegramNotificationID + `" checked>
+                <label for="chNotifcationList_`+ value.TelegramNotificationID + `" class="custom-control-label">` + value.Description + `</label>
+            </div>`;
+        });
+        $("#divNotificationList").html(row);
+
+        $("#CboCustPhone").change(function () {
+            if ($(this).val() != null) {
+                var TelegramNotificationIDs = $('option:selected', this).attr("data-bind-value");
+                $("input[name=chNotification]").prop('checked', false);
+                if (TelegramNotificationIDs != "") {
+                    var TNotificationIDs = TelegramNotificationIDs.split(",");
+                    $.each(TNotificationIDs, function (key, value) {
+                        $("#chNotifcationList_" + value + "").prop('checked', true);
+                    });
+                }
+            }
+        });
+
+        // NOTE: removed the eager $("#CboCustPhone").trigger("change") that used
+        // to run here while the Setting pane was still hidden. It now runs from
+        // initSettingTab() below, only once that pane is actually shown.
+
+        $("#SaveChangeNotification").click(function () {
+            if ($("#CboCustPhone").val() != null) {
+                var TelegramNotificationIDs = $("input[name=chNotification]:checkbox:checked").map(function () {
+                    return $(this).val();
+                }).toArray();
+                var TelegramCustomerID = $("#CboCustPhone").val();
+                DoSaveChangeData("CustomerProfile/SaveChangeCustTelegramNotification", {
+                    TelegramCustomerID: TelegramCustomerID,
+                    TelegramNotificationIDs: TelegramNotificationIDs.toString()
+                }, function (response) {
+                    $('#CboCustPhone option:selected').attr("data-bind-value", TelegramNotificationIDs.toString());
+                });
+            } else {
+                DialogSweetAlert("error", "Please select Customer Phone Number.");
+            }
+        });
+
+        LoadData("CustomerProfile/ShowCustomerTelegramNotification/?CustomerID=" + CustomerID, function (response) {
+            $("#divCustTelegramNotification").html(response);
+        });
+
+        if (CustInvoice != "" && CustInvoice != null) {
+            try { CustInvoice = JSON.parse(CustInvoice); } catch(e) { CustInvoice = []; }
+            var row = `<div class="mt-1 floating-label"><select class="form-control" id="CboCustInvoice" name="CboCustInvoice">`;
+            $.each(CustInvoice, function (key, value) {
+                row += `<option value="` + value.InvoiceNo + `">` + value.InvoiceNo + `</option>`;
+            });
+            row += `</select><label for="floatingSelect">Customer Invoice</label></div>`;
+            $("#divCustInvoice").html(row);
+
+            var reviseRow = `<div class="mt-1 floating-label"><select class="form-control" id="CboReviseNP" name="CboReviseNP" style="min-width: 220px; max-width: 340px;"><option value="">-- New NP Number --</option></select><label for="CboReviseNP">Revise NP No</label></div>`;
+            $("#divReviseNP").html(reviseRow);
+
+            $(document).on("change", "#CboReviseNP", function () {
+                ShowPaymentNotification();
+            });
+
+            $("#CboCustInvoice").change(function () {
+                if ($("#CboReviseNP").length) {
+                    $("#CboReviseNP").val("");
+                }
+                // Clear package inputs so newly selected invoice parses cleanly
+                $("#PackageName").val("");
+                if ($("#PackageName").typeahead) {
+                    try { $("#PackageName").typeahead('val', ""); } catch (e) { }
+                }
+                $("#PackageID, #PID, #Duration, #PackageDetailID, #DownSpeed, #UpSpeed, #Bandwidth, #Feature, #ChartOfAccountID").val("");
+                ShowPaymentNotification();
+            });
+
+            $("#TxtStartDate").on('apply.daterangepicker', function (ev, picker) {
+                handleStartDateChange(picker.startDate);
+            });
+            $("#TxtStartDate").on('change', function () {
+                var val = $(this).val().trim();
+                if (val) {
+                    var m = moment(val, ["DD/MM/YYYY", "YYYY/MM/DD", "DD-MM-YYYY", "YYYY-MM-DD"]);
+                    if (m.isValid()) handleStartDateChange(m);
+                }
+            });
+
+            $("#TxtEndDate").on('apply.daterangepicker', function (ev, picker) {
+                handleEndDateChange(picker.startDate);
+            });
+            $("#TxtEndDate").on('change', function () {
+                if (isUpdatingEndDate) return;
+                var val = $(this).val().trim();
+                if (val) {
+                    var m = moment(val, ["DD/MM/YYYY", "YYYY/MM/DD", "DD-MM-YYYY", "YYYY-MM-DD"]);
+                    if (m.isValid()) handleEndDateChange(m);
+                }
+            });
+
+            $("#TxtInvoiceDate").on('apply.daterangepicker', function (ev, picker) {
+                var invDateStr = picker.startDate.format('DD/MM/YYYY');
+                if ($("#TxtPaymentDueDate").data('daterangepicker')) {
+                    $("#TxtPaymentDueDate").data('daterangepicker').setStartDate(picker.startDate.clone());
+                    $("#TxtPaymentDueDate").data('daterangepicker').setEndDate(picker.startDate.clone());
+                    $("#TxtPaymentDueDate").val(invDateStr);
+                }
+                updateInvoiceDateLabels(invDateStr, invDateStr);
+            });
+            $("#TxtInvoiceDate").on('change', function () {
+                var val = $(this).val().trim();
+                if (val) updateInvoiceDateLabels(val, val);
+            });
+
+            $("#TxtPaymentDueDate").on('apply.daterangepicker', function (ev, picker) {
+                var dueDateStr = picker.startDate.format('DD/MM/YYYY');
+                updateInvoiceDueDateLabels(dueDateStr);
+            });
+            $("#TxtPaymentDueDate").on('change', function () {
+                var val = $(this).val().trim();
+                if (val) updateInvoiceDueDateLabels(val);
+            });
+
+            $("#btnSendNotificationPayment").click(async function () {
+                var invNo = $("#CboCustInvoice").val();
+                var CustPhone = $("#TxtCustPhone").val();
+                if (CustPhone == null) {
+                    DialogSweetAlert('error', "Please select  customer phone number.");
+                    return false;
+                }
+                var StartDate      = $("#TxtStartDate").data('daterangepicker').startDate.format('YYYY/MM/DD');
+                var InvoiceDate    = $("#TxtInvoiceDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+                var InvoiceDueDate = $("#TxtPaymentDueDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+
+                SweetCofirmYesNoCancel("Send Notification to Customer Phone: " + CustPhone, "Send", "", function (InvoiceComment) {
+                    var MessageText = encodeURIComponent(nl2br(InvoiceComment));
+                    if (MessageText == "") {
+                        DialogSweetAlert('error', "Please enter your comment.", function () {
+                            $("#TxtInvoiceComment").focus();
+                        });
+                    }
+                    var pkgParams = getSelectedPackageParams();
+                    var extraRowsData = getExtraRowsData();
+                    DoSaveChangeData("CustomerProfile/NotificationPayment", {
+                        CustomerName: encodeURIComponent(CustomerName),
+                        CustomerCode: CustomerCode,
+                        CustPhone: CustPhone,
+                        MessageText: MessageText,
+                        CustomerID: CustomerID,
+                        InvoiceNo: invNo,
+                        InvoiceDate: InvoiceDate,
+                        InvoiceDueDate: InvoiceDueDate,
+                        StartDate: StartDate,
+                        EndDate: pkgParams.EndDate,
+                        SendNotificationPaymentToCustomer: true,
+                        PackageName: pkgParams.PackageName,
+                        UnitPrice: pkgParams.UnitPrice,
+                        Duration: pkgParams.Duration,
+                        UM: pkgParams.UM,
+                        Feature: pkgParams.Feature,
+                        ExchangeRate: pkgParams.ExchangeRate,
+                        HideSignature: pkgParams.HideSignature,
+                        ExtraRowsJson: JSON.stringify(extraRowsData)
+                    }, function (response) {
+                    }, "", "Sending...", "Sent Successfully.");
+                });
+            });
+
+            // NOTE: removed the eager $("#CboCustInvoice").trigger("change") that
+            // used to run here while the Notification Payment pane was hidden.
+            // It now runs from initInvoiceTab() below, only once shown.
+        }
+
+        if (CheckedByData && CheckedByData.length > 0) {
+            ApplyTypeahead("CheckedBy", CheckedByData,
+                {
+                    CheckedBy_CheckedByUserID: "ApprovedByUserID",
+                    CheckedBy_CheckedByTelegramUserName: "ApprovedByTelegramUserName"
+                },
+                { Name: "ApprovedBy" }
+            );
+        }
+
+        $("#CheckedBy").on("input change keyup blur", function () {
+            var val = $(this).val().trim();
+            if (!val) {
+                $("#CheckedBy_CheckedByUserID").val("0");
+                $("#CheckedBy_CheckedByTelegramUserName").val("");
+            }
+        });
+
+        if (ApprovedByData && ApprovedByData.length > 0) {
+            ApplyTypeahead("ApprovedBy", ApprovedByData,
+                {
+                    ApprovedBy_ApprovedByUserID: "ApprovedByUserID",
+                    ApprovedBy_ApprovedByTelegramUserName: "ApprovedByTelegramUserName"
+                },
+                { Name: "ApprovedBy" }
+            );
+        }
+
+        $("#ApprovedBy").on("input change keyup blur", function () {
+            var val = $(this).val().trim();
+            if (!val) {
+                $("#ApprovedBy_ApprovedByUserID").val("0");
+                $("#ApprovedBy_ApprovedByTelegramUserName").val("");
+            }
+        });
+
+        function getSelectedPackageParams() {
+            var packageName = $("#PackageName").val().trim();
+            var duration = parseInt($("#Duration").val()) || null;
+            var um = "";
+            var feature = $("#Feature").val();
+            var unitPrice = null;
+
+            if ($("#divNotificationPayment .line-item-row.primary-service-row .edit-unit-price").length > 0) {
+                unitPrice = accounting.unformat($("#divNotificationPayment .line-item-row.primary-service-row .edit-unit-price").val()) || null;
+            } else if ($("#divNotificationPayment .edit-unit-price").length > 0) {
+                unitPrice = accounting.unformat($("#divNotificationPayment .edit-unit-price").first().val()) || null;
+            }
+
+            if (packageName && window.packageData) {
+                $.each(window.packageData, function (i, pkg) {
+                    if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === packageName.toLowerCase()) {
+                        if (!duration) duration = pkg.Duration;
+                        um = pkg.UM;
+                        if (!feature) feature = pkg.Feature;
+                        if (!unitPrice) unitPrice = pkg.Price;
+                        return false;
+                    }
+                });
+            }
+
+            var currentExRate = null;
+            if ($("#divNotificationPayment .edit-exchange-rate").length > 0) {
+                currentExRate = accounting.unformat($("#divNotificationPayment .edit-exchange-rate").val()) || null;
+            }
+            if (!currentExRate && ExchangeRate) {
+                currentExRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || null;
+            }
+
+            var EndDate = "";
+            if ($("#TxtEndDate").length && $("#TxtEndDate").val() != "") {
+                if ($("#TxtEndDate").data('daterangepicker')) {
+                    EndDate = $("#TxtEndDate").data('daterangepicker').startDate.format('YYYY/MM/DD');
+                } else {
+                    EndDate = $("#TxtEndDate").val();
+                }
+            }
+
+            return {
+                PackageName: packageName ? encodeURIComponent(packageName) : "",
+                UnitPrice: unitPrice,
+                Duration: duration,
+                UM: um ? encodeURIComponent(um) : "",
+                Feature: feature ? encodeURIComponent(feature) : "",
+                ExchangeRate: currentExRate,
+                EndDate: EndDate,
+                HideSignature: hidSignature
+            };
+        }
+
+        $("#btnSaveNotificationPayment").click(function () {
+            var invNo = $("#CboCustInvoice").val();
+            if (!invNo) {
+                DialogSweetAlert('error', "Please select an invoice.");
+                return false;
+            }
+
+            var checkerName = $("#CheckedBy").val().trim();
+            var checkerUserId = parseInt($("#CheckedBy_CheckedByUserID").val()) || 0;
+            var checkerTgUser = $("#CheckedBy_CheckedByTelegramUserName").val().trim();
+
+            if (!checkerName || checkerUserId <= 0) {
+                DialogSweetAlert('error', "Please select a checker in 'Checked By'.", function () {
+                    $("#CheckedBy").focus();
+                });
+                return false;
+            }
+
+            var approverName = $("#ApprovedBy").val().trim();
+            var approverUserId = parseInt($("#ApprovedBy_ApprovedByUserID").val()) || 0;
+            var approverTgUser = $("#ApprovedBy_ApprovedByTelegramUserName").val().trim();
+
+            if (!approverName || approverUserId <= 0) {
+                DialogSweetAlert('error', "Please select an approver in 'Approved By'.", function () {
+                    $("#ApprovedBy").focus();
+                });
+                return false;
+            }
+
+            var StartDate      = $("#TxtStartDate").data('daterangepicker').startDate.format('YYYY/MM/DD');
+            var InvoiceDate    = $("#TxtInvoiceDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+            var InvoiceDueDate = $("#TxtPaymentDueDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+
+            var pkgParams = getSelectedPackageParams();
+            var reviseNPNo = ($("#CboReviseNP").length ? $("#CboReviseNP").val() : "") || "";
+            var extraRowsData = getExtraRowsData();
+
+            DoSaveChangeData("CustomerProfile/SaveNotificationPayment", {
+                CustomerID: CustomerID,
+                CustomerName: encodeURIComponent(CustomerName),
+                CustomerCode: CustomerCode,
+                InvoiceNo: invNo,
+                InvoiceDate: InvoiceDate,
+                InvoiceDueDate: InvoiceDueDate,
+                StartDate: StartDate,
+                EndDate: pkgParams.EndDate,
+                CheckedByUserID: checkerUserId,
+                CheckedBy: encodeURIComponent(checkerName),
+                CheckedByTelegramUserName: checkerTgUser,
+                ApprovedByUserID: approverUserId,
+                ApprovedBy: encodeURIComponent(approverName),
+                ApprovedByTelegramUserName: approverTgUser,
+                PackageName: pkgParams.PackageName,
+                UnitPrice: pkgParams.UnitPrice,
+                Duration: pkgParams.Duration,
+                UM: pkgParams.UM,
+                Feature: pkgParams.Feature,
+                ExchangeRate: pkgParams.ExchangeRate,
+                HideSignature: pkgParams.HideSignature,
+                ReviseNPNo: reviseNPNo,
+                ExtraRowsJson: JSON.stringify(extraRowsData)
+            }, function (response) {
+                if (response && response.NPNo) {
+                    var msg = reviseNPNo ? ("Notification Payment " + response.NPNo + " revised and updated successfully!") : ("Notification Payment " + response.NPNo + " saved and sent to Telegram successfully!");
+                    DialogSweetAlert('success', msg, function () {
+                        if ($("#CboReviseNP").length) {
+                            $("#CboReviseNP").val("");
+                        }
+                        ShowPaymentNotification();
+                    });
+                } else {
+                    if ($("#CboReviseNP").length) {
+                        $("#CboReviseNP").val("");
+                    }
+                    ShowPaymentNotification();
+                }
+            }, "", "Saving & Sending...", "Notification Payment Sent to Telegram Successfully.");
+        });
+
+        // ── Watch #PackageName for any input/change and look up the package directly
+        // from window.packageData by name — the most reliable approach since it does
+        // not depend on hidden inputs or typeahead events at all.
+        $("#PackageName").on("typeahead:select typeahead:autocomplete input change keyup blur", function () {
+            var typedName = $(this).val().trim().toLowerCase();
+            if (!typedName || !window.packageData) return;
+
+            // Find the matching package in the loaded data
+            var matched = null;
+            $.each(window.packageData, function (i, pkg) {
+                if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === typedName) {
+                    matched = pkg;
+                    return false; // break
+                }
+            });
+
+            if (matched) {
+                $("#PackageID").val(matched.PackageID || "");
+                $("#PID").val(matched.PID || "");
+                $("#Duration").val(matched.Duration || "");
+                $("#PackageDetailID").val(matched.PackageDetailID || "");
+                $("#DownSpeed").val(matched.DowSpeed || "");
+                $("#UpSpeed").val(matched.UpSpeed || "");
+                $("#Bandwidth").val(matched.Bandwidth || "");
+                $("#Feature").val(matched.Feature || "");
+                $("#ChartOfAccountID").val(matched.ChartOfAccountID || "");
+
+                updatePackageSpeedsInInvoice(
+                    matched.DowSpeed,
+                    matched.UpSpeed,
+                    matched.Bandwidth,
+                    matched.PackageName,
+                    matched.Price,
+                    matched.Duration,
+                    matched.UM,
+                    matched.Feature
+                );
+            }
+        });
+
+        // ── Init hidden-tab content only when the tab is actually shown, so
+        // width-dependent plugins (select2, the invoice table) measure real
+        // layout instead of a 0-width hidden pane.
+        function initSettingTab() {
+            $("#CboCustPhone").trigger("change");
+        }
+
+        function initInvoiceTab() {
+            if ($("#CboCustInvoice").length && $("#CboCustInvoice option").length) {
+                $("#CboCustInvoice").trigger("change");
+            }
+        }
+
+        $('#custTelegramTab a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href");
+
+            if (target === "#custom-tabs-four-profile" && !settingTabLoaded) {
+                settingTabLoaded = true;
+                initSettingTab();
+            }
+            else if (target === "#custom-tabs-five-messages" && !invoiceTabLoaded) {
+                invoiceTabLoaded = true;
+                initInvoiceTab();
+            }
+        });
+    });
+
+    var isUpdatingEndDate = false;
+
+    function handleStartDateChange(newStartMoment) {
+        if (!newStartMoment || !newStartMoment.isValid()) return;
+
+        var duration = 1;
+        var um = "Month";
+        var currentPkg = $("#PackageName").val().trim().toLowerCase();
+        if (currentPkg && window.packageData) {
+            $.each(window.packageData, function(i, pkg) {
+                if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === currentPkg) {
+                    if (pkg.Duration) duration = pkg.Duration;
+                    if (pkg.UM) um = pkg.UM;
+                    return false;
+                }
+            });
+        } else {
+            duration = parseInt($("#Duration").val()) || 1;
+            if (duration > 36) duration = 1;
+        }
+
+        var endMoment = newStartMoment.clone();
+        var u = um.toLowerCase();
+        if (u.includes("month")) endMoment.add(duration, 'months');
+        else if (u.includes("day")) endMoment.add(duration, 'days');
+        else if (u.includes("year")) endMoment.add(duration, 'years');
+        endMoment.subtract(1, 'days');
+
+        if ($("#TxtEndDate").length) {
+            isUpdatingEndDate = true;
+            if ($("#TxtEndDate").data('daterangepicker')) {
+                $("#TxtEndDate").data('daterangepicker').setStartDate(endMoment);
+                $("#TxtEndDate").data('daterangepicker').setEndDate(endMoment);
+            }
+            $("#TxtEndDate").val(endMoment.format("DD/MM/YYYY"));
+            isUpdatingEndDate = false;
+        }
+
+        updateInvoicePeriodDirectly(newStartMoment, endMoment, duration, um);
+    }
+
+    function handleEndDateChange(newEndMoment) {
+        if (!newEndMoment || !newEndMoment.isValid()) return;
+
+        var startMoment = null;
+        if ($("#TxtStartDate").data('daterangepicker') && $("#TxtStartDate").data('daterangepicker').startDate) {
+            startMoment = $("#TxtStartDate").data('daterangepicker').startDate.clone();
+        } else if ($("#TxtStartDate").val()) {
+            startMoment = moment($("#TxtStartDate").val(), ["DD/MM/YYYY", "YYYY/MM/DD", "DD-MM-YYYY", "YYYY-MM-DD"]);
+        }
+        if (!startMoment || !startMoment.isValid()) {
+            startMoment = moment();
+        }
+
+        // Keep TxtEndDate holding the new date formatted properly as DD/MM/YYYY
+        if ($("#TxtEndDate").length) {
+            isUpdatingEndDate = true;
+            if ($("#TxtEndDate").data('daterangepicker')) {
+                $("#TxtEndDate").data('daterangepicker').setStartDate(newEndMoment);
+                $("#TxtEndDate").data('daterangepicker').setEndDate(newEndMoment);
+            }
+            $("#TxtEndDate").val(newEndMoment.format("DD/MM/YYYY"));
+            isUpdatingEndDate = false;
+        }
+
+        // Calculate months between startMoment and newEndMoment
+        var startYear = startMoment.year();
+        var startMonth = startMoment.month(); // 0-11
+        var endYear = newEndMoment.year();
+        var endMonth = newEndMoment.month(); // 0-11
+
+        var calMonths = (endYear - startYear) * 12 + (endMonth - startMonth);
+        var totalDays = newEndMoment.diff(startMoment, 'days') + 1;
+        var monthsByDays = Math.round(totalDays / 30.4375);
+
+        // Target duration in months (never raw days!)
+        var targetDuration = calMonths > 0 ? calMonths : (monthsByDays > 0 ? monthsByDays : 1);
+        if (targetDuration > 36) targetDuration = 1;
+
+        // Determine current package identity to find corresponding package with new duration
+        var currentPkgName = $("#PackageName").val().trim();
+        var currentOriName = "";
+        var currentBandwidth = $("#Bandwidth").val() || "";
+
+        if (window.packageData && currentPkgName) {
+            $.each(window.packageData, function (i, pkg) {
+                if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === currentPkgName.toLowerCase()) {
+                    currentOriName = pkg.OriPackageName || "";
+                    if (!currentBandwidth) currentBandwidth = pkg.Bandwidth;
+                    return false;
+                }
+            });
+        }
+
+        if (!currentOriName && currentPkgName) {
+            var bwMatch = currentPkgName.match(/(.*?)\s*-\s*(\d+)\s*Mbps/i);
+            if (bwMatch) {
+                currentOriName = bwMatch[1].trim();
+                if (!currentBandwidth) currentBandwidth = bwMatch[2].trim();
+            }
+        }
+
+        // Candidates to search in catalog (calMonths first, then monthsByDays)
+        var candidateDurations = [calMonths, monthsByDays];
+        candidateDurations = candidateDurations.filter(function (v, idx, arr) { return v > 0 && arr.indexOf(v) === idx; });
+
+        var matchedNewPkg = null;
+        if (window.packageData && window.packageData.length > 0) {
+            for (var dIdx = 0; dIdx < candidateDurations.length; dIdx++) {
+                var durToTry = candidateDurations[dIdx];
+
+                // 1. Match OriPackageName + Bandwidth + Duration
+                if (currentOriName) {
+                    $.each(window.packageData, function (i, pkg) {
+                        var nameMatch = pkg.OriPackageName && (pkg.OriPackageName.trim().toLowerCase() === currentOriName.toLowerCase());
+                        var bwMatch = currentBandwidth ? (String(pkg.Bandwidth) === String(currentBandwidth)) : true;
+                        var durMatch = (parseInt(pkg.Duration) === durToTry);
+                        if (nameMatch && bwMatch && durMatch) {
+                            matchedNewPkg = pkg;
+                            return false;
+                        }
+                    });
+                }
+                if (matchedNewPkg) break;
+
+                // 2. Match Bandwidth + Duration
+                if (currentBandwidth) {
+                    $.each(window.packageData, function (i, pkg) {
+                        var bwMatch = (String(pkg.Bandwidth) === String(currentBandwidth));
+                        var durMatch = (parseInt(pkg.Duration) === durToTry);
+                        if (bwMatch && durMatch) {
+                            matchedNewPkg = pkg;
+                            return false;
+                        }
+                    });
+                }
+                if (matchedNewPkg) break;
+            }
+        }
+
+        if (matchedNewPkg) {
+            $("#PackageName").val(matchedNewPkg.PackageName);
+            if ($("#PackageName").typeahead) {
+                try { $("#PackageName").typeahead('val', matchedNewPkg.PackageName); } catch (e) { }
+            }
+
+            $("#PackageID").val(matchedNewPkg.PackageID || "");
+            $("#PID").val(matchedNewPkg.PID || "");
+            $("#Duration").val(matchedNewPkg.Duration || targetDuration);
+            $("#PackageDetailID").val(matchedNewPkg.PackageDetailID || "");
+            $("#DownSpeed").val(matchedNewPkg.DowSpeed || "");
+            $("#UpSpeed").val(matchedNewPkg.UpSpeed || "");
+            $("#Bandwidth").val(matchedNewPkg.Bandwidth || "");
+            $("#Feature").val(matchedNewPkg.Feature || "");
+            $("#ChartOfAccountID").val(matchedNewPkg.ChartOfAccountID || "");
+
+            updatePackageSpeedsInInvoice(
+                matchedNewPkg.DowSpeed,
+                matchedNewPkg.UpSpeed,
+                matchedNewPkg.Bandwidth,
+                matchedNewPkg.PackageName,
+                matchedNewPkg.Price,
+                matchedNewPkg.Duration,
+                matchedNewPkg.UM,
+                matchedNewPkg.Feature,
+                newEndMoment
+            );
+        } else {
+            // Keep package duration in Months (never raw days!)
+            var currentPkgDuration = parseInt($("#Duration").val()) || targetDuration;
+            var currentUM = "Month";
+            if (currentPkgName && window.packageData) {
+                $.each(window.packageData, function (i, pkg) {
+                    if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === currentPkgName.toLowerCase()) {
+                        if (pkg.Duration) currentPkgDuration = pkg.Duration;
+                        if (pkg.UM) currentUM = pkg.UM;
+                        return false;
+                    }
+                });
+            }
+            if (currentPkgDuration > 36) currentPkgDuration = targetDuration;
+
+            $("#Duration").val(currentPkgDuration);
+            updateInvoicePeriodDirectly(startMoment, newEndMoment, currentPkgDuration, currentUM);
+        }
+    }
+
+    function updateInvoicePeriodDirectly(startMoment, endMoment, duration, um) {
+        var formatStr = "DD-MMM-YYYY";
+        var startDateDisplay = (startMoment && startMoment.isValid()) ? startMoment.format(formatStr) : moment().format(formatStr);
+        var endDateDisplay = (endMoment && endMoment.isValid()) ? endMoment.format(formatStr) : moment().format(formatStr);
+        var durCount = parseInt(duration) || 1;
+        if (durCount > 36 && (um || "Month").toLowerCase().includes("month")) {
+            durCount = 1;
+        }
+        var umText = (um || "Month");
+        var umPlural = durCount > 1 ? (umText.endsWith("s") ? umText : umText + "s") : umText.replace(/s$/, "");
+        var newText = "Period " + durCount + " " + umPlural + " From " + startDateDisplay + " To " + endDateDisplay;
+
+        $("#divNotificationPayment label:contains('Period')").each(function () {
+            var txt = $(this).text().trim();
+            if (/Period/i.test(txt) && /From/i.test(txt)) {
+                $(this).text(newText);
+            }
+        });
+
+        var walk = document.createTreeWalker(document.getElementById('divNotificationPayment'), NodeFilter.SHOW_TEXT, null, false);
+        var n;
+        while (n = walk.nextNode()) {
+            var text = n.nodeValue.trim();
+            if (/Period(?:\s+\d+\s+(?:Months?|Days?|Years?))?\s+From\s+/i.test(text)) {
+                n.nodeValue = n.nodeValue.replace(/Period(?:\s+\d+\s+(?:Months?|Days?|Years?))?\s+From\s+.*$/i, newText);
+            }
+        }
+
+        var $primaryRow = $("#divNotificationPayment .line-item-row.primary-service-row");
+        if ($primaryRow.length > 0) {
+            $primaryRow.find("td").eq(2).html(`<div class='text-center'>${durCount} ${umPlural}</div>`);
+        }
+
+        if ($("#TxtEndDate").length && endMoment) {
+            isUpdatingEndDate = true;
+            if ($("#TxtEndDate").data('daterangepicker')) {
+                $("#TxtEndDate").data('daterangepicker').setStartDate(endMoment);
+                $("#TxtEndDate").data('daterangepicker').setEndDate(endMoment);
+            }
+            $("#TxtEndDate").val(endMoment.format("DD/MM/YYYY"));
+            isUpdatingEndDate = false;
+        }
+    }
+
+    function updateInvoiceDateLabels(invDateStr, dueDateStr) {
+        $("#divNotificationPayment td:contains('Date:')").each(function () {
+            var $td = $(this);
+            var txt = $td.text().trim();
+            if (txt.includes("កាលបរិច្ឆេទ/Date") || txt.startsWith("Date:")) {
+                var $valTd = $td.next();
+                if ($valTd.length) $valTd.text(invDateStr);
+            }
+        });
+    }
+
+    function updateInvoiceDueDateLabels(dueDateStr) {
+        $("#divNotificationPayment td:contains('Due Date')").each(function () {
+            var $td = $(this);
+            var $valTd = $td.next();
+            if ($valTd.length) $valTd.text(dueDateStr);
+        });
+    }
+
+    function updatePackageSpeedsInInvoice(downSpeed, upSpeed, bandwidth, packageName, price, duration, um, feature, explicitEndMoment) {
+        if (!downSpeed && !upSpeed && !bandwidth && !packageName) return;
+
+        var d = parseInt(duration) || 1;
+        if (d > 36 && (um || "Month").toLowerCase().includes("month")) {
+            d = 1;
+        }
+        var uUnit = um || "Month";
+        var unit = d + " " + (d > 1 ? (uUnit.endsWith("s") ? uUnit : uUnit + "s") : uUnit.replace(/s$/, ""));
+        var qty = 1;
+        var dollar = price;
+        var exchangeRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || 0;
+        var riel = dollar * exchangeRate;
+
+        // ✅ Update Package Name and Financial Fields
+        $("#divNotificationPayment td")
+            .find("br")
+            .each(function () {
+                var node = this.nextSibling;
+                if (node && node.nodeType === 3 && node.nodeValue.includes("Package Name:")) {
+                    if (packageName) {
+                        node.nodeValue = "Package Name: " + packageName + " ";
+                    }
+
+                    var $td = $(this).closest("td");
+
+                    // ✅ Save $tr/$tds BEFORE $td.empty() detaches 'this' from DOM
+                    var $tr = $td.closest("tr");
+                    var $tds = $tr.find("td");
+
+                    // Save Period/FREE rows first before clearing features
+                    var $periodRows = $td.find(".row").filter(function() {
+                        return $(this).find("label:contains('Period'), label:contains('FREE')").length > 0;
+                    });
+
+                    // Find Service Plan text node to keep it intact
+                    var servicePlanText = "Service Plan: Internet Service";
+                    $td.contents().each(function() {
+                        if (this.nodeType === 3 && this.nodeValue.includes("Service Plan:")) {
+                            servicePlanText = this.nodeValue.trim();
+                        }
+                    });
+
+                    // Clear the cell content
+                    $td.empty();
+
+                    // Rebuild the Service Plan and Package Name lines
+                    $td.append(document.createTextNode(servicePlanText));
+                    $td.append("<br/>");
+                    $td.append(document.createTextNode("Package Name: " + packageName + " "));
+                    $td.append("<br/>");
+
+                    // Add new features dynamically if defined
+                    if (feature) {
+                        $td.append("<br/><b>Feature:</b><br/>");
+                        var decodedFeature = feature.replace(/&#013;/g, "\r").replace(/&#010;/g, "\n");
+                        var lines = decodedFeature.split(/\r?\n/);
+                        $.each(lines, function(index, value) {
+                            value = value.trim();
+                            if (value) {
+                                var featureRow = '<div class="row"><div class="col-auto ml-2">' +
+                                                 '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" ' +
+                                                 'fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">' +
+                                                 '<path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 ' +
+                                                 '1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg></div>' +
+                                                 '<div class="col"><p class="text-justify">' + value + '</p></div></div>';
+                                $td.append(featureRow);
+                            }
+                        });
+                    }
+
+                    // Restore the saved Period/FREE rows at the end
+                    if ($periodRows.length > 0) {
+                        $td.append($periodRows);
+                    }
+
+                    var isISP = $("#divNotificationPayment table th:contains('Dis$'), #divNotificationPayment table th:contains('Discount')").length > 0;
+                    var amtIndex = isISP ? 6 : 5;
+                    var disIndex = isISP ? 5 : -1;
+
+                    if ($tds.length >= 6) {
+                        $tds.eq(2).html(`<div class='text-center'>${unit}</div>`);
+                        $tds.eq(3).html(`<div class='text-center'>${qty}</div>`);
+                        $tds.eq(4).html(`<input type='text' class='form-control form-control-sm text-right edit-unit-price' value='${accounting.formatMoney(dollar, "$", 2)}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0;'>`);
+
+                        var discount = 0;
+                        if (isISP) {
+                            discount = accounting.unformat($tds.eq(disIndex).text()) || 0;
+                        }
+
+                        var amountDollar = Math.round(((qty * dollar) - discount) * 100) / 100;
+                        $tds.eq(amtIndex).removeClass("text-left").addClass("text-right row-amount-dollar").text(accounting.formatMoney(amountDollar, "$", 2));
+
+                        if ($tds.length > amtIndex + 1) {
+                            var currentRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || 0;
+                            var amountRiel = Math.round(amountDollar * currentRate);
+                            $tds.eq(amtIndex + 1).removeClass("text-left").addClass("text-right row-amount-riel").html(`&#x17DB;${accounting.formatMoney(amountRiel, "", 0)}`);
+                        }
+                    }
+                }
+            });
+
+        // ✅ Update Period string and recalculate End Date
+        var startMoment = null;
+        if ($("#TxtStartDate").data('daterangepicker') && $("#TxtStartDate").data('daterangepicker').startDate) {
+            startMoment = $("#TxtStartDate").data('daterangepicker').startDate.clone();
+        } else if ($("#TxtStartDate").val()) {
+            startMoment = moment($("#TxtStartDate").val(), ["DD/MM/YYYY", "YYYY/MM/DD", "DD-MM-YYYY", "YYYY-MM-DD"]);
+        }
+
+        var targetEndMoment = explicitEndMoment || null;
+        if (!targetEndMoment) {
+            var sm = (startMoment && startMoment.isValid()) ? startMoment.clone() : moment();
+            var dur = parseInt(duration) || 1;
+            if (dur > 36) dur = 1;
+            var u = (um || "Month").toLowerCase();
+            if (u.includes("month")) sm.add(dur, 'months');
+            else if (u.includes("day")) sm.add(dur, 'days');
+            else if (u.includes("year")) sm.add(dur, 'years');
+            sm.subtract(1, 'days');
+            targetEndMoment = sm;
+        }
+
+        var formatStr = "DD-MMM-YYYY";
+        var startDateDisplay = (startMoment && startMoment.isValid()) ? startMoment.format(formatStr) : moment().format(formatStr);
+        var endDateDisplay = targetEndMoment.format(formatStr);
+        var durCount = parseInt(duration) || 1;
+        if (durCount > 36 && (um || "Month").toLowerCase().includes("month")) {
+            durCount = 1;
+        }
+        var umText = (um || "Month");
+        var umPlural = durCount > 1 ? (umText.endsWith("s") ? umText : umText + "s") : umText.replace(/s$/, "");
+        var newText = "Period " + durCount + " " + umPlural + " From " + startDateDisplay + " To " + endDateDisplay;
+
+        // Update Period in DOM labels
+        $("#divNotificationPayment label:contains('Period')").each(function () {
+            var txt = $(this).text().trim();
+            if (/Period/i.test(txt) && /From/i.test(txt)) {
+                $(this).text(newText);
+            }
+        });
+
+        // Update Period in text nodes
+        var walk = document.createTreeWalker(document.getElementById('divNotificationPayment'), NodeFilter.SHOW_TEXT, null, false);
+        var n;
+        while(n = walk.nextNode()) {
+            var text = n.nodeValue.trim();
+            if (/Period(?:\s+\d+\s+(?:Months?|Days?|Years?))?\s+From\s+/i.test(text)) {
+                n.nodeValue = n.nodeValue.replace(/Period(?:\s+\d+\s+(?:Months?|Days?|Years?))?\s+From\s+.*$/i, newText);
+            }
+        }
+
+        if ($("#TxtEndDate").length && targetEndMoment) {
+            isUpdatingEndDate = true;
+            if ($("#TxtEndDate").data('daterangepicker')) {
+                $("#TxtEndDate").data('daterangepicker').setStartDate(targetEndMoment);
+                $("#TxtEndDate").data('daterangepicker').setEndDate(targetEndMoment);
+            }
+            $("#TxtEndDate").val(targetEndMoment.format("DD/MM/YYYY"));
+            isUpdatingEndDate = false;
+        }
+
+        calculateInvoiceGrandTotals();
+    }
+
+    // ✅ Calculate and Update Grand Totals
+    function calculateInvoiceGrandTotals() {
+        var subTotalDollar = 0;
+        var vatDollar = 0;
+        var exchangeRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || 0;
+
+        var $headers = $("#divNotificationPayment table th");
+        var isISP = $headers.filter(function(){ return $(this).text().includes('Dis$') || $(this).text().includes('Discount'); }).length > 0;
+        var amtIndex = isISP ? 6 : 5;
+
+        // 1. Sum regular line item rows in the table
+        $("#divNotificationPayment table tr").each(function () {
+            var $row = $(this);
+            var $tds = $row.find("td");
+
+            // Regular line items have at least 6 cells and no th (exclude summary rows which have 2 or 3 cells)
+            if ($tds.length >= 6 && $row.find("th").length === 0 && !$row.text().includes("Total Included VAT") && !$row.text().includes("Grand Total")) {
+                var $amtCell = $row.find(".row-amount-dollar").first();
+                var amountStr = $amtCell.length > 0 ? $amtCell.text() : $tds.eq(amtIndex).text();
+                if (amountStr) {
+                    var parsedAmt = accounting.unformat(amountStr) || 0;
+                    subTotalDollar += Math.round(parsedAmt * 100) / 100;
+                }
+            }
+        });
+
+        subTotalDollar = Math.round(subTotalDollar * 100) / 100;
+
+        // 2. Check if invoice has VAT row
+        var hasVat = false;
+        var $vatRow = $("#divNotificationPayment table tr[name='trVAT']");
+        if ($vatRow.length > 0) {
+            hasVat = true;
+        } else {
+            // Check if there is an explicit summary VAT row (must NOT be line item, header, terms pre, or dropdown)
+            $("#divNotificationPayment table tr:not(.line-item-row)").each(function () {
+                var $row = $(this);
+                if ($row.find("pre, select, th").length > 0) return;
+                var $tds = $row.find("td");
+                if ($tds.length >= 2 && $tds.length <= 4) {
+                    var labelText = $tds.first().text().trim().toUpperCase();
+                    if ((labelText.includes("VAT 10%") || labelText.includes("អាករលើតម្លៃបន្ថែម") || labelText.includes("ពន្ធបន្ថែម")) &&
+                        !labelText.includes("TOTAL") && !labelText.includes("INCLUDED") && !labelText.includes("NON-VAT") && !labelText.includes("TIN")) {
+                        hasVat = true;
+                        $row.attr("name", "trVAT");
+                        $vatRow = $row;
+                    }
+                }
+            });
+        }
+
+        if (hasVat) {
+            vatDollar = Math.round(subTotalDollar * 0.10 * 100) / 100;
+        }
+
+        // Check if there is an invoice-level Discount USD row
+        var discountDollar = 0;
+        $("#divNotificationPayment table tr:not(.line-item-row)").each(function () {
+            var $row = $(this);
+            if ($row.find("pre, select, th").length > 0) return;
+            var $tds = $row.find("td");
+            if ($tds.length >= 2 && $tds.length <= 4) {
+                var labelText = $tds.first().text().trim().toUpperCase();
+                if ((labelText.includes("DISCOUNT") || labelText.includes("បញ្ចុះតម្លៃ")) && !labelText.includes("%")) {
+                    var valStr = $tds.eq(1).text();
+                    discountDollar = accounting.unformat(valStr) || 0;
+                }
+            }
+        });
+
+        var grandTotalDollar = Math.round((subTotalDollar + vatDollar - discountDollar) * 100) / 100;
+        if (grandTotalDollar < 0) grandTotalDollar = 0;
+        var subTotalRiel = Math.round(subTotalDollar * exchangeRate);
+        var vatRiel = Math.round(vatDollar * exchangeRate);
+        var grandTotalRiel = Math.round(grandTotalDollar * exchangeRate);
+
+        // 3. Update Summary Rows
+        $("#divNotificationPayment table tr").each(function () {
+            var $row = $(this);
+            var $tds = $row.find("td");
+
+            // Summary rows have 2 or 3 td cells
+            if ($tds.length < 2 || $tds.length > 3) return;
+
+            var $labelTd = $tds.first();
+            var text = $labelTd.text().trim();
+            var upperText = text.toUpperCase();
+            var $amountTd = $tds.eq(1);
+            var $rielTd = $tds.length >= 3 ? $tds.eq(2) : null;
+
+            // A. SubTotal / Total Row
+            var isSubTotal = ($row.find("label[name='SubTotal'], label[name='Total']").length > 0) ||
+                ((upperText.includes("SUB TOTAL") || upperText.includes("SUBTOTAL") || upperText.includes("TOTAL") || text.includes("សរុប")) &&
+                 !upperText.includes("GRAND TOTAL") &&
+                 !upperText.includes("INCLUDED VAT") &&
+                 !upperText.includes("VAT") &&
+                 !text.includes("សរុបរួម") &&
+                 !text.includes("សរុបទឹកប្រាក់រួម") &&
+                 !upperText.includes("DEPOSIT") &&
+                 !upperText.includes("DISCOUNT"));
+
+            if (isSubTotal) {
+                var lblName = $row.find("label[name='Total']").length > 0 ? "Total" : "SubTotal";
+                $amountTd.html(`<div class='p-0 text-center'><label class="col-form-label" name="${lblName}">${accounting.formatMoney(subTotalDollar, "$", 2)}</label></div>`);
+                if ($rielTd && $rielTd.length > 0) {
+                    $rielTd.html(`<div class='p-0 text-center'><label class="col-form-label" name="${lblName}">&#x17DB;${accounting.formatMoney(subTotalRiel, "", 0)}</label></div>`);
+                }
+            }
+            // B. VAT Row
+            else if (hasVat && ($row.is("[name='trVAT']") || (upperText.includes("VAT 10%") && !upperText.includes("GRAND TOTAL") && !upperText.includes("INCLUDED VAT") && !text.includes("សរុបទឹកប្រាក់រួម") && !text.includes("សរុបរួម")))) {
+                $amountTd.html(`<div class='p-0 text-center'><label class="col-form-label">${accounting.formatMoney(vatDollar, "$", 2)}</label></div>`);
+                if ($rielTd && $rielTd.length > 0) {
+                    $rielTd.html(`<div class='p-0 text-center'><label class="col-form-label">&#x17DB;${accounting.formatMoney(vatRiel, "", 0)}</label></div>`);
+                }
+            }
+            // C. Grand Total USD / Total Included VAT Row
+            else if (upperText.includes("GRAND TOTAL USD") || upperText.includes("INCLUDED VAT") || upperText.includes("GRAND TOTAL:") || text.includes("សរុបរួម") || text.includes("សរុបទឹកប្រាក់រួម") || text.includes("សរុបចុងក្រោយ") || $row.find("label[name='GrandTotal']").length > 0) {
+                if (upperText.includes("KHR") || text.includes("លុយរៀល") || text.includes("ជាលុយរៀល")) {
+                    $amountTd.html(`<div class='p-0 text-center'><label class="col-form-label" name="GrandTotal">&#x17DB;${accounting.formatMoney(grandTotalRiel, "", 0)}</label></div>`);
+                } else {
+                    $amountTd.html(`<div class='p-0 text-center'><label class="col-form-label" name="GrandTotal">${accounting.formatMoney(grandTotalDollar, "$", 2)}</label></div>`);
+                    if ($rielTd && $rielTd.length > 0) {
+                        $rielTd.html(`<div class='p-0 text-center'><label class="col-form-label" name="GrandTotal">&#x17DB;${accounting.formatMoney(grandTotalRiel, "", 0)}</label></div>`);
+                    }
+                }
+            }
+        });
+    }
+
+    // ✅ Helper: Update Row Riel Amount
+    function updateRowRielAmount($row) {
+        var $headers = $("#divNotificationPayment table th");
+        var isISP = $headers.filter(function(){ return $(this).text().includes('Dis$') || $(this).text().includes('Discount'); }).length > 0;
+        var amtIndex = isISP ? 6 : 5;
+        var $tds = $row.find("td");
+        var $amtCell = $row.find(".row-amount-dollar").first();
+        var amountDollar = accounting.unformat($amtCell.length ? $amtCell.text() : $tds.eq(amtIndex).text()) || 0;
+        var exchangeRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || 0;
+        var amountRiel = Math.round(amountDollar * exchangeRate);
+        var $rielCell = $row.find(".row-amount-riel").first();
+        if ($rielCell.length) {
+            $rielCell.html(`&#x17DB;${accounting.formatMoney(amountRiel, "", 0)}`);
+        } else if ($tds.length > amtIndex + 1) {
+            $tds.eq(amtIndex + 1).html(`&#x17DB;${accounting.formatMoney(amountRiel, "", 0)}`);
+        }
+    }
+
+    // ✅ Helper: Recalculate Row Amount (Dollar and Riel)
+    function recalculateRowAmount($row) {
+        var isISP = $("#divNotificationPayment table th:contains('Dis$'), #divNotificationPayment table th:contains('Discount')").length > 0;
+        var amtIndex = isISP ? 6 : 5;
+        var $tds = $row.find("td");
+        var qty = accounting.unformat($row.find(".edit-qty").val() || $tds.eq(3).text()) || 0;
+        var unitPrice = accounting.unformat($row.find(".edit-unit-price").val() || $tds.eq(4).text()) || 0;
+        var discount = 0;
+        if (isISP) {
+            discount = accounting.unformat($row.find(".edit-discount").val() || $tds.eq(5).text()) || 0;
+        }
+        var amountDollar = Math.round(((qty * unitPrice) - discount) * 100) / 100;
+        var $amtCell = $row.find(".row-amount-dollar").first();
+        if ($amtCell.length) {
+            $amtCell.text(accounting.formatMoney(amountDollar, "$", 2));
+        } else {
+            $tds.eq(amtIndex).addClass("row-amount-dollar").text(accounting.formatMoney(amountDollar, "$", 2));
+        }
+        updateRowRielAmount($row);
+    }
+
+    // ✅ Event Handlers for Editable Row Fields
+    $(document).on("input change", "#divNotificationPayment .edit-unit-price, #divNotificationPayment .edit-qty, #divNotificationPayment .edit-discount", function () {
+        var $row = $(this).closest("tr");
+        $(this).attr('value', $(this).val());
+        recalculateRowAmount($row);
+        calculateInvoiceGrandTotals();
+    });
+
+    $(document).on("input change", "#divNotificationPayment .edit-um", function () {
+        $(this).attr('value', $(this).val());
+    });
+
+    // ✅ Service Type Selection Handler
+    $(document).on("change", "#divNotificationPayment .select-service-type", function () {
+        var $row = $(this).closest("tr");
+        var val = $(this).val();
+        var $selectedOpt = $(this).find("option:selected");
+        var price = parseFloat($selectedOpt.attr("data-price")) || 0;
+        var um = $selectedOpt.attr("data-um") || "Month";
+        var sId = parseInt($selectedOpt.attr("data-service-id")) || 0;
+        var ocId = parseInt($selectedOpt.attr("data-other-charge-id")) || 0;
+        var $descInput = $row.find(".edit-service-desc");
+        var $descText = $row.find(".service-desc-text");
+
+        $row.attr("data-service-id", sId);
+        $row.attr("data-other-charge-id", ocId);
+
+        if (val === "__custom__") {
+            $descInput.removeClass("d-none").val("").focus();
+            $descText.text("").addClass("d-none");
+        } else if (val) {
+            $descInput.addClass("d-none").val(val);
+            $descText.text(val).removeClass("d-none");
+            $row.find(".edit-um").val(um).attr("value", um);
+            $row.find(".edit-unit-price").val(accounting.formatMoney(price, "$", 2)).attr("value", accounting.formatMoney(price, "$", 2));
+        } else {
+            $descInput.addClass("d-none").val("");
+            $descText.text("").addClass("d-none");
+        }
+        recalculateRowAmount($row);
+        calculateInvoiceGrandTotals();
+    });
+
+    // Edit service description text on click
+    $(document).on("click", "#divNotificationPayment .service-desc-text", function () {
+        var $row = $(this).closest("tr");
+        var $descInput = $row.find(".edit-service-desc");
+        if ($descInput.length > 0) {
+            $descInput.removeClass("d-none").focus();
+        }
+    });
+
+    $(document).on("input change blur", "#divNotificationPayment .edit-service-desc", function () {
+        var $row = $(this).closest("tr");
+        var val = $(this).val().trim();
+        if (val) {
+            $row.find(".service-desc-text").text(val).removeClass("d-none");
+        }
+    });
+
+    // Delete service row
+    $(document).on("click", "#divNotificationPayment .btn-delete-service-row", function () {
+        var $row = $(this).closest("tr");
+        $row.remove();
+        reindexLineItemRows();
+        calculateInvoiceGrandTotals();
+    });
+
+    function reindexLineItemRows() {
+        var idx = 0;
+        $("#divNotificationPayment table tr.line-item-row").each(function () {
+            idx++;
+            $(this).find("td.row-no, td:first").text(idx);
+        });
+    }
+
+    // Extract extra service rows (excluding row 1 primary service) for saving/sending
+    function getExtraRowsData() {
+        var extraRows = [];
+        var isISP = $("#divNotificationPayment table th:contains('Dis$'), #divNotificationPayment table th:contains('Discount')").length > 0;
+
+        $("#divNotificationPayment table tr.line-item-row").each(function (idx) {
+            var $row = $(this);
+            if ($row.hasClass("primary-service-row") || idx === 0) return;
+
+            var $tds = $row.find("td");
+            if ($tds.length < 6) return;
+
+            var desc = "";
+            var $select = $row.find(".select-service-type");
+            var $descInput = $row.find(".edit-service-desc");
+            var $descSpan = $row.find(".service-desc-text");
+
+            var serviceId = parseInt($row.attr("data-service-id")) || 0;
+            var otherChargeId = parseInt($row.attr("data-other-charge-id")) || 0;
+
+            if ($descInput.length && $descInput.val()) {
+                desc = $descInput.val().trim();
+            } else if ($select.length && $select.val() && $select.val() !== "__custom__") {
+                desc = $select.val().trim();
+            } else if ($descSpan.length && $descSpan.text()) {
+                desc = $descSpan.text().trim();
+            } else {
+                desc = $tds.eq(1).clone().find(".no-print").remove().end().text().trim();
+            }
+
+            if ($select.length && $select.val()) {
+                var $opt = $select.find("option:selected");
+                if ($opt.length) {
+                    if (!serviceId) serviceId = parseInt($opt.attr("data-service-id")) || 0;
+                    if (!otherChargeId) otherChargeId = parseInt($opt.attr("data-other-charge-id")) || 0;
+                }
+            }
+
+            var um = $row.find(".edit-um").length ? $row.find(".edit-um").val().trim() : $tds.eq(2).text().trim();
+            var qty = accounting.unformat($row.find(".edit-qty").length ? $row.find(".edit-qty").val() : $tds.eq(3).text()) || 1;
+            var unitPrice = accounting.unformat($row.find(".edit-unit-price").length ? $row.find(".edit-unit-price").val() : $tds.eq(4).text()) || 0;
+            var discountUSD = 0;
+            if (isISP) {
+                discountUSD = accounting.unformat($row.find(".edit-discount").length ? $row.find(".edit-discount").val() : $tds.eq(5).text()) || 0;
+            }
+            var $amtCell = $row.find(".row-amount-dollar").first();
+            var amount = accounting.unformat($amtCell.length ? $amtCell.text() : $tds.eq(amtIndex).text()) || ((qty * unitPrice) - discountUSD);
+            amount = Math.round(amount * 100) / 100;
+
+            if (desc || amount > 0) {
+                extraRows.push({
+                    Description: desc,
+                    UM: um,
+                    QTY: qty,
+                    UnitPrice: unitPrice,
+                    DiscountUSD: discountUSD,
+                    Amount: amount,
+                    ServiceID: serviceId,
+                    OtherChargeID: otherChargeId
+                });
+            }
+        });
+        return extraRows;
+    }
+
+    // Add Service Row Handler
+    $("#btnAddServiceRow").click(function () {
+        var $table = $("#divNotificationPayment table");
+        if ($table.length === 0) {
+            DialogSweetAlert('warning', "Please select an invoice first.");
+            return;
+        }
+
+        var isISP = $("#divNotificationPayment table th:contains('Dis$'), #divNotificationPayment table th:contains('Discount')").length > 0;
+        var nextNo = $("#divNotificationPayment table tr.line-item-row").length + 1;
+
+        var options = '<option value="">-- Select Service Type --</option>';
+        if (window.serviceTypes && window.serviceTypes.length > 0) {
+            var currentGroup = "";
+            $.each(window.serviceTypes, function (i, item) {
+                var group = item.TypeGroup || "Services";
+                if (group !== currentGroup) {
+                    if (currentGroup !== "") {
+                        options += '</optgroup>';
+                    }
+                    currentGroup = group;
+                    options += `<optgroup label="${group}">`;
+                }
+
+                var name = item.ServiceName || "";
+                var price = parseFloat(item.Price) || 0;
+                var um = item.UM || "Month";
+                var sId = item.ServiceID || 0;
+                var ocId = item.OtherChargeID || 0;
+                var priceLabel = price > 0 ? " ($" + accounting.formatMoney(price, "", 2) + ")" : "";
+                options += `<option value="${name}" data-price="${price}" data-um="${um}" data-service-id="${sId}" data-other-charge-id="${ocId}">${name}${priceLabel}</option>`;
+            });
+            if (currentGroup !== "") {
+                options += '</optgroup>';
+            }
+        }
+        options += '<option value="__custom__">+ Custom Service...</option>';
+
+        var trHtml = `
+            <tr class="line-item-row extra-service-row">
+                <td valign="top" align="center" class="row-no">${nextNo}</td>
+                <td valign="top">
+                    <div class="d-flex align-items-center">
+                        <div class="no-print mr-2" style="flex: 1; max-width: 250px;">
+                            <select class="form-control form-control-sm select-service-type" style="width: 100%; border-color: #F89C39;">
+                                ${options}
+                            </select>
+                        </div>
+                        <span class="service-desc-text d-none font-weight-bold" style="cursor: pointer;" title="Click to edit"></span>
+                        <button type="button" class="btn btn-xs btn-outline-danger btn-delete-service-row no-print ml-auto" title="Delete Row" style="padding: 1px 6px;">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="form-control form-control-sm edit-service-desc d-none mt-1" placeholder="Enter service description..." style="background: transparent; border: 1px solid #ced4da;">
+                </td>
+                <td valign="top" align="center" class="text-nowrap">
+                    <input type="text" class="form-control form-control-sm text-center edit-um" value="Month" style="border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 65px; display:inline-block;">
+                </td>
+                <td valign="top" align="center">
+                    <input type="text" class="form-control form-control-sm text-center edit-qty" value="1" style="border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 45px; display:inline-block;">
+                </td>
+                <td valign="top" align="center">
+                    <input type="text" class="form-control form-control-sm text-right edit-unit-price" value="$0.00" style="border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 70px; display:inline-block;">
+                </td>`;
+
+        if (isISP) {
+            trHtml += `
+                <td valign="top" align="center">
+                    <input type="text" class="form-control form-control-sm text-right edit-discount" value="$0.00" style="border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 60px; display:inline-block;">
+                </td>
+                <td valign="top" align="center" class="row-amount-dollar">$0.00</td>
+            </tr>`;
+        } else {
+            trHtml += `
+                <td valign="top" align="center" class="row-amount-dollar">$0.00</td>
+                <td valign="top" align="center" class="row-amount-riel">&#x17DB;0</td>
+            </tr>`;
+        }
+
+        var $lastRow = $("#divNotificationPayment table tr.line-item-row").last();
+        if ($lastRow.length > 0) {
+            $lastRow.after(trHtml);
+        } else {
+            var $tbody = $("#divNotificationPayment table tbody");
+            if ($tbody.length > 0) {
+                $tbody.append(trHtml);
+            } else {
+                $("#divNotificationPayment table").append(trHtml);
+            }
+        }
+
+        var $newRow = $("#divNotificationPayment table tr.line-item-row").last();
+        $newRow.find(".select-service-type").focus();
+        calculateInvoiceGrandTotals();
+    });
+
+    // ✅ Bind Event for Exchange Rate Change
+    $(document).on("input", "#divNotificationPayment .edit-exchange-rate", function () {
+        ExchangeRate = $(this).val(); // Update global variable
+        $(this).attr('value', $(this).val());
+
+        // Recalculate every row's Riel amount
+        $("#divNotificationPayment .row-amount-riel").each(function() {
+            var $row = $(this).closest("tr");
+            updateRowRielAmount($row);
+        });
+
+        calculateInvoiceGrandTotals();
+    });
+
+    var hidSignature = false;
+    $(document).on("click", "#divNotificationPayment img#Signature, #divNotificationPayment div:has(> img#Signature)", function () {
+        if (!hidSignature) {
+            $("#divNotificationPayment img#Signature").css("visibility", "hidden");
+            hidSignature = true;
+        } else {
+            hidSignature = false;
+            $("#divNotificationPayment img#Signature").css("visibility", "visible");
+        }
+    });
+
+    // ✅ Initialize Unit Price editability and Cleanup Rows
+    function initEditableUnitPriceAndCleanup() {
+        var count = 1;
+
+        // Force current date in ISSUED BY section
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        var formattedDate = dd + '/' + mm + '/' + yyyy;
+
+        $("#divNotificationPayment label:contains('Date:')").each(function () {
+            var txt = $(this).text().trim();
+            // If it starts with "Date:" (and not "Due Date:" or "កាលបរិច្ឆេទ/Date:"), it's the ISSUED BY date
+            if (txt.startsWith("Date:")) {
+                $(this).text("Date: " + formattedDate);
+            }
+        });
+
+        // We use the latest global ExchangeRate instead of the old one from the invoice
+
+        // ✅ Remove Sale's Name and Sale's Phone from Non-VAT invoice if present
+        $("#divNotificationPayment tr:has(td:contains(\"Sale's Name\")), #divNotificationPayment tr:has(td:contains(\"Sale's Phone\"))").remove();
+        // ✅ Remove Terms from Non-VAT if present
+        $("#divNotificationPayment table td[rowspan] pre").remove();
+
+        // ✅ Remove Note from invoice Vat and Cm (សំគាល់៖ ច្បាប់ដើមសម្រាប់អ្នកទិញ ច្បាប់ចម្លងសម្រាប់អ្នកលក់ / Note: Original invoice for customer and copied invoice for seller)
+        // 1. Remove by exact .col.text-sm / .text-sm (which DrawInvoice specifically generates for both note lines)
+        $("#divNotificationPayment footer .col.text-sm, #divNotificationPayment div.col.text-sm, #divNotificationPayment .text-sm").each(function () {
+            var $p = $(this).parent();
+            if ($p.hasClass("row")) {
+                $p.remove();
+            } else {
+                $(this).remove();
+            }
+        });
+
+        // 2. Remove by text content across any other elements (labels, divs, spans) using Unicode escapes and text
+        var khmerNotePatterns = [
+            "Original invoice",
+            "copied invoice",
+            "\u1785\u17d2\u1794\u17b6\u1794\u17cb\u178a\u17be\u1798", // ច្បាប់ដើម
+            "\u1785\u17d2\u1794\u17b6\u1794\u17cb\u1785\u1798\u17d2\u179b\u1784", // ច្បាប់ចម្លង
+            "\u179f\u17c6\u1782\u17b6\u179b\u17cb", // សំគាល់
+            "\u179f\u1798\u17d2\u1782\u17b6\u179b\u17cb", // សម្គាល់
+            "\u17a2\u17d2\u1793\u1780\u1791\u17b7\u1789", // អ្នកទិញ
+            "\u17a2\u17d2\u1793\u1780\u179b\u1780\u17cb", // អ្នកលក់
+            "ច្បាប់ដើម",
+            "ច្បាប់ចម្លង",
+            "សំគាល់",
+            "សម្គាល់"
+        ];
+
+        $("#divNotificationPayment footer label, #divNotificationPayment label, #divNotificationPayment p, #divNotificationPayment span, #divNotificationPayment div").filter(function () {
+            return $(this).children().length === 0;
+        }).each(function () {
+            var txt = $(this).text();
+            var matched = false;
+            for (var i = 0; i < khmerNotePatterns.length; i++) {
+                if (txt.indexOf(khmerNotePatterns[i]) >= 0) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched) {
+                var $p = $(this).parent();
+                $(this).next("br").remove();
+                if ($p.hasClass("row") && $p.children().length <= 2) {
+                    $p.remove();
+                } else if ($p.hasClass("col")) {
+                    var $row = $p.closest(".row");
+                    $(this).remove();
+                    if ($p.children().length === 0 || $row.text().trim() === "") {
+                        $row.remove();
+                    }
+                } else {
+                    $(this).remove();
+                }
+            }
+        });
+
+        var lineItemIndex = 0;
+        $("#divNotificationPayment table tr").each(function () {
+            var $row = $(this);
+            var $tds = $row.find("td");
+
+            // Handle ISP Invoices (7 columns with Dis$) or Standard
+            var isISP = $("#divNotificationPayment table th:contains('Dis$'), #divNotificationPayment table th:contains('Discount')").length > 0;
+
+            if ($tds.length >= 6 && !$row.text().includes("Total Included VAT") && !$row.text().includes("Grand Total") && $row.find("th").length == 0) {
+                lineItemIndex++;
+                $row.addClass("line-item-row");
+                $tds.eq(0).addClass("row-no").text(lineItemIndex);
+
+                var amtIndex = isISP ? 6 : 5;
+
+                if (lineItemIndex === 1) {
+                    $row.addClass("primary-service-row");
+                    if ($row.find(".edit-unit-price").length == 0) {
+                        var priceVal = $tds.eq(4).text().trim();
+                        var amtDollar = $tds.eq(amtIndex).text().trim();
+
+                        $tds.eq(4).html(`<input type='text' class='form-control form-control-sm text-right edit-unit-price' value='${priceVal}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0;'>`);
+                        $tds.eq(amtIndex).addClass("row-amount-dollar").text(amtDollar);
+
+                        // If there's a column after Amount$, it's likely the Riel column
+                        if ($tds.length > amtIndex + 1) {
+                            $tds.eq(amtIndex + 1).addClass("row-amount-riel");
+                        }
+                    }
+                } else {
+                    $row.addClass("extra-service-row");
+
+                    // td 1: Description + Delete button
+                    if ($row.find(".btn-delete-service-row").length == 0) {
+                        var currentDesc = $tds.eq(1).text().trim();
+                        $tds.eq(1).html(`
+                            <div class="d-flex align-items-center">
+                                <span class="service-desc-text font-weight-bold" style="cursor: pointer;" title="Click to edit">${currentDesc}</span>
+                                <button type="button" class="btn btn-xs btn-outline-danger btn-delete-service-row no-print ml-auto" title="Delete Row" style="padding: 1px 6px;">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control form-control-sm edit-service-desc d-none mt-1" value="${currentDesc}" style="background: transparent; border: 1px solid #ced4da;">
+                        `);
+                    }
+
+                    // td 2: UM
+                    if ($row.find(".edit-um").length == 0) {
+                        var umVal = $tds.eq(2).text().trim();
+                        $tds.eq(2).html(`<input type='text' class='form-control form-control-sm text-center edit-um' value='${umVal}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 65px; display:inline-block;'>`);
+                    }
+
+                    // td 3: QTY
+                    if ($row.find(".edit-qty").length == 0) {
+                        var qtyVal = $tds.eq(3).text().trim();
+                        $tds.eq(3).html(`<input type='text' class='form-control form-control-sm text-center edit-qty' value='${qtyVal}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 45px; display:inline-block;'>`);
+                    }
+
+                    // td 4: UnitPrice
+                    if ($row.find(".edit-unit-price").length == 0) {
+                        var priceVal = $tds.eq(4).text().trim();
+                        $tds.eq(4).html(`<input type='text' class='form-control form-control-sm text-right edit-unit-price' value='${priceVal}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 70px; display:inline-block;'>`);
+                    }
+
+                    // td 5: Dis$ (if ISP)
+                    if (isISP) {
+                        if ($row.find(".edit-discount").length == 0) {
+                            var disVal = $tds.eq(5).text().trim();
+                            $tds.eq(5).html(`<input type='text' class='form-control form-control-sm text-right edit-discount' value='${disVal}' style='border:none; background:transparent; font-family: inherit; font-size: inherit; color: inherit; padding: 0; width: 60px; display:inline-block;'>`);
+                        }
+                    }
+
+                    $tds.eq(amtIndex).addClass("row-amount-dollar");
+                    if ($tds.length > amtIndex + 1) {
+                        $tds.eq(amtIndex + 1).addClass("row-amount-riel");
+                    }
+                }
+
+                // Recalculate Riel based on potentially updated ExchangeRate
+                updateRowRielAmount($row);
+            }
+        });
+
+        // 4. Make Exchange Rate Editable using the latest global ExchangeRate
+        $("#divNotificationPayment td:contains('Exchange Rate')").each(function() {
+            var $td = $(this);
+            var $valTd = $td.next();
+            if ($valTd.length > 0 && $valTd.find("input").length == 0) {
+                // Use the global ExchangeRate instead of the old one in the HTML
+                var currentRate = parseFloat(String(ExchangeRate).replace(/,/g, '')) || 0;
+                $valTd.html(`&#x17DB; <input type='text' class='form-control form-control-sm edit-exchange-rate' value='${accounting.formatMoney(currentRate, "", 0)}' style='border:none; background:transparent; width: 60px; display:inline-block; font-family: inherit; font-size: inherit; color: inherit; padding: 0;'>`);
+            }
+        });
+
+        $("#divNotificationPayment img#Signature").parent().css("cursor", "pointer");
+
+        calculateInvoiceGrandTotals();
+    }
+
+    function renderReviseNPDropdown(uncheckedList, selectedNPNo) {
+        var $cbo = $("#CboReviseNP");
+        if ($cbo.length === 0) return;
+
+        var currentVal = typeof selectedNPNo !== "undefined" && selectedNPNo !== null ? selectedNPNo : ($cbo.val() || "");
+        var currentInv = ($("#CboCustInvoice").val() || "").trim();
+        var optionsHtml = '<option value="">-- New NP Number --</option>';
+
+        if (uncheckedList && uncheckedList.length > 0) {
+            $.each(uncheckedList, function (i, item) {
+                if (item && item.NPNo) {
+                    var isSelected = (item.NPNo === currentVal) ? ' selected="selected"' : '';
+                    optionsHtml += `<option value="${item.NPNo}"${isSelected}> ${item.NPNo}</option>`;
+                }
+            });
+        }
+
+        if (currentVal && optionsHtml.indexOf(`value="${currentVal}"`) === -1) {
+            optionsHtml += `<option value="${currentVal}" selected="selected"> ${currentVal}</option>`;
+        }
+
+        $cbo.html(optionsHtml);
+        $cbo.val(currentVal);
+    }
+
+    function ShowPaymentNotification(Downloads) {
+        Downloads = typeof Downloads == "undefined" ? false : true;
+        var invNo = $("#CboCustInvoice").val();
+        if (invNo != null) {
+            var StartDate = $("#TxtStartDate").data('daterangepicker').startDate.format('YYYY/MM/DD');
+            var EndDate   = "";
+            if ($("#TxtEndDate").val() != "") {
+                EndDate = $("#TxtEndDate").data('daterangepicker').startDate.format('YYYY/MM/DD');
+            }
+            var InvoiceDate    = $("#TxtInvoiceDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+            var InvoiceDueDate = $("#TxtPaymentDueDate").data('daterangepicker').startDate.format('DD/MM/YYYY');
+            var reviseNPNo     = ($("#CboReviseNP").length ? $("#CboReviseNP").val() : "") || "";
+
+            LoadData("CustomerProfile/NotificationPayment/?CustomerName=" + encodeURIComponent(CustomerName) +
+                "&CustomerCode="   + CustomerCode +
+                "&CustomerID="     + CustomerID +
+                "&InvoiceNo="      + invNo +
+                "&InvoiceDate="    + InvoiceDate +
+                "&InvoiceDueDate=" + InvoiceDueDate +
+                "&StartDate="      + StartDate +
+                "&Download="       + Downloads +
+                "&EndDate="        + EndDate +
+                "&ReviseNPNo="     + encodeURIComponent(reviseNPNo),
+                function (response) {
+                    if (!Downloads) {
+                        $("#divNotificationPayment").html(response);
+                        var newRate = $("#divNotificationPayment #hdnInvoiceExchangeRate").val();
+                        if (newRate) {
+                            ExchangeRate = newRate;
+                        }
+
+                        // Always allow saving/creating new or revised notification payment even if pending
+                        $("#btnSaveNotificationPayment").prop("disabled", false).addClass("btn-primary").removeClass("btn-secondary");
+                        if (reviseNPNo) {
+                            $("#btnSaveNotificationPayment").attr("title", "Revise Notification Payment " + reviseNPNo + " & Send to Telegram");
+                        } else {
+                            $("#btnSaveNotificationPayment").attr("title", "Save & Send to Telegram");
+                        }
+
+                        // Populate unchecked notification payments in Revise NP dropdown
+                        var uncheckedRaw = $("#divNotificationPayment #hdnUncheckedNPJson").val();
+                        var uncheckedList = [];
+                        if (uncheckedRaw) {
+                            try {
+                                uncheckedList = JSON.parse(uncheckedRaw);
+                            } catch (e) {
+                                uncheckedList = [];
+                            }
+                        }
+                        renderReviseNPDropdown(uncheckedList, reviseNPNo);
+
+                        initEditableUnitPriceAndCleanup();
+
+                        // Auto-extract Package Name from invoice if empty
+                        var currentPkgVal = $("#PackageName").val().trim();
+                        if (!currentPkgVal) {
+                            var pkgMatch = $("#divNotificationPayment").html().match(/Package Name:\s*([^<]+)/i);
+                            if (pkgMatch && pkgMatch[1]) {
+                                var extractedPkg = pkgMatch[1].trim();
+                                $("#PackageName").val(extractedPkg);
+                                if ($("#PackageName").typeahead) {
+                                    try { $("#PackageName").typeahead('val', extractedPkg); } catch (e) { }
+                                }
+                            }
+                        }
+
+                        // After invoice reloads, re-apply speeds from the current PackageName
+                        var typedName = $("#PackageName").val().trim().toLowerCase();
+                        if (typedName && window.packageData) {
+                            $.each(window.packageData, function (i, pkg) {
+                                if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === typedName) {
+                                    $("#PackageID").val(pkg.PackageID || "");
+                                    $("#PID").val(pkg.PID || "");
+                                    $("#Duration").val(pkg.Duration || "");
+                                    $("#PackageDetailID").val(pkg.PackageDetailID || "");
+                                    $("#DownSpeed").val(pkg.DowSpeed || "");
+                                    $("#UpSpeed").val(pkg.UpSpeed || "");
+                                    $("#Bandwidth").val(pkg.Bandwidth || "");
+                                    $("#Feature").val(pkg.Feature || "");
+                                    $("#ChartOfAccountID").val(pkg.ChartOfAccountID || "");
+
+                                    updatePackageSpeedsInInvoice(
+                                        pkg.DowSpeed,
+                                        pkg.UpSpeed,
+                                        pkg.Bandwidth,
+                                        pkg.PackageName,
+                                        pkg.Price,
+                                        pkg.Duration,
+                                        pkg.UM,
+                                        pkg.Feature
+                                    );
+                                    return false; // break
+                                }
+                            });
+                        }
+                    } else {
+                        response = JSON.parse(response);
+                        var OutPutFile = ServerRoot + response.OutPutFile;
+                        var FileName   = response.FileName;
+                        var link = document.createElement('a');
+                        link.href     = OutPutFile;
+                        link.download = FileName;
+                        link.click();
+                        link.remove();
+                    }
+                });
+        }
+    }
+
+    loadServiceTypes();
+    function loadServiceTypes() {
+        $.ajax({
+            url: ServerRoot + "CustomerProfile/GetServiceTypes",
+            dataType: "json",
+            type: 'GET',
+            headers: { "Authorization": "Bearer " + access_Token },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('x-custom-header', JSON.stringify(headerPara));
+            },
+            success: function (res) {
+                try {
+                    window.serviceTypes = typeof res.data === "string" ? JSON.parse(res.data) : (res.data || []);
+                } catch (e) {
+                    window.serviceTypes = [];
+                }
+            },
+            error: function (xhr, status, err) {
+                console.error("loadServiceTypes failed:", status, err);
+            }
+        });
+    }
+
+    loadPackage();
+    function loadPackage(serviceId = 1) {
+        $.ajax({
+            url: ServerRoot + "AddCustomer/LoadPackages?ServiceID=" + serviceId + "&InvoiceType=''",
+            dataType: "json",
+            async: false,
+            cache: true,
+            type: 'GET',
+            headers: { "Authorization": "Bearer " + access_Token },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('x-custom-header', JSON.stringify(headerPara));
+            },
+            success: function (res) {
+                try {
+                    window.packageData = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
+                } catch (e) {
+                    window.packageData = [];
+                    console.error("loadPackage: failed to parse package data", e);
+                    return;
+                }
+                ApplyTypeahead("PackageName", window.packageData,
+                    {
+                        PackageID: "PackageID",
+                        PID: "PID",
+                        Duration: "Duration",
+                        PackageDetailID: "PackageDetailID",
+                        DownSpeed: "DowSpeed",
+                        UpSpeed:   "UpSpeed",
+                        Bandwidth: "Bandwidth",
+                        Feature:   "Feature",
+                        ChartOfAccountID: "ChartOfAccountID"
+                    },
+                    { Name: "PackageName" }
+                );
+
+                // ✅ Auto-apply if #PackageName already has a default value when data loads
+                var typedName = $("#PackageName").val().trim().toLowerCase();
+                if (typedName && window.packageData) {
+                    $.each(window.packageData, function (i, pkg) {
+                        if (pkg.PackageName && pkg.PackageName.trim().toLowerCase() === typedName) {
+                            $("#PackageID").val(pkg.PackageID || "");
+                            $("#PID").val(pkg.PID || "");
+                            $("#Duration").val(pkg.Duration || "");
+                            $("#PackageDetailID").val(pkg.PackageDetailID || "");
+                            $("#DownSpeed").val(pkg.DowSpeed || "");
+                            $("#UpSpeed").val(pkg.UpSpeed || "");
+                            $("#Bandwidth").val(pkg.Bandwidth || "");
+                            $("#Feature").val(pkg.Feature || "");
+                            $("#ChartOfAccountID").val(pkg.ChartOfAccountID || "");
+
+                            updatePackageSpeedsInInvoice(
+                                pkg.DowSpeed, pkg.UpSpeed, pkg.Bandwidth,
+                                pkg.PackageName, pkg.Price,
+                                pkg.Duration, pkg.UM, pkg.Feature
+                            );
+                            return false; // break
+                        }
+                    });
+                }
+            },
+            error: function (xhr, status, err) {
+                console.error("loadPackage AJAX failed:", status, err);
+            }
+        });
+    }
+    $("#btnDownload").click(function () {
+        var element = document.getElementById("divNotificationPayment");
+
+        // Hide action controls and show pure text for clean PDF export
+        $(element).find(".no-print").hide();
+        $(element).find(".service-desc-text").removeClass("d-none");
+        $(element).find(".edit-service-desc").addClass("d-none");
+
+        $(element).find("table.table-bordered td, table.table-bordered th").css("border", "1px solid black");
+        $(element).find("table.table-bordered").css("border-collapse", "collapse");
+
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        var fileName = `${yyyy}${mm}${dd}-NOTIFICATION-PAYMENT.pdf`;
+
+        var opt = {
+            margin: [0, 0.9, 0.5, 0.2],
+            filename: fileName,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function () {
+            $(element).find(".no-print").show();
+            $(element).find("table.table-bordered td, table.table-bordered th").css("border", "");
+            $(element).find("table.table-bordered").css("border-collapse", "");
+        });
+    });
+</script>

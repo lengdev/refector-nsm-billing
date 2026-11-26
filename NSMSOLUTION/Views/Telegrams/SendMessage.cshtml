@@ -1,0 +1,569 @@
+﻿@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLForm)
+<style>
+  /* Light-mode surface, using the site's own tokens so it stays
+     in sync with the rest of the theme rather than hardcoded hex. */
+  #tblcustphone,
+  #divShowBlockDetail table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+    color: #2d3339;
+    background: #fff;
+  }
+
+  #tblcustphone thead th,
+  #divShowBlockDetail table thead th {
+    background: var(--gray-light, #f7f8fa);
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-border, #e5e8eb);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  /* Sticky table headers within the scrollable .table-scroll container */
+  .table-container.table-scroll {
+    position: relative;
+    border-radius: var(--radius, 10px);
+    overflow-x: hidden;
+  }
+
+  #tblcustphone thead th,
+  #tblcustblock thead th,
+  #divShowBlockDetail table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--gray-light, #f7f8fa);
+    background-image: none;
+    background-clip: padding-box;
+    isolation: isolate;
+    /* stops rows scrolling underneath from showing through */
+  }
+
+  /* Paint the header ROW too, not just each cell — with border-collapse:
+     separate, a transparent gap between cells can otherwise let content
+     bleed through even when each th itself has an opaque background. */
+  #tblcustphone thead tr,
+  #tblcustblock thead tr,
+  #divShowBlockDetail table thead tr {
+    background-color: var(--gray-light, #f7f8fa);
+  }
+
+  /* ============================================================
+     DARK MODE — sticky header backgrounds pinned to an explicit
+     solid hex fallback. Several of the --dark-bg-* tokens in this
+     theme resolve to semi-transparent rgba() values (meant for
+     layering, e.g. hover states), which is fine for a static
+     background but breaks a *sticky* header: the semi-transparent
+     layer lets whatever row has scrolled underneath show through,
+     causing the "double text" bleed-through look. Using a solid
+     hex here guarantees full opacity regardless of what the token
+     resolves to. Swap --dark-header-solid's fallback if your
+     actual dark surface color differs from #1c1f26.
+     ============================================================ */
+  body.dark-mode #tblcustphone thead th,
+  body.dark-mode #tblcustblock thead th,
+  body.dark-mode #divShowBlockDetail table thead th {
+    background-color: var(--dark-header-solid, #1c1f26) !important;
+    background-image: none;
+    background-clip: padding-box;
+    isolation: isolate;
+  }
+
+  body.dark-mode #tblcustphone thead tr,
+  body.dark-mode #tblcustblock thead tr,
+  body.dark-mode #divShowBlockDetail table thead tr {
+    background-color: var(--dark-header-solid, #1c1f26);
+  }
+
+  body.dark-mode #divShowBlockDetail table {
+    background: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #divShowBlockDetail table thead th {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #divShowBlockDetail table tbody td {
+    border-bottom-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #divShowBlockDetail table tbody tr:hover {
+    background: var(--dark-bg-quaternary);
+  }
+
+  body.dark-mode #divShowBlockDetail table tbody tr td:first-child {
+    color: var(--dark-text-muted);
+  }
+
+  #tblcustphone tbody td,
+  #divShowBlockDetail table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f1f3;
+    vertical-align: middle;
+  }
+
+  #tblcustphone tbody tr:last-child td,
+  #divShowBlockDetail table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  #tblcustphone tbody tr:hover,
+  #divShowBlockDetail table tbody tr:hover {
+    background: var(--gray-light, #f9fafb);
+  }
+
+  #tblcustphone tbody tr td[name="no"],
+  #divShowBlockDetail table tbody tr td:first-child {
+    color: #9aa1a9;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #tblcustphone a,
+  #divShowBlockDetail table a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm, 6px);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  #tblcustphone a:hover,
+  #divShowBlockDetail table a:hover {
+    background: var(--red-light, #fdecec);
+  }
+
+  #tblcustphone a .ti-trash,
+  #divShowBlockDetail table a .ti-trash {
+    color: var(--red, #d9534f);
+  }
+
+  /* ============================================================
+     DARK MODE — pulls from the same --dark-* tokens the rest of
+     the site uses, so it automatically matches whichever dark
+     theme (cosmos / midnight / nord / dracula / forest / default)
+     is active instead of staying stuck on a light card.
+     ============================================================ */
+  body.dark-mode #tblcustphone {
+    background: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #tblcustphone thead th {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #tblcustphone tbody td {
+    border-bottom-color: var(--dark-border-light);
+  }
+
+  body.dark-mode #tblcustphone tbody tr:hover {
+    background: var(--dark-bg-quaternary);
+  }
+
+  body.dark-mode #tblcustphone tbody tr td[name="no"] {
+    color: var(--dark-text-muted);
+  }
+
+  body.dark-mode #tblcustphone a:hover {
+    background: var(--red-light-dark);
+  }
+
+  body.dark-mode #tblcustphone a .ti-trash {
+    color: var(--red-dark);
+  }
+
+  /* ============================================================
+     BLOCK-SEARCH RESULTS TABLE (#tblcustblock) — this one is now
+     built client-side from the JSON the server returns, wrapped
+     in your existing .table-container so it inherits the site's
+     standard table look automatically (light + dark). Only the
+     group-header rows need their own accent styling on top.
+     ============================================================ */
+  #tblcustblock .group-row td {
+    border-right: none !important;
+    white-space: nowrap;
+  }
+
+  #tblcustblock .group-row-group td {
+    background: var(--indigo-light, #eef0ff);
+    color: var(--indigo, #4f46e5);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 8px 22px;
+  }
+
+  #tblcustblock .group-row-type td {
+    background: var(--gray-light, #f7f8fa);
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 6px 22px 6px 34px;
+  }
+
+  #tblcustblock input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--indigo, #4f7cff);
+    cursor: pointer;
+  }
+
+  #tblcustblock .no-results {
+    padding: 28px;
+    text-align: center;
+    color: #9aa1a9;
+    font-size: 0.9rem;
+  }
+
+  body.dark-mode #tblcustblock .group-row-group td {
+    background: var(--indigo-light-dark);
+    color: var(--indigo-dark);
+  }
+
+  body.dark-mode #tblcustblock .group-row-type td {
+    background: var(--dark-bg-quaternary);
+    color: var(--dark-text-secondary);
+  }
+
+  body.dark-mode #tblcustblock input[type="checkbox"] {
+    accent-color: var(--indigo-dark);
+  }
+
+  body.dark-mode #tblcustblock .no-results {
+    color: var(--dark-text-muted);
+  }
+</style>
+<script>
+  var tblhead = "";
+
+  $(function () {
+    // Insert phone/first name/last name entry row after the message field
+    var row = `
+      <tr>
+        <td align="right" valign="top">
+          <label for="TxtPhone" class="col-label text-nowrap">Phone:</label>
+        </td>
+        <td>
+          <div class="row">
+            <div class="col"><input id="TxtPhone" name="TxtPhone" class="form-control" placeholder="Phone Number" /></div>
+            <div class="col"><input id="TxtFirstName" name="FirstName" class="form-control" placeholder="First Name" /></div>
+            <div class="col"><input id="TxtLastName" name="TxtLastName" class="form-control" placeholder="Last Name" /></div>
+            <div class="col">
+              <button type="button" id="Add" name="Add" class="btn btn-primary">
+                <i class="ti ti-plus"></i> Add
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+    $("#TxtMessage").closest("tr").after(row);
+
+    $("#SaveChange").html('<i class="ti ti-send-2"></i> Send');
+
+    // Insert search/clear controls after the customer type field
+    row = `
+      <tr>
+        <td colspan="2" class="text-right">
+          <button type="button" id="AddBlock" name="AddBlock" class="btn btn-primary">
+            <i class="ti ti-search"></i> Search
+          </button>
+          &nbsp;
+          <button type="button" onclick="ClearCustBlock();" id="Clear" name="Clear" class="btn btn-danger">
+            <i class="ti ti-trash"></i> Clear
+          </button>
+        </td>
+      </tr>`;
+    $("#TxtCustomerCID").closest("tr").after(row);
+
+    $("#AddBlock").click(function () {
+      $("#trBlock").remove();
+
+      row = `<tr id="trBlock"><td colspan="2"><div id="divShowBlockDetail"></div></td></tr>`;
+      $("#AddBlock").closest("tr").after(row);
+      $("#divShowBlockDetail").html('<div class="no-results" style="padding:28px;text-align:center;color:#9aa1a9;">Loading…</div>');
+
+      var blockValue = $("#TxtCustomerType").val().toString();
+      var cidValue = $("#TxtCustomerCID").val().toString().trim();
+
+      $.ajax({
+        url: ServerRoot + "Telegrams/GetBlockDetail",
+        headers: {"Authorization": "Bearer " + access_Token},
+        data: {block: blockValue, customerId: cidValue},
+        dataType: "json",
+        cache: false,
+        type: "GET",
+        success: function (rows) {
+          $("#divShowBlockDetail").html(BuildBlockTable(rows));
+          // Default every result to checked, same as before
+          $("#tblcustphone input[name=CustomerID]").prop("checked", true);
+          $("#tblcustblock input[name=CustomerID]").prop("checked", true);
+        },
+        error: function (response) {
+          DialogSweetAlert("error", response.status + " " + response.statusText);
+        }
+      });
+    });
+
+    $(document).on("change", "#ChkSelectAllBlock", function () {
+      $("#tblcustblock input[name=CustomerID]").prop("checked", $(this).is(":checked"));
+    });
+
+    $(document).on("change", "#tblcustblock input[name=CustomerID]", function () {
+      var total = $("#tblcustblock input[name=CustomerID]").length;
+      var checked = $("#tblcustblock input[name=CustomerID]:checked").length;
+      $("#ChkSelectAllBlock").prop("checked", total > 0 && total === checked);
+    });
+
+    $("#Add").click(function () {
+      var Phone = $("#TxtPhone").val();
+      var FirstName = $("#TxtFirstName").val();
+      var LastName = $("#TxtLastName").val();
+
+      if (!Phone) {DialogSweetAlert('error', 'Pls input phone number'); return;};
+
+      if (tblhead == "") {
+        // First entry: build the table shell plus the first row
+        tblhead = `<div class="table-container table-scroll" style="max-height: 320px;">
+          <table id="tblcustphone">
+            <thead>
+              <tr class="header" style="height:auto !important;">
+                <th>#</th><th>Phone</th><th>First Name</th><th>Last Name</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr name="trRow">
+                <td name="no" align="right">1</td>
+                <td>${Phone}</td>
+                <td>${FirstName}</td>
+                <td>${LastName}</td>
+                <td align="center"><a href="javascript:void(0);" onclick="removeRow(this);"><i class="ti ti-trash text-danger"></i></a></td>
+              </tr>
+            </tbody>
+          </table></div>`;
+
+        row = `<tr><td></td><td>${tblhead}</td></tr>`;
+        $("#TxtPhone").closest("tr").after(row);
+      } else {
+        // Subsequent entries: append a numbered row to the existing table
+        var rowNumber = $("tr[name=trRow]").length + 1;
+        row = `
+          <tr name="trRow">
+            <td name="no" align="right">${rowNumber}</td>
+            <td>${Phone}</td>
+            <td>${FirstName}</td>
+            <td>${LastName}</td>
+            <td align="center"><a href="javascript:void(0);" onclick="removeRow(this);"><i class="ti ti-trash text-danger"></i></a></td>
+          </tr>`;
+
+        if ($("tr[name=trRow]").length > 0) {
+          $("tr[name=trRow]").last().after(row);
+        } else {
+          $("#tblcustphone tbody").append(row);
+        }
+      }
+
+      $("#TxtPhone").val('').focus();
+      $("#TxtFirstName").val('');
+      $("#TxtLastName").val('');
+    });
+  });
+
+  function removeRow(THIS) {
+    var $tr = $(THIS).closest("tr");
+    var $table = $tr.closest("table"); // #tblcustphone
+    $tr.remove();
+
+    // If that was the last phone entry, remove the whole table block too
+    if ($table.length && $table.find("tr[name=trRow]").length === 0) {
+      $table.closest(".table-container").closest("tr").remove();
+      tblhead = ""; // so the next "Add" click rebuilds the table shell from scratch
+    }
+  }
+
+  // Builds the #tblcustblock results table from the JSON array
+  // GetBlockDetail returns: [{ CustomerGroup, CustomerType, CustomerCode,
+  // CustomerName, Phone, CustomerID }, ...]. Grouped client-side by
+  // CustomerGroup, then CustomerType, matching the SQL's own ORDER BY.
+  function BuildBlockTable(rows) {
+    if (!rows || rows.length === 0) {
+      return '<div class="no-results">No customers found for this block.</div>';
+    }
+
+    var groupOrder = [];
+    var groups = {};
+
+    rows.forEach(function (r) {
+      if (!groups[r.CustomerGroup]) {
+        groups[r.CustomerGroup] = {typeOrder: [], types: {}};
+        groupOrder.push(r.CustomerGroup);
+      }
+      var g = groups[r.CustomerGroup];
+      if (!g.types[r.CustomerType]) {
+        g.types[r.CustomerType] = [];
+        g.typeOrder.push(r.CustomerType);
+      }
+      g.types[r.CustomerType].push(r);
+    });
+
+    var bodyRows = "";
+    var rowNo = 0;
+
+    groupOrder.forEach(function (groupName) {
+      var g = groups[groupName];
+      bodyRows += `<tr class="group-row group-row-group"><td colspan="5">${groupName}</td></tr>`;
+
+      g.typeOrder.forEach(function (typeName) {
+        bodyRows += `<tr class="group-row group-row-type"><td colspan="5">${typeName}</td></tr>`;
+
+        g.types[typeName].forEach(function (r) {
+          rowNo++;
+          bodyRows += `
+            <tr>
+              <td align="right">${rowNo}</td>
+              <td>${r.CustomerCode}</td>
+              <td>${r.CustomerName}</td>
+              <td>${r.Phone}</td>
+              <td align="center">
+                <input type="checkbox" name="CustomerID" value="${r.CustomerID}"
+                  data-cid="${r.CustomerCode}" data-name="${r.CustomerName}" data-phone="${r.Phone}" />
+              </td>
+            </tr>`;
+        });
+      });
+    });
+
+    return `
+      <div class="table-container table-scroll" style="max-height: 320px;">
+        <table id="tblcustblock">
+          <thead>
+            <tr><th>#</th><th>CID</th><th>Customer Name</th><th>Phone</th><th><input type="checkbox" id="ChkSelectAllBlock" checked title="Select all" /></th></tr>
+          </thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  async function SentMsg() {
+    var msg = encodeURIComponent($("#TxtMessage").val());
+    if (msg == "") {
+      DialogSweetAlert("error", "Please enter message", function () {
+        $("#TxtMessage").focus();
+        return false;
+      });
+      return false;
+    }
+
+    var objPhone = [];
+
+    // Manually added phone entries (no CustomerID)
+    $("#tblcustphone tr[name=trRow]").each(function (key) {
+      var $cells = $("#tblcustphone tr[name=trRow]").eq(key).find("td");
+      var phone = $cells.eq(1).html();
+      var cid = $cells.eq(2).html();
+      var name = $cells.eq(3).html();
+
+      if (phone != "") {
+        objPhone.push({phone: phone, cid: cid, name: name, CustomerID: "0"});
+      }
+    });
+
+    // Checked customers from the block search results. Each checkbox now
+    // carries its own row's phone/cid/name as data attributes (see
+    // BuildBlockTable), so there's no need to line it up with its row by
+    // position anymore — just read straight off the checkbox that's checked.
+    $("#tblcustblock input[name=CustomerID]:checked").each(function () {
+      var $cb = $(this);
+      var phone = $cb.data("phone");
+      if (!phone) return;
+
+      objPhone.push({
+        phone: phone,
+        cid: $cb.data("cid"),
+        name: $cb.data("name"),
+        CustomerID: $cb.val()
+      });
+    });
+
+    if (objPhone.length > 0) {
+      await SendMsgTelegram(objPhone, msg);
+    } else {
+      DialogSweetAlert("error", "No any contact for send message.", function () {
+        return false;
+      });
+    }
+  }
+
+  function ClearCustBlock() {
+    $("#divShowBlockDetail").html('');
+  }
+
+  async function SendMsgTelegram(phone, Message) {
+    DialogSweetAlert("load", "Sending...");
+    return new Promise((resolve) => {
+      setTimeout(function () {
+        $.ajax({
+          url: ServerRoot + "Telegrams/SendMsgTelegram",
+          headers: {"Authorization": "Bearer " + access_Token},
+          data: {
+            phone: JSON.stringify(phone),
+            Msg: Message
+          },
+          async: false,
+          cache: false,
+          type: 'POST',
+          success: function () {
+            DialogSweetAlert("success");
+            resolve();
+          },
+          error: function (response) {
+            $('button').removeAttr('disabled');
+            DialogSweetAlert("error", response.status + " " + response.statusText);
+            resolve();
+          }
+        });
+      }, 100);
+    });
+  }
+
+  async function CheckUserNumberIsTelegram(phone) {
+    return new Promise((resolve) => {
+      setTimeout(function () {
+        $.ajax({
+          url: ServerRoot + "Telegrams/CheckUserNumberIsTelegram",
+          headers: {"Authorization": "Bearer " + access_Token},
+          data: {phone: phone},
+          dataType: "html",
+          async: false,
+          cache: false,
+          type: 'POST',
+          success: function (data) {
+            console.log(data);
+          },
+          error: function (response) {
+            $('button').removeAttr('disabled');
+            DialogSweetAlert("error", response.status + " " + response.statusText);
+          },
+          complete: function () {
+            resolve();
+          }
+        });
+      }, 100);
+    });
+  }
+</script>

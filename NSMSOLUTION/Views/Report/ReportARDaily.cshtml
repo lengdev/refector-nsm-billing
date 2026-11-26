@@ -1,0 +1,145 @@
+﻿
+@{
+    Layout = null;
+    var ARData = ViewBag.ARData;
+    var compayInfo = ViewBag.CompanyInfo;
+    var classInfo = ViewBag.ClassInfo;
+}
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    .ar-daily {
+        padding: 48px 19px;
+        width: 100%;
+    }
+
+    p {
+        font-size: 25px;
+        line-height: 0.9;
+    }
+
+    img {
+        height: 120px;
+        width: auto;
+    }
+
+    .data-table table {
+        width: 100% !important;
+        margin-top: 32px;
+    }
+
+    .data-table table thead tr th {
+        white-space: nowrap;
+        border: 1px solid #000000 !important;
+        background: #ee8c2b;
+        color: white;
+    }
+
+    .data-table table tr td {
+        white-space: nowrap;
+        border: 1px solid #000000 !important;
+        border-collapse: collapse;
+    }
+
+    .ar-header {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        align-items: center;
+        position: relative;
+        min-height: 150px;
+    }
+
+    .report-date {
+        position: absolute;
+        right: 10px;
+        bottom: 0;
+        color: darkred;
+        font-style: italic;
+        font-size: 22px;
+    }
+
+    .footer {
+        text-align: right;
+        font-style: italic;
+        font-weight: bold;
+        color: darkred;
+    }
+
+    @@media print {
+        @@page {
+            size: A3 landscape;
+        }
+
+        body {
+            display: block;
+        }
+    }
+</style>
+<div class="ar-daily">
+    <div class="row ar-header">
+        <div class="col-1">
+            <img src="../Uploads/ClassLogo/@classInfo["FileLogo"]" alt="Alternate Text"/>
+        </div>
+        <div class="col-11 head-title">
+            <div class="text-center">
+                <p style="font-family: 'Moul'; font-size: 30px !important">@(compayInfo["CompanyNameKH"])</p>
+                <p style="font-family: 'Times New Roman'; font-size: 25px !important">@(compayInfo["CompanyName"])</p>
+                <p>~~~~~~~~~~~~~~</p>
+                <p>Report Income Daily</p>
+            </div>
+        </div>
+        <p class="report-date">@DateTime.Now.ToString("dd/MM/yyyy")</p>
+    </div>
+    <div class="data-table">
+        <table class="table">
+            <thead>
+                <tr class="text-center">
+                    <th>No.</th>
+                    <th>Ref No.</th>
+                    <th>Invoice No.</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Account Name</th>
+                    <th>Paid By</th>
+                    <th>Paid Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    if (ARData != null && ARData.Count > 0){
+                        int rowNum = 1;
+                        foreach (System.Data.DataRow row in ARData)
+                        {
+                            <tr>
+                                <td class="text-right">@row["No"]</td>
+                                <td>@row["OfficialReceiptNo"]</td>
+                                <td>@row["InvoiceNo"]</td>
+                                <td>@Convert.ToDateTime(row["InvoiceDate"]).ToString("dd/MM/yyyy")</td>
+                                <td>@row["CustomerName"]</td>
+                                <td>@row["ClassName"]</td>
+                                <td>@row["AccountName"]</td>
+                                <td>@row["PaidBy"]</td>
+                                <td>@Convert.ToDateTime(row["PaymentDate"]).ToString("dd/MM/yyyy")</td>
+                                <td class="text-right">@Convert.ToDecimal(row["PaymentAmount"]).ToString("$ #,##0.00")</td>
+                            </tr>
+                            rowNum++;
+                        }
+                        <tr class="footer">
+                            <td colspan="9">Total Amount:</td>
+                            <td>@Convert.ToDecimal(ARData[0]["TotalAmount"]).ToString("$ #,##0.00")</td>
+                        </tr>
+                    } else {
+                        <tr class="footer">
+                            <td colspan="10" class="text-danger text-center">No Data</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

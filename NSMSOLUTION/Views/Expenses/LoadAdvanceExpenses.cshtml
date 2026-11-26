@@ -1,0 +1,25 @@
+@{ Layout = null; }
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>
+    function Check(AdvanceExpenseID, Status) {
+        var Data = { AdvanceExpenseID: AdvanceExpenseID, Status: Status };
+        DoSaveChangeSweetCofirm("Expenses/CheckAdvExpense", Data, function (response) {
+            $("#BunSearch").click();
+            $("#CloseModal2").click();
+        });
+    }
+    function ApproveDisapprove(AdvanceExpenseID, Status) {
+        var Data = { AdvanceExpenseID: AdvanceExpenseID, Status: Status };
+        DoSaveChangeSweetCofirm("Expenses/ApproveDisapproveExpense", Data, function (response) {
+            $("#BunSearch").click();
+            $("#CloseModal2").click();
+        });
+    }
+    function ClearAdvExpense(AdvanceExpenseID) {
+        var Data = { AdvanceExpenseID: AdvanceExpenseID };
+        DoSaveChangeSweetCofirm("Expenses/ClearAdvExpense", Data, function (response) {
+            $("#BunSearch").click();
+        }, "Clearing Advance Expense...", "Are you sure you want to clear this Advance Expense?");
+    }
+</script>

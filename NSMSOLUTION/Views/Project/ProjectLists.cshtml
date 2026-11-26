@@ -1,0 +1,37 @@
+﻿@{ Layout = null;}
+<div class="row">
+    <div class="col-12">
+        <div class="card-header pl-0 mb-5 pb-2"><h5>Project List</h5></div>
+        <div id="ShowProject"></div>
+    </div>
+</div>
+<script>
+    $(function () {
+        ShowProject();
+    });
+
+    function ShowProject() {
+        LoadData("Support/LoadProject", function (response) {
+            var Data = JSON.parse(JSON.parse(response).Data);
+            var row = '<div class="row">';
+            $.each(Data, function (ke, value) {
+                row += '<div class="col-md-6 col-lg-3">';
+                row += '<div style="min-height:180px" class="shadow widget-chart-hover widget-chart widget-chart2 text-left mb-3 card-btm-border card-shadow-success border-success card">';
+                row += '<div class="widget-chat-wrapper-outer">';
+                row += '<div class="widget-chart-content">';
+                row += '<div class="widget-title h5 text-uppercase">' + value.ProjectName +'</div>';
+                row += '<div class="widget-chart-flex align-items-center">';
+                row += '<div><small class="pl-1 text-muted text-uppercase">';
+                //row += value.ProjectName;
+                row += '</small></div>';
+                row += '</div>';
+                row += '<div class="widget-chart-content"><small class="h6">';
+                row += value.Memo;
+                row += '</small></div>';
+                row += '</div></div></div></div>';
+            });
+            row += '</div>';
+            $("#ShowProject").html(row);
+        });
+    }
+</script>

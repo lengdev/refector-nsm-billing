@@ -1,0 +1,167 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/BlankPage.cshtml";
+}
+
+<!-- ======= Breadcrumbs Section ======= -->
+<section class="breadcrumbs">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>Search By ID</h2>
+            <ol>
+                <li><a href="/">Home</a></li>
+                <li>Search By ID</li>
+            </ol>
+        </div>
+    </div>
+</section><!-- Breadcrumbs Section -->
+
+<section>
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col">
+                <div style="margin: 20px;">
+                    <div class="row">
+                        <div class="col">
+                            <input autofocus type="text" class="form-control" id="UserIdentification" placeholder="Enter ID" />
+                        </div>
+
+                        <div class="col"><button id="btnSearch" class="btn btn-primary">Search</button></div>
+                    </div>
+
+
+                </div>
+
+                <div id="userGrid"></div>
+
+                <script>
+                    $(document).ready(function () {
+                        $("#btnSearch").click(function () {
+                            getID();
+                        });
+                        $("#photoDialog").kendoWindow({
+                            width: "500px",
+                            height: "auto",
+                            title: "Full Image",
+                            visible: false,
+                            modal: true
+                        });
+                        $("#UserIdentification").on("keypress", function (e) {
+                            if (e.which === 13) { // 13 is Enter key
+                                getID();
+                            }
+                        });
+                    });
+
+                    function getID() {
+                        var nationalId = $.trim($("#UserIdentification").val());
+
+                        // Show loading SweetAlert
+                        Swal.fire({
+                            title: 'កំពុងដំណើរការ...',
+                            text: 'សូមរងចាំបន្តិច',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/NEC/Get',
+                            data: { id: nationalId },
+                            type: 'GET',
+                            success: function (data) {
+                                Swal.close(); // Close loading
+
+                                if (data.error) {
+                                    Swal.fire('កំហុស', data.error, 'error');
+                                    return;
+                                }
+
+                                var mainData = [data];
+                                $("#userGrid").kendoGrid({
+                                    dataSource: {
+                                        data: mainData
+                                    },
+                                    dataBound: function () {
+                                        var grid = this;
+                                        var masterRow = grid.tbody.find("tr.k-master-row").first();
+                                        grid.expandRow(masterRow);
+                                    },
+                                    pageable: false,
+                                    sortable: true,
+                                    columns: [
+                                        { field: "No", title: "ល.រ ក្នុងបញ្ជី" },
+                                        { field: "ID", title: "អត្តលេខ" },
+                                        { field: "DocumentType", title: "ប្រភេទឯកសារ" },
+                                        { field: "Identification", title: "អ.ខ​​​/ឯ.អ" },
+                                        { field: "FirstNameLastName", title: "នាមត្រកូល និងនាមខ្លួន" },
+                                        { field: "Gender", title: "ភេទ" },
+                                        { field: "DateOfBirth", title: "ថ្ងៃខែឆ្នាំកំណើត" },
+                                        { field: "Province", title: "រាជធានី ខេត្ត" },
+                                        { field: "Commune", title: "ឃុំ សង្កាត់" },
+                                        { field: "PollingStation", title: "ការិយាល័យបោះឆ្នោត" },
+                                        {
+                                            title: "រូបភាព",
+                                            template: function (dataItem) {
+                                                if (dataItem.VaccineRecord && dataItem.VaccineRecord.PhotoUrl) {
+                                                    return `<img src="${dataItem.VaccineRecord.PhotoUrl}"
+                                    alt="Photo"
+                                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor:pointer;"
+                                    onclick="showPhotoPopup('${dataItem.VaccineRecord.PhotoUrl}')" />`;
+                                                }
+                                                return "N/A";
+                                            }
+                                        }
+                                    ],
+                                    detailInit: vaccineSubGrid,
+                                    detailExpand: function (e) {
+                                        this.collapseRow(this.tbody.find(' > tr.k-master-row').not(e.masterRow));
+                                    }
+                                });
+                            },
+                            error: function (xhr) {
+                                Swal.close();
+                                Swal.fire('បរាជ័យ', 'បញ្ហាក្នុងការទាញយកទិន្នន័យ', 'error');
+                            }
+                        });
+                    }
+
+
+                    function vaccineSubGrid(e) {
+                        if (!e.data.VaccineRecord || !e.data.VaccineRecord.Vaccinations) {
+                            $("<div>No vaccine record found.</div>").appendTo(e.detailCell);
+                            return;
+                        }
+                        $("<div/>").appendTo(e.detailCell).kendoGrid({
+                            dataSource: {
+                                data: e.data.VaccineRecord.Vaccinations
+                            },
+                            scrollable: false,
+                            sortable: true,
+                            columns: [
+                                { field: "Date", title: "Date" },
+                                {
+                                    field: "Label.Km",
+                                    title: "Dose (Km)",
+                                    template: "#= Label && Label.Km ? Label.Km : '' #"
+                                },
+                                { field: "Vaccine", title: "Vaccine" }
+                            ]
+                        });
+                    }
+                    function showPhotoPopup(imageUrl) {
+                        $("#photoDialog").html(`<img src="${imageUrl}" style="max-width:100%; max-height:100%;" />`);
+                        $("#photoDialog").data("kendoWindow").center().open();
+                    }
+
+                </script>
+
+            </div>
+        </div>
+    </div>
+</section>
+<div id="photoDialog"></div>
+

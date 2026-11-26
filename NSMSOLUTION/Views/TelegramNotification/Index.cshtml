@@ -1,0 +1,28 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<div class="row">
+    <div class="col text-right">
+        <button type="button" id="SaveChange" name="SaveChange" class="btn btn-outline-primary"><i class="fa fa-save"></i> Save Change</button>
+    </div>
+</div>
+<script>
+    $(function () {
+        $("#SaveChange").click(function () {
+            let Data = [];
+            $("input[name=IsEnable]").each(function (key, value) {
+                let ID = $("td[name=TelegramNotificationID]").eq(key).html();
+                let IsEnable = ($(this).is(':checked') == true ? "True" : "False");
+                let obj = {};
+                obj = { ID: ID, IsEnable: IsEnable };
+                Data.push(obj);
+                
+            });
+            Data = {
+                Data: JSON.stringify(Data)
+            };
+            DoSaveChangeData("TelegramNotification/SaveChangeData", Data, function (response) {
+
+            });
+        });
+    });
+</script>

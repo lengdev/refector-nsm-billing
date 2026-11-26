@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin />
+    <title>{Title}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff !important;
+            font-size: 13px;
+        }
+
+        .invoice {
+            margin: 20px auto;
+            width: 95%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #E0E0E0;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #E0E0E0;
+            padding: 10px;
+            font-size:20px;
+            text-align: center;
+        }
+        thead {
+            background-color: #FDAD64;
+            color:white;
+        }
+/*        th {
+            background-color: #f0f0f0;
+        }*/
+
+        .expired {
+            background-color: #ffd6d6; /* light red */
+        }
+
+        .expiring-soon {
+            background-color: #fff6d1; /* light yellow */
+        }
+
+        .expired-text {
+            color: red;
+            font-weight: bold;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+            .header-title span {
+                display: block;
+            }
+
+        .logo {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        @media print {
+            @page {
+                size: A3 !important;
+                margin: 40px 20px 20px 50px !important;
+            }
+
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+                font-size: 11px;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <!--<div class="logo">{LOGO}</div>-->
+        <div class="header-title">
+            <!--<span style="font-family: 'Moul'; font-size: 24px;">{SystemName}</span>-->
+            <span style="font-size: 30px;font-weight:bold">Expire Stock BSM</span>
+            <!--<span style="font-family: 'Times New Roman'; font-size: 22px;">Stock Expiry Report</span>-->
+            <span>{DailyDate}</span>
+        </div>
+        <table class="mytable">
+            {TblHead}
+            {TblBody}
+        </table>
+    </div>
+</body>
+</html>

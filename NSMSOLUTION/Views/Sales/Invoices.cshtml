@@ -1,0 +1,23 @@
+﻿
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showInvoicesForm(salesId, invoiceNo, saleType) {
+        const type = saleType === "Invoices" ? "Invoices" : "Sales Order";
+        var URL = "Profile/InvoiceSaleOrderTMP?ID=" + salesId + "&Type=" + saleType;
+        ShowDialogBox(`Preview ${type} Form No.: ${invoiceNo}`, "Auto", "500", URL);
+    }
+    function showCustomerProfile(cusId) {
+        var url = '#!/Sales?ID=' + cusId;
+        OpenNewTap(url);
+    }
+
+    function Payment(SalesID, InvoiceNo, CustomerID, Type) {
+        CustomerID = (typeof CustomerID == "undefined" ? "0" : CustomerID);
+        var Title = "Payment - Invoice No.: " + InvoiceNo;
+        var URL = ServerRoot + "Sales/Payment?SalesID=" + SalesID + "&InvoiceNo=" + InvoiceNo + "&CustomerID=" + CustomerID + "&Type=" + Type;
+        ShowDialogBox(Title, 600, 550, URL);
+    }
+</script>

@@ -1,0 +1,507 @@
+﻿@model NSMSOLUTION.Controllers.Expenses.Models.ExpenseCreateVm
+@using NSMSOLUTION.Controllers.Expenses.Models
+
+@{
+    Layout = null;
+    var lookup = ViewBag.Lookup as ExpenseLookupVm;
+}
+
+<!DOCTYPE html>
+@*<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Expense</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
+    <link rel="stylesheet" href="@Url.Content("~/Content/expense-entry.css")" />
+</head>
+<body>*@
+
+    <div class="expense-page">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title-wrap">
+                <div class="page-icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <div>
+                    <h1>Add New Expense</h1>
+                    <div class="breadcrumb-line">
+                        Accounting <i class="bi bi-chevron-right"></i>
+                        Expense <i class="bi bi-chevron-right"></i>
+                        <span>Add New</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button type="button" class="btn btn-light app-btn" id="btnReset">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </button>
+                <button type="button" class="btn btn-outline-primary app-btn" id="btnSaveNew">
+                    <i class="bi bi-save"></i> Save &amp; New
+                </button>
+                <button type="button" class="btn btn-primary app-btn" id="btnSave">
+                    <i class="bi bi-floppy"></i> Save
+                </button>
+                <button type="button" class="btn btn-outline-danger app-btn" id="btnClose">
+                    <i class="bi bi-x-lg"></i> Close
+                </button>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Save", "ExpenseTransactions", FormMethod.Post, new { id = "expenseForm" }))
+        {
+            @*@Html.AntiForgeryToken()*@
+
+            <div class="main-layout">
+
+                <!-- LEFT -->
+                <div class="content-column">
+
+                    <!-- General Information -->
+                    <section class="card-section">
+                        <div class="section-title">
+                            <div>
+                                <i class="bi bi-file-earmark-text"></i>
+                                <span>General Information</span>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+                                <label>Class Name <span>*</span></label>
+                                <select id="ClassId" name="ClassId" class="form-control">
+                                    <option value="">Select class name</option>
+                                    @foreach (var x in lookup.Classes)
+                                    {
+                                        <option value="@x.Id">@x.Text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Payment Method <span>*</span></label>
+                                <select id="PaymentMethodId" name="PaymentMethodId" class="form-control">
+                                    <option value="">Select payment method</option>
+                                    @foreach (var x in lookup.PaymentMethods)
+                                    {
+                                        <option value="@x.Id">@x.Text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Payee <span>*</span></label>
+                                <div class="input-with-button">
+                                    <select id="PayeeId" name="PayeeId" class="form-control">
+                                        <option value="">Select payee</option>
+                                        @foreach (var x in lookup.Payees)
+                                        {
+                                            <option value="@x.Id">@x.Text</option>
+                                        }
+                                    </select>
+                                    <button type="button" class="square-btn" title="Add Payee">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Payment Account <span>*</span></label>
+                                <select id="PaymentAccountId" name="PaymentAccountId" class="form-control">
+                                    <option value="">Select payment account</option>
+                                    @foreach (var x in lookup.Accounts)
+                                    {
+                                        <option value="@x.Id">@x.Text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Date <span>*</span></label>
+                                <div class="date-input">
+                                    <input type="date" id="Date" name="Date"
+                                           class="form-control"
+                                           value="" />
+                                    <i class="bi bi-calendar3"></i>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Terms</label>
+                                <select id="Terms" name="Terms" class="form-control">
+                                    <option value="">Select terms</option>
+                                    <option value="Due on receipt">Due on receipt</option>
+                                    <option value="Net 7">Net 7</option>
+                                    <option value="Net 15">Net 15</option>
+                                    <option value="Net 30">Net 30</option>
+                                    <option value="Net 60">Net 60</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Checked By</label>
+                                <input type="text" id="CheckedBy" name="CheckedBy"
+                                       class="form-control" placeholder="Select checked by" />
+                            </div>
+
+                            <div class="field">
+                                <label>Verified By</label>
+                                <input type="text" id="VerifiedBy" name="VerifiedBy"
+                                       class="form-control" placeholder="Select verified by" />
+                            </div>
+
+                            <div class="field">
+                                <label>Posted By</label>
+                                <input type="text" id="PostedBy" name="PostedBy"
+                                       class="form-control" placeholder="Select posted by" />
+                            </div>
+
+                            <div class="field">
+                                <label>PO/RF/ADV No.</label>
+                                <input type="text" id="PoRfAdvNo" name="PoRfAdvNo"
+                                       class="form-control" placeholder="Enter PO/RF/ADV no." />
+                            </div>
+
+                            <div class="field">
+                                <label>Bill/Invoice No.</label>
+                                <input type="text" id="BillInvoiceNo" name="BillInvoiceNo"
+                                       class="form-control" placeholder="Enter bill/invoice no." />
+                            </div>
+
+                            <div class="field">
+                                <label>Expense No.</label>
+                                <input type="text" id="ExpenseNo" name="ExpenseNo"
+                                       class="form-control" placeholder="Enter expense no." />
+                            </div>
+
+                            <div class="field">
+                                <label>Paid On Date</label>
+                                <input type="date" id="PaidOnDate" name="PaidOnDate"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="field">
+                                <label>Exchange Rate</label>
+                                <input type="number" step="0.0001" min="0"
+                                       id="ExchangeRate" name="ExchangeRate"
+                                       class="form-control text-end" value="1.0000" />
+                            </div>
+
+                            <div class="field field-wide">
+                                <label>Description</label>
+                                <textarea id="Description" name="Description"
+                                          class="form-control description-input"
+                                          placeholder="Enter description..."></textarea>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- Item Details -->
+                    <section class="card-section">
+                        <div class="section-title section-title-actions">
+                            <div>
+                                <i class="bi bi-list-columns"></i>
+                                <span>Item Details</span>
+                            </div>
+                            <div class="section-actions">
+                                <button type="button" class="btn btn-primary btn-sm" id="btnAddItem">
+                                    <i class="bi bi-plus-lg"></i> Add Item
+                                </button>
+                                <button type="button" class="btn btn-light btn-sm" id="btnImport">
+                                    <i class="bi bi-upload"></i> Import
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="btnClearItems">
+                                    <i class="bi bi-trash3"></i> Clear All
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table class="entry-table" id="itemTable">
+                                <thead>
+                                    <tr>
+                                        <th class="num-col">#</th>
+                                        <th>Account <span>*</span></th>
+                                        <th>Item / Service</th>
+                                        <th>UOM</th>
+                                        <th class="qty-col">QTY</th>
+                                        <th>Unit Price</th>
+                                        <th>Discount</th>
+                                        <th>Tax</th>
+                                        <th>Amount (USD)</th>
+                                        <th>Amount (KHR)</th>
+                                        <th class="action-col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Additional Expenses -->
+                    <section class="card-section">
+                        <div class="section-title section-title-actions">
+                            <div>
+                                <i class="bi bi-wallet2"></i>
+                                <span>Expenses (Additional)</span>
+                            </div>
+                            <div class="section-actions">
+                                <button type="button" class="btn btn-primary btn-sm" id="btnAddAdditional">
+                                    <i class="bi bi-plus-lg"></i> Add Expense
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="btnClearAdditional">
+                                    <i class="bi bi-trash3"></i> Clear All
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table class="entry-table" id="additionalTable">
+                                <thead>
+                                    <tr>
+                                        <th class="num-col">#</th>
+                                        <th>Account <span>*</span></th>
+                                        <th>Description</th>
+                                        <th>Amount (USD)</th>
+                                        <th>Amount (KHR)</th>
+                                        <th class="action-col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Attachments / Remarks -->
+                    <section class="card-section attachment-section">
+                        <div class="tabs">
+                            <button type="button" class="tab active" data-tab="attachments">
+                                <i class="bi bi-paperclip"></i> Attachment
+                            </button>
+                            <button type="button" class="tab" data-tab="remarks">
+                                <i class="bi bi-chat-left-text"></i> Remarks
+                            </button>
+                        </div>
+
+                        <div id="tab-attachments" class="tab-content active">
+                            <label class="upload-box">
+                                <input type="file" id="AttachmentFiles" multiple
+                                       accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <strong>Drag &amp; drop files here or <span>click to browse</span></strong>
+                                <small>JPG, PNG, PDF, DOC, XLS — max 10MB each</small>
+                            </label>
+                            <div id="attachmentList" class="attachment-list"></div>
+                        </div>
+
+                        <div id="tab-remarks" class="tab-content">
+                            <textarea id="Remarks" class="form-control remarks-box"
+                                      placeholder="Enter internal remarks..."></textarea>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- RIGHT SUMMARY -->
+                <aside class="summary-column">
+                    <div class="summary-card">
+                        <div class="summary-title">
+                            <i class="bi bi-calculator"></i>
+                            <span>Summary</span>
+                        </div>
+
+                        <div class="summary-body">
+                            <div class="summary-row">
+                                <span>Total (USD)</span>
+                                <strong id="summaryItemTotal">0.00</strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Total (KHR)</span>
+                                <strong id="summaryItemKhr">0.00</strong>
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-input-row">
+                                <span>Discount</span>
+                                <div class="summary-input">
+                                    <input type="number" step="0.01" min="0"
+                                           id="HeaderDiscount" name="HeaderDiscount" value="0" />
+                                    <select id="HeaderDiscountType">
+                                        <option value="AMOUNT">USD</option>
+                                        <option value="PERCENT">%</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="summary-input-row">
+                                <span>Tax</span>
+                                <div class="summary-input">
+                                    <input type="number" step="0.01" min="0"
+                                           id="HeaderTax" name="HeaderTax" value="0" />
+                                    <select id="HeaderTaxType">
+                                        <option value="AMOUNT">USD</option>
+                                        <option value="PERCENT">%</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grand-total blue-total">
+                                <span>Grand Total (USD)</span>
+                                <strong id="summaryGrandUsd">0.00</strong>
+                            </div>
+
+                            <div class="grand-total green-total">
+                                <span>Grand Total (KHR)</span>
+                                <strong id="summaryGrandKhr">0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="balance-card">
+                        <div>
+                            <span>Payment Amount</span>
+                            <small>Amount to be paid</small>
+                        </div>
+                        <input type="number" id="PaymentAmount"
+                               class="form-control text-end" step="0.01" min="0" value="0" />
+                    </div>
+                </aside>
+
+            </div>
+        }
+
+    </div>
+
+    <!-- Hidden templates -->
+    <script type="text/template" id="itemRowTemplate">
+        <tr class="item-row">
+            <td class="row-number"></td>
+            <td>
+                <select class="form-control line-account">
+                    <option value="">Select account</option>
+                    @foreach (var x in lookup.Accounts)
+                    {
+                        <option value="@x.Id">@x.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <div class="service-cell">
+                    <input type="text" class="form-control line-service"
+                           placeholder="Enter item or service description" />
+                    <i class="bi bi-search"></i>
+                </div>
+            </td>
+            <td>
+                <select class="form-control line-uom">
+                    <option value="">Select UOM</option>
+                    <option value="Unit">Unit</option>
+                    <option value="Box">Box</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Kg">Kg</option>
+                    <option value="Hour">Hour</option>
+                    <option value="Service">Service</option>
+                </select>
+            </td>
+            <td>
+                <input type="number" class="form-control text-end line-qty"
+                       min="0" step="0.01" value="1" />
+            </td>
+            <td>
+                <input type="number" class="form-control text-end line-price"
+                       min="0" step="0.01" value="0" />
+            </td>
+            <td>
+                <div class="discount-cell">
+                    <input type="number" class="form-control text-end line-discount"
+                           min="0" step="0.01" value="0" />
+                    <select class="line-discount-type">
+                        <option value="AMOUNT">$</option>
+                        <option value="PERCENT">%</option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <select class="form-control line-tax">
+                    <option value="0">None</option>
+                    @foreach (var x in lookup.Taxes.Where(t => t.Id > 0))
+                    {
+                        <option value="@x.Id">@x.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <input type="text" class="form-control calculated line-total-usd"
+                       value="0.00" readonly />
+            </td>
+            <td>
+                <input type="text" class="form-control calculated line-total-khr"
+                       value="0.00" readonly />
+            </td>
+            <td class="action-cell">
+                <button type="button" class="icon-btn copy-row" title="Duplicate">
+                    <i class="bi bi-copy"></i>
+                </button>
+                <button type="button" class="icon-btn danger remove-row" title="Delete">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </td>
+        </tr>
+    </script>
+
+    <script type="text/template" id="additionalRowTemplate">
+        <tr class="additional-row">
+            <td class="row-number"></td>
+            <td>
+                <select class="form-control additional-account">
+                    <option value="">Select account</option>
+                    @foreach (var x in lookup.Accounts)
+                    {
+                        <option value="@x.Id">@x.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <textarea class="form-control additional-description"
+                          placeholder="Enter description"></textarea>
+            </td>
+            <td>
+                <input type="number" class="form-control text-end additional-amount"
+                       min="0" step="0.01" value="0" />
+            </td>
+            <td>
+                <input type="text" class="form-control calculated additional-khr"
+                       value="0.00" readonly />
+            </td>
+            <td class="action-cell">
+                <button type="button" class="icon-btn copy-additional" title="Duplicate">
+                    <i class="bi bi-copy"></i>
+                </button>
+                <button type="button" class="icon-btn danger remove-additional" title="Delete">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </td>
+        </tr>
+    </script>
+
+    @*<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>*@
+    <script src="@Url.Content("~/Scripts/expense-entry.js")"></script>
+
+@*</body>
+</html>*@

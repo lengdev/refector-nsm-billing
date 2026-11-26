@@ -1,0 +1,24 @@
+﻿@{ Layout = null;}
+
+<div class="row" name="dispro">
+    <div class="col text-center">
+        <h3>@ViewBag.ProjectName</h3>
+    </div>
+</div>
+<div class="row" name="dispro">
+    <div class="col text-center">
+        <h4>@ViewBag.Subject</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @Html.Raw(ViewBag.DrawHTMLSearchForm)
+    </div>
+</div>
+<script>
+    var ProjectName ="@ViewBag.ProjectName";
+    $(function () {
+        if (ProjectName == "")
+            $("div[name=dispro]").remove();
+    });
+</script>

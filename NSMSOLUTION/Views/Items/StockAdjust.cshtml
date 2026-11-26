@@ -1,0 +1,12 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function showFormAdjust(adjustDate, stockId) {
+        ShowDialogBox2("Adjustment Date.: " + adjustDate, "auto", "500", "AdjustmentStock/InvoiceAdjustmentStock?ID=" + stockId, 0, "", function () {
+            $("#SaveChange2").html('<i class="fa fa-print" aria-hidden="true"></i> Print');
+            $("#SaveChange2").click(function () {
+                $("#DivPrintStockAdjustment").printThis();
+            });
+        });
+    }
+</script>

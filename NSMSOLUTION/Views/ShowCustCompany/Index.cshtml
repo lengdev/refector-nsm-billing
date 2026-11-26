@@ -1,0 +1,10 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function onGridClick(THIS) {
+        var index = ($(THIS).parent().index() + 1);
+        var CustID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+        var url = '#!/CustomerProfile?ID=' + CustID;
+        OpenNewTap(url);
+    }
+</script>

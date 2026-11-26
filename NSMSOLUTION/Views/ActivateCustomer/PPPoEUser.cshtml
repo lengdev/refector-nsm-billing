@@ -1,0 +1,67 @@
+﻿@{ 
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var oldPPPoEUserName = "";
+    var oldPPPoEPassword = "";
+    var RouterID = "@ViewBag.RouterID";
+    var ActivateCustomerID = "@ViewBag.ActivateCustomerID"
+    var isEdit = false;
+    var row = `<tr><td></td><td><div class="row form-group justify-content-end">
+    <div class="col text-right">
+    <button id="btnGeneratePWD" type="button" class="btn btn-primary" onclick="GetGeneratPWD();">Generate Password</button>
+    </div></div></td></tr>`
+    $(function () {
+        $("form[name=frmPPPoEUser] table tbody").append(row);
+        $("#SaveChange").html('<i class="fa fa-edit"></i> Edit');
+        $("#btnGeneratePWD").attr("disabled", true);
+    });    
+    function SaveChangePPPoEUser(){
+        if (!isEdit) {
+            isEdit = true;
+            $("#PPPoEUserName").attr("readonly", false);
+            $("#PPPoEPassword").attr("readonly", false);
+            $("#btnGeneratePWD").attr("disabled", false);
+            $("#PPPoEUserName").focus().select();
+            $("#SaveChange").html('<i class="fa fa-save"></i> Save Change');
+            oldPPPoEUserName = $("#PPPoEUserName").val();
+            oldPPPoEPassword = $("#PPPoEPassword").val();
+        }
+        else {
+            isEdit = false;
+            var PPPoEUserName = $("#PPPoEUserName").val();
+            var PPPoEPassword = $("#PPPoEPassword").val();
+            if (PPPoEUserName != oldPPPoEUserName) {
+                isEdit = true;
+            }
+            if (PPPoEPassword != oldPPPoEPassword) {
+                isEdit = true;
+            }
+            if (isEdit) {
+                var DATA = {
+                    PrimaryFieldValue: JSON.stringify({
+                        RouterID: RouterID,
+                        ActivateCustomerID: ActivateCustomerID,
+                        oldPPPoEUserName: oldPPPoEUserName,
+                        oldPPPoEPassword: oldPPPoEPassword,
+                        PPPoEUserName: PPPoEUserName,
+                        PPPoEPassword: PPPoEPassword
+                    })
+                };
+                DoSaveChangeData("ActivateCustomer/SaveChangePPPoEUser", DATA, function (result) {
+                    if (result.Result == 2) {
+                        $("#CloseModal").click();
+                        if (typeof CheckConnectivityStatus === 'function') {
+                            CheckConnectivityStatus(CustomerID);
+                            LoadCustomerServices(CustomerID);
+                        }
+                    }
+                });
+            }
+            else {
+                $("#CloseModal").click();
+            }
+        }
+    }
+</script>

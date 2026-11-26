@@ -1,0 +1,16 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    var GroupID = 0;
+    function showUserGroup(THIS) {
+        if ($(THIS).index() != 6) {
+            var index = $(THIS).closest('tr').index() + 1;
+
+            GroupID = $("#TblSGroup tr:eq(" + index + ") td:eq(1)").html();
+            //ShowDialogBox(Title, Width, Height, URL, PrimaryFieldValue, DialogID, DestroyDateTimePicker, ModalWidth, ModalHeight, CallbackFunction,
+            ShowDialogBox("Member Group", "Auto", "500", "Group/UserGroup?GroupID=" + GroupID, 0, "dialogShowUserGroup", "", "", "", function () {
+                $("#SaveChange").remove();
+            });
+        }
+    }    
+</script>

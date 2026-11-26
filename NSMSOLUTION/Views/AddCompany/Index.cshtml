@@ -1,0 +1,2123 @@
+﻿@{
+    Layout = null;
+    // Deserialize the JSON to a list
+    var companies = Newtonsoft.Json.JsonConvert.DeserializeObject<List<dynamic>>(ViewBag.CompanyJson?.ToString());
+    //var hasCompanies = 0;
+
+    bool hasCompanies = companies != null && companies.Count > 0;
+
+
+}
+@*<script>
+var companies = @Html.Raw(ViewBag.CompanyJson ?? "[]");
+var current = companies.length > 0 && companies[0].SystemID !== @ViewBag.SystemID;
+    console.log("Companies:", companies);
+    console.log("Companies:", current);
+</script>*@
+<style>
+    /* Top Company Tabs */
+    .company-tabs-header {
+        background-color: #fff;
+        border-bottom: 1px solid #e1e5eb;
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .company-tabs-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        gap: 5px;
+        padding: 0 20px;
+    }
+
+    .company-tab {
+        background: transparent;
+        border: none;
+        padding: 16px 24px;
+        cursor: pointer;
+        font-size: 15px;
+        color: #6c757d;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .company-tab:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .company-tab.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            font-weight: 600;
+        }
+
+    .status-badge {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    /* Main Layout */
+    .main-container {
+        /*        max-width: 1400px;*/
+        /*        margin: 0 auto;*/
+        padding: 30px 0px;
+        display: grid;
+        grid-template-columns: 240px 1fr 320px;
+        gap: 30px;
+    }
+
+    /* Left Sidebar */
+    .left-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 20px 0;
+        height: fit-content;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .main-container .nav-item {
+        padding: 12px 24px;
+        cursor: pointer;
+        color: #6c757d;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+        .main-container .nav-item:hover {
+            background-color: #f8f9fa;
+            color: #007bff;
+        }
+
+        .main-container .nav-item.active {
+            background-color: #e7f3ff;
+            color: #007bff;
+            border-left-color: #007bff;
+        }
+
+        .main-container .nav-item i {
+            font-size: 16px;
+            width: 20px;
+        }
+
+    /* Center Content */
+    .center-content {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .welcome-text {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+    }
+
+    .page-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        margin-bottom: 32px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 32px 0;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 24px;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form Styles */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 16px;
+        z-index: 1;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 14px 12px 42px;
+        border: 1px solid #dce0e5;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        transition: all 0.2s;
+        background-color: #f8f9fa;
+    }
+
+        .form-input.editable {
+            background-color: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+    .form-textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dce0e5;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 100px;
+        background-color: #f8f9fa;
+    }
+
+    .logo-cover {
+        width: 200px;
+        /*height:200px;*/ /* set desired height */
+        object-fit: cover; /* crop and fill like background-cover */
+    }
+
+    .form-textarea.editable {
+        background-color: white;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+
+    /* Invoice Template Styles */
+    .invoice-template-container {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .edit-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .edit-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+    .invoice-prefix-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .invoice-prefix-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .invoice-prefix-label {
+        f font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .invoice-prefix-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .company-data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .company-data-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .company-data-label {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .company-data-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+        word-break: break-word;
+    }
+
+    /* Social Networks */
+    .social-table {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .social-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 20px;
+        padding: 16px 0;
+        border-bottom: 1px solid #f0f0f0;
+        align-items: center;
+    }
+
+    .social-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .social-input-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .social-prefix {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border: 1px solid #dce0e5;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .social-input {
+        flex: 1;
+        padding: 12px 14px;
+        border: 1px solid #dce0e5;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    /* Permissions */
+    .permission-card {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: all 0.2s;
+    }
+
+        .permission-card:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+
+    .permission-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .permission-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .permission-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 15px;
+    }
+
+    .permission-desc {
+        color: #6c757d;
+        font-size: 13px;
+        margin-left: 32px;
+        line-height: 1.5;
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+        height: fit-content;
+    }
+
+    .logo-container {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .logo-preview {
+        /*            width: 180px;*/
+        /*            height: 180px;*/
+        /*            border-radius: 50%;*/
+        /*            background-color:white;*/
+        /*            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+        margin: 0 auto 24px;
+        /*            display: flex;
+            align-items: center;
+            justify-content: center;*/
+        /*            box-shadow: 0 8px 20px rgba(0,0,0,0.1);*/
+    }
+
+        .logo-preview i {
+            font-size: 64px;
+            color: white;
+        }
+
+    .logo-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 6px;
+    }
+
+    .logo-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    .upload-area {
+        border: 2px dashed #cbd5e0;
+        border-radius: 12px;
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 16px;
+    }
+
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+
+    .upload-icon {
+        font-size: 40px;
+        color: #cbd5e0;
+        margin-bottom: 12px;
+    }
+
+    .upload-text {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .upload-hint {
+        color: #adb5bd;
+        font-size: 12px;
+    }
+
+    .btn-upload {
+        width: 100%;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .btn-upload:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+
+    .info-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 16px;
+    }
+
+    .info-card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+    }
+
+    .info-item {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.8;
+        padding-left: 16px;
+        position: relative;
+    }
+
+        .info-item:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #007bff;
+        }
+
+    .company-info {
+        background: #f0f7ff;
+        border: 1px solid #bee5eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .company-info-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+    }
+
+    .company-info p {
+        color: #6c757d;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .btn-save {
+        width: 100%;
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 32px;
+    }
+
+        .btn-save:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+        }
+
+    .btn-preview {
+        width: 100%;
+        background: white;
+        color: #333;
+        border: 1px solid #dce0e5;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+        .btn-preview:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+    .read-only-badge {
+        display: inline-block;
+        background: #f8f9fa;
+        color: #6c757d;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+
+    @@media (max-width: 1200px) {
+        .main-container {
+            grid-template-columns: 200px 1fr 300px;
+            /*                gap: 20px;*/
+        }
+    }
+
+    @@media (max-width: 992px) {
+        .main-container {
+            grid-template-columns: 1fr;
+        }
+
+        .left-sidebar {
+            display: flex;
+            overflow-x: auto;
+            padding: 0;
+        }
+
+        .main-container .left-sidebar .nav-item {
+            white-space: nowrap;
+            border-left: none;
+            border-bottom: 3px solid transparent;
+        }
+
+            .main-container .left-sidebar .nav-item.active {
+                border-left: none;
+                border-bottom-color: #007bff;
+            }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .invoice-prefix-grid,
+        .company-data-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .company-tabs-container {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .company-tab {
+            border-bottom: 1px solid #e9ecef;
+            border-left: 3px solid transparent;
+        }
+
+            .company-tab.active {
+                border-bottom-color: #e9ecef;
+                border-left-color: #007bff;
+            }
+
+        .center-content {
+            padding: 24px;
+        }
+
+        .logo-container {
+            padding: 24px;
+        }
+    }
+
+    .upload-section {
+        background: #f8f9fa;
+        border: 2px dashed #cbd5e0;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 30px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .upload-section:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+
+    .upload-icon {
+        font-size: 48px;
+        color: #cbd5e0;
+        margin-bottom: 16px;
+    }
+
+    .upload-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+        .upload-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+    /* QR Grid - 2 columns */
+    .qr-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    /* QR Card */
+    .qr-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+        .qr-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+
+        .qr-card.active {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .qr-card.inactive {
+            border-color: #e9ecef;
+            background: #f8f9fa;
+            opacity: 0.7;
+        }
+
+    /* Status Badge */
+    .status-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+    /* QR Image */
+    .qr-image {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+        .qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 16px;
+        }
+
+    .qr-placeholder {
+        font-size: 64px;
+        color: #cbd5e0;
+    }
+
+    /* QR Info */
+    .qr-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    .qr-desc {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* Toggle Button */
+    .toggle-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .toggle-btn.active {
+            background: #28a745;
+            color: white;
+        }
+
+            .toggle-btn.active:hover {
+                background: #218838;
+            }
+
+        .toggle-btn.inactive {
+            background: #6c757d;
+            color: white;
+        }
+
+            .toggle-btn.inactive:hover {
+                background: #5a6268;
+            }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .qr-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .upload-section {
+            padding: 30px 20px;
+        }
+    }
+
+    .image-upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        padding-bottom: 20px;
+        text-align: center;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .image-upload-container:hover {
+            border-color: #337ab7;
+            background-color: #f0f8ff;
+        }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 15px;
+        display: none;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: #337ab7;
+        margin-bottom: 10px;
+    }
+
+    .required:after {
+        content: " *";
+        color: red;
+    }
+</style>
+
+
+<div class="d-flex w-full justify-content-end mb-3">
+    <a id="BunAddCompany" class="btn btn-primary add-item mr-2"><i class="ti ti-pencil-plus"></i> <span class="d-none d-md-inline">Add Company</span></a>
+    <a id="BunAddCompany"
+       class="btn btn-primary Upload-Qr"
+       data-toggle="modal"
+       data-target="#DialogAddAttCustFile">
+        <i class="ti ti-pencil-plus"></i>
+        <span class="d-none d-md-inline">Add Qr Company</span>
+    </a>
+</div>
+@if (hasCompanies )
+{
+    <div class="company-tabs-header">
+        <div class="company-tabs-container">
+            <button class="company-tab active" onclick="switchCompany('main-office',event)">
+                <i class="fas fa-building"></i>
+                <span>Company  (One)</span>
+                @*<span class="status-badge">Active</span>*@
+            </button>
+            @* Only show second tab if there are 2+ companies *@
+            @if (companies.Count > 1)
+            {
+                <button class="company-tab" onclick="switchCompany('branch-office',event)">
+                    <i class="fas fa-code-branch"></i>
+                    <span>Company (Two)</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="nav-item active" onclick="switchTab('basic-info')">
+                <i class="fas fa-info-circle"></i>
+                <span>Basic Information</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('invoice-template')">
+                <i class="fas fa-file-invoice"></i>
+                <span>Invoice Template</span>
+            </div>
+            @*<div class="nav-item" onclick="switchTab('social')">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Social Networks</span>
+                </div>
+                <div class="nav-item" onclick="switchTab('permissions')">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Permissions</span>
+                </div>*@
+            <div class="nav-item" onclick="switchTab('Qrcode')">
+                <i class="fas fa-credit-card"></i>
+                <span>QrCode</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('advanced')">
+                <i class="fas fa-cogs"></i>
+                <span>Advanced</span>
+            </div>
+        </div>
+
+        <!-- Center Content -->
+        <div class="center-content">
+            @*<h1 class="welcome-text">Welcome back, Ronald!</h1>
+                <h2 class="page-title">Company Profile</h2>
+                <p class="page-subtitle">Update your company details here...</p>*@
+
+            <div class="divider"></div>
+
+            <!-- Basic Information Tab -->
+            <div id="basic-info" class="tab-pane active">
+                <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+                    <h3 class="section-title mb-0">Basic Information</h3>
+
+                    <a name="Edit_1767427545"
+                       class="btn btn-info btn-sm text-white edit-item"
+                       href="javascript:void(0);"
+                       title="Edit">
+                        <i class="ti ti-pencil-minus"></i> Edit Company
+                    </a>
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Company Name (English)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-building input-icon"></i>
+                            <input type="text" class="form-input" id="company-name-en" value="@companies[0].CompanyName" placeholder="Company Name (English)" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company Name (Khmer)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-building input-icon"></i>
+                            <input type="text" class="form-input" id="company-name-kh" value="@companies[0].CompanyNameKH" placeholder="Company Name (Khmer)" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number (Company)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="text" class="form-input" id="phone-company" value="@companies[0].Phone" placeholder="Phone Number" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number Khmer)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="text" class="form-input" id="phone-customer" value="@companies[0].PhoneKH" placeholder="Customer Service Phone" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" class="form-input" id="email" value="@companies[0].Email" placeholder="Email Address" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-globe input-icon"></i>
+                            <input type="text" class="form-input" id="website" value="@companies[0].Website" placeholder="Website URL" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">VAT Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" class="form-input" id="vat-number" value="@companies[0].VATNumber" placeholder="VAT Number" readonly>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Company Address (English)</label>
+                    <textarea class="form-textarea" id="address-en" placeholder="Enter company address" readonly>@companies[0].CompanyAddress</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Company Address (Khmer)</label>
+                    <textarea class="form-textarea" id="address-kh" placeholder="Enter company address in Khmer" readonly>@companies[0].AddressKH</textarea>
+                </div>
+            </div>
+
+            <!-- Invoice Template Tab -->
+            <div id="invoice-template" class="tab-pane">
+                <div class="invoice-template-container">
+                    <h3 class="section-title">Invoice Template</h3>
+                    @*<button class="edit-btn" onclick="enableEditMode()">
+                            <i class="fas fa-edit"></i>
+                            Edit Template
+                        </button>*@
+
+                    <div class="page-subtitle">Invoice prefixes and settings</div>
+
+                    <h4 style="margin-top: 24px; margin-bottom: 16px; color: #1a1a1a;">Invoice Prefixes</h4>
+                    <div class="invoice-prefix-grid">
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix VAT</div>
+                            <div class="invoice-prefix-value" id="vat-invoice-prefix">@companies[0].PrefixVAT</div>
+                        </div>
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix Non VAT</div>
+                            <div class="invoice-prefix-value" id="invoice-number">@companies[0].PrefixNonVAT</div>
+                        </div>
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix Proforma Invoice VAT</div>
+                            <div class="invoice-prefix-value" id="standard-prefix">.@companies[0].PrefixProformaInvoiceVAT</div>
+                        </div>
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix Proforma Invoice Non VAT</div>
+                            <div class="invoice-prefix-value" id="admin-prefix">@companies[0].PrefixProformaInvoiceNonVAT</div>
+                        </div>
+
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix Quatation Invoice VAT</div>
+                            <div class="invoice-prefix-value" id="admin-prefix">@companies[0].PrefixQuotationInvoiceVAT</div>
+                        </div>
+                        <div class="invoice-prefix-item">
+                            <div class="invoice-prefix-label">Prefix Quatation Invoice Non VAT</div>
+                            <div class="invoice-prefix-value" id="admin-prefix">@companies[0].PrefixQuotationInvoiceNonVAT</div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 32px; margin-bottom: 16px; color: #1a1a1a;">Receipt & Credit</h4>
+                    <div class="company-data-grid">
+                        <div class="company-data-item">
+                            <div class="company-data-label">Prefix Receipt VAT</div>
+                            <div class="company-data-value">@companies[0].PrefixReceiptVAT</div>
+                        </div>
+                        <div class="company-data-item">
+                            <div class="company-data-label">Prefix Receipt Non VAT</div>
+                            <div class="company-data-value">@companies[0].PrefixReceiptNonVAT</div>
+                        </div>
+                        <div class="company-data-item">
+                            <div class="company-data-label">Prefix Credit Note</div>
+                            <div class="company-data-value">@companies[0].PrefixCreditNote</div>
+                        </div>
+                        <div class="company-data-item">
+                            <div class="company-data-label">Prefix Request Approve Item</div>
+                            <div class="company-data-value">@companies[0].PrefixRequestApprovalItemOut</div>
+                        </div>
+                        <div class="company-data-item">
+                            <div class="company-data-label">Prefix ItemRequest No</div>
+                            <div class="company-data-value">@companies[0].PrefixRequestApprovalItemOut</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Qr code*@
+            <div id="Qrcode" class="tab-pane">
+                <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+                    <div>
+                        <h3 class="section-title mb-1">QR Code Management</h3>
+                        <p class="page-subtitle mb-0">Manage payment QR codes for your company</p>
+                    </div>
+                </div>
+                <!-- Upload Section -->
+                @*<div class="upload-section" onclick="document.getElementById('file-input').click()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <p style="color: #6c757d; margin-bottom: 16px;">Click to upload new QR code</p>
+                        <button class="upload-btn" onclick="event.stopPropagation()">
+                            <i class="fas fa-upload"></i>
+                            <span>Choose File</span>
+                        </button>
+                        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleUpload(event)">
+                    </div>*@
+
+                <!-- QR Grid (2 per row) -->
+                <div class="qr-grid" id="qr-grid-container">
+                    <!-- Loading indicator -->
+                    <div class="text-center w-100" style="grid-column: 1 / -1; padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #007bff;"></i>
+                        <p style="margin-top: 10px; color: #6c757d;">Loading QR codes...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Advanced Tab -->
+            <div id="advanced" class="tab-pane">
+                <h3 class="section-title">General Conditions</h3>
+                <p class="page-subtitle">Configure advanced company settings and preferences</p>
+
+                @*<div class="company-data-item">
+                        <div class="company-data-label">API Access</div>
+                        <div class="company-data-value">Enabled</div>
+                    </div>
+                    <div class="company-data-item">
+                        <div class="company-data-label">Data Retention</div>
+                        <div class="company-data-value">7 Years</div>
+                    </div>
+                    <div class="company-data-item">
+                        <div class="company-data-label">Two-Factor Authentication</div>
+                        <div class="company-data-value">Required for Admins</div>
+                    </div>*@
+
+                <div class="form-group">
+                    <label class="form-label">Term & Conditions VAT</label>
+                    <textarea class="form-textarea" id="address-en" placeholder="Enter company address" readonly>@companies[0].TermConditionVAT</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Term & Conditions Non VAT</label>
+                    <textarea class="form-textarea" id="address-kh" placeholder="Enter company address in Khmer" readonly>@companies[0].TermConditionNonVAT</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"> Quote Term & Conditions VAT</label>
+                    <textarea class="form-textarea" id="address-kh" placeholder="Enter company address in Khmer" readonly>@companies[0].QuoteTermConditionVAT</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"> Quote Term & Conditions Non VAT</label>
+                    <textarea class="form-textarea" id="address-kh" placeholder="Enter company address in Khmer" readonly>@companies[0].QuoteTermConditionNonVAT</textarea>
+
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="btn-save" onclick="saveChanges()" style="display: none;" id="save-changes-btn">
+                <i class="fas fa-save"></i>
+                <span>Save Changes</span>
+            </button>
+        </div>
+
+        @*modal qr*@
+        <div class="modal fade"
+             role="dialog"
+             id="DialogAddAttCustFile"
+             tabindex="-2">
+            <div class="modal-dialog" role="document" style="max-width: 500px;">
+                <div class="modal-content">
+                    <div class="card-default">
+                        <div class="card-header">
+                            <div class="row flex justify-content-between items-center">
+                                <div class="col-xs-10">
+                                    &nbsp;Add QR Company
+                                </div>
+                                <div class="col-xs-2 text-right">
+                                    <button type="button"
+                                            class="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body table-responsive"
+                         id="DialogAddAttCustFilemodalbody"
+                         style="height: 700px; overflow-y: scroll;">
+                        <p style="padding:0 20px 0 0">
+                            <div class="container-fluid">
+                                <form id="frm_UploadFiles"
+                                      name="frm_UploadFiles"
+                                      enctype="multipart/form-data">
+                                    <!-- Hidden QrID -->
+                                    <input type="hidden" id="QrID" name="QrID">
+
+                                    <div class="form-group">
+                                        <label for="CompanyID" class="required">Company</label>
+                                        <select class="form-control" id="CompanyID" name="CompanyID" required>
+                                            <option value="">-- Select Company --</option>
+                                            <!-- Options will be loaded from database -->
+                                        </select>
+                                    </div>
+
+                                    <!-- QR Name Input -->
+                                    <div class="form-group">
+                                        <label for="QrName" class="required">QR Name</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="QrName"
+                                               name="QrName"
+                                               placeholder="Enter QR name"
+                                               required>
+                                    </div>
+
+                                    <!-- QR Image Upload -->
+                                    <div class="form-group">
+                                        <label for="custFile" class="required">QR Image</label>
+                                        <input id="custFile"
+                                               name="custFile"
+                                               type="file"
+                                               accept="image/*"
+                                               style="display: none;">
+
+                                        <div class="image-upload-container" id="uploadContainer">
+                                            <div class="upload-icon">
+                                                <i class="fa fa-cloud-upload"></i>
+                                            </div>
+                                            <p style="margin: 10px 0;">Drag & Drop Your File(s) Here To Upload</p>
+                                            <button type="button" class="btn btn-default">or select file to upload</button>
+                                        </div>
+
+                                        <img id="imagePreview" class="image-preview" alt="Preview">
+
+                                        <div id="fileName" style="margin-top: 10px; display: none;">
+                                            <strong>File:</strong> <span id="fileNameText"></span>
+                                            <button type="button" class="btn btn-xs btn-danger" id="removeImage" style="margin-left: 10px;">
+                                                <i class="fa fa-times"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Select -->
+                                    <div class="form-group">
+                                        <label for="Status" class="required">Status</label>
+                                        <select class="form-control" id="Status" name="Status" required>
+                                            <option value="">-- Select Status --</option>
+                                            <option value="1" selected>Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                id="SaveChange2"
+                                class="btn btn-primary">
+                            <i class="fa fa-floppy-o"></i> Save Change
+                        </button>
+                        <button type="button"
+                                id="CloseModal2"
+                                class="btn btn-danger"
+                                data-dismiss="modal">
+                            <i class="fa fa-times"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+   // Define variables first
+   @*var serverRoot = '@Url.Content("~")';*@
+   var logo1 = serverRoot + "/CompanyLogo/@companies[0].Logo";
+   var noimg = serverRoot + "/Content/images/placeholder.jpg";
+
+   @*console.log("Logo 1:", "@companies[0].Logo");
+   console.log("Logo 2:", "@companies[1].Logo");
+   console.log("Full logo path:", logo1);*@
+        </script>
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <div class="logo-container">
+
+                <div class="logo-preview">
+                    @*<i class="fas fa-building"></i>*@
+                    <img id="companyLogo" src="" class="img-responsive logo-cover" alt="Company Logo" />
+                    @*<img src="${logo1}" class="img-responsive logo-cover" onerror="this.onerror=null;this.src='${noimg}';" />*@
+                </div>
+
+                <h4 class="logo-title">@companies[0].CompanyName</h4>
+                @*<p class="logo-subtitle">Upload your company logo</p>
+
+                    <div class="upload-area" onclick="uploadPhoto()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <p class="upload-text">Drop a photo here or click to upload</p>
+                        <p class="upload-hint">Recommended: 300x300px, PNG or JPG</p>
+                    </div>
+
+                    <button class="btn-upload" onclick="uploadPhoto()">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Photo</span>
+                    </button>*@
+
+                <div class="info-card" style="margin-top: 20px;">
+                    <div class="info-card-title">Logo Guidelines</div>
+                    <div class="info-item">Use high-resolution logo for best quality</div>
+                    <div class="info-item">Transparent background recommended</div>
+                    <div class="info-item">File size should be less than 5MB</div>
+                </div>
+            </div>
+
+            <div class="company-info">
+                <div class="company-info-title">Current Company</div>
+                <p><strong id="current-company">@companies[0].InvoiceTemplateName</strong></p>
+                <p>IsDefault: <strong style="color: #28a745;">@companies[0].ISDefault</strong></p>
+                @*<p>Last updated: Today, 10:30 AM</p>*@
+            </div>
+
+            @*<button class="btn-preview">
+                    <i class="fas fa-eye"></i>
+                    <span>Preview Profile</span>
+                </button>*@
+        </div>
+    </div>
+}
+else
+{
+    <div class="no-company-container text-center">
+        <div class="no-company-icon">
+            @*<i class="fas fa-building"></i>*@
+        </div>
+        <h2 class="no-company-title">No Company Profile Found</h2>
+        <p class="no-company-desc">
+            You haven't created any company profile yet. Get started by adding your first company.
+        </p>
+    </div>
+}
+
+@*Top Company Tabs*@
+
+
+<script>
+    // Define variables first
+    var companies = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(companies ?? new List<dynamic>()));
+    
+    var logo1 = companies && companies.length > 0 && companies[0].Logo
+        ? serverRoot + "/CompanyLogo/" + companies[0].Logo
+        : noimg;
+    var noimg = serverRoot + "/Content/images/placeholder.jpg";
+
+    @*console.log("Logo 1:", "@companies[0].Logo");
+    console.log("Logo 2:", "@companies[1].Logo");
+    console.log("Full logo path:", logo1);*@
+
+    // Initialize company logo on page load
+    (function () {
+        var imgElement = document.getElementById('companyLogo');
+        if (imgElement) {
+            imgElement.src = logo1;
+            imgElement.onerror = function () {
+                console.log("Failed to load logo, using placeholder");
+                this.onerror = null;
+                this.src = noimg;
+            };
+        }
+    })();
+
+    let currentCompany = 'main-office';
+    let isEditMode = false;
+
+    // Company data from your database
+  const companyData = {
+    'main-office': {
+        id: '@(companies?.Count > 0 ? companies[0].CompanyID.ToString() : "")',
+        name: '@(companies?.Count > 0 ? companies[0].CompanyName : "")',
+        nameEn: '@(companies?.Count > 0 ? companies[0].CompanyName : "")',
+        nameKh: '@(companies?.Count > 0 ? companies[0].CompanyNameKH : "")',
+        email: '@(companies?.Count > 0 ? companies[0].Email : "")',
+        website: '@(companies?.Count > 0 ? companies[0].Website : "")',
+        addressEn: '@(companies?.Count > 0 ? companies[0].CompanyAddress : "")',
+        addressKh: '@(companies?.Count > 0 ? companies[0].AddressKH : "")',
+        phoneCompany: '@(companies?.Count > 0 ? companies[0].Phone : "")',
+        phoneCustomer: '@(companies?.Count > 0 ? companies[0].PhoneKH : "")',
+        vatNumber: '@(companies?.Count > 0 ? companies[0].VATNumber : "")',
+        logo: '@(companies?.Count > 0 ? companies[0].Logo : "")',
+        invoiceTemplateName: '@(companies?.Count > 0 ? companies[0].InvoiceTemplateName : "")',
+        isDefault: '@(companies?.Count > 0 ? companies[0].ISDefault.ToString() : "")',
+        prefixVAT: '@(companies?.Count > 0 ? companies[0].PrefixVAT : "")',
+        prefixNonVAT: '@(companies?.Count > 0 ? companies[0].PrefixNonVAT : "")',
+        prefixProformaVAT: '@(companies?.Count > 0 ? companies[0].PrefixProformaInvoiceVAT : "")',
+        prefixProformaNonVAT: '@(companies?.Count > 0 ? companies[0].PrefixProformaInvoiceNonVAT : "")',
+        prefixQuotationVAT: '@(companies?.Count > 0 ? companies[0].PrefixQuotationInvoiceVAT : "")',
+        prefixQuotationNonVAT: '@(companies?.Count > 0 ? companies[0].PrefixQuotationInvoiceNonVAT : "")',
+        prefixReceiptVAT: '@(companies?.Count > 0 ? companies[0].PrefixReceiptVAT : "")',
+        prefixReceiptNonVAT: '@(companies?.Count > 0 ? companies[0].PrefixReceiptNonVAT : "")',
+        prefixCreditNote: '@(companies?.Count > 0 ? companies[0].PrefixCreditNote : "")',
+        prefixRequestApproval: '@(companies?.Count > 0 ? companies[0].PrefixRequestApprovalItemOut : "")',
+        termConditionVAT: '@(companies?.Count > 0 ? Html.Raw(companies[0].TermConditionVAT) : "")',
+        termConditionNonVAT: '@(companies?.Count > 0 ? Html.Raw(companies[0].TermConditionNonVAT) : "")',
+        quoteTermVAT: '@(companies?.Count > 0 ? Html.Raw(companies[0].QuoteTermConditionVAT) : "")',
+        quoteTermNonVAT: '@(companies?.Count > 0 ? Html.Raw(companies[0].QuoteTermConditionNonVAT) : "")'
+    },
+    'branch-office': {
+        id: '@(companies?.Count > 1 ? companies[1].CompanyID.ToString() : "")' || null,
+        name: '@(companies?.Count > 1 ? companies[1].CompanyName : "")',
+        nameEn: '@(companies?.Count > 1 ? companies[1].CompanyName : "")',
+        nameKh: '@(companies?.Count > 1 ? companies[1].CompanyNameKH : "")',
+        email: '@(companies?.Count > 1 ? companies[1].Email : "")',
+        website: '@(companies?.Count > 1 ? companies[1].Website : "")',
+        addressEn: '@(companies?.Count > 1 ? companies[1].CompanyAddress : "")',
+        addressKh: '@(companies?.Count > 1 ? companies[1].AddressKH : "")',
+        phoneCompany: '@(companies?.Count > 1 ? companies[1].Phone : "")',
+        phoneCustomer: '@(companies?.Count > 1 ? companies[1].PhoneKH : "")',
+        vatNumber: '@(companies?.Count > 1 ? companies[1].VATNumber : "")',
+        logo: '@(companies?.Count > 1 ? companies[1].Logo : "")',
+        invoiceTemplateName: '@(companies?.Count > 1 ? companies[1].InvoiceTemplateName : "")',
+        isDefault: '@(companies?.Count > 1 ? companies[1].ISDefault.ToString() : "")',
+        prefixVAT: '@(companies?.Count > 1 ? companies[1].PrefixVAT : "")',
+        prefixNonVAT: '@(companies?.Count > 1 ? companies[1].PrefixNonVAT : "")',
+        prefixProformaVAT: '@(companies?.Count > 1 ? companies[1].PrefixProformaInvoiceVAT : "")',
+        prefixProformaNonVAT: '@(companies?.Count > 1 ? companies[1].PrefixProformaInvoiceNonVAT : "")',
+        prefixQuotationVAT: '@(companies?.Count > 1 ? companies[1].PrefixQuotationInvoiceVAT : "")',
+        prefixQuotationNonVAT: '@(companies?.Count > 1 ? companies[1].PrefixQuotationInvoiceNonVAT : "")',
+        prefixReceiptVAT: '@(companies?.Count > 1 ? companies[1].PrefixReceiptVAT : "")',
+        prefixReceiptNonVAT: '@(companies?.Count > 1 ? companies[1].PrefixReceiptNonVAT : "")',
+        prefixCreditNote: '@(companies?.Count > 1 ? companies[1].PrefixCreditNote : "")',
+        prefixRequestApproval: '@(companies?.Count > 1 ? companies[1].PrefixRequestApprovalItemOut : "")',
+        termConditionVAT: '@(companies?.Count > 1 ? Html.Raw(companies[1].TermConditionVAT) : "")',
+        termConditionNonVAT: '@(companies?.Count > 1 ? Html.Raw(companies[1].TermConditionNonVAT) : "")',
+        quoteTermVAT: '@(companies?.Count > 1 ? Html.Raw(companies[1].QuoteTermConditionVAT) : "")',
+        quoteTermNonVAT: '@(companies?.Count > 1 ? Html.Raw(companies[1].QuoteTermConditionNonVAT) : "")'
+    }
+};
+    // Switch Company Function - UPDATED to load QR codes
+    function switchCompany(company, event) {
+        const data = companyData[company];
+        if (!data || !data.id) {
+            console.warn('Company data not found for:', company);
+            return; // Exit if company doesn't exist
+        }
+
+        currentCompany = company;
+        isEditMode = false;
+
+        // Update tab styles - only if event exists (clicked by user)
+        if (event) {
+            document.querySelectorAll('.company-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // Get data for selected company
+        //const data = companyData[company];
+
+        // Update Basic Information
+        document.getElementById('company-name-en').value = data.nameEn;
+        document.getElementById('company-name-kh').value = data.nameKh;
+        document.getElementById('email').value = data.email;
+        document.getElementById('website').value = data.website;
+        document.getElementById('phone-company').value = data.phoneCompany;
+        document.getElementById('phone-customer').value = data.phoneCustomer;
+        document.getElementById('vat-number').value = data.vatNumber;
+
+        // Update textareas in Basic Info
+        document.querySelector('#basic-info #address-en').value = data.addressEn;
+        document.querySelector('#basic-info #address-kh').value = data.addressKh;
+
+        // Update Invoice Template section
+        const invoicePrefixes = document.querySelectorAll('#invoice-template .invoice-prefix-value');
+        if (invoicePrefixes[0]) invoicePrefixes[0].textContent = data.prefixVAT;
+        if (invoicePrefixes[1]) invoicePrefixes[1].textContent = data.prefixNonVAT;
+        if (invoicePrefixes[2]) invoicePrefixes[2].textContent = data.prefixProformaVAT;
+        if (invoicePrefixes[3]) invoicePrefixes[3].textContent = data.prefixProformaNonVAT;
+        if (invoicePrefixes[4]) invoicePrefixes[4].textContent = data.prefixQuotationVAT;
+        if (invoicePrefixes[5]) invoicePrefixes[5].textContent = data.prefixQuotationNonVAT;
+
+        // Update Receipt & Credit section
+        const companyDataValues = document.querySelectorAll('#invoice-template .company-data-value');
+        if (companyDataValues[0]) companyDataValues[0].textContent = data.prefixReceiptVAT;
+        if (companyDataValues[1]) companyDataValues[1].textContent = data.prefixReceiptNonVAT;
+        if (companyDataValues[2]) companyDataValues[2].textContent = data.prefixCreditNote;
+        if (companyDataValues[3]) companyDataValues[3].textContent = data.prefixRequestApproval;
+        if (companyDataValues[4]) companyDataValues[4].textContent = data.prefixRequestApproval;
+
+        // Update Advanced/Terms section
+        const advancedTextareas = document.querySelectorAll('#advanced .form-textarea');
+        if (advancedTextareas[0]) advancedTextareas[0].value = data.termConditionVAT;
+        if (advancedTextareas[1]) advancedTextareas[1].value = data.termConditionNonVAT;
+        if (advancedTextareas[2]) advancedTextareas[2].value = data.quoteTermVAT;
+        if (advancedTextareas[3]) advancedTextareas[3].value = data.quoteTermNonVAT;
+
+        // Update logo based on selected company
+        const logoImg = document.getElementById('companyLogo');
+        if (logoImg) {
+            const logoPath = data.logo
+                ? serverRoot + "/CompanyLogo/" + data.logo
+                : noimg;
+
+            logoImg.src = logoPath;
+            logoImg.onerror = function () {
+                console.log("Failed to load logo for " + company + ", using placeholder");
+                this.onerror = null;
+                this.src = noimg;
+            };
+        }
+
+        // Update company info sidebar
+        document.getElementById('current-company').textContent = data.invoiceTemplateName;
+        const companyInfoPs = document.querySelectorAll('.company-info p');
+        if (companyInfoPs[1]) {
+            const isDefaultStrong = companyInfoPs[1].querySelector('strong');
+            if (isDefaultStrong) {
+                isDefaultStrong.textContent = data.isDefault;
+            }
+        }
+
+        // Update logo title
+        const logoTitle = document.querySelector('.logo-title');
+        if (logoTitle) {
+            logoTitle.textContent = data.name;
+        }
+
+        // Update the edit button data-id
+        const editBtn = document.querySelector('.edit-item');
+        if (editBtn) {
+            editBtn.setAttribute('data-id', data.id);
+        }
+
+        // Reset edit mode UI
+        disableEditMode();
+
+        // *** LOAD QR CODES FOR THIS COMPANY ***
+        loadQrBanksByCompany(data.id);
+    }
+
+    // Switch Tab Function
+    function switchTab(tabId) {
+        // Update nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+
+        // Update tab panes
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+
+        // If switching to QR tab, reload QR codes for current company
+        if (tabId === 'Qrcode') {
+            const currentData = companyData[currentCompany];
+            if (currentData && currentData.id) {
+                loadQrBanksByCompany(currentData.id);
+            }
+        }
+    }
+
+    // Disable Edit Mode
+    function disableEditMode() {
+        isEditMode = false;
+
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.classList.remove('editable');
+            input.readOnly = true;
+        });
+
+        document.querySelectorAll('.form-textarea').forEach(textarea => {
+            textarea.classList.remove('editable');
+            textarea.readOnly = true;
+        });
+
+        document.getElementById('save-changes-btn').style.display = 'none';
+    }
+
+    // ========== QR CODE MANAGEMENT ==========
+
+    // Load QR Banks by Company ID
+    function loadQrBanksByCompany(companyId) {
+        const container = $('#qr-grid-container');
+
+        // Show loading indicator
+        container.html(`
+            <div class="text-center w-100" style="grid-column: 1 / -1; padding: 40px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #007bff;"></i>
+                <p style="margin-top: 10px; color: #6c757d;">Loading QR codes...</p>
+            </div>
+        `);
+        //LoadData('AddCompany/GetCompanies', function (res) {
+
+        //    if (typeof res === 'string') {
+        //        res = JSON.parse(res);
+        //    }
+
+        //    console.log(res);
+
+        //    var dropdown = $('#CompanyID');
+        //    dropdown.empty();
+        //    dropdown.append('<option value="">-- Select Company --</option>');
+
+        //    $.each(res, function (index, item) {
+        //        dropdown.append(
+        //            $('<option></option>')
+        //                .val(item.CompanyID)
+        //                .text(item.CompanyName)
+        //        );
+        //    });
+        //});
+        LoadData("/AddCompany/GetQrBanksByCompany?CompanyID=" + companyId, function (res) {
+
+            let data = JSON.parse(res);
+            //console.log(data)
+            renderQrBanks(data);
+        });
+        //$.ajax({
+        //    url: '/AddCompany/GetQrBanksByCompany',
+        //    type: 'GET',
+        //    data: { companyId: companyId },
+        //    dataType: 'json',
+        //    success: function(response) {
+        //        if (response.error) {
+        //            console.error('Error loading QR banks:', response.error);
+        //            showQrError('Error loading QR codes: ' + response.error);
+        //            return;
+        //        }
+        //        renderQrBanks(response);
+        //    },
+        //    error: function(xhr, status, error) {
+        //        console.error('AJAX Error:', error);
+        //        showQrError('Failed to load QR codes. Please refresh the page.');
+        //    }
+        //});
+    }
+
+    // Render QR Banks
+    function renderQrBanks(qrBanks) {
+        const container = $('#qr-grid-container');
+        container.empty();
+
+        if (!qrBanks || qrBanks.length === 0) {
+            container.html(`
+                <div class="text-center w-100" style="grid-column: 1 / -1; padding: 40px;">
+                    <i class="fas fa-qrcode" style="font-size: 48px; color: #cbd5e0; margin-bottom: 16px;"></i>
+                    <p style="color: #6c757d; font-size: 16px;">No QR codes found for this company.</p>
+                    <p style="color: #adb5bd; font-size: 14px;">Use "Add Qr Company" button to create one.</p>
+                </div>
+            `);
+            return;
+        }
+
+        qrBanks.forEach(function(qr) {
+            const qrId = qr.QrID;
+            const status = parseInt(qr.Status);
+            const isActive = status === 1;
+            const statusClass = isActive ? 'active' : 'inactive';
+            const statusText = isActive ? 'Active' : 'Inactive';
+            const iconClass = isActive ? 'fa-check-circle' : 'fa-times-circle';
+
+            // Handle image path
+            let imageHtml = '';
+            if (qr.QrImagePath && qr.QrImagePath.trim() !== '') {
+                const imagePath = qr.QrImagePath.startsWith('/')
+                    ? qr.QrImagePath
+                    : serverRoot + '/Uploads/Qrbank/' + qr.QrImagePath;
+
+                imageHtml = `
+                    <img src="${imagePath}"
+                         alt="${qr.QrName || 'QR Code'}"
+                         onerror="this.parentElement.innerHTML='<div class=\\'qr-placeholder\\'><i class=\\'fas fa-qrcode\\'></i></div>';">
+                `;
+            } else {
+                imageHtml = '<div class="qr-placeholder"><i class="fas fa-qrcode"></i></div>';
+            }
+
+            const cardHtml = `
+                <div class="qr-card ${statusClass}" data-id="${qrId}">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <div class="qr-image">
+                        ${imageHtml}
+                    </div>
+                    <h3 class="qr-title">${qr.QrName || 'QR Code ' + qrId}</h3>
+                    <p class="qr-desc">Payment QR Code</p>
+                    <button class="toggle-btn ${statusClass}"
+                            onclick="toggleQrStatus(${qrId}, this, ${status})">
+                        <i class="fas ${iconClass}"></i>
+                        <span>${statusText}</span>
+                    </button>
+                </div>
+            `;
+
+            container.append(cardHtml);
+        });
+
+        console.log(`Loaded ${qrBanks.length} QR code(s) for company`);
+    }
+
+    // Show QR Error
+    function showQrError(message) {
+        const container = $('#qr-grid-container');
+        container.html(`
+            <div class="text-center w-100" style="grid-column: 1 / -1; padding: 40px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; margin-bottom: 16px;"></i>
+                <p style="color: #dc3545; font-size: 16px;">${message}</p>
+                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 16px;">
+                    <i class="fas fa-sync"></i> Refresh Page
+                </button>
+            </div>
+        `);
+    }
+
+    // Toggle QR Status
+    function toggleQrStatus(qrId, button, currentStatus) {
+        const card = $(button).closest('.qr-card');
+        const badge = card.find('.status-badge');
+        const currentActive = parseInt(currentStatus) === 1;
+        const newStatus = currentActive ? 0 : 1;
+
+        $(button).prop('disabled', true);
+
+        $.ajax({
+            url: '/AddCompany/ActiveQrBank',
+            type: 'POST',
+            data: {
+                QrID: qrId,
+                Status: newStatus
+            },
+            success: function(response) {
+                $(button).prop('disabled', false);
+
+                if (response.success) {
+                    if (newStatus === 1) {
+                        card.removeClass('inactive').addClass('active');
+                        badge.removeClass('inactive').addClass('active').text('Active');
+                        $(button).removeClass('inactive').addClass('active')
+                            .html('<i class="fas fa-check-circle"></i><span>Active</span>');
+                    } else {
+                        card.removeClass('active').addClass('inactive');
+                        badge.removeClass('active').addClass('inactive').text('Inactive');
+                        $(button).removeClass('active').addClass('inactive')
+                            .html('<i class="fas fa-times-circle"></i><span>Inactive</span>');
+                    }
+
+                    $(button).attr('onclick', `toggleQrStatus(${qrId}, this, ${newStatus})`);
+                    //console.log(`QR ${qrId} status changed: ${currentActive ? 'Active → Inactive' : 'Inactive → Active'}`);
+                } else {
+                    alert('Failed to update status: ' + (response.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                $(button).prop('disabled', false);
+                console.error('AJAX Error:', error);
+                alert('Error updating status. Please try again.');
+            }
+        });
+    }
+
+    // ========== UPLOAD QR BANK MODAL ==========
+
+    // Function to load companies dropdown
+    function loadCompanies() {
+        LoadData('AddCompany/GetCompanies', function (res) {
+
+            if (typeof res === 'string') {
+                res = JSON.parse(res);
+            }
+
+            //console.log(res);
+
+            var dropdown = $('#CompanyID');
+            dropdown.empty();
+            dropdown.append('<option value="">-- Select Company --</option>');
+
+            $.each(res, function (index, item) {
+                dropdown.append(
+                    $('<option></option>')
+                        .val(item.CompanyID)
+                        .text(item.CompanyName)
+                );
+            });
+        });
+        //$.ajax({
+        //    url: '/AddCompany/GetCompanies',
+        //    type: 'GET',
+        //    dataType: 'json',
+        //    success: function (data) {
+        //        var dropdown = $('#CompanyID');
+        //        dropdown.empty();
+        //        dropdown.append('<option value="">-- Select Company --</option>');
+        //        console.log('server company ' + JSON.stringify(data));
+        //        $.each(data, function (index, item) {
+        //            dropdown.append($('<option></option>')
+        //                .attr('value', item.CompanyID)
+        //                .text(item.CompanyName));
+        //        });
+        //    },
+        //    error: function (xhr, status, error) {
+        //        console.error('Error loading companies:', error);
+        //        alert('Failed to load companies. Please try again.');
+        //    }
+        //});
+    }
+
+    // ========== DOCUMENT READY ==========
+    $(document).ready(function() {
+        // Find and initialize with the default company
+        let defaultCompany = 'main-office'; // fallback
+
+        // Check which company has ISDefault = true/1
+        for (const [key, value] of Object.entries(companyData)) {
+            if (value.isDefault === '1' || value.isDefault === 'True' || value.isDefault === true) {
+                defaultCompany = key;
+                console.log('Default company found:', key, 'ISDefault:', value.isDefault);
+                break;
+            }
+        }
+
+        // Set the default company tab as active
+        document.querySelectorAll('.company-tab').forEach((tab, index) => {
+            tab.classList.remove('active');
+            const companyKeys = Object.keys(companyData);
+            if (companyKeys[index] === defaultCompany) {
+                tab.classList.add('active');
+            }
+        });
+
+        // Initialize with default company
+        currentCompany = defaultCompany;
+        const defaultData = companyData[defaultCompany];
+        
+        // Load default company data
+        if (defaultData) {
+            if (defaultData.length > 0) {
+                // Update all fields
+                document.getElementById('company-name-en').value = defaultData.nameEn;
+                document.getElementById('company-name-kh').value = defaultData.nameKh;
+                document.getElementById('email').value = defaultData.email;
+                document.getElementById('website').value = defaultData.website;
+                document.getElementById('phone-company').value = defaultData.phoneCompany;
+                document.getElementById('phone-customer').value = defaultData.phoneCustomer;
+                document.getElementById('vat-number').value = defaultData.vatNumber;
+
+                document.querySelector('#basic-info #address-en').value = defaultData.addressEn;
+                document.querySelector('#basic-info #address-kh').value = defaultData.addressKh;
+
+                // Update Invoice Template section
+                const invoicePrefixes = document.querySelectorAll('#invoice-template .invoice-prefix-value');
+                if (invoicePrefixes[0]) invoicePrefixes[0].textContent = defaultData.prefixVAT;
+                if (invoicePrefixes[1]) invoicePrefixes[1].textContent = defaultData.prefixNonVAT;
+                if (invoicePrefixes[2]) invoicePrefixes[2].textContent = defaultData.prefixProformaVAT;
+                if (invoicePrefixes[3]) invoicePrefixes[3].textContent = defaultData.prefixProformaNonVAT;
+                if (invoicePrefixes[4]) invoicePrefixes[4].textContent = defaultData.prefixQuotationVAT;
+                if (invoicePrefixes[5]) invoicePrefixes[5].textContent = defaultData.prefixQuotationNonVAT;
+
+                const companyDataValues = document.querySelectorAll('#invoice-template .company-data-value');
+                if (companyDataValues[0]) companyDataValues[0].textContent = defaultData.prefixReceiptVAT;
+                if (companyDataValues[1]) companyDataValues[1].textContent = defaultData.prefixReceiptNonVAT;
+                if (companyDataValues[2]) companyDataValues[2].textContent = defaultData.prefixCreditNote;
+                if (companyDataValues[3]) companyDataValues[3].textContent = defaultData.prefixRequestApproval;
+                if (companyDataValues[4]) companyDataValues[4].textContent = defaultData.prefixRequestApproval;
+
+                const advancedTextareas = document.querySelectorAll('#advanced .form-textarea');
+                if (advancedTextareas[0]) advancedTextareas[0].value = defaultData.termConditionVAT;
+                if (advancedTextareas[1]) advancedTextareas[1].value = defaultData.termConditionNonVAT;
+                if (advancedTextareas[2]) advancedTextareas[2].value = defaultData.quoteTermVAT;
+                if (advancedTextareas[3]) advancedTextareas[3].value = defaultData.quoteTermNonVAT;
+
+                // Update logo
+                const logoImg = document.getElementById('companyLogo');
+                if (logoImg) {
+                    const logoPath = defaultData.logo
+                        ? serverRoot + "/CompanyLogo/" + defaultData.logo
+                        : noimg;
+                    logoImg.src = logoPath;
+                    logoImg.onerror = function () {
+                        this.onerror = null;
+                        this.src = noimg;
+                    };
+                }
+
+                // Update company info sidebar
+                document.getElementById('current-company').textContent = defaultData.invoiceTemplateName;
+                const companyInfoPs = document.querySelectorAll('.company-info p');
+                if (companyInfoPs[1]) {
+                    const isDefaultStrong = companyInfoPs[1].querySelector('strong');
+                    if (isDefaultStrong) {
+                        isDefaultStrong.textContent = defaultData.isDefault;
+                    }
+                }
+
+                const logoTitle = document.querySelector('.logo-title');
+                if (logoTitle) {
+                    logoTitle.textContent = defaultData.name;
+                }
+
+                const editBtn = document.querySelector('.edit-item');
+                if (editBtn) {
+                    editBtn.setAttribute('data-id', defaultData.id);
+                }
+
+                // Load QR codes for default company
+                loadQrBanksByCompany(defaultData.id);
+            }
+        }
+        // ========== UPLOAD QR MODAL HANDLERS ==========
+
+        // Load companies when upload modal opens
+        $('#DialogAddAttCustFile').on('shown.bs.modal', function () {
+            loadCompanies();
+        });
+
+        // Upload container and button click
+        $('#uploadContainer, #uploadContainer button').on('click', function (e) {
+            e.preventDefault();
+            $('#custFile').click();
+        });
+
+        // File input change handler
+        $('#custFile').on('change', function (e) {
+            var file = e.target.files[0];
+            if (file) {
+                if (!file.type.match('image.*')) {
+                    //alert('Please select an image file!');
+                    DialogSweetAlert("error", `Please select an image file!`);
+                    $(this).val('');
+                    return;
+                }
+
+                $('#fileNameText').text(file.name);
+                $('#fileName').show();
+
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    $('#imagePreview').attr('src', event.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove image button
+        $('#removeImage').on('click', function (e) {
+            e.stopPropagation();
+            $('#custFile').val('');
+            $('#imagePreview').hide();
+            $('#fileName').hide();
+        });
+
+        // Save QR Code
+        $('#SaveChange2').on('click', function () {
+            // Validation
+            var isValid = true;
+            var errorMsg = '';
+
+            if ($('#CompanyID').val() === '') {
+                isValid = false;
+                errorMsg += '- Please select a company\n';
+            }
+
+            if ($('#QrName').val().trim() === '') {
+                isValid = false;
+                errorMsg += '- Please enter QR name\n';
+            }
+
+            if ($('#custFile').val() === '') {
+                isValid = false;
+                errorMsg += '- Please upload a QR image\n';
+            }
+
+            if ($('#Status').val() === '') {
+                isValid = false;
+                errorMsg += '- Please select status\n';
+            }
+
+            if (!isValid) {
+                DialogSweetAlert("error", 'Please fill in all required fields:\n\n' + errorMsg);
+                return;
+            }
+
+            // Get form data
+            var formData = new FormData($('#frm_UploadFiles')[0]);
+
+            // Show loading indicator
+            $(this).prop('disabled', true).text('Saving...');
+
+            // AJAX submission
+            $.ajax({
+                url: '/AddCompany/SaveQrCompany',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#SaveChange2').prop('disabled', false).text('Save');
+
+                    if (response.success) {
+                        //alert('QR Code saved successfully!');
+                        DialogSweetAlert("success", `QR Code saved successfully!`);
+                        $('#DialogAddAttCustFile').modal('hide');
+                        // Reload QR banks for current company
+                        const currentData = companyData[currentCompany];
+                        if (currentData && currentData.id) {
+                            loadQrBanksByCompany(currentData.id);
+                        }
+                    } else {
+                        alert('Error: ' + response.message);
+                        DialogSweetAlert("error", response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#SaveChange2').prop('disabled', false).text('Save');
+                    //alert('Error saving QR Code: ' + error);
+                    DialogSweetAlert("error", 'Error saving QR Code: ' + error);
+                }
+            });
+        });
+
+        // Reset form when modal closes
+        $('#DialogAddAttCustFile').on('hidden.bs.modal', function () {
+            $('#frm_UploadFiles')[0].reset();
+            $('#imagePreview').hide();
+            $('#fileName').hide();
+            $('#SaveChange2').prop('disabled', false).text('Save');
+        });
+
+        // ========== BUTTON HANDLERS ==========
+
+        // Add Company button handler
+        $(document).on('click', '.add-item', function () {
+            ShowDialogBox("Add Company", 'Auto', 600, "AddCompany/CreateCompany");
+        });
+
+        // Edit Company button handler
+        $(document).on('click', '.edit-item', function () {
+            const selectedCompanyData = companyData[currentCompany];
+            ShowDialogBox(
+                "Edit Company",
+                'Auto',
+                600,
+                "AddCompany/CreateCompany",
+                selectedCompanyData.id
+            );
+        });
+
+        // Make functions globally accessible
+        window.loadQrBanksByCompany = loadQrBanksByCompany;
+        window.loadCompanies = loadCompanies;
+        window.switchCompany = switchCompany;
+        window.switchTab = switchTab;
+        window.toggleQrStatus = toggleQrStatus;
+    });
+</script>

@@ -1,0 +1,24 @@
+﻿@{
+    Layout = null;
+}
+@Html.Raw(@ViewBag.DrawHTMLForm)
+<script>
+    //var PrimaryFieldValue ="@ViewBag.PrimaryFieldValue";
+    function SaveChangeStockName() {
+        //CreateStockName
+        var dataFrm = $("form[name=CreateStockName]").serializeObject();
+        dataFrm["PrimaryFieldValue"] = PrimaryFieldValue;
+        var DATA = { Data: JSON.stringify(dataFrm) };
+        DoSaveChageAjaxForm("CreateStockName", "AddStockName/SaveChangeStockName", DATA, "", function (response) {
+            console.log(response);
+        });
+    }
+    $(function () {
+        $("#modal-default").on('hide.bs.modal', function (e) {
+            if (typeof LoadTableGrid == "function") {
+                LoadTableGrid(CurrentPage);
+            }
+            $("input[type='radio']:eq(0)").click();
+        });
+    });
+</script>

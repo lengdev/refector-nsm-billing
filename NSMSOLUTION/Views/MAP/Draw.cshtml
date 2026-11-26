@@ -1,0 +1,127 @@
+﻿@{ Layout = null;}
+@*<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyp56z33xH2M5YbQV95RdXB8vlqPTprAA&libraries=drawing"></script>*@
+@*<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>*@
+
+<script>
+    var applyfeatureLayer = "";
+    var locationid = $("#TxtMainMap_FullAddress").val();
+    var featureStyleOptions = {
+        strokeColor: "#810FCB",
+        strokeOpacity: 1.0,
+        strokeWeight: 3.0,
+        //fillColor: "#810FCB",
+        fillOpacity: 0.5,
+    };
+    //var map;
+    //var featureLayer;
+    //var infoWindow;
+    //var applyfeatureLayer;
+    // This example requires the Drawi vmvm f c
+    async function initMap() {
+        var { Map, InfoWindow } = await google.maps.importLibrary("drawing");
+        var map = new google.maps.Map(document.getElementById("drawmap"), {
+            center: { lat: 11.579654, lng: 104.7253748 },
+            zoom: 11,
+            mapId: "a3efe1c035bad51b",//"6ff586e93e18149f"
+        });
+        applyfeatureLayer = map.getFeatureLayer("ADMINISTRATIVE_AREA_LEVEL_2");
+        var drawingManager = new google.maps.drawing.DrawingManager({
+            drawingMode: google.maps.drawing.OverlayType.MARKER,
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [
+                    google.maps.drawing.OverlayType.MARKER,
+                    google.maps.drawing.OverlayType.CIRCLE,
+                    google.maps.drawing.OverlayType.POLYGON,
+                    google.maps.drawing.OverlayType.POLYLINE,
+                    google.maps.drawing.OverlayType.RECTANGLE,
+                ],
+            },
+            markerOptions: {
+                icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+            },
+            circleOptions: {
+                fillColor: "#ffff00",
+                fillOpacity: 1,
+                strokeWeight: 5,
+                clickable: false,
+                editable: true,
+                zIndex: 1,
+            },
+        });
+
+        drawingManager.setMap(map);
+
+        var request = {
+            placeId: locationid,
+            fields: ["name", "formatted_address", "place_id", "geometry"],
+        };
+        var infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+
+        service.getDetails(request, (place, status) => {
+            if (
+                status === google.maps.places.PlacesServiceStatus.OK &&
+                place &&
+                place.geometry &&
+                place.geometry.location
+            ) {
+                var marker = new google.maps.Marker({
+                    map,
+                    position: place.geometry.location,
+                });
+
+                google.maps.event.addListener(marker, "click", () => {
+                    var content = document.createElement("div");
+
+                    const nameElement = document.createElement("h2");
+
+                    nameElement.textContent = place.name;
+                    content.appendChild(nameElement);
+
+                    const placeIdElement = document.createElement("p");
+
+                    placeIdElement.textContent = place.place_id;
+                    content.appendChild(placeIdElement);
+
+                    const placeAddressElement = document.createElement("p");
+
+                    placeAddressElement.textContent = place.formatted_address;
+                    content.appendChild(placeAddressElement);
+
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                });
+            }
+
+            applyfeatureLayer.style = (options) => {
+                if (options.feature.placeId == locationid) {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(13);
+                    return featureStyleOptions;
+                }
+            };
+        });
+    }
+
+    $(function () {        
+        if (locationid == "") {
+            DialogSweetAlert("error", "Please select location id.");
+            $("#DialogGoogleMap").modal('toggle');
+            return;
+        }
+        else {
+            initMap();
+            let divheight = $("#DialogGoogleMapmodalbody").height();
+            $("#drawmap").height(divheight);
+        }
+    });
+
+</script>
+
+<div id="drawmap"></div>
+<!-- prettier-ignore -->
+@*<script>
+    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+        ({ key: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg", v: "beta" });</script>*@

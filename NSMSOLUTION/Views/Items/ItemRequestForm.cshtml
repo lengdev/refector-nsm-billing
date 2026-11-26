@@ -1,0 +1,375 @@
+﻿@{
+Layout = null;
+System.Data.DataRow dataRow = ViewBag.Data.Rows[0];
+string systemId = dataRow["SystemID"].ToString();
+}
+<style>
+  #divItemRequestForm,
+  #divItemRequestForm * {
+    line-height: 1.35 !important;
+  }
+
+  .mytable th,
+  .mytable td {
+    border: 1px solid #000000 !important;
+  }
+
+  .mytable th {
+    background-color: @(systemId=="25" ? "#c5d9f1" : "#f89c39");
+    color: @(systemId=="25" ? "#000" : "#fff");
+  }
+
+  @@media print {
+    @@page {
+      margin: 10px 20px 10px 50px;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 30px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  }
+</style>
+<div id="divItemRequestForm">
+  <div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-end mt-4 mb-3">
+      <div class="img">
+        <img class="img-fluid" src="@ViewBag.Logo" width="200" />
+      </div>
+    </div>
+    @{
+    if (!ViewBag.IsRequestApprovalItemOut)
+    {
+    <div style="margin: 0 auto 10px;text-align: center;">
+      <h4 class="page-header mb-2 fnt-kh-moul" ​>ប័ណ្ណស្នើសុំសម្ភារៈ</h4>
+      <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">Stock Request</h4>
+    </div>
+    } else {
+    <div style="margin: 0 auto 10px;text-align: center;">
+      <h4 class="page-header mb-2 fnt-kh-moul" ​>ប័ណ្ណបញ្ចេញសម្ភារៈ</h4>
+      <h4 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">Stock Issue</h4>
+    </div>
+    }
+    }
+  </div>
+  <div class="row mt-2">
+    @{
+    if (!ViewBag.IsRequestApprovalItemOut)
+    {
+    <div class="col">
+      <label><b>Name:</b> @dataRow["RequestName"]</label><br />
+      <label><b>Tel:</b> @dataRow["RequestPhone"]</label><br />
+      <label><b>Department:</b> @dataRow["Department"]</label><br />
+      <label><b>Address:</b> @dataRow["Address"]</label>
+    </div>
+    <div class="col text-right">
+      <label><b>SR No.:</b> @dataRow["RequestNo"].ToString()</label><br />
+      <label><b>Date:</b> @dataRow["RequestDate"].ToString()</label><br />
+      <label><b>Requirement Date:</b> @dataRow["RequirementDate"].ToString()</label><br />
+    </div>
+    }
+    else
+    {
+    <div class="col">
+      <label><b>Name:</b> @dataRow["RequestName"]</label><br />
+      <label><b>Tel:</b> @dataRow["RequestPhone"]</label><br />
+      <label><b>Department:</b> @dataRow["Department"]</label><br />
+      <label><b>Address:</b> @dataRow["Address"]</label>
+    </div>
+    <div class="col text-right">
+      <label><b>SI No.:</b> @dataRow["RequestApprovalNo"].ToString()</label><br />
+      <label><b>SR No.:</b> @dataRow["RequestNo"].ToString()</label><br />
+      <label><b>Date:</b> @dataRow["RequestDate"].ToString()</label><br />
+      <label><b>Issue Date:</b> @dataRow["PreparedDate"].ToString()</label><br />
+    </div>
+    }
+    }
+  </div>
+  <div class="row mt-3">
+    <div class="col">
+      @{
+      if (!ViewBag.IsRequestApprovalItemOut)
+      {
+      <table class="table mytable">
+        <thead class="text-center">
+          <tr>
+            <th width="10%">No.</th>
+            <th width="35%">Item Name</th>
+            <th width="10%">QTY</th>
+            <th width="10%">Project</th>
+            <th width="10%">Block</th>
+            <th width="35%">Purpose or Reasons</th>
+          </tr>
+        </thead>
+        <tbody>
+          @{
+          int i = 0;
+          foreach (System.Data.DataRow dr in ViewBag.Data.Rows)
+          {
+          i++;
+          <tr>
+            <td align="center">@i</td>
+            <td>@dr["ItemName"]</td>
+            <td align="right">@dr["QTY"] @dr["Unit"]</td>
+            <td>@dr["ProjectName"]</td>
+            <td>@dr["Block"]</td>
+            <td>@dr["Remark"]</td>
+          </tr>
+          }
+          }
+        </tbody>
+      </table>
+      }
+      else
+      {
+      <table class="table mytable">
+        <thead class="text-center">
+          <tr>
+            <th>No.</th>
+            <th>Item Code</th>
+            <th width="35%">Item Name</th>
+            <th>SN Number</th>
+            <th width="10%">QTY</th>
+            <th width="10%">Project</th>
+            <th width="10%">Block</th>
+            <th width="25%">Purpose or Reasons</th>
+          </tr>
+        </thead>
+        <tbody>
+          @{
+          int i = 0;
+          foreach (System.Data.DataRow dr in ViewBag.Data.Rows)
+          {
+          i++;
+          <tr>
+            <td align="center">@i</td>
+            <td nowrap>@dr["ItemCode"]</td>
+            <td>@dr["ItemName"]</td>
+            <td nowrap>@dr["SerialNumber"]</td>
+            <td align="right" nowrap>@dr["QTY"] @dr["Unit"]</td>
+            <td nowrap>@dr["ProjectName"]</td>
+            <td>@dr["Block"]</td>
+            <td>@dr["Remark"]</td>
+          </tr>
+          }
+          }
+        </tbody>
+      </table>
+      }
+      }
+
+    </div>
+  </div>
+  @{
+  if(ViewBag.IsRequestApprovalItemOut) {
+  <div class="row">
+    <div class="col">
+      <p><b>***បញ្ចាក់ៈ សូមពិនិត្យទំនិញឲ្យបានត្រឹមត្រូវមុននឹងយកចេញពីកន្លែងយើងខ្ញុំ</b></p>
+    </div>
+  </div>
+  }
+  }
+  <footer class="footer">
+    <div id="divFooterPrint">
+      @{
+      if (!ViewBag.IsRequestApprovalItemOut)
+      {
+      <div class="row" style="margin-top:50px">
+        <div class="col-4">
+          @{string[] aa = dataRow["RequestSignature"].ToString().Split('~');
+          if (aa[0].ToString() != "")
+          {
+          <div class="text-center" style="height:90px">
+            <img height="90" src="../Uploads/Users/@aa[0]" />
+          </div>
+          }
+          else
+          {
+          <div class="text-center" style="height:90px"></div>
+          }
+          }
+          <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+          <div class="row">
+            <div class="col text-center">
+              <label class="col-form-label text-uppercase text-nowrap">Requested By</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="col-form-label text-nowrap">Name: @dataRow["RequestName"].ToString()</label><br>
+              <label class="col-form-label text-nowrap">Position: @dataRow["RequestByPosition"].ToString()</label><br>
+              <label class="col-form-label text-nowrap">Date: @dataRow["RequestDate"].ToString()</label><br>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">&nbsp;</div>
+        <div class="col-4">
+          @{aa = dataRow["NeedToApprovalSignature"].ToString().Split('~');
+          if (aa[0].ToString() != "" && dataRow["Status"].ToString() != "Pending")
+          {
+          <div class="text-center" style="height:90px">
+            <img height="90" src="../Uploads/Users/@aa[0]" />
+          </div>
+          }
+          else
+          {
+          <div class="text-center" style="height:90px"></div>
+          }
+          }
+          <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+          <div class="row">
+            <div class="col text-center">
+              <label class="col-form-label text-uppercase text-nowrap">
+                @(dataRow["Status"].ToString() == "Disapproved" ? "Disapproved By" : (dataRow["Status"].ToString() ==
+                "Rejected" ? "Rejected By" : "Approved By"))
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="col-form-label text-nowrap">Name: @(dataRow["Status"].ToString() != "Pending" ?
+                dataRow["ApprovalName"].ToString() : "")</label><br>
+              <label class="col-form-label text-nowrap">Position: @(dataRow["Status"].ToString() != "Pending" ?
+                dataRow["ApprovalByPosition"].ToString() : "")</label><br>
+              <label class="col-form-label text-nowrap">Date: @(dataRow["Status"].ToString() != "Pending" ?
+                DateTime.Parse(dataRow["ApproveDisapproveDate"].ToString()).ToString("dd-MM-yyyy") : "")</label><br>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      else
+      {
+      <div class="row" style="margin-top:50px">
+        <div class="col-4">
+          @{string[] aa = dataRow["RequestSignature"].ToString().Split('~');
+          if (aa[0].ToString() != "")
+          {
+          <div class="text-center" style="height:90px">
+            <img height="90" src="../Uploads/Users/@aa[0]" />
+          </div>
+          }
+          else
+          {
+          <div class="text-center" style="height:90px"></div>
+          }
+          }
+          <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+          <div class="row">
+            <div class="col text-center">
+              <label class="col-form-label text-uppercase text-nowrap">Prepared By</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="col-form-label text-nowrap">Name: @dataRow["PreparedBy"].ToString()</label><br>
+              <label class="col-form-label text-nowrap">Position: @dataRow["PrepareByPosition"].ToString()</label><br>
+              <label class="col-form-label text-nowrap">Date: @dataRow["PreparedDate"].ToString()</label><br>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          @{aa = dataRow["NeedToApprovalSignature"].ToString().Split('~');
+          if (aa[0].ToString() != "" && dataRow["RequestApprovalItemOutStatus"].ToString() != "Pending")
+          {
+          <div class="text-center" style="height:90px">
+            <img height="90" src="../Uploads/Users/@aa[0]" />
+          </div>
+          }
+          else
+          {
+          <div class="text-center" style="height:90px"></div>
+          }
+          }
+          <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+          <div class="row">
+            <div class="col text-center">
+              <label class="col-form-label text-uppercase text-nowrap">
+                @(
+                dataRow["RequestApprovalItemOutStatus"].ToString() == "Disapproved"
+                ? "Disapproved By" : "Approved By")
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="col-form-label text-nowrap">Name: @(dataRow["RequestApprovalItemOutStatus"].ToString() !=
+                "Pending" ? dataRow["ApprovalName"].ToString() : "")</label><br>
+              <label class="col-form-label text-nowrap">Position: @(dataRow["RequestApprovalItemOutStatus"].ToString()
+                != "Pending" ? dataRow["ApprovalByPosition"].ToString() : "")</label><br>
+              <label class="col-form-label text-nowrap">Date: @(dataRow["RequestApprovalItemOutStatus"].ToString() !=
+                "Pending" ? DateTime.Parse(dataRow["ApprovedRequestDate"].ToString()).ToString("dd-MM-yyyy") :
+                "")</label><br>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          @{aa = dataRow["ReceivedUserSignature"].ToString().Split('~');
+          if (aa[0].ToString() != "" && dataRow["IsReceived"].ToString() == "True")
+          {
+          <div class="text-center" style="height:90px">
+            <img height="90" src="../Uploads/Users/@aa[0]" />
+          </div>
+          }
+          else
+          {
+          <div class="text-center" style="height:90px"></div>
+          }
+          }
+          <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+          <div class="row">
+            <div class="col text-center">
+              <label class="col-form-label text-uppercase text-nowrap">
+                Received By
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="col-form-label text-nowrap">Name: @(dataRow["IsReceived"].ToString()=="True"?
+                dataRow["ReceivedBy"].ToString():"")</label><br>
+              <label class="col-form-label text-nowrap">Position: @(dataRow["IsReceived"].ToString()=="True"?
+                dataRow["ReceiveByPosition"].ToString():"")</label><br>
+              <label class="col-form-label text-nowrap">Date: @(dataRow["IsReceived"].ToString() == "True" ?
+                DateTime.Parse(dataRow["ReceivedDate"].ToString()).ToString("dd-MM-yyyy") : "")</label><br>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      }
+    </div>
+  </footer>
+</div>
+
+<script>
+  var SRID = '@ViewBag.SRID';
+  var Status = '@ViewBag.Status';
+  var IsRequestApprovalItemOut = '@ViewBag.IsRequestApprovalItemOut';
+  $(function () {
+    if (Status == "Approved" && IsRequestApprovalItemOut === "False") {
+      let btn = "<div class=\"\"><button type=\"button\" onclick=\"ApproveStockRequest();\" id=\"CancelSR\" class=\"btn btn-danger\">";
+      btn += '<i class="fa-regular fa-ban"></i> Cancel Stock Request</button></div>';
+      $("#SaveChange2").before(btn);
+    }
+
+    var contentHeight = $("#divItemRequestForm").height();
+    var a3Height = 1587;
+
+    // Adjust footer position
+    if (contentHeight >= a3Height) {
+      $(".footer").css("cssText", "position: static !important;width: 100%;");
+    }
+  });
+
+  function ApproveStockRequest() {
+    DoSaveChangeSweetCofirm("Items/ApproveDisapproveItemRequest", { ID: SRID, Status: "Cancel", FromName: "", RequestMode: "", ApprovalType: "", Comment: $("#txtComment").val() }, function (result) {
+      if (result.Result == 2) {
+        $("#CloseModal2").click();
+        LoadTableGrid(CurrentPage);
+      }
+    }, "", "", "Cancel Stock Request");
+  }
+</script>

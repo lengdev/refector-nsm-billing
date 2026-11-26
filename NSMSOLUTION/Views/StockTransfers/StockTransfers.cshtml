@@ -1,0 +1,109 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+
+    var ItemID = "@ViewBag.ItemID";
+    var ItemName = "@ViewBag.ItemName";
+    var ItemDescriptionData = "";
+    var DataTblEdit = "";
+    $(function () {
+        if (ItemID != "") {
+            setTimeout(function () {
+                $("input[name=ItemName]").val(ItemName).trigger("keydown");
+            }, 500);
+            setTimeout(function () {
+                $("ul.ui-autocomplete li").first().trigger("click");
+                $("input[name=ItemName]").blur();
+            }, 1000);
+        }
+
+        // Initialize autocomplete for SerialNumber input
+        $(document).on('focus', 'input[name="SerialNumber"]', function () {
+            $(this).autocomplete({
+                source: function (request, response) {
+                    // Get the current row and find ItemID input within it
+                    var itemId = $(this.element).closest('tr').find('input[name="ItemID"]').val();
+                    const warehouseId = $('#FromWarehouse_FromWarehouseID').val();
+                    if (itemId && warehouseId) {
+                        $.ajax({
+                            url: ServerRoot + "Items/JquerySerialNumberByItem",
+                            type: "GET",
+                            data: {
+                                itemId: itemId,
+                                warehouseId: warehouseId,
+                                term: request.term
+                            },
+                            success: function (data) {
+                                const dataFilter= JSON.parse(data.data).filter(i => i.QTY > 0);
+                                response($.map(dataFilter,
+                                    function (s) {
+                                        return {
+                                            itemId: s.ItemID,
+                                            label: s.SerialNumber,
+                                            value: s.SerialNumberID
+                                        };
+                                    })
+                                );
+                            }
+                        });
+                    }
+                },
+                minLength: 0,
+                select: function (event, ui) {
+                    // Update values in the same row
+                    var $currentRow = $(this).closest('tr');
+                    $currentRow.find('input[name="SerialNumberID"]').val(ui.item.value).trigger('change');
+                    $currentRow.find('input[name="SerialNumber"]').val(ui.item.label);
+                    //getQOHBySerialID($currentRow, ui.item);
+                    return false;
+                }
+            }).click(function () {
+                $(this).data("uiAutocomplete").search($(this).val());
+            });
+        });
+
+        $(document).on('focus', 'input[name="ExpireDate"]', function () {
+            const wid = $("#FromWarehouse_FromWarehouseID").val();
+            LoadCustomExpireDateAutoComplete(this, wid);
+        });
+        $(document).on('change', 'input[name="ItemID"]', function () {
+            const wid = $("#FromWarehouse_FromWarehouseID").val();
+            applyRequireToExpireDate(wid)
+        });
+    });
+    function QUANTITYChange(THIS) {
+        let Index = $("input[name=QUANTITY]").index(THIS);
+        $("input[name=QTYIN]").eq(Index).val($(THIS).val());
+        $("input[name=QTYOUT]").eq(Index).val($(THIS).val());
+    }
+    
+    function AddNewStockReason() {
+        ShowDialogBox2("Add Stock Reason", "", "", "AddStockReason/CreateStockReason?Type=AddNewStockReason", 0, "DialogAddNewStockReason", function () {
+            $("#DialogAddNewStockReason").on('hide.bs.modal', function () {
+                Reload_Reason();
+            });
+        });
+    }
+    function get_Date_Edit(response) {
+        response = JSON.parse(response);
+        DataTblEdit = response;
+    }
+    function CheckWarehouse() {
+        var FromWarehouse = $("#FromWarehouse").val();
+        var ToWarehouse = $("#ToWarehouse").val();
+        if (FromWarehouse == ToWarehouse) {
+            DialogSweetAlert("error", "Please select a destination warehouse that is different from the source warehouse.");
+            return false;
+        }
+        return true;
+    }
+
+    function SaveChangeCallbackFunction(response) {
+        let responses = JSON.parse(response.Data)[0];
+        PostData("StockTransfers/UpdateQtyCal?StockInID=" + responses.StockInID);
+        PostData(`Items/SaveChangeStockExpire?TranID=${responses.StockInID}&TranType=StockTransfer`);
+        $("#modal-default").modal('hide');
+    }
+
+</script>
+

@@ -1,0 +1,766 @@
+@{
+    /* ════════════════════════════════════════════════════════════════════════
+       REUSABLE ACCOUNTING ADVANCE FILTER COMPONENT
+       Supports: Profit & Loss (PL), Trial Balance (TB), General Journal (GJ), Expense Detail (ED), Expense Summary (ES), Cash Flow (CF)
+       ════════════════════════════════════════════════════════════════════════ */
+    string reportType = (ViewData["ReportType"] as string ?? "PL").ToUpper();
+    bool isTB = (reportType == "TB");
+    bool isPL = (reportType == "PL");
+    bool isED = (reportType == "ED" || reportType == "EXPENSEDETAIL");
+    bool isES = (reportType == "ES" || reportType == "EXPENSESUMMARY");
+    bool isCF = (reportType == "CF");
+    bool isGJ = (reportType == "GJ");
+}
+
+<!-- ADVANCE FILTER PANEL COMPONENT -->
+<div id="gjAdvanceContainer">
+    <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:10px; margin-bottom:10px;">
+        <div id="gjFilterStatusBadge" style="display:none;"></div>
+        <button type="button" id="gjAdvancePanelToggle" onclick="toggleGjAdvancePanel()" style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:12px; letter-spacing:0.5px; border-radius:6px; padding:10px 16px; background-color:#f8fafc; border:1px solid #cbd5e1; color:#1e293b; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.05); transition:all 0.2s;">
+            <i class="fas fa-th" style="color:#3b82f6; font-size:14px;"></i>
+            <span>ADVANCE FILTER</span>
+            <i class="fas fa-chevron-down gj-toggle-arrow" style="margin-left:4px; color:#64748b; transition:transform 0.2s;"></i>
+        </button>
+    </div>
+
+    <div class="gj-advance-panel" id="gjAdvancePanel" style="margin-bottom:15px; border:none; border-radius:12px; background:#ffffff; overflow:hidden; display:none; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);">
+        <div class="gj-advance-body" style="padding:24px;">
+
+            <!-- GRID OPTIONS -->
+            <div class="gj-section-title"><i class="fas fa-sliders-h" style="color:#3b82f6;"></i> GRID OPTIONS</div>
+            <div class="gj-grid">
+                <div class="gj-field">
+                    <label>Shown Columns</label>
+                    <div class="gj-multiselect-wrapper">
+                        <button type="button" class="gj-multiselect-btn" onclick="toggleGjMultiselect('gjShownColumnsDropdown', this)">
+                            <span id="gjShownColumnsBtnText">@(isTB ? "7 option(s) selected" : (isES ? "8 option(s) selected" : (isED ? "7 option(s) selected" : (isGJ ? "10 option(s) selected" : "3 option(s) selected"))))</span>
+                            <i class="fas fa-chevron-down" style="font-size:11px;color:#94a3b8;"></i>
+                        </button>
+                        <div class="gj-multiselect-dropdown" id="gjShownColumnsDropdown">
+                            @if (isTB)
+                            {
+                                <label class="gj-multiselect-option"><input type="checkbox" value="No"              checked> Nº</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountType"     checked> Account Type</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountCategory" checked> Account Category</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountName"     checked> Account Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Status"          checked> Status</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Debit"           checked> Debit</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Credit"          checked> Credit</label>
+                            }
+                            else if (isES)
+                            {
+                                <label class="gj-multiselect-option"><input type="checkbox" value="No" checked> No</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="NumberLink"      checked> Number</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ExpenseDate"     checked> Date</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ContactName"     checked> Contact Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Currency"        checked> Currency</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Memo"            checked> Memo</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AmountFormatted" checked> Amount $</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AmountUSD"       checked> Amount</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ClassName"> Class</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="PaymentMethod"> Payment Method</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ContactCode"> Contact Code</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="VATTIN"> VAT TIN</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountCode"> Account Code</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountName"> Account Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Reference"> Reference</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="TaxUSD"> Tax ($)</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="TaxRate"> Tax</label>
+                            }
+                            else if (isED)
+                            {
+                                <label class="gj-multiselect-option"><input type="checkbox" value="No" checked> No</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ExpenseIDLink" checked> Expense No.</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="PaymentDate" checked> Date</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ContactName" checked> Contact Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Account" checked> Account</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountName"> Account Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="SplitAccountCode"> Split Account Code</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="SplitAccountName"> Split Account Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountCode"> Account Code</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AmountUSD" checked> Amount</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Memo" checked> Memo</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="PaymentAccount"> Payment Account</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ItemName"> Item Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="QTY"> Quantity</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="UnitPrice"> Unit Price</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Discount"> Discount</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Tax"> Tax Rate (%)</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="VAT"> VAT</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="PaymentMethod"> Payment Method</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ClassName"> Class</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ApprovedBy"> Approved By</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ReceiptNumber"> Receipt No.</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Currency"> Currency</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Notes"> Notes</label>
+                            }
+                            else if (isGJ)
+                            {
+                                <label class="gj-multiselect-option"><input type="checkbox" value="No"          checked> Nº</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ClassName"> Class Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="InvoiceNoLink" checked> Type</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="InvoiceDate"  checked> Date</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="ReferenceNo"  checked> Reference Nº</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountName"  checked> Account Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="CustomerName" checked> Name</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Description"  checked> Description</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Debit"        checked> Debit</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Credit"       checked> Credit</label>
+                            }
+                            else
+                            {
+                                <label class="gj-multiselect-option"><input type="checkbox" value="AccountTypes" checked> Account Type</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Account"      checked> Account</label>
+                                <label class="gj-multiselect-option"><input type="checkbox" value="Amount"       checked> Amount</label>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gj-field">
+                    <label>Sort By</label>
+                    <select id="gjFilterSortBy">
+                        <option value="">Default</option>
+                        @if (isTB)
+                        {
+                            <option value="AccountNo">Account No</option>
+                            <option value="AccountType">Account Type</option>
+                            <option value="AccountCategory">Account Category</option>
+                            <option value="AccountName">Account Name</option>
+                            <option value="Status">Status</option>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        }
+                        else if (isES)
+                        {
+                            <option value="ExpenseDate">Date</option>
+                            <option value="Number">Number (Voucher Nº)</option>
+                            <option value="ContactName">Contact Name (Vendor)</option>
+                            <option value="AmountUSD">Amount</option>
+                            <option value="Memo">Memo</option>
+                        }
+                        else if (isED)
+                        {
+                            <option value="PaymentDate">Date</option>
+                            <option value="ExpenseID">Expense#</option>
+                            <option value="Category">Account</option>
+                            <option value="Vendor">Vendor</option>
+                            <option value="ItemName">Item Name</option>
+                            <option value="AmountUSD">Amount (USD)</option>
+                        }
+                        else if (isGJ)
+                        {
+                            <option value="InvoiceDate">Date</option>
+                            <option value="ReferenceNo">Reference Nº</option>
+                            <option value="AccountName">Account Name</option>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        }
+                        else
+                        {
+                            <option value="AccountTypes">Account Type</option>
+                            <option value="AccountName">Account Name</option>
+                            <option value="Amount">Amount</option>
+                        }
+                    </select>
+                </div>
+
+                @if (isPL)
+                {
+                    <div class="gj-field">
+                        <label>Display Columns</label>
+                        <select id="gjFilterDisplayColumns">
+                            <option value="Total" selected>Total</option>
+                            <option value="Week">Week</option>
+                            <option value="Month">Month</option>
+                            <option value="Quarter">Quarter</option>
+                            <option value="Year">Year</option>
+                            <option value="Location">Location</option>
+                            <option value="Name">Name</option>
+                            <option value="Class">Class</option>
+                            <option value="CreatedBy">Created By</option>
+                        </select>
+                    </div>
+                }
+
+                <div class="gj-field">
+                    <label>Order By</label>
+                    <select id="gjFilterOrderBy">
+                        <option value="asc" @(isES ? "selected" : "")>Ascending (Oldest First)</option>
+                        <option value="desc" @(!isES ? "selected" : "")>Descending (Newest First)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SEARCH FILTERS -->
+            <div class="gj-section-title" style="margin-top:10px;"><i class="fas fa-search" style="color:#8b5cf6;"></i> SEARCH FILTERS</div>
+            <div class="gj-grid">
+                @if (isCF)
+                {
+                    <div class="gj-field">
+                        <label>Report Type</label>
+                        <select id="cfFilterReportType">
+                            <option value="total" selected>Cash Flow</option>
+                            <option value="month">Cash Flow by Month</option>
+                            <option value="year">Cash Flow by Year</option>
+                        </select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Class</label>
+                        <select id="gjFilterClass" multiple="multiple"></select>
+                    </div>
+                }
+                else if (isTB)
+                {
+                    <div class="gj-field">
+                        <label>Account</label>
+                        <select id="gjFilterSubOfAccount" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Account Type</label>
+                        <select id="gjFilterAccountType" multiple="multiple">
+                            <option value="Asset">Asset</option>
+                            <option value="Liability">Liability</option>
+                            <option value="Equity">Equity</option>
+                            <option value="Revenue">Revenue</option>
+                            <option value="Expense">Expense</option>
+                            <option value="Cost">Cost of Goods Sold</option>
+                            <option value="Other Income">Other Income</option>
+                            <option value="Other Expense">Other Expense</option>
+                        </select>
+                    </div>
+                    <div class="gj-field">
+                        <label>From Balance</label>
+                        <input type="number" id="gjFilterFromBalance" step="0.01" placeholder="Min. Balance">
+                    </div>
+                    <div class="gj-field">
+                        <label>To Balance</label>
+                        <input type="number" id="gjFilterToBalance" step="0.01" placeholder="Max. Balance">
+                    </div>
+                    <div class="gj-field">
+                        <label>Created By</label>
+                        <select id="gjFilterCreatedBy" multiple="multiple"></select>
+                    </div>
+                }
+                else if (isED || isES)
+                {
+                    <div class="gj-field">
+                        <label>Vendor / Contact</label>
+                        <select id="edFilterVendor" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Account</label>
+                        <select id="gjFilterAccount" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Memo / Item</label>
+                        <input type="text" id="edFilterItemName" placeholder="Search memo or keyword">
+                    </div>
+                    <div class="gj-field">
+                        <label>Ref / Number</label>
+                        <input type="text" id="gjFilterRefNo" placeholder="Receipt or Number Nº">
+                    </div>
+                    <div class="gj-field">
+                        <label>Class</label>
+                        <select id="gjFilterClass" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Payment Method</label>
+                        <select id="edFilterPaymentMethod" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>From Amount</label>
+                        <input type="number" id="edFilterFromAmount" step="0.01" placeholder="Min. Amount">
+                    </div>
+                    <div class="gj-field">
+                        <label>To Amount</label>
+                        <input type="number" id="edFilterToAmount" step="0.01" placeholder="Max. Amount">
+                    </div>
+                    <div class="gj-field">
+                        <label>Created By</label>
+                        <select id="gjFilterCreatedBy" multiple="multiple"></select>
+                    </div>
+                }
+                else if (isPL)
+                {
+                    <div class="gj-field">
+                        <label>Location</label>
+                        <select id="gjFilterLocation" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Account</label>
+                        <select id="gjFilterAccount" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Name</label>
+                        <input type="text" id="gjFilterName" placeholder="Customer or Vendor name">
+                    </div>
+                    <div class="gj-field">
+                        <label>Reference No</label>
+                        <input type="text" id="gjFilterRefNo" placeholder="Invoice or Reference Nº">
+                    </div>
+                    <div class="gj-field">
+                        <label>Transaction Type</label>
+                        <select id="gjFilterTxType" multiple="multiple">
+                            <option value="Invoice">Invoice</option>
+                            <option value="Receipt">Receipt</option>
+                            <option value="Journal">Journal Entry</option>
+                            <option value="Expense">Expense</option>
+                            <option value="Opening Balance">Opening Balance</option>
+                        </select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Class</label>
+                        <select id="gjFilterClass" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Created By</label>
+                        <select id="gjFilterCreatedBy" multiple="multiple"></select>
+                    </div>
+                }
+                else if (isGJ)
+                {
+                    <div class="gj-field">
+                        <label>Location</label>
+                        <select id="gjFilterLocation" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Account</label>
+                        <select id="gjFilterAccount" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Name</label>
+                        <input type="text" id="gjFilterName" placeholder="Customer or Vendor name">
+                    </div>
+                    <div class="gj-field">
+                        <label>Reference No</label>
+                        <input type="text" id="gjFilterRefNo" placeholder="Invoice or Reference Nº">
+                    </div>
+                    <div class="gj-field">
+                        <label>Transaction Type</label>
+                        <select id="gjFilterTxType" multiple="multiple">
+                            <option value="Invoice">Invoice</option>
+                            <option value="Receipt">Receipt</option>
+                            <option value="Journal">Journal Entry</option>
+                            <option value="Expense">Expense</option>
+                            <option value="Opening Balance">Opening Balance</option>
+                        </select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Class</label>
+                        <select id="gjFilterClass" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>From Amount</label>
+                        <input type="number" id="gjFilterFromAmount" step="0.01" placeholder="Min. Amount">
+                    </div>
+                    <div class="gj-field">
+                        <label>To Amount</label>
+                        <input type="number" id="gjFilterToAmount" step="0.01" placeholder="Max. Amount">
+                    </div>
+                    <div class="gj-field">
+                        <label>Created By</label>
+                        <select id="gjFilterCreatedBy" multiple="multiple"></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Is Adjust</label>
+                        <select id="gjFilterIsAdjust">
+                            <option value="">--- Any ---</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="gj-field">
+                        <label>Location</label>
+                        <select id="gjFilterLocation"><option value="">--- All Locations ---</option></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Account</label>
+                        <select id="gjFilterAccount"><option value="">--- All Accounts ---</option></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Name</label>
+                        <input type="text" id="gjFilterName" placeholder="Customer or Vendor name">
+                    </div>
+                    <div class="gj-field">
+                        <label>Reference No</label>
+                        <input type="text" id="gjFilterRefNo" placeholder="Invoice or Reference Nº">
+                    </div>
+                    <div class="gj-field">
+                        <label>Transaction Type</label>
+                        <select id="gjFilterTxType">
+                            <option value="">--- All Types ---</option>
+                            <option value="Invoice">Invoice</option>
+                            <option value="Receipt">Receipt</option>
+                            <option value="Journal">Journal Entry</option>
+                            <option value="Expense">Expense</option>
+                            <option value="Opening Balance">Opening Balance</option>
+                        </select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Class</label>
+                        <select id="gjFilterClass"><option value="">--- All Classes ---</option></select>
+                    </div>
+                    <div class="gj-field">
+                        <label>Created By</label>
+                        <select id="gjFilterCreatedBy"><option value="">--- All Users ---</option></select>
+                    </div>
+                }
+            </div>
+
+            <!-- Actions -->
+            <div class="gj-actions">
+                <button type="button" onclick="resetGjFilter()" class="btn-clear-filter">
+                    <i class="fas fa-undo"></i> Clear All Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── Advance panel modern CSS ── */
+    .gj-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px 24px; margin-bottom:24px; }
+    .gj-field { display:flex; flex-direction:column; gap:6px; }
+    .gj-field label { font-size:12px; color:#475569; font-weight:600; text-align:left; letter-spacing:0.3px; margin:0; padding:0; width:100%; white-space:nowrap; }
+    .gj-field select,
+    .gj-field input[type=text],
+    .gj-field input[type=number] { width:100%; padding:8px 12px; border:1px solid #e2e8f0 !important; border-radius:8px !important; font-size:13px; height:40px; outline:none; box-shadow:0 1px 2px 0 rgba(0,0,0,0.05) !important; background-color:#f8fafc; transition:all 0.2s; color:#0f172a; -webkit-appearance:none; -moz-appearance:none; appearance:none; }
+    .gj-field select:focus,
+    .gj-field input[type=text]:focus,
+    .gj-field input[type=number]:focus { border-color:#3b82f6 !important; background-color:#ffffff; box-shadow:0 0 0 3px rgba(59,130,246,0.1) !important; }
+    
+    .gj-section-title { font-weight:700; font-size:13px; color:#1e293b; letter-spacing:0.5px; border-bottom:2px solid #f1f5f9; padding-bottom:8px; margin-bottom:16px; display:flex; align-items:center; gap:8px; text-transform:uppercase; }
+    
+    .gj-actions { display:flex; justify-content:center; padding-top:20px; border-top:1px solid #e2e8f0; }
+    .btn-clear-filter { height:40px; padding:0 24px; border-radius:8px; font-weight:600; font-size:13px; background-color:#f1f5f9; color:#475569; border:none; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; }
+    .btn-clear-filter:hover { background-color:#e2e8f0; color:#0f172a; }
+
+    #gjFilterStatusBadge .gj-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 999px;
+        line-height: 1.4;
+        background: linear-gradient(90deg, #3b82f6, #6366f1);
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .gj-multiselect-wrapper { flex:1; position:relative; }
+    .gj-multiselect-btn { width:100%; padding:8px 12px; border:1px solid #e2e8f0 !important; border-radius:8px !important; font-size:13px; height:40px; outline:none; box-shadow:0 1px 2px 0 rgba(0,0,0,0.05) !important; background-color:#f8fafc; transition:all 0.2s; color:#0f172a; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+    .gj-multiselect-dropdown { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #cbd5e1; border-radius:8px; z-index:9999; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); max-height:200px; overflow-y:auto; display:none; margin-top:4px; padding:6px 0; }
+    .gj-multiselect-dropdown.open { display:block; }
+    .gj-multiselect-option { padding:8px 12px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:10px; margin-bottom:0 !important; font-weight:500 !important; color:#334155; }
+    .gj-multiselect-option:hover { background:#f1f5f9; }
+
+    /* Select2 integration in Advance Panel */
+    .gj-field .select2-container { width: 100% !important; }
+    .gj-field .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        background-color: #f8fafc !important;
+        min-height: 40px !important;
+        padding: 2px 6px !important;
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important;
+        transition: all 0.2s;
+    }
+    .gj-field .select2-container--default.select2-container--focus .select2-selection--multiple,
+    .gj-field .select2-container--default.select2-container--open .select2-selection--multiple {
+        border-color: #3b82f6 !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
+    }
+    .gj-field .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #eff6ff !important;
+        border: 1px solid #bfdbfe !important;
+        color: #1e40af !important;
+        border-radius: 6px !important;
+        padding: 2px 8px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        margin-top: 4px !important;
+        margin-right: 4px !important;
+    }
+    .gj-field .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #3b82f6 !important;
+        margin-right: 4px !important;
+    }
+    .gj-field .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: #ef4444 !important;
+    }
+</style>
+
+<script type="text/javascript">
+    window.AccountingAdvanceFilter = window.AccountingAdvanceFilter || {
+        lastData: null,
+        isBinding: false,
+        togglePanel: function () {
+            var $panel = $('#gjAdvancePanel');
+            var $arrow = $('#gjAdvancePanelToggle').find('.gj-toggle-arrow');
+            $panel.slideToggle(200);
+            $arrow.toggleClass('fa-chevron-down fa-chevron-up');
+        },
+        toggleMultiselect: function (dropdownId) {
+            $('#' + dropdownId).toggleClass('open');
+        },
+
+        loadLookups: function (lookupUrl) {
+            window.AccountingAdvanceFilter.lookupRequested = true;
+            var url = lookupUrl || '/ExpenseDetailReport/GetFilterOptions';
+            var getParam = function(key) {
+                var s = new URLSearchParams(window.location.search);
+                if (s.get(key)) return s.get(key);
+                if (window.location.hash && window.location.hash.indexOf('?') !== -1) {
+                    var h = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+                    if (h.get(key)) return h.get(key);
+                }
+                return '';
+            };
+            var sysId = getParam('SystemID');
+            var whId = getParam('WarehouseID');
+
+            var reqData = {
+                SystemID: sysId,
+                WarehouseID: whId
+            };
+            var fallbackUrl = '/ExpenseDetailReport/GetFilterOptions';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: reqData,
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.success) {
+                        AccountingAdvanceFilter.lastData = res;
+                        AccountingAdvanceFilter.populateLookups(res);
+                    } else if (url !== fallbackUrl) {
+                        AccountingAdvanceFilter.loadLookups(fallbackUrl);
+                    }
+                },
+                error: function () {
+                    if (url !== fallbackUrl) {
+                        AccountingAdvanceFilter.loadLookups(fallbackUrl);
+                    }
+                }
+            });
+        },
+        
+        populateLookups: function (res) {
+            res = res || AccountingAdvanceFilter.lastData;
+            if (!res) return;
+
+            window.AccountingAdvanceFilter.isBinding = true;
+
+            var $wh = $('#gjFilterLocation').empty();
+            if (!$wh.prop('multiple')) $wh.append('<option value="">--- All Locations ---</option>');
+            $.each(res.warehouses || res.locations || [], function (_, w) {
+                var val = w.WarehouseID || w.WarehouseName || w;
+                var text = w.WarehouseName || w;
+                $wh.append('<option value="' + val + '">' + text + '</option>');
+            });
+            $wh.trigger('change');
+
+            var $acc = $('#gjFilterAccount').empty();
+            var $subAcc = $('#gjFilterSubOfAccount').empty();
+            if (!$acc.prop('multiple')) $acc.append('<option value="">--- All Accounts ---</option>');
+            if (!$subAcc.prop('multiple')) $subAcc.append('<option value="">--- All Accounts ---</option>');
+            $.each(res.accounts || [], function (_, a) {
+                var val = a.AccountName || a.AccountNo || a.ChartOfAccountID;
+                var text = (a.AccountNo ? a.AccountNo + ' - ' : '') + (a.AccountName || '');
+                $acc.append('<option value="' + val + '">' + text + '</option>');
+                $subAcc.append('<option value="' + val + '">' + text + '</option>');
+            });
+            $acc.trigger('change');
+            $subAcc.trigger('change');
+
+            var $cls = $('#gjFilterClass').empty();
+            if (!$cls.prop('multiple')) $cls.append('<option value="">--- All Classes ---</option>');
+            $.each(res.classes || res.Classes || [], function (_, c) {
+                var val = c.ClassName || c.ClassID || c;
+                var text = c.ClassName || c;
+                $cls.append('<option value="' + val + '">' + text + '</option>');
+            });
+            $cls.trigger('change');
+
+            var $usr = $('#gjFilterCreatedBy').empty();
+            if (!$usr.prop('multiple')) $usr.append('<option value="">--- All Users ---</option>');
+            $.each(res.users || [], function (_, u) {
+                var val = u.UserID || u.UserLoginID || u.FullName || u.UserName || u;
+                var text = u.FullName || u.UserName || u;
+                $usr.append('<option value="' + val + '">' + text + '</option>');
+            });
+            $usr.trigger('change');
+
+            var $vendor = $('#edFilterVendor').empty();
+            if (!$vendor.prop('multiple')) $vendor.append('<option value="">--- All Vendors ---</option>');
+            $.each(res.vendors || res.Vendors || [], function (_, v) {
+                var text = typeof v === 'string' ? v : (v.VendorName || v.vendorName || v.VendorID || v);
+                var val = typeof v === 'string' ? v : (v.VendorName || v.vendorName || v.VendorID || v);
+                if (text) {
+                    $vendor.append($('<option></option>').val(val).text(text));
+                }
+            });
+            $vendor.trigger('change');
+
+            var $pm = $('#edFilterPaymentMethod').empty();
+            if (!$pm.prop('multiple')) $pm.append('<option value="">--- All Methods ---</option>');
+            $.each(res.paymentMethods || res.PaymentMethods || [], function (_, p) {
+                var text = typeof p === 'string' ? p : (p.PaymentMethod || p.paymentMethod || p.PaymentMethodID || p);
+                var val = typeof p === 'string' ? p : (p.PaymentMethod || p.paymentMethod || p.PaymentMethodID || p);
+                if (text) {
+                    $pm.append($('<option></option>').val(val).text(text));
+                }
+            });
+            $pm.trigger('change');
+
+            window.AccountingAdvanceFilter.isBinding = false;
+        },
+        getValues: function () {
+            var getVal = function(id) {
+                var v = $(id).val();
+                if ($.isArray(v)) {
+                    return v.filter(function(x) { return x !== null && x !== ''; }).join(',');
+                }
+                return v || '';
+            };
+            return {
+                subOfAccount: getVal('#gjFilterSubOfAccount'),
+                accountType: getVal('#gjFilterAccountType'),
+                fromBalance: parseFloat($('#gjFilterFromBalance').val()),
+                toBalance: parseFloat($('#gjFilterToBalance').val()),
+                location: getVal('#gjFilterLocation'),
+                account: getVal('#gjFilterAccount'),
+                name: $.trim($('#gjFilterName').val()),
+                className: getVal('#gjFilterClass'),
+                txType: getVal('#gjFilterTxType'),
+                refNo: $.trim($('#gjFilterRefNo').val()),
+                createdBy: getVal('#gjFilterCreatedBy'),
+                displayColumns: $('#gjFilterDisplayColumns').val() || 'Default',
+                sortBy: $('#gjFilterSortBy').val() || '',
+                orderBy: $('#gjFilterOrderBy').val() || 'asc',
+                vendor: getVal('#edFilterVendor'),
+                paymentMethod: getVal('#edFilterPaymentMethod'),
+                itemName: $.trim($('#edFilterItemName').val()),
+                fromAmount: parseFloat($('#edFilterFromAmount').val()),
+                toAmount: parseFloat($('#edFilterToAmount').val()),
+                isAdjust: $('#gjFilterIsAdjust').val() || '',
+                cashFlowReportType: $('#cfFilterReportType').val() || 'total'
+            };
+        },
+        getFilters: function () {
+            return this.getValues();
+        },
+        resetFilters: function () {
+            $('#gjFilterTxType, #gjFilterRefNo, #gjFilterName, #gjFilterClass, #gjFilterLocation, #gjFilterAccount, #gjFilterSubOfAccount, #gjFilterAccountType, #gjFilterFromBalance, #gjFilterToBalance, #gjFilterCreatedBy, #gjFilterSortBy, #edFilterVendor, #edFilterPaymentMethod, #edFilterItemName, #edFilterFromAmount, #edFilterToAmount, #gjFilterIsAdjust, #cfFilterReportType').val(null).trigger('change');
+            $('#gjFilterDisplayColumns').val('Default');
+            $('#gjFilterOrderBy').val('desc');
+            $('#gjShownColumnsDropdown input[type=checkbox]').each(function () {
+                var field = $(this).val();
+                var isHiddenByDefault = (field === 'QTY' || field === 'UnitPrice' || field === 'Discount' || field === 'VAT' || field === 'ClassName' || field === 'PaymentMethod' || field === 'ContactCode' || field === 'VATTIN' || field === 'AccountCode' || field === 'AccountName' || field === 'Reference' || field === 'TaxUSD' || field === 'TaxRate');
+                $(this).prop('checked', !isHiddenByDefault);
+            });
+            var selCount = $('#gjShownColumnsDropdown input[type=checkbox]:checked').length;
+            $('#gjShownColumnsBtnText').text(selCount + ' option(s) selected');
+        }
+    };
+
+    function toggleGjAdvancePanel() { window.AccountingAdvanceFilter.togglePanel(); }
+    function toggleGjMultiselect(id, btn) { window.AccountingAdvanceFilter.toggleMultiselect(id); }
+    function resetGjFilter() {
+        window.AccountingAdvanceFilter.resetFilters();
+        if (typeof generateProfitAndLossReport === 'function') {
+            generateProfitAndLossReport();
+        }
+        if (typeof generateCashFlowReport === 'function') {
+            generateCashFlowReport();
+        }
+        if (typeof applyTbFilters === 'function') {
+            applyTbFilters();
+        } else if (typeof generateTrialBalanceReport === 'function') {
+            generateTrialBalanceReport();
+        } else if (typeof SearchTrialBalance === 'function') {
+            SearchTrialBalance();
+        }
+        if (typeof applyEdFilters === 'function') {
+            applyEdFilters();
+        }
+        if (typeof applyGjFilters === 'function') {
+            applyGjFilters();
+        }
+    }
+
+    $(document).on('change', '#gjShownColumnsDropdown input[type=checkbox]', function () {
+        var count = $('#gjShownColumnsDropdown input[type=checkbox]:checked').length;
+        $('#gjShownColumnsBtnText').text(count + ' option(s) selected');
+        if (typeof applyShownColumns === 'function') {
+            applyShownColumns();
+        }
+        if (typeof applyEdFilters === 'function') {
+            applyEdFilters();
+        }
+        if (typeof applyGjFilters === 'function') {
+            applyGjFilters();
+        }
+    });
+
+    $(document).on('click.gjMultiselect', function (e) {
+        if (!$(e.target).closest('.gj-multiselect-wrapper').length) {
+            $('.gj-multiselect-dropdown').removeClass('open');
+        }
+    });
+
+    var _advFilterTimeout = null;
+    $(document).on('change input', '#gjAdvancePanel select, #gjAdvancePanel input', function (e) {
+        if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+        if (window.AccountingAdvanceFilter && window.AccountingAdvanceFilter.isBinding) return;
+        
+        if (_advFilterTimeout) clearTimeout(_advFilterTimeout);
+        
+        _advFilterTimeout = setTimeout(function() {
+            if (typeof generateProfitAndLossReport === 'function') {
+                generateProfitAndLossReport();
+            }
+            if (typeof generateCashFlowReport === 'function') {
+                generateCashFlowReport();
+            }
+            if (typeof applyTbFilters === 'function') {
+                applyTbFilters();
+            } else if (typeof generateTrialBalanceReport === 'function') {
+                generateTrialBalanceReport();
+            } else if (typeof SearchTrialBalance === 'function') {
+                SearchTrialBalance();
+            }
+            if (typeof applyEdFilters === 'function') {
+                applyEdFilters();
+            }
+            if (typeof applyGjFilters === 'function') {
+                applyGjFilters();
+            }
+            if (typeof applyShownColumns === 'function') {
+                applyShownColumns();
+            }
+        }, 350);
+    });
+
+    $(function () {
+        // Initialize Select2 safely if plugin is loaded
+        if ($.fn && typeof $.fn.select2 === 'function') {
+            $('#gjFilterAccount, #gjFilterSubOfAccount, #gjFilterAccountType, #edFilterVendor, #gjFilterClass, #gjFilterLocation, #gjFilterTxType, #gjFilterCreatedBy, #edFilterPaymentMethod').select2({
+                width: '100%',
+                placeholder: '--- Select Option(s) ---',
+                allowClear: true
+            });
+        }
+
+        if (!window.AccountingAdvanceFilter.lookupRequested) {
+            window.AccountingAdvanceFilter.loadLookups('/ExpenseDetailReport/GetFilterOptions');
+        }
+    });
+</script>

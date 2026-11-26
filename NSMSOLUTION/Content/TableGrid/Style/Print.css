@@ -1,0 +1,70 @@
+﻿@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.eot") /* EOT file for IE */
+}
+@font-face {
+    font-family: IDAutomationC128M;
+    src: url("IDAutomationC128M.ttf") /* TTF file for CSS3 browsers */
+}
+html, body {
+    font-size: 12px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+hr {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+table .Header{
+    font-size:20px;
+}
+.InvKhmerHeader {
+    font-family: "Khmer OS Muol Light";
+    font-weight: normal;
+    font-size: 16px;
+}
+.SubTitle{
+    font-size:12px;
+}
+table.TableGride {
+    font-family: Verdana, Geneva, sans-serif;
+    border-collapse: collapse;
+    font-size: 12px;
+    border: black solid 1px;
+}
+.TableGride td {
+    border-left: black solid 1px;
+    border-bottom: black solid 1px;
+}
+
+.TableGride .header, .TableGride th {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    background: lightgray;
+    border-bottom: black solid 1px;
+}
+    .TableGride .header th, .TableGride th {
+        border-left: black solid 1px;
+    }
+
+.TableGride td.Total
+{
+	color:Red;
+	font-weight:bold;
+}
+.TableGride tr.footer {
+    background: lightgray;
+    height: 30px;
+}
+    .TableGride tr.footer td {
+        border: black solid 0;
+    }
+.TotalFooter, .TotalFooter tr, .TotalFooter td
+{
+    font-weight:bold;
+    background-color:lightgray;
+}

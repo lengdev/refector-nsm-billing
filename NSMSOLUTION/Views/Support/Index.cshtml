@@ -1,0 +1,62 @@
+﻿@{ Layout = null;}
+<section>
+    <div class="card-header pl-0 mb-5 pb-2"><h5>Support Dashboard</h5></div>
+    @*<div class="row">
+        <div class="card col-12">
+            <div class="card-header pl-0 mb-5 pb-2"><h5>Projects</h5></div>
+            <div id="ShowProject"></div>
+        </div>
+    </div>*@
+    <div class="row">
+        <div class="col-md-4">
+            <a href="#!/ProjectLists">
+                <div class="widget-chart widget-chart-hover shadow p-0 m-0">
+                    <div class="small-box bg-primary">
+                        <div class="inner text-white text-left">
+                            <h3 id="ProjectLists">0</h3>
+                            <h5>Project Lists</h5>
+                        </div>
+                        <div class="icon text-white">
+                            <i class="far fa-file-alt" style="font-size:90px"></i>
+                        </div>
+                        <div class="small-box-footer">More info <i class="fas fa-arrow-circle-right" aria-hidden="true"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(function () {
+        ShowProject();
+    });
+
+    function ShowProject() {
+        LoadData("Support/LoadProject", function (response) {
+            var Data = JSON.parse(JSON.parse(response).Data);
+            if (Data.length > 0)
+                $("#ProjectLists").html(Data.length);
+            //var row = '<div class="row">';
+            //$.each(Data, function (ke, value) {
+            //    row += '<div class="col-md-6 col-lg-3">';
+            //    row += '<div style="min-height:180px" class="shadow widget-chart-hover widget-chart widget-chart2 text-left mb-3 card-btm-border card-shadow-success border-success card">';
+            //    row += '<div class="widget-chat-wrapper-outer">';
+            //    row += '<div class="widget-chart-content">';
+            //    row += '<div class="widget-title h5 text-uppercase">' + value.ProjectName +'</div>';
+            //    row += '<div class="widget-chart-flex align-items-center">';
+            //    row += '<div><small class="pl-1 text-muted text-uppercase">';
+            //    //row += value.ProjectName;
+            //    row += '</small></div>';                
+            //    row += '</div>';
+            //    row += '<div class="widget-chart-content"><small class="h6">';
+            //    row += value.Memo;
+            //    row += '</small></div>';
+            //    row += '</div></div></div></div>';
+            //});
+            //row += '</div>';
+            //console.log(Data);
+            //$("#ShowProject").html(row);
+        });
+    }
+</script>

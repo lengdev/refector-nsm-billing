@@ -1,0 +1,670 @@
+﻿<link rel="stylesheet" href="App/Views/Report/style.css">
+<style>
+  /* Filter summary lines are for on-screen reference only: never printed. */
+  @media print {
+    .rp-doc-filter {
+      display: none !important;
+    }
+  }
+</style>
+
+<div class="report-page" ng-controller="ReportController" ng-cloak>
+
+  <!-- ═════════════ LIST: ALL REPORTS ═════════════ -->
+  <div class="rl" ng-if="!selectedReport">
+    <div class="rl-head">
+      <span class="rl-head-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 16v5" />
+          <path d="M16 14.639V21" />
+          <path d="M20 10.656V21" />
+          <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+          <path d="M4 18.463V21" />
+          <path d="M8 14.656V21" />
+        </svg>
+      </span>
+      <span class="rl-head-title">All Reports</span>
+    </div>
+
+    <div class="rl-body">
+      <aside class="rl-nav">
+        <button type="button" class="rl-cat" ng-class="{ active: !selectedCategory }" ng-click="selectCategory(null)">
+          All
+        </button>
+        <button type="button" class="rl-cat" ng-repeat="c in reportCategories"
+          ng-class="{ active: selectedCategory.id === c.id }" ng-click="selectCategory(c)">
+          {{ c.name }}
+        </button>
+      </aside>
+
+      <main class="rl-main">
+        <!-- Favorites -->
+        <section class="rl-section" ng-if="favorites.length">
+          <div class="rl-section-head" ng-click="toggleSection('favorites')">
+            <i class="ti" ng-class="collapsed.favorites ? 'ti-plus' : 'ti-x'"></i>
+            <span>Favorites</span>
+          </div>
+          <div class="rl-grid" ng-hide="collapsed.favorites">
+            <div class="rl-item fav" ng-repeat="r in favorites track by r.id">
+              <button type="button" class="rl-star on" ng-click="toggleFavorite(r, $event)" title="Remove favorite">
+                <i class="ti ti-star-filled"></i>
+              </button>
+              <a href="" class="rl-link" ng-click="openReport(r)">{{ r.name }}</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Categories -->
+        <section class="rl-section" ng-repeat="c in shownCategories() track by c.id" ng-if="c.reports.length">
+          <div class="rl-section-head" ng-click="toggleSection(c.id)">
+            <i class="ti" ng-class="collapsed[c.id] ? 'ti-plus' : 'ti-x'"></i>
+            <span>{{ c.name }}</span>
+          </div>
+
+          <div ng-hide="collapsed[c.id]">
+            <div class="rl-group" ng-repeat="g in c.groups track by g.id" ng-if="g.reports.length">
+              <div class="rl-group-head" ng-if="c.groups.length > 1" ng-click="toggleSection(g.id)">
+                <i class="ti ti-chevron-down" ng-class="{ closed: collapsed[g.id] }"></i>
+                <span>{{ g.name }}</span>
+              </div>
+
+              <div class="rl-grid" ng-hide="collapsed[g.id]">
+                <div class="rl-item" ng-repeat="r in g.reports track by r.id" ng-class="{ fav: isFavorite(r) }">
+                  <button type="button" class="rl-star" ng-class="{ on: isFavorite(r) }"
+                    ng-click="toggleFavorite(r, $event)" title="Toggle favorite">
+                    <i class="ti" ng-class="isFavorite(r) ? 'ti-star-filled' : 'ti-star'"></i>
+                  </button>
+                  <a href="" class="rl-link" ng-click="openReport(r)">{{ r.name }}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ═════════════ VIEWER ═════════════ -->
+  <div class="rv" ng-if="selectedReport">
+
+    <!-- LEFT: toolbar + paper preview -->
+    <div class="rv-main">
+      <div class="rv-toolbar">
+        <button type="button" class="rp-btn rp-btn-outline" ng-click="closeViewer()" title="Back to all reports">
+          <i class="ti ti-arrow-left"></i>
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline" ng-click="printReport()" ng-disabled="!canExport()">
+          <i class="ti ti-printer"></i> Print
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline" ng-click="exportExcel()" ng-disabled="!canExport()">
+          <i class="ti ti-file-spreadsheet"></i> Export
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline" ng-if="groupConfig()" ng-click="expandAll()">
+          <i class="ti ti-chevrons-down"></i> Expand
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline" ng-if="groupConfig()" ng-click="collapseAll()">
+          <i class="ti ti-chevrons-up"></i> Collapse
+        </button>
+        <div class="rp-zoom">
+          <button type="button" ng-click="zoomOut()" aria-label="Zoom out"><i class="ti ti-minus"></i></button>
+          <span>{{ zoom }}%</span>
+          <button type="button" ng-click="zoomIn()" aria-label="Zoom in"><i class="ti ti-plus"></i></button>
+        </div>
+        <button type="button" class="rp-btn rp-btn-outline rp-icon-btn" ng-click="loadReport()" ng-disabled="isLoading"
+          aria-label="Refresh">
+          <i class="ti" ng-class="isLoading ? 'ti-loader-2 ti-spin' : 'ti-refresh'"></i>
+        </button>
+        <div class="rp-filter-toggle">
+          <button type="button" class="rp-btn rp-btn-primary" ng-if="drillOrigin" ng-click="drillBack()"
+            title="Back to {{ drillOrigin.report.name }}">
+            <i class="ti ti-corner-up-left"></i> Back
+          </button>
+          <button type="button" class="rp-btn rp-btn-primary rp-icon-btn rp-filter-toggle" ng-click="openDrawer()"
+            aria-label="Open filters" title="Filters">
+            <i class="ti ti-adjustments-horizontal"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="rv-stage">
+        <div class="rp-paper" ng-style="{ zoom: zoom / 100 }" id="report-result">
+
+          <div class="rp-doc-head" ng-style="{ textAlign: settings.align }">
+            <img class="rp-doc-logo" ng-if="logoVisible()" ng-src="{{ logoSrc() }}" alt="Logo" />
+            <div ng-repeat="h in headerConfig track by h.id" ng-if="h.show && headerText(h)"
+              ng-class="{ 'rp-doc-company': h.id === 'company', 'rp-doc-company-kh fnt-kh-moul': h.id === 'companyKh', 'rp-doc-title': h.id === 'title', 'rp-doc-sub': h.id === 'vat' || h.id === 'period' }">
+              {{ headerText(h) }}</div>
+            <div class="rp-doc-sub rp-doc-filter" ng-repeat="f in filterSummary()" ng-hide="true"><b>{{ f.label }} :</b>
+              {{ f.value }}
+            </div>
+          </div>
+
+          <div class="rp-table-wrap">
+
+            <!-- screen table -->
+            <table class="rp-table rp-screen-table" rp-trunc-title>
+              <thead>
+                <tr ng-if="hasHeaderGroups">
+                  <th ng-repeat-start="g in headerGroups track by g.id" ng-if="g.column" rowspan="2"
+                    ng-class="{ 'rp-num': g.column.num, 'rp-sortable': g.column.label !== 'No.', 'rp-sorted': sort.key === g.column.key, 'rp-row-action-column': g.column.stickyRight }"
+                    ng-style="g.column.style" ng-click="toggleSort(g.column)">
+                    {{ g.column.label }}
+                    <i class="ti rp-sort-ico" ng-if="g.column.label !== 'No.'" ng-class="sortIcon(g.column)"></i>
+                    <span class="rp-resizer" ng-mousedown="startResize($event, g.column)"
+                      ng-click="$event.stopPropagation()"></span>
+                  </th>
+                  <th ng-repeat-end ng-if="!g.column" ng-attr-colspan="{{ g.span }}" class="rp-th-group">{{ g.label }}
+                  </th>
+                </tr>
+
+                <tr ng-if="hasHeaderGroups">
+                  <th ng-repeat="c in visibleColumns" ng-if="c.parent"
+                    ng-class="{ 'rp-num': c.num, 'rp-sortable': true, 'rp-sorted': sort.key === c.key, 'rp-row-action-column': c.stickyRight }"
+                    ng-style="c.style" ng-click="toggleSort(c)">
+                    {{ c.label }}
+                    <i class="ti rp-sort-ico" ng-class="sortIcon(c)"></i>
+                    <span class="rp-resizer" ng-mousedown="startResize($event, c)"
+                      ng-click="$event.stopPropagation()"></span>
+                  </th>
+                </tr>
+
+                <tr ng-if="!hasHeaderGroups">
+                  <th ng-repeat="c in visibleColumns"
+                    ng-class="{ 'rp-num': c.num, 'rp-sortable': c.label !== 'No.', 'rp-sorted': sort.key === c.key, 'rp-row-action-column': c.stickyRight }"
+                    ng-style="c.style" ng-click="toggleSort(c)">
+                    {{ c.label }}
+                    <i class="ti rp-sort-ico" ng-if="c.label !== 'No.'" ng-class="sortIcon(c)"></i>
+                    <span class="rp-resizer" ng-mousedown="startResize($event, c)"
+                      ng-click="$event.stopPropagation()"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <tr class="rp-no-data rp-error-row" ng-if="!isLoading && reportError">
+                  <td ng-attr-colspan="{{ visibleColumns.length || 1 }}">
+                    <i class="ti ti-alert-circle"></i>
+                    {{ reportError }}
+                  </td>
+                </tr>
+
+                <tr class="rp-loading-row" ng-if="isLoading" role="status" aria-live="polite">
+                  <td ng-attr-colspan="{{ visibleColumns.length || 1 }}">
+                    <div class="rp-loading-box">
+                      <i class="ti ti-loader-2 ti-spin"></i>
+                      <span>Loading report…</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr ng-repeat-start="item in (isLoading ? [] : viewRows) track by item.id" ng-if="item.type === 'group'"
+                  class="rp-group-row" ng-click="toggleGroup(item)">
+                    <td ng-attr-colspan="{{ groupSpan() }}"
+                        ng-style="{ 'padding-left': (((item.level || 1) - 1) * 22) + 'px' }">
+                        <i class="ti rp-group-caret" ng-class="item.collapsed ? 'ti-chevron-right' : 'ti-chevron-down'"></i>
+                        <!--<b>{{ item.label }}: {{ item.key }}</b>
+    <span class="rp-group-count">{{ item.count }} {{ groupConfig().countLabel }}</span>-->
+                        <b>{{ item.title }}</b>
+                        <span class="rp-group-count" ng-if="item.showCount">{{ item.count }} {{ item.countLabel }}</span>
+
+                    </td>
+                  <td ng-repeat="c in visibleColumns" ng-if="$index >= groupSpan()"
+                    ng-class="{ 'rp-num': c.num, 'rp-row-action-column': c.stickyRight }"
+                    ng-style="c.style">{{ groupSum(item, c) }}</td>
+                </tr>
+
+                <tr ng-repeat-end ng-if="item.type === 'row'" ng-class="{ 'rp-sub-row': item.group !== undefined }">
+                  <td ng-repeat="c in visibleColumns"
+                    ng-class="{ 'rp-num': c.num, 'rp-row-action-column': c.stickyRight }"
+                    ng-style="c.style">
+                    <span ng-show="c.label === 'No.'">{{ item.no }}</span>
+
+                    <a class="rp-ext" ng-if="c.label !== 'No.' && c.link && linkFor(item.row, c)"
+                      ng-href="{{ linkFor(item.row, c) }}" target="_blank" rel="noopener">
+                      {{ cell(item.row, c) }} <i class="ti ti-external-link"></i>
+                    </a>
+
+                    <a href="" class="rp-ext" ng-if="c.label !== 'No.' && c.click && cell(item.row, c)"
+                      ng-class="cellClass(item.row, c)" ng-attr-aria-label="{{ c.label }}"
+                      ng-click="runAction(item.row, c, $event)">
+                      {{ cell(item.row, c) }} <i class="ti" ng-class="c.icon || 'ti-printer'"></i>
+                    </a>
+
+                    <span ng-class="cellClass(item.row, c)"
+                      ng-hide="c.label === 'No.' || (c.link && linkFor(item.row, c)) || (c.click && cell(item.row, c))">{{
+                      cell(item.row, c) }}</span>
+                  </td>
+                </tr>
+
+                <tr class="rp-no-data" ng-if="!isLoading && !reportError && !reportRows.length">
+                  <td ng-attr-colspan="{{ visibleColumns.length }}">
+                    <i class="ti ti-database-off"></i>
+                    {{ previewed ? 'No data' : 'Click View to load data' }}
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot ng-if="!reportError && previewed && totalRows && hasReportTotals()">
+                <tr class="rp-total-row">
+                  <td class="rp-total-label" ng-class="totalLabelClass()"
+                    ng-attr-colspan="{{ totalSpan() }}" ng-style="cellPad">{{ totalLabel() }}</td>
+                  <td ng-repeat="c in visibleColumns" ng-if="$index >= totalSpan()"
+                    ng-class="{ 'rp-num': c.num || c.agg, 'rp-row-action-column': c.stickyRight }"
+                    ng-style="c.style">
+                    {{ totalForColumn(c) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <!-- print table -->
+            <table class="rp-table rp-print-table">
+              <thead>
+                <tr>
+                  <th ng-repeat="c in visibleColumns" ng-class="{ 'rp-num': c.num }" ng-style="c.style">{{ c.label }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat-start="item in printRows track by item.id" ng-if="item.type === 'group'"
+                      class="rp-group-row">
+                      <!--<td ng-attr-colspan="{{ groupSpan() }}"><b>{{ item.label }}: {{ item.key }}</b> ({{ item.count }})
+    </td>-->
+                      <td ng-attr-colspan="{{ groupSpan() }}"><b>{{ item.title }}</b> <span ng-if="item.showCount">({{ item.count }})</span></td>
+                      <td ng-repeat="c in visibleColumns" ng-if="$index >= groupSpan()" ng-class="{ 'rp-num': c.num }">
+                          {{
+                    groupSum(item, c)
+                          }}
+                      </td>
+                  </tr>
+                <tr ng-repeat-end ng-if="item.type === 'row'"
+                  ng-class="[ { 'rp-sub-row': item.group !== undefined }, rowClass(item.row) ]">
+                  <td ng-repeat="c in visibleColumns" ng-class="{ 'rp-num': c.num }" ng-style="c.style">{{ c.label ===
+                    'No.' ? item.no : cell(item.row, c) }}</td>
+                </tr>
+                <tr class="rp-no-data" ng-if="!reportRows.length">
+                  <td ng-attr-colspan="{{ visibleColumns.length }}">{{ previewed ? 'No data' : 'Click View to load data'
+                    }}</td>
+                </tr>
+              </tbody>
+              <tfoot ng-if="previewed && reportRows.length && hasReportTotals()">
+                <tr class="rp-total-row">
+                  <td class="rp-total-label" ng-class="totalLabelClass()"
+                    ng-attr-colspan="{{ totalSpan() }}" ng-style="cellPad">{{ totalLabel() }}</td>
+                  <td ng-repeat="c in visibleColumns" ng-if="$index >= totalSpan()" ng-class="{ 'rp-num': c.num }"
+                    ng-style="c.style">
+                    {{ totalForColumn(c, pageTotals) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <nav class="rp-pagination" ng-if="!reportError && totalRows">
+            <span>{{ pageSummary() }}</span>
+            <div class="rp-pagination-controls">
+              <label for="rp-page-size">Rows</label>
+              <select id="rp-page-size" class="form-control" ng-model="pagination.pageSize" ng-disabled="isLoading"
+                ng-options="size as pageSizeLabel(size) for size in pageSizeOptions"
+                ng-change="changePageSize()"></select>
+              <button type="button" class="rp-btn rp-btn-outline" aria-label="Previous page"
+                ng-disabled="isLoading || currentPage <= 1" ng-click="setPage(currentPage - 1)">
+                <i class="ti ti-chevron-left"></i>
+              </button>
+              <span>Page {{ currentPage }} of {{ pageCount() }}</span>
+              <button type="button" class="rp-btn rp-btn-outline" aria-label="Next page"
+                ng-disabled="isLoading || currentPage >= pageCount()" ng-click="setPage(currentPage + 1)">
+                <i class="ti ti-chevron-right"></i>
+              </button>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Report Type / Filter / Customize -->
+    <div class="rv-scrim" ng-show="ui.drawerOpen" ng-click="closeDrawer()" aria-hidden="true"></div>
+    <aside class="rv-panel" ng-show="ui.drawerOpen" role="dialog" aria-modal="true" aria-labelledby="rp-drawer-title">
+      <header class="rv-panel-head">
+        <span class="rp-filter-mark"><i class="ti ti-adjustments-horizontal"></i></span>
+        <h2 id="rp-drawer-title">Report Filter</h2>
+        <button type="button" class="rp-filter-close" ng-click="closeDrawer()" aria-label="Close filters">
+          <i class="ti ti-x"></i>
+        </button>
+      </header>
+
+      <div class="rv-panel-body">
+
+        <!-- Report Type -->
+        <div class="rp-pcard rp-type-card">
+          <div class="rp-pcard-head static">
+            <i class="ti ti-chart-bar"></i><span>Report Type</span>
+          </div>
+          <div class="rp-pcard-body">
+            <div class="rp-select" ng-class="{ open: ui.typeOpen }">
+              <div class="rp-select-backdrop" ng-show="ui.typeOpen" ng-click="ui.typeOpen = false"></div>
+
+              <button type="button" class="rp-select-trigger" ng-click="ui.typeOpen = !ui.typeOpen">
+                <i class="ti rp-select-icon" ng-class="reportIcon(selectedReport.name)"></i>
+                <span class="rp-select-value">{{ selectedReport.name }}</span>
+                <i class="ti ti-chevron-down rp-select-caret"></i>
+              </button>
+
+              <div class="rp-select-menu" ng-show="ui.typeOpen">
+                <div class="rp-search">
+                  <i class="ti ti-search"></i>
+                  <input type="text" ng-model="ui.reportSearch" placeholder="Search report…" autocomplete="off" />
+                  <i class="ti ti-x rp-clear" ng-show="ui.reportSearch" ng-click="ui.reportSearch = ''"></i>
+                </div>
+
+                <div class="rp-list">
+                  <div class="rp-empty-sm" ng-if="!visibleReports.length">No reports</div>
+
+                  <div ng-repeat="r in visibleReports">
+                    <div class="rp-group" ng-if="$index === 0 || visibleReports[$index - 1].group !== r.group">
+                      {{ r.group }}
+                    </div>
+                    <button type="button" class="rp-item" ng-class="{ active: selectedReport.id === r.id }"
+                      ng-click="selectReport(r); ui.typeOpen = false; ui.reportSearch = ''">
+                      <i class="ti rp-item-icon" ng-class="reportIcon(r.name)"></i>
+                      <span>{{ r.name }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="rp-pcard">
+          <button type="button" class="rp-pcard-head" ng-click="ui.filterOpen = !ui.filterOpen">
+            <i class="ti ti-adjustments-horizontal"></i><span>Filter</span>
+            <span class="rp-badge" ng-if="filterCount()">{{ filterCount() }}</span>
+            <i class="ti ti-chevron-down rp-caret" ng-class="{ open: ui.filterOpen }"></i>
+          </button>
+
+          <div class="rp-pcard-body" ng-show="ui.filterOpen">
+            <form ng-submit="submitFilters()" novalidate>
+              <div class="rp-grid">
+                <div class="rp-field" ng-repeat="field in visibleFilterFields track by $index" ng-class="field.span">
+                  <label ng-if="field.type !== 'checkbox'">{{ field.label }}</label>
+
+                  <div ng-switch="field.type">
+                    <input ng-switch-when="text" type="text" class="form-control" ng-model="filters[field.key]"
+                      ng-attr-placeholder="{{ field.placeholder }}" />
+
+                    <div ng-switch-when="dateRange" class="rp-date">
+                      <div class="rp-select rp-date-preset" ng-class="{ open: combo.open === 'datePreset' }">
+                        <div class="rp-select-backdrop" ng-show="combo.open === 'datePreset'"
+                          ng-click="combo.open = null"></div>
+
+                        <button type="button" class="rp-select-trigger"
+                          ng-click="combo.open = combo.open === 'datePreset' ? null : 'datePreset'">
+                          <span class="rp-select-value">{{ presetLabel() }}</span>
+                          <i class="ti ti-chevron-down rp-select-caret"></i>
+                        </button>
+
+                        <div class="rp-select-menu" ng-show="combo.open === 'datePreset'">
+                          <div class="rp-list">
+                            <button type="button" class="rp-item" ng-repeat="p in datePresets track by p.value"
+                              ng-class="{ active: dateState.preset === p.value }" ng-click="pickPreset(p.value)">
+                              <span>{{ p.label }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="rp-date-input">
+                        <input type="text" class="form-control" ng-model="filters.from" placeholder="DD-MM-YYYY"
+                          date-picker date-format="DD-MM-YYYY" autocomplete="off" ng-change="markCustom()" />
+                        <i class="ti ti-calendar-event"></i>
+                      </div>
+                      <span class="rp-date-arrow">→</span>
+                      <div class="rp-date-input">
+                        <input type="text" class="form-control" ng-model="filters.to" placeholder="DD-MM-YYYY"
+                          date-picker date-format="DD-MM-YYYY" autocomplete="off" ng-change="markCustom()" />
+                        <i class="ti ti-calendar-event"></i>
+                      </div>
+                    </div>
+
+                    <div ng-switch-when="monthYear" class="rp-month-year-fields">
+
+                      <!-- Month -->
+                      <div class="rp-select" ng-class="{ open: combo.open === 'monthPart' }">
+                        <div class="rp-select-backdrop" ng-show="combo.open === 'monthPart'"
+                          ng-click="combo.open = null"></div>
+
+                        <button type="button" class="rp-select-trigger"
+                          ng-click="combo.open = combo.open === 'monthPart' ? null : 'monthPart'; combo.search = ''">
+                          <i class="ti ti-calendar-month rp-select-icon"></i>
+                          <span class="rp-select-value">{{ monthLabel() }}</span>
+                          <span class="rp-select-clear" role="button" tabindex="0" title="Clear"
+                            ng-if="monthSelection.month" ng-click="clearMonthYear('month', $event)"
+                            ng-keydown="$event.keyCode === 13 && clearMonthYear('month', $event)">
+                            <i class="ti ti-x"></i>
+                          </span>
+                          <i class="ti ti-chevron-down rp-select-caret"></i>
+                        </button>
+
+                        <div class="rp-select-menu" ng-show="combo.open === 'monthPart'">
+                          <div class="rp-search">
+                            <i class="ti ti-search"></i>
+                            <input type="text" ng-model="combo.search" placeholder="Search…" autocomplete="off" />
+                            <i class="ti ti-x rp-clear" ng-show="combo.search" ng-click="combo.search = ''"></i>
+                          </div>
+                          <div class="rp-list">
+                            <button type="button" class="rp-item" ng-class="{ active: !monthSelection.month }"
+                              ng-click="pickMonthYear('month', null)">
+                              <i class="ti ti-list rp-item-icon"></i><span>All Months</span>
+                            </button>
+                            <button type="button" class="rp-item"
+                              ng-repeat="m in monthOptions | filter: { label: combo.search } track by m.value"
+                              ng-class="{ active: monthSelection.month === m.value }"
+                              ng-click="pickMonthYear('month', m.value)">
+                              <i class="ti ti-calendar-month rp-item-icon"></i><span>{{ m.label }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Year -->
+                      <div class="rp-select" ng-class="{ open: combo.open === 'yearPart' }">
+                        <div class="rp-select-backdrop" ng-show="combo.open === 'yearPart'"
+                          ng-click="combo.open = null"></div>
+
+                        <button type="button" class="rp-select-trigger"
+                          ng-click="combo.open = combo.open === 'yearPart' ? null : 'yearPart'; combo.search = ''">
+                          <i class="ti ti-calendar rp-select-icon"></i>
+                          <span class="rp-select-value">{{ yearLabel() }}</span>
+                          <span class="rp-select-clear" role="button" tabindex="0" title="Clear"
+                            ng-if="monthSelection.year" ng-click="clearMonthYear('year', $event)"
+                            ng-keydown="$event.keyCode === 13 && clearMonthYear('year', $event)">
+                            <i class="ti ti-x"></i>
+                          </span>
+                          <i class="ti ti-chevron-down rp-select-caret"></i>
+                        </button>
+
+                        <div class="rp-select-menu" ng-show="combo.open === 'yearPart'">
+                          <div class="rp-search">
+                            <i class="ti ti-search"></i>
+                            <input type="text" ng-model="combo.search" placeholder="Search…" autocomplete="off" />
+                            <i class="ti ti-x rp-clear" ng-show="combo.search" ng-click="combo.search = ''"></i>
+                          </div>
+                          <div class="rp-list">
+                            <button type="button" class="rp-item" ng-class="{ active: !monthSelection.year }"
+                              ng-click="pickMonthYear('year', null)">
+                              <i class="ti ti-list rp-item-icon"></i><span>All Years</span>
+                            </button>
+                            <button type="button" class="rp-item"
+                              ng-repeat="y in yearOptions | filter: combo.search track by y"
+                              ng-class="{ active: monthSelection.year === y }" ng-click="pickMonthYear('year', y)">
+                              <i class="ti ti-calendar rp-item-icon"></i><span>{{ y }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <select ng-switch-when="select" class="form-control" ng-model="filters[field.key]"
+                      ng-options="option.value as option.label for option in field.options"></select>
+
+                    <div ng-switch-when="combo" class="rp-select"
+                      ng-class="{ open: combo.open === field.key }">
+                      <div class="rp-select-backdrop" ng-show="combo.open === field.key" ng-click="closeCombo()">
+                      </div>
+
+                      <button type="button" class="rp-select-trigger" ng-click="toggleCombo(field)">
+                        <i class="ti rp-select-icon" ng-if="field.icon" ng-class="field.icon"></i>
+                        <span class="rp-select-value">{{ comboLabel(field) }}</span>
+                        <span class="rp-select-clear" role="button" tabindex="0" title="Clear"
+                          ng-if="hasComboValue(field)" ng-click="clearCombo(field, $event)"
+                          ng-keydown="$event.keyCode === 13 && clearCombo(field, $event)">
+                          <i class="ti ti-x"></i>
+                        </span>
+
+                        <i class="ti ti-chevron-down rp-select-caret"></i>
+                      </button>
+
+                      <div class="rp-select-menu" ng-show="combo.open === field.key">
+                        <div class="rp-search">
+                          <i class="ti ti-search"></i>
+                          <input type="text" ng-model="combo.search" placeholder="Search…" autocomplete="off" />
+                          <i class="ti ti-x rp-clear" ng-show="combo.search" ng-click="combo.search = ''"></i>
+                        </div>
+
+                        <div class="rp-list">
+                          <button type="button" class="rp-item"
+                            ng-class="{ active: !hasComboValue(field) }"
+                            ng-click="pickCombo(field, '')">
+                            <i class="ti rp-item-icon" ng-if="isComboMultiple(field)"
+                              ng-class="hasComboValue(field) ? 'ti-square' : 'ti-square-check'"></i>
+                            <i class="ti rp-item-icon" ng-if="!isComboMultiple(field) && field.icon"
+                              ng-class="field.icon"></i>
+                            <span>{{ field.placeholder }}</span>
+                          </button>
+
+                          <div class="rp-empty-sm" ng-if="!comboList(field).length">No results</div>
+
+                          <button type="button" class="rp-item" ng-repeat="opt in comboList(field) track by opt.value"
+                            ng-class="{ active: isComboSelected(field, opt.value) }"
+                            ng-click="pickCombo(field, opt.value)">
+                            <i class="ti rp-item-icon" ng-if="isComboMultiple(field)"
+                              ng-class="isComboSelected(field, opt.value) ? 'ti-square-check' : 'ti-square'"></i>
+                            <i class="ti rp-item-icon" ng-if="!isComboMultiple(field) && field.icon"
+                              ng-class="field.icon"></i>
+                            <span>{{ opt.label }}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <label ng-switch-when="checkbox" class="rp-check">
+                      <input type="checkbox" ng-model="filters[field.key]" />
+                      <span class="rp-check-box"><i class="ti ti-check"></i></span>
+                      {{ field.label }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" hidden></button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Customize -->
+        <div class="rp-pcard">
+          <button type="button" class="rp-pcard-head" ng-click="ui.customizeOpen = !ui.customizeOpen">
+            <i class="ti ti-columns-3"></i><span>Customize</span>
+            <i class="ti ti-chevron-down rp-caret" ng-class="{ open: ui.customizeOpen }"></i>
+          </button>
+
+          <div class="rp-pcard-body" ng-show="ui.customizeOpen">
+
+            <!-- Header / Column tabs -->
+            <div class="rp-tabs" role="tablist">
+              <button type="button" class="rp-tab" role="tab" ng-class="{ active: ui.custTab === 'header' }"
+                ng-click="ui.custTab = 'header'">Header</button>
+              <button type="button" class="rp-tab" role="tab" ng-class="{ active: ui.custTab === 'column' }"
+                ng-click="ui.custTab = 'column'">Column</button>
+            </div>
+
+            <!-- Header rows -->
+            <div ng-show="ui.custTab === 'header'">
+              <div class="rp-cust-list" rp-sort="moveHeader(from, to)">
+                <div class="rp-cust-row" ng-repeat="h in headerConfig track by h.id" ng-attr-data-index="{{ $index }}"
+                  ng-class="{ off: !h.show }">
+                  <i class="ti ti-menu-2 rp-grip" draggable="true" title="Drag to reorder"></i>
+                  <label class="rp-check">
+                    <input type="checkbox" ng-model="h.show" />
+                    <span class="rp-check-box"><i class="ti ti-check"></i></span>
+                  </label>
+                  <input type="text" class="form-control" ng-model="h.label" ng-readonly="!h.editable"
+                    ng-class="{ 'is-readonly': !h.editable }" autocomplete="off" />
+                </div>
+              </div>
+
+              <div class="rp-cust-box rp-settings">
+                <div class="rp-cust-title">Settings</div>
+                <div class="rp-set-row">
+                  <span>Landscape</span>
+                  <label class="rp-switch">
+                    <input type="checkbox" ng-model="settings.landscape" />
+                    <span class="rp-switch-track"></span>
+                  </label>
+                </div>
+                <div class="rp-set-row">
+                  <span>Alignment</span>
+                  <select class="form-control" ng-model="settings.align">
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+                <div class="rp-set-row">
+                  <span>Padding</span>
+                  <input type="number" class="form-control" ng-model="settings.padding" min="0" max="40" step="1" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Column rows -->
+            <div ng-show="ui.custTab === 'column'">
+              <div class="rp-cust-list" rp-sort="moveColumn(from, to)">
+                <div class="rp-cust-row" ng-repeat="c in colConfig track by c.key" ng-attr-data-index="{{ $index }}"
+                  ng-class="{ off: !c.show }">
+                  <i class="ti ti-menu-2 rp-grip" draggable="true" title="Drag to reorder"></i>
+                  <label class="rp-check">
+                    <input type="checkbox" ng-model="c.show" />
+                    <span class="rp-check-box"><i class="ti ti-check"></i></span>
+                  </label>
+                  <input type="text" class="form-control" ng-model="c.label" ng-readonly="c.rowNo"
+                    ng-class="{ 'is-readonly': c.rowNo }" autocomplete="off" />
+                  <select class="form-control rp-cust-dec" ng-if="c.num" ng-model="c.decimals"
+                    ng-options="d for d in decimalChoices" title="Decimal places">
+                    <option value="">Auto</option>
+                  </select>
+                  <input type="number" class="form-control rp-cust-w" ng-model="c.width" ng-change="c.fixed = true"
+                    min="20" max="600" step="10" title="Width (px)" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="rv-panel-foot">
+        <button type="button" class="rp-btn rp-btn-primary rp-view" ng-click="submitFilters()" ng-disabled="isLoading">
+          <i class="ti" ng-class="isLoading ? 'ti-loader-2 ti-spin' : 'ti-eye'"></i> View
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline rp-foot-btn" ng-click="resetFilters()">
+          <i class="ti ti-rotate"></i> Reset
+        </button>
+        <button type="button" class="rp-btn rp-btn-outline rp-foot-btn" ng-click="closeDrawer()">
+          <i class="ti ti-x"></i> Close
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>

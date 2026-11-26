@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link href="../Content/css/custom.css" rel="stylesheet" />
+    <link type="text/css" href="../Content/AdminLTE-3.2.0/dist/css/adminlte.min.css" rel="stylesheet" />
+    <title>{Title}</title>
+    <style>
+        html,
+        body {
+            color: black !important;
+            letter-spacing: normal !important;
+            line-height: normal !important;
+        }
+
+        pre {
+            line-height: 1.5;
+        }
+
+        @media print {
+
+            thead,
+            tfoot {
+                display: table-row-group;
+            }
+
+            @page {
+                size: A3;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important
+            }
+
+            footer {
+                width: calc(100% - 20px) !important;
+                position: fixed;
+                bottom: 0 !important;
+                margin-right: 50px !important;
+            }
+        }
+
+        .text-nowrap-pre {
+            white-space: pre-line !important;
+        }
+
+        .khmerFont {
+            font-family: 'Noto Sans Khmer', sans-serif;
+        }
+
+        .khmerFontMoul {
+            font-family: 'Moul', cursive;
+        }
+
+        .khmerFont1-Header {
+            font-family: 'Kantumruy Pro', sans-serif;
+            font-weight: 900;
+            font-size: 130%;
+            color: white;
+        }
+    </style>
+</head>
+
+<body id="BoyMasterPage" style="background-color: white!important">
+  <section id="sectionPrintData">
+    <div class="row">
+      <div class="col">
+        {BodyMessage}
+      </div>
+    </div>
+  </section>
+  <script>
+    $(function () {
+      var h = $("#BoyMasterPage").height();
+      if (h >= 1586) {
+        $("footer").css("cssText", "position: static !important;");
+      }
+    });
+  </script>
+</body>
+
+</html>

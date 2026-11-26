@@ -1,0 +1,293 @@
+﻿@{
+    Layout = null;
+}
+<link href="~/Content/BootStrapTreeView/TreeView.css" type="text/css" rel="stylesheet" />
+<script src="~/Content/BootStrapTreeView/TreeView.js"></script>
+<div class="card-header pl-0 mb-3">
+    <h2 class="card-title mr-auto p-2">Subscriptions</h2>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div id="PackageNameData"></div>
+    </div>
+</div>
+<script>
+    var PackageInfo = JSON.parse(`@Html.Raw(ViewBag.PackageInfo)`);
+    $(function () {
+        //Initialization of treeviews
+
+        //$('#tree1').treed();
+
+        //$('#tree2').treed({ openedClass: 'glyphicon-folder-open', closedClass: 'glyphicon-folder-close' });
+
+        //$('#tree3').treed({ openedClass: 'glyphicon-chevron-right', closedClass: 'glyphicon-chevron-down' });
+
+        let Table = PackageInfo.Table;
+        let Table1 = PackageInfo.Table1;
+        let Table2 = PackageInfo.Table2;
+        let row = '<div class="row text-success text-nowrap">';
+        $.each(Table, function (key, value) {
+            row += '<div class="col-6">';
+            row += '<ul name="PackageName">';
+            let PackageName = value.PackageName;
+            let filteredTable1 = Table1.filter(function (currentElement) {
+                return currentElement.PackageName === PackageName;
+            });
+            row += '<li>' + (key + 1) + '. <a href="javascript:void(0);">' + PackageName + '</a> <span class="badge bg-primary">' + filteredTable1.length + '</span>';
+            if (filteredTable1.length > 0) {
+                let row1 = '<ul>';
+                $.each(filteredTable1, function (key, val) {
+                    //let PackageName = val.PackageName;
+                    let filteredTable2 = Table2.filter(function (currentElement) {
+                        return currentElement.PackageName === val.PackageName && currentElement.Bandwidth === val.Bandwidth;
+                    });
+                    row1 += '<li>' + (key + 1) + '. <a href="javascript:void(0);">Bandwidth: ' + val.Bandwidth + '</a> <span class="badge bg-primary">' + filteredTable2.length + '</span>';// + ' Duration: ' + val.UM + ' Free Duration: ' + val.FreeDuration +'</li>';
+                    if (filteredTable2.length > 0) {
+                        let row2 = '<ul>';
+                        $.each(filteredTable2, function (key, v) {
+                            row2 += `<li>` + (key + 1) + `. <a href="javascript:void(0);" onclick="showAction('` + v.PName + `', ` + v.FreeDuration +`);">Duration: ` + v.UM + ` Free Duration: ` + v.FreeDuration + ` Price: ` + v.UnitPrice + `$</a> <span class="badge bg-primary">Customer: ` + v.Customer + `</span></li>`;
+                        });
+                        row2 += '</ul>';
+                        row1 += row2;
+                        row1 += '</li>';
+                    }
+                    else {
+                        row1 += '</li>';
+                    }
+
+                });
+                row1 += '</ul>';
+                row += row1;
+                row += '</li>';
+            }
+            else {
+                row += '</li>';
+            }
+            row += '</ul>';
+            row += '</div>';
+        });
+
+        row += '</div>';
+        $("#PackageNameData").html(row);
+        $('ul[name=PackageName]').treed({ openedClass: 'glyphicon-folder-open', closedClass: 'glyphicon-folder-close' });
+    });
+    function showAction(PackageName, FreeDuration) {
+        var URL = "Customer/Connection";
+        ShowDialogBox2("Customer Connection", "Auto", 500, URL, 0, "DialogBoxShowAction", function () {
+            setTimeout(function () {
+                //$("#txtStatus").val(StatusID).trigger("change");
+                $("#txtFreeDuration").val(FreeDuration).trigger("change");
+                $("#txtPackageName").val(PackageName).trigger("change");               
+                $("#SaveChange2").remove();
+                setTimeout(function () {
+                    $("#BunSearch").click();
+                }, 800);
+            }, 800);            
+        });
+    }
+</script>
+
+@*<div class="container" style="margin-top:30px;">
+    <div class="row">
+        <div class="col-md-4">
+            <ul id="tree1">
+                <li>
+                    <p class="well" style="height:135px;">
+                        <strong>Initialization no parameters</strong>
+
+                        <br /> <code>$('#tree1').treed();</code>
+
+                    </p>
+                </li>
+                <li>
+                    <a href="#">TECH</a>
+
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+                <li>
+                    XRP
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <p class="well" style="height:135px;">
+                <strong>Initialization optional parameters</strong>
+
+                <br /> <code>$('#tree2').treed({openedClass : 'glyphicon-folder-open', closedClass : 'glyphicon-folder-close'});</code>
+
+            </p>
+            <ul id="tree2">
+                <li>
+                    <a href="#">TECH</a>
+
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+                <li>
+                    XRP
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <p class="well" style="height:135px;">
+                <strong>Initialization optional parameters</strong>
+
+                <br /> <code>$('#tree3').treed({openedClass:'glyphicon-chevron-right', closedClass:'glyphicon-chevron-down'});</code>
+
+            </p>
+            <ul id="tree3">
+                <li>
+                    <a href="#">TECH</a>
+
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+                <li>
+                    XRP
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>
+                            Employees
+                            <ul>
+                                <li>
+                                    Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>*@
+
+@*<script>
+    var Data = "@ViewBag.Data ";
+    Data = JSON.parse(Data.replace(/&quot;/ig, '"'));
+    var row = '<div class="row">';
+    $.each(Data, function (key, val) {
+        row += '<div class="col-md-6"><div class="card mb-6 callout callout-warning"><div class="card-body">';
+        row += '<h4>' + val.PackageName + '</h4>';
+        row += '<div class="hr-line-dashed"></div>';
+        row += '<div class="mb-3">';
+        row += '<h5>' + accounting.formatMoney(val.Price)+'</h5>';
+        row += '</div>';
+        row += '<div class="text-center">';
+        row += "<button onclick=\"showAction(40, '" + val.PackageName + "', " + val.Active +");\" class=\"btn btn-primary waves-effect waves-themed\">Active: " + val.Active + "</button>&nbsp;";
+        row += "<button onclick=\"showAction(41, '" + val.PackageName + "', " + val.Lock +");\" class=\"btn btn-warning waves-effect waves-themed\">Lock: " + val.Lock +"</button>&nbsp;";
+        row += "<button onclick=\"showAction(43, '" + val.PackageName + "', " + val.Inactive +");\" class=\"btn btn-danger waves-effect waves-themed\">Inactive: " + val.Inactive + "</button></div></div></div>";
+        row += '</div>';
+    });
+    row += '</div>';
+    $("#ShowSubscriptionsData").html(row);
+
+    function showAction(StatusID, PackageName, CountAction) {
+        if (CountAction != 0) {
+            var URL = "Customer/Connection";
+            ShowDialogBox2("Customer Active", "Auto", 500, URL, 0, "DialogBoxShowAction", function () {
+               setTimeout(function () {
+                    $("#txtStatus").val(StatusID).trigger("change");
+                    $("#txtPackageName").val(PackageName).trigger("change");
+                    $("#BunSearch").click();
+                    $("#SaveChange2").remove();
+                }, 500);
+            });
+        }
+        else {
+            DialogSweetAlert("error", "No Record For Display.");
+        }
+    }
+</script>*@
+@*<div id="ShowSubscriptionsData"></div>*@

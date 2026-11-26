@@ -1,0 +1,46 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    var VendorID = "@ViewBag.VendorID";
+    $(function () {
+        setTimeout(function () {
+            //$("#txtStockStockMaintain").data('daterangepicker').remove();
+
+            //$('#txtStockStockMaintain').daterangepicker({
+            //    startDate: moment().startOf('month'),
+            //    endDate: moment().endOf('month'),
+            //    locale: {
+            //        format: 'DD-MM-YYYY'
+            //    },
+            //    autoApply: true,
+            //    ranges: {
+            //        'Today': [moment(), moment()],
+            //        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            //        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            //        //'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            //        'This Month': [moment().startOf('month'), moment().endOf('month')],
+            //        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            //        'This Year': [moment().startOf('year'), moment().endOf('year')],
+            //        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+            //    }
+            //});
+            ShowStockMaintain();
+        }, 200);
+        
+    });
+    function ShowStockMaintain() {
+        var FromDate = $("#txtStockStockMaintain").data('daterangepicker').startDate.format('YYYY-MM-DD');
+        var ToDate = $("#txtStockStockMaintain").data('daterangepicker').endDate.format('YYYY-MM-DD');
+        var ItemName = $("#TXT_Item_NameStockMaintain").val();
+        var ItemGroup = $("#txt_Item_Group_StockMaintain").val();
+        var WarehouseName = $("#txtWarehouseName").val();
+        if ($("#txtStockStockMaintain").val() == "") {
+            FromDate = "";
+            ToDate = "";
+        }
+        LoadData('Profile/ShowStockMaintain?VendorID=' + VendorID + '&FromDate=' + FromDate + '&ToDate=' + ToDate + '&ItemName=' + ItemName + '&ItemGroup=' + ItemGroup + '&WarehouseName=' + WarehouseName, function (result) {
+            $("#trShowStockMaintain").remove();
+            $("#TXT_Item_NameStockMaintain").closest("tr").after('<tr id="trShowStockMaintain"><td colspan="3">' + result + '</td></tr>');
+        });
+    }
+</script>

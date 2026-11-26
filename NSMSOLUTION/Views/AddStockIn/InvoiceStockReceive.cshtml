@@ -1,0 +1,245 @@
+﻿@{
+    Layout = null;
+    System.Data.DataRow dataRow = ViewBag.Data.Rows[0];
+    bool isSys25 = dataRow["SystemID"].ToString() == "25";
+}
+<link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --page-min-height: 410mm; /* A3 (420mm) minus top margin; lower it if a blank 2nd page appears */
+    }
+
+    .mytable th, .mytable td {
+        border: 0.5px solid #000 !important;
+    }
+
+    .mytable th {
+        background-color: @(isSys25 ? "#c5d9f1" : "#f89c39");
+        color: @(isSys25 ? "#000" : "#fff");
+    }
+
+    .moul-regular {
+        font-family: "Moul", serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    /* signatures: normal flow, never fixed */
+    .sr-footer { margin-top: 40px; margin-bottom: 50px; }
+
+    @@media print {
+        @@page {
+            size: A3;
+            margin: 20px 20px 0 50px;
+        }
+
+        /* Wrapper is at least one page tall and grows when content is longer.
+           Footer uses margin-top:auto:
+             - 1 page   -> note + signatures pinned to the bottom of the page
+             - 2+ pages -> they follow the content on the last page (no overlap) */
+        #DivPrintStockReciveInvoice {
+            display: flex;
+            flex-direction: column;
+            min-height: var(--page-min-height);
+        }
+
+        #DivPrintStockReciveInvoice .sr-footer {
+            position: static !important;
+            margin-top: auto;
+            padding-top: 40px;          /* keeps a gap when it follows long content */
+            margin-bottom: 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /* header row prints ONCE (it does NOT repeat on page 2) */
+        .mytable thead {
+            display: table-row-group;
+        }
+
+        /* keep the header color when printing */
+        .mytable th {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* a row never splits across two pages */
+        .mytable tr {
+            break-inside: avoid;
+        }
+    }
+</style>
+
+<div style="padding:5px;" id="DivPrintStockReciveInvoice">
+
+    @* ===== Header: logo + title ===== *@
+    <div class="row">
+        <div class="col-12 d-flex justify-content-between align-items-end mt-4 mb-3">
+            <div class="img">
+                <img class="img-fluid" src="@ViewBag.Logo" width="200" />
+            </div>
+        </div>
+
+        <div style="margin: 0 auto 10px; text-align: center;">
+            <h4 class="page-header mb-2 moul-regular">ប័ណ្ណទទួលទំនិញ</h4>
+            <h5 class="page-header text-uppercase" style="font-family: 'Times New Roman', Times, serif">Stock Receive</h5>
+        </div>
+    </div>
+
+    @* ===== Vendor / SR info ===== *@
+    <div class="row mt-2">
+        <div class="col">
+            <label><b>Vendor Name:</b> @dataRow["VendorName"]</label><br />
+            <label><b>Address:</b> @dataRow["Address"]</label><br />
+            <label><b>Tel:</b> @dataRow["Phone"]</label><br />
+            <label><b>Warehouse:</b> @dataRow["WarehouseName"]</label>
+        </div>
+        <div class="col text-right">
+            <label><b>SR No.:</b> @dataRow["ReceiveNoteNumber"].ToString()</label><br />
+            <label><b>PO Number:</b> @dataRow["PONumber"].ToString()</label><br />
+            <label><b>Receive Date:</b> @dataRow["ReceivedDate"].ToString()</label><br />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <table class="table mytable">
+                <thead class="text-center">
+                    <tr>
+                        <th width="8%">No.</th>
+                        <th width="10%">Item Code</th>
+                        <th width="35%">Item Name</th>
+                        <th width="10%">QTY</th>
+                        @if (isSys25)
+                        {
+                            <th width="10%" nowrap>Expire Date</th>
+                        }
+                        <th width="27%">Purpose or Reasons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int i = 0; }
+                    @foreach (System.Data.DataRow dr in ViewBag.Data.Rows)
+                    {
+                        i++;
+                        <tr>
+                            <td align="center">@i</td>
+                            <td>@dr["ItemCode"]</td>
+                            <td>@dr["ItemName"]<br /><p class="text-nowrap-pre text-muted">@Html.Raw(HttpUtility.HtmlDecode(dr["ItemDescription"].ToString()))</p></td>
+                            <td align="right" nowrap>@dr["QTY"] @dr["UM"]</td>
+                            @if (isSys25)
+                            {
+                                <td align="center" nowrap>@dr["ItemExpirationDate"]</td>
+                            }
+                            <td>@dr["Reason"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* ===== Footer: note + signatures (pinned to bottom on 1 page, follows content on 2+) ===== *@
+    <div class="sr-footer">
+
+        <div class="row">
+            <div class="col">
+                <p><b>***បញ្ចាក់ៈ សូមពិនិត្យទំនិញឲ្យបានត្រឹមត្រូវ មុននឹងប្រគល់ជូនផ្នែកស្តុក</b></p>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+
+            @* Prepared by *@
+            <div class="col-4">
+                @{
+                    string[] aa = dataRow["PreparedSignature"].ToString().Split('~');
+                    if (aa[0].ToString() != "")
+                    {
+                        <div class="text-center" style="height:50px">
+                            <img height="60" src="../Uploads/Users/@aa[0]" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center" style="height:50px"></div>
+                    }
+                }
+                <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase text-nowrap">Prepared By</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="col-form-label text-nowrap">Name: @dataRow["PreparedBy"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Position: @dataRow["PreparedPosition"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Date: @dataRow["PreparedDate"].ToString()</label><br>
+                    </div>
+                </div>
+            </div>
+
+            @* Delivered by *@
+            <div class="col-4">
+                @{
+                    aa = dataRow["DeliveredSignature"].ToString().Split('~');
+                    if (aa[0].ToString() != "")
+                    {
+                        <div class="text-center" style="height:50px">
+                            <img height="60" src="../Uploads/Users/@aa[0]" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center" style="height:50px"></div>
+                    }
+                }
+                <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase text-nowrap">Delivered By</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="col-form-label text-nowrap">Name: @dataRow["DeliveredBy"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Position: @dataRow["DeliveredPosition"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Date: @dataRow["DeliveredDate"].ToString()</label><br>
+                    </div>
+                </div>
+            </div>
+
+            @* Received by *@
+            <div class="col-4">
+                @{
+                    aa = dataRow["ReceivedSignature"].ToString().Split('~');
+                    if (aa[0].ToString() != "")
+                    {
+                        <div class="text-center" style="height:50px">
+                            <img height="60" src="../Uploads/Users/@aa[0]" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center" style="height:50px"></div>
+                    }
+                }
+                <hr style="height:2px;width:100%; border-width:0; color:black; background-color:black">
+                <div class="row">
+                    <div class="col text-center">
+                        <label class="col-form-label text-uppercase text-nowrap">Received By</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="col-form-label text-nowrap">Name: @dataRow["ReceivedBy"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Position: @dataRow["ReceivedPosition"].ToString()</label><br>
+                        <label class="col-form-label text-nowrap">Date: @dataRow["ReceivedDate"].ToString()</label><br>
+                    </div>
+                </div>
+            </div>
+
+        </div> @* /signature row *@
+    </div> @* /.sr-footer *@
+</div> @* /#DivPrintStockReciveInvoice *@

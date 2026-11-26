@@ -1,0 +1,708 @@
+@{
+    Layout = null;
+    string payMethod = ViewData["PaymentMethod"] != null ? ViewData["PaymentMethod"].ToString().ToLower() : "";
+    bool isCash     = payMethod.Contains("cash");
+    bool isCheque   = payMethod.Contains("cheque") || payMethod.Contains("check");
+    bool isTT       = !isCash && !isCheque; 
+    
+    string defaultLogo = Url.Content("~/Content/CompanyLogo/NSM Logo_1784101994.png");
+    string logoSrc = ViewData["CompanyLogo"] != null ? ViewData["CompanyLogo"].ToString() : defaultLogo;
+
+    if (logoSrc.StartsWith("~"))
+    {
+        logoSrc = Url.Content(logoSrc);
+    }
+
+    string receiptDate = ViewData["ReceiptDate"] != null ? ViewData["ReceiptDate"].ToString() : "";
+    if (!string.IsNullOrEmpty(receiptDate))
+    {
+        DateTime dt;
+        if (DateTime.TryParseExact(receiptDate, new[] { "dd.MM.yy", "dd.MM.yyyy", "dd/MM/yy", "dd/MM/yyyy", "d.M.yy", "d.M.yyyy", "yyyy-MM-dd" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+        {
+            receiptDate = dt.ToString("dd.MM.yyyy");
+        }
+        else if (DateTime.TryParse(receiptDate, out dt))
+        {
+            receiptDate = dt.ToString("dd.MM.yyyy");
+        }
+        ViewData["ReceiptDate"] = receiptDate;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Official Receipt - @ViewData["ReceiptNo"]</title>
+    <!-- Google Fonts: Moul, Kantumruy Pro, Noto Sans Khmer, Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Moul&family=Noto+Sans+Khmer:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        @@font-face {
+            font-family: 'Khmer OS Battambang';
+            src: local('Khmer OS Battambang'),
+                 url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @@font-face {
+            font-family: 'Khmer OS Battambang';
+            src: local('Khmer OS Battambang'),
+                 url('@Url.Content("~/Content/fonts/KhmerOSbattambang.ttf")') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @@font-face {
+            font-family: 'Khmer OS Muol Light';
+            src: local('Khmer OS Muol Light'), local('Khmer OS Muol');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --orange-header: #f89c39;
+            --text-color: #000;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            font-family: 'Khmer OS Battambang', 'Noto Sans Khmer', 'Kantumruy Pro', 'Roboto', Arial, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            height: 100%;
+        }
+
+        .modal-full {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .modal-body-receipt {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 16px;
+            background: #fff;
+            border-top: 2px solid #ddd;
+            gap: 8px;
+        }
+
+        .btn-print, .btn-close-modal {
+            border-radius: 8px;
+            padding: 6px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: .15s;
+            background: #fff;
+        }
+
+        .btn-print {
+            color: #0d6efd;
+            border: 1.5px solid #0d6efd;
+        }
+
+            .btn-print:hover {
+                background: #0d6efd;
+                color: #fff;
+            }
+
+        .btn-close-modal {
+            color: #dc3545;
+            border: 1.5px solid #dc3545;
+        }
+
+            .btn-close-modal:hover {
+                background: #dc3545;
+                color: #fff;
+            }
+
+        /* A4 Wrapper */
+        .receipt-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            padding: 10mm 15mm;
+            box-sizing: border-box;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* Header Layout */
+        .header-section {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+
+        .logo-box {
+            width: 170px;
+            flex-shrink: 0;
+        }
+
+            .logo-box img {
+                width: 100%;
+                height: auto;
+            }
+
+        .company-info {
+            flex-grow: 1;
+            padding-left: 15px;
+            padding-top: 5px;
+        }
+
+        .company-name-kh {
+            font-family: 'Moul', serif;
+            font-size: 17px;
+            font-weight: normal;
+            margin-bottom: 2px;
+        }
+
+        .company-name-en {
+            font-family: 'Times New Roman';
+            font-weight: 900;
+            font-size: 17px;
+            margin-bottom: 10px;
+/*            letter-spacing: 0.5px;*/
+        }
+
+        .company-contact {
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .divider {
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+        }
+
+        /* Title */
+        .title-section {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .title-kh {
+            font-family: 'Moul', serif;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .title-en {
+            font-family: 'Times New Roman';
+            font-weight: 900;
+            font-size: 14px;
+/*            letter-spacing: 1px;*/
+        }
+
+        /* Meta Info (Received From & Receipt No) */
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .meta-table td {
+                padding: 3px 0;
+                vertical-align: top;
+            }
+
+            .meta-table .val {
+                padding-left: 5px;
+            }
+
+        .meta-left {
+            width: 65%;
+        }
+
+        .meta-right {
+            width: 25%;
+        }
+
+        /* Table */
+        .receipt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0px;
+            font-size: 12px;
+            border: 1px solid #000;
+        }
+
+            .receipt-table th, .receipt-table td {
+                border: 1px solid #000;
+                padding: 6px 8px;
+            }
+
+            .receipt-table th {
+                background-color: var(--orange-header);
+                text-align: center;
+                font-weight: bold;
+                color: #FFFFFF;
+            }
+
+                .receipt-table th .th-kh {
+                    font-family: 'Khmer OS Battambang', sans-serif;
+                    margin-bottom: 2px;
+                }
+
+                .receipt-table th .th-en {
+                    font-size: 11px;
+                }
+
+        .col-no {
+            width: 10%;
+            text-align: center;
+        }
+
+        .col-desc {
+            width: 35%;
+        }
+
+        .col-inv {
+            width: 30%;
+            text-align: center;
+        }
+
+        .col-amt {
+            width: 25%;
+        }
+
+        .amt-cell {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-row td {
+            font-weight: bold;
+        }
+
+        /* Words & Comment */
+        .extra-info {
+            border: 1px solid #000;
+            border-top: none;
+            padding: 6px 8px;
+            font-size: 12px;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        /* Payment Method */
+        .payment-method {
+            margin-top: 10px;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            gap: 20px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .check-box {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        /* Signatures */
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .sig-block {
+            width: 45%;
+        }
+
+        /* ── Print: A4, no chrome ── */
+        @@media print {
+            @@page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                background: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .modal-full {
+                display: block !important;
+                height: auto !important;
+            }
+
+            .modal-body-receipt {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                background: #fff !important;
+                height: auto !important;
+            }
+
+            .modal-footer {
+                display: none !important;
+            }
+
+            .receipt-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 10mm 15mm !important;
+                width: 210mm !important;
+                max-width: 210mm !important;
+                min-height: 297mm !important;
+                height: auto !important;
+                position: static !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-full">
+        <div class="modal-body-receipt">
+            <div class="receipt-container" id="receipt-container">
+                
+                <!-- Header -->
+                <div class="header-section" style="display: block;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div class="logo-box">
+                            <img src="@logoSrc" alt="NSM Logo" onerror="this.src='@Url.Content("~/Content/NSMLogo.png")'" />
+                        </div>
+                        <div class="company-info" style="padding-top: 0;">
+                            <div class="company-name-kh">@ViewData["CompanyKHName"]</div>
+                            <div class="company-name-en" style="margin-bottom: 0;">@ViewData["CompanyName"]</div>
+                        </div>
+                    </div>
+                    <div class="company-contact">
+                        <div>លេខអត្តសញ្ញាណកម្ម អតប (VAT TIN): K007-901805035</div>
+                        <div>អាសយដ្ឋាន: #1319 ផ្លូវជាតិលេខ២ ភូមិព្រែកតាតង់ សង្កាត់ចាក់អង្រែលើ ខណ្ឌមានជ័យ រាជធានីភ្នំពេញ</div>
+                        <div>Address No: #1319, National Road2, Sangkat Chak Angre Leu. Khan Mean Chey, Phnom Penh</div>
+                        <div>ទូរស័ព្ទលេខ : ០៨៦ ៥៨៨ ៧៧៧ / ០៧៨ ៥៨៨ ៧៧៧</div>
+                        <div>Telephone : 086 588 777 / 078 588 777</div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Title -->
+                <div class="title-section">
+                    <div class="title-kh">បង្កាន់ដៃទទួលប្រាក់</div>
+                    <div class="title-en">OFFICIAL RECEIPT</div>
+                </div>
+
+                <!-- Meta Info -->
+                <div class="meta-info">
+                    <div class="meta-left">
+                        <table class="meta-table">
+                            <tr>
+                                <td>បានទទួលពី/Received from:  <span class="val">@ViewData["Payer"]</span></td>
+                                @*<td class="val">@ViewData["Payer"]</td>*@
+                            </tr>
+                            <tr>
+                                <td>ទូរស័ព្ទ/Telephone: <span class="val">@ViewData["Telephone"]</span></td>
+                                @*<td class="val">@ViewBag.Telephone</td>*@
+                            </tr>
+                            <tr>
+                                <td>អាសយដ្ឋាន/Address: <span class="val">@ViewData["Address"]</span></td>
+                                @*<td class="val">@ViewBag.Address</td>*@
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="meta-right">
+                        <table class="meta-table">
+                            <tr>
+                                <td>លេខរៀងបង្កាន់ដៃទទួលប្រាក់៖</td>
+                            </tr>
+                            <tr>
+                                <td>Receipt No: <span class="val">@ViewData["ReceiptNo"]</span></td>
+                            </tr>
+                            <tr>
+                                <td>កាលបរិច្ឆេទ/Date: <span class="val">@receiptDate</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">
+                                <div class="th-kh">ល.រ</div>
+                            </th>
+                            <th class="col-desc">
+                                <div class="th-kh">បរិយាយ</div>
+                            </th>
+                            <th class="col-inv">
+                                <div class="th-kh">លេខវិក្កយបត្រ</div>
+                            </th>
+                            <th class="col-amt">
+                                <div class="th-kh">ទឹកប្រាក់ជាដុល្លារអាមេរិក</div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="col-no">
+                           
+                                <div class="th-en">Nº</div>
+                            </th>
+                            <th class="col-desc">
+                       
+                                <div class="th-en">Description</div>
+                            </th>
+                            <th class="col-inv">
+                      
+                                <div class="th-en">Invoice No</div>
+                            </th>
+                            <th class="col-amt">
+                                <div class="th-en">Amount</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-no">1</td>
+                            <td class="col-desc" style="text-align: left;">Payment</td>
+                            <td class="col-inv">@ViewData["InvoiceNo"]</td>
+                            <td class="col-amt">
+                                <div class="amt-cell">
+                                    <span>$</span>
+                                    <span>@ViewData["Amount"]</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-no">&nbsp;</td>
+                            <td class="col-desc"></td>
+                            <td class="col-inv"></td>
+                            <td class="col-amt"></td>
+                        </tr>
+                        <tr>
+                            <td class="col-no">&nbsp;</td>
+                            <td class="col-desc"></td>
+                            <td class="col-inv"></td>
+                            <td class="col-amt"></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="3" style="text-align: right; padding-right: 10px;">
+                                សរុបទឹកប្រាក់ជាដុល្លារអាមេរិក / Total Amount
+                            </td>
+                            <td class="col-amt">
+                                <div class="amt-cell">
+                                    <span>$</span>
+                                    <span>@ViewData["Amount"]</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="extra-info">
+                    <span style="font-weight:bold;">Total Amount in words:</span> @ViewData["SumOfDollars"]
+                </div>
+                <div class="extra-info" style="border-bottom: 1px solid #000;">
+                    <span style="font-weight:bold;">កំណត់សម្គាល់ /Comment:</span> @ViewData["Comment"]
+                </div>
+
+                <!-- Payment Method -->
+                <div class="payment-method">
+                    <div style=" margin-bottom: 5px;">ការទូទាត់/Payment Method: @ViewData["PaymentMethod"]</div>
+                    <div class="checkbox-row" style="margin-bottom: 5px;">
+                        <div class="check-item">
+                            <div class="check-box">@if (isCash) { <span>&#10003;</span> }</div>
+                            <span>សាច់ប្រាក់ In Cash</span>
+                        </div>
+                    </div>
+                    <div class="checkbox-row" style="margin-bottom: 5px;">
+                        <div class="check-item">
+                            <div class="check-box">
+                                @if (isCheque)
+                                {<span>&#10003;</span>}
+                            </div>
+
+                            <span>
+                                មូលប្បទានបត្រលេខ By Cheque No:
+                                <span style="position:relative; display:inline-block; width:110px;">
+                                    ...........................
+                                    <span style="position:absolute; left:2px; bottom:2px;">
+                                        @if (isCheque)
+                                        {@ViewBag.ChequeNumber}
+                                    </span>
+                                </span>
+
+                                ធនាគារ Bank:
+
+                                <span style="position:relative; display:inline-block; width:190px;">
+                                    .....................................................
+                                    <span style="position: absolute; left: 2px; bottom: 2px;">
+                                    
+                                        @if (isCheque)
+                                        {@ViewBag.DepositAccount}
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="checkbox-row">
+                        <div class="check-item">
+                            <div class="check-box">
+                                @if (isTT)
+                                {<span>&#10003;</span>}
+                            </div>
+
+                            <span>
+                                វេរលុយ Transferred by:
+                                <span style="position:relative; display:inline-block; width:190px;">
+                                    .....................................................
+                                    <span style="position:absolute; left:0; bottom:2px;">
+                                        @if (isTT)
+                                        {@ViewBag.DepositAccount}
+
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signatures Top -->
+                <div class="signature-section" style="margin-top: 30px;">
+                    <div class="sig-block">
+                        <div style="margin-bottom: 5px;">
+                            <span style="display:inline-block; width: 120px;">ទូទាត់ដោយ/Paid By</span>
+                            <span>: ........................................</span>
+                        </div>
+                        <div>
+                            <span style="display:inline-block; width: 120px;">កាលបរិច្ឆេទ/Date</span>
+                            <span>: ........................................</span>
+                        </div>
+                    </div>
+                    <div class="sig-block" >
+                        <div style="margin-bottom: 5px;">
+                            <span style="display:inline-block; width: 150px;">បានទទួលដោយ/Received By</span>
+                            <span>: <span style="position: relative;">
+                                    ........................................
+                                    <span style="position:absolute; left:0; bottom:2px; ">@ViewData["Receiver"]</span>
+                            </span></span>
+                        </div>
+                        <div>
+                            <span style="display:inline-block; width: 150px;">កាលបរិច្ឆេទ/Date</span>
+                            <span>: <span style="position: relative;">
+                                    ........................................
+                                    <span style="position:absolute; left:0; bottom:2px;">@receiptDate</span>
+                            </span></span>
+                        </div>
+                   
+                    </div>
+                </div>
+
+                <!-- Signatures Bottom -->
+                <div class="signature-section" style="margin-top: 70px; position: relative;">
+                    <div class="sig-block">
+                        <div>
+                            <span style="display:inline-block; width: 120px;">ហត្ថលេខា/Signature</span>
+                            <span>: ........................................</span>
+                        </div>
+                    </div>
+                    <div class="sig-block">
+                        <div>
+                            <span style="display:inline-block; width: 150px;">ហត្ថលេខា/Signature</span>
+                            <span>: ........................................</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(ViewBag.ReceiverSignature))
+                        {
+                             <img src="@Url.Content("~/Uploads/Users/" + ViewBag.ReceiverSignature)" style="position: absolute; top: -60px; right: 50px; max-height: 70px; max-width: 150px;" onerror="this.style.display='none';" alt="" />
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-print" onclick="window.print();">
+                <i class="fa fa-print"></i> Print
+            </button>
+            <button type="button" class="btn-close-modal" onclick="window.close();">
+                <i class="fa fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Auto-print when opened as popup; PDF Export Script -->
+    <script>
+    // Auto-trigger print dialog when this page is opened as a popup
+    window.addEventListener('load', function () {
+        // 800ms delay: lets Google Fonts (Khmer/Roboto) and signature images fully render
+        setTimeout(function () {
+            window.focus();
+            window.print();
+        }, 800);
+    });
+
+    function downloadPDF() {
+        const element = document.getElementById('receipt-container');
+        const fileName = 'Receipt_@(ViewData["ReceiptNo"]).pdf';
+
+        const originalBoxShadow = element.style.boxShadow;
+        element.style.boxShadow = 'none';
+
+        const opt = {
+            margin: 1,
+            filename:    fileName,
+            image:       { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2 },
+            jsPDF:       { unit: 'mm', format: 'a5', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function () {
+            element.style.boxShadow = originalBoxShadow;
+        });
+    }
+    </script>
+</body>
+</html>

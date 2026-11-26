@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>@ViewBag.Title</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" sizes="57x57" href="~/Content/icon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="~/Content/icon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="~/Content/icon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="~/Content/icon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="~/Content/icon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="~/Content/icon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="~/Content/icon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="~/Content/icon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="~/Content/icon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="~/Content/icon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/Content/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="~/Content/icon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/Content/icon/favicon-16x16.png">
+    <link rel="manifest" href="~/Content/icon/manifest.json">
+    <link href="~/Content/css/custom.css" rel="stylesheet" />
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="~/Content/icon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Font Awesome -->
+    @*<link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">*@
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    @*<link rel="stylesheet" href="~/Content/AdminLTE-3.0.5/dist/css/adminlte.css">*@
+    @*<link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/dist/css/adminlte.min.css">*@
+    @*<link rel="stylesheet" href="~/Content/AdminLTE-3.2.0/dist/css/bootstrap-table.min.css">*@
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&family=Moul&display=swap" rel="stylesheet" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet" crossorigin />
+    <link href='https://fonts.googleapis.com/css?family=Bayon' rel='stylesheet' type='text/css' crossorigin />
+    <link href='https://fonts.googleapis.com/css?family=Bayon|Francois+One' rel='stylesheet' type='text/css' crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@200;300&display=swap" rel="stylesheet" crossorigin>
+
+    @*<script src="~/Content/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>*@
+    <!-- Bootstrap 4 -->
+    @*<script src="~/Content/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="~/Content/AdminLTE-3.2.0/dist/js/bootstrap-table.min.js"></script>
+        <script src="~/Content/AdminLTE-3.2.0/dist/js/bootstrap-table-print.min.js"></script>*@
+
+    <link type="text/css" href="~/Content/AdminLTE-3.2.0/dist/css/adminlte.min.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/ContactV2_files/main.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Content/bootstrap-5.0.2/js/bootstrap.min.js"></script>
+    <script src="~/Content/bootstrap-5.0.2/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Scripts/JScript_Function.js"></script>
+    <style>
+
+        @@media print {           
+            thead, tfoot {
+                display: table-row-group;
+            }
+
+            @@page {
+                color: #000000 !important;
+                size: A3;
+                margin-top: 5px !important;
+                margin-bottom: 0 !important
+            }
+
+            footer {
+                width: 100%;
+                position: fixed;
+                bottom: 0 !important;
+                margin-right: 50px !important;
+            }
+        }
+
+        .khmerFont {
+            font-family: 'Noto Sans Khmer', sans-serif;
+        }
+
+        .khmerFontMoul {
+            font-family: 'Moul', cursive;
+        }
+
+        .khmerFont1-Header {
+            font-family: 'Kantumruy Pro', sans-serif;
+            font-weight: 900;
+            font-size: 130%;
+            color: white;
+        }
+
+     
+    </style>
+</head>
+<body id="BoyMasterPage" style="background-color:white!important">
+    @RenderBody()
+
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/tooltipster-master/dist/js/tooltipster.bundle.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/jquery.format.js"></script>
+    <script src="~/Scripts/AutoNumeric.js"></script>
+    <script src="~/Scripts/jquery.serialize-object.min.js"></script>
+    <script src="~/Scripts/select2/js/select2.full.min.js"></script>
+    <script src="~/Scripts/sweetalert2/js/sweetalert2.all.min.js"></script>
+
+    <script src="~/Scripts/jQuery.print.js"></script>
+    <script src="~/Scripts/LocalStorage.js"></script>
+    <script src="~/Scripts/jquery.format.js"></script>
+    <script src="~/Scripts/html2pdf/jspdf.min.js"></script>
+    <script src="~/Scripts/html2pdf/download.min.js"></script>
+    <script src="~/Scripts/html2pdf/FileSaver.min.js"></script>
+    <script src="~/Scripts/html2pdf/html2canvas.min.js"></script>
+
+    <script>
+        $(function () {
+            var h = $("#BoyMasterPage").height();
+            if (h >= 1586) {
+                $("footer").css("cssText", "position: static !important;");
+            }
+        });
+    </script>
+</body>
+</html>

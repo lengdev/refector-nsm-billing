@@ -1,0 +1,28 @@
+﻿
+@{
+    Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+
+    function onGridClick(THIS) {
+        var index = $(THIS).closest("tr").index() + 1;
+        var tdindex = $(THIS).closest("tr td").index() + 1;
+        if (tdindex != 6 && tdindex != 12) {
+            var VendorID = $("#TableGride tr:eq(" + index + ") td").eq(1).html();
+            var POID = $("#TableGride tr:eq(" + index + ") td").eq(2).html();
+            var PONumber = $("#TableGride tr:eq(" + index + ") td").eq(3).html();
+            var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + POID + "&Type=PO";
+            ShowDialogBox("Preview PO No.: " + PONumber, "Auto", "500", URL);
+        }
+    }
+
+    function ShowPOInvoice(VendorID, POID, PONumber) {
+        var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + POID + "&Type=PO";
+        ShowDialogBox("Preview PO No.: " + PONumber, "Auto", "500", URL);
+    }
+    function ShowPRInvoice(VendorID, PRID, PRNumber) {
+        var URL = "Profile/InvoiceTMPR?VendorID=" + VendorID + "&PRID=" + PRID + "&Type=PR";
+        ShowDialogBox("Preview PR No.: " + PRNumber, "Auto", "500", URL);
+    }
+</script>

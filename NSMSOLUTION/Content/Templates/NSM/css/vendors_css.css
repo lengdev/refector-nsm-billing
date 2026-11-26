@@ -1,0 +1,48 @@
+/****************************/
+/** Imports Plugin css **/
+/****************************/
+@import url('assets/bootstrap.css');
+@import url(assets/perfect-scrollbar.css);
+@import url(assets/morris.css);
+@import url(assets/owl.carousel.css);
+@import url(assets/owl.theme.default.min.css);
+@import url(assets/horizontal-timeline.css);
+@import url(assets/flexslider.css);
+@import url(assets/prism.css);
+@import url(assets/datatables.min.css);
+@import url(assets/magnific-popup.css);
+@import url(assets/animated-masonry-gallery.css);
+@import url(assets/ekko-lightbox.css);
+@import url(assets/jquery-jvectormap-2.0.2.css);
+@import url(assets/bootstrap-editable.css);
+@import url(assets/sweetalert.css);
+@import url(assets/bootstrap-markdown.css);
+@import url(assets/dropzone.css);
+@import url(assets/select2.min.css);
+@import url(assets/daterangepicker.css);
+@import url(assets/bootstrap-datepicker.min.css);
+@import url(assets/bootstrap-colorpicker.min.css);
+@import url(assets/bootstrap-select.css);
+@import url(assets/bootstrap-tagsinput.css);
+@import url(assets/jquery.bootstrap-touchspin.css);
+@import url(assets/jquery.raty.css);
+@import url(assets/ion.rangeSlider.css);
+@import url(assets/ion.rangeSlider.skinModern.css);
+@import url(assets/gridstack.css);
+@import url(assets/jquery.toast.css);
+@import url(assets/nestable.css);
+@import url(assets/switch.css);
+@import url(assets/c3.min.css);
+@import url(assets/chartist.css);
+@import url(assets/slider.css);
+@import url(assets/blue.css);
+@import url(assets/bootstrap3-wysihtml5.min.css);
+@import url(assets/bootstrap3-wysihtml5.css);
+@import url(assets/all.css);
+@import url(assets/bootstrap-timepicker.min.css);
+@import url(assets/pace.min.css);
+@import url(assets/fullcalendar.min.css);
+@import "assets/fullcalendar.print.min.css" print;
+@import url(assets/weather-icons.css);
+
+/*# sourceMappingURL=vendors_css.css.map */

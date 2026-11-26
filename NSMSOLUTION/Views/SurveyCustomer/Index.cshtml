@@ -1,0 +1,15 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+<script>
+    function SaveChangeSurveyCustomerCallbackFunction(response) {
+        let CustomerName = JSON.parse(response.Data)[0].CustomerName;
+        let SurveyCustomerID = JSON.parse(response.Data)[0].SurveyCustomerID;
+        let Data = {};
+        Data = { SurveyCustomerID: SurveyCustomerID };
+        setTimeout(function () {
+            $("#CboSearchText").val(CustomerName);
+            $("#BunSearch").click();
+        }, 200);
+        PostData("SurveyCustomer/SendNotification", Data);
+    }
+</script>

@@ -1,0 +1,172 @@
+﻿@{ Layout = null;}
+
+@Html.Raw(ViewBag.DrawHTMLForm)
+<script>
+    var BillID = "@ViewBag.BillID";
+    var onItsForm = ("@ViewBag.onItsForm").toLowerCase();
+    $(function () {
+        $("#FromBankName").closest("div.row").hide();
+        $("#ChequeNumber").closest("div.row").hide();
+        $("#FromPhoneNumber").closest("div.row").hide();
+
+        $("#FromBankName").closest("div.row").parent().removeClass('p-2');
+        $("#ChequeNumber").closest("div.row").parent().removeClass('p-2');
+        $("#FromPhoneNumber").closest("div.row").parent().removeClass('p-2');
+        setTimeout(function () {
+            $("#PaymentModeID").change(function () {
+                var data = $('#PaymentModeID').select2('data')
+                var PaymentMode = data[0].text;
+                $("#FromBankName").closest("div.row").hide();
+                $("#ChequeNumber").closest("div.row").hide();
+                $("#FromPhoneNumber").closest("div.row").hide();
+
+                $("#FromBankName").closest("div.row").parent().removeClass('p-2');
+                $("#ChequeNumber").closest("div.row").parent().removeClass('p-2');
+                $("#FromPhoneNumber").closest("div.row").parent().removeClass('p-2');
+
+                if (PaymentMode == "Bank Transfer") {
+                    $("#FromBankName").closest("div.row").show();
+                    $("#FromBankName").closest("div.row").parent().addClass('p-2');
+                }
+                else if (PaymentMode == "Cheque") { //
+                    $("#ChequeNumber").closest("div.row").show();
+                    $("#ChequeNumber").closest("div.row").parent().addClass('p-2');
+                }
+                else if (PaymentMode != "Cash" && PaymentMode != "ATM Withdrawals") {
+                    $("#FromPhoneNumber").closest("div.row").show();
+                    $("#FromPhoneNumber").closest("div.row").parent().addClass('p-2');
+                }
+            });
+        }, 400);        
+
+        $("#Payee").change(function () {
+            var VendorID = $("#VendorID").val();
+            LoadData("VendorPaymentsMade/TransactionDetails?VendorID=" + VendorID, function (response) {
+                response = JSON.parse(response).Data;
+                $("#divTblTransactionDetails").html(response);
+                setTimeout(function () {
+                    $("input[name=AmountDue]").css({ "text-align": "right" });
+                    $("input[name=AmountDue]").autoNumeric({ vMin: '0.00' });
+                    $("input[name=AmountDue]").on("keyup", function () {
+                        CheckPaymentAmount(this);
+                    });
+                    var row = '<tfoot><tr>';
+                    row += '<td colspan="9" align="right">';
+                    row += '<label>Total Balance:</label> <label id="TotalBalanc">0.00</label></td>';
+                    row += '</tr></tfoot>';
+                    $("#tblVendorUnpaid tbody").after(row);
+                    row = '<tr>';
+                    row += '<td colspan="9" class="text-primary" align="right">';
+                    row += '<label>Total Payment Amount:</label> <label id="TotalPaymentAmount">0.00</label></td>';
+                    row += '</tr>';
+                    $("#tblVendorUnpaid tfoot tr:last").after(row);
+                    row = '<tr>';
+                    row += '<td colspan="9" class="text-red" align="right">';
+                    row += '<label>Remain Balance:</label> <label id="RemainBalance">0.00</label></td>';
+                    row += '</tr>';
+                    $("#tblVendorUnpaid tfoot tr:last").after(row);
+                    TotalPaymentAmount();
+
+                    $("input[name=BillID]").attr('checked', 'checked');
+                    if (BillID != "") {
+                        $("input[name=BillID]").removeAttr('checked');
+                        $("input[name=BillID]").each(function () {
+                            var BID = $(this).val();
+                            if (BillID == BID) {
+                                $(this).attr('checked', 'checked');
+                                return;
+                            }
+                        });
+                    }
+                }, 300);
+            });
+        });
+        setTimeout(function () {
+            $("#Payee").change();            
+        }, 200);        
+    });
+
+    function TotalPaymentAmount() {
+        var TPaymentAmount = 0;
+        var RemainBalance = 0;
+        var BL = "";
+        $("input[name=AmountDue]").each(function (i) {
+            TPaymentAmount += accounting.unformat($(this).val());
+            RemainBalance += accounting.unformat($("#tblVendorUnpaid tr:eq(" + (i + 1) + ") td:eq(6)").html());
+            if (BL == "" && accounting.unformat($(this).val()) != 0)
+                BL = $("#tblVendorUnpaid tr:eq(" + (i + 1) + ") td:eq(4)").html();
+            else if (BL != "" && accounting.unformat($(this).val()) != 0)
+                BL += ", "+$("#tblVendorUnpaid tr:eq(" + (i + 1) + ") td:eq(4)").html();
+        });
+        $("label#TotalBalanc").html(accounting.formatMoney(RemainBalance, ''));
+        $("label#TotalPaymentAmount").html(accounting.formatMoney(TPaymentAmount, ''));
+        RemainBalance = accounting.unformat(RemainBalance) - accounting.unformat(TPaymentAmount);
+        $("label#RemainBalance").html(accounting.formatMoney(RemainBalance, ''));
+        var desc = "Payment for Bills: " + BL + " with amount: " + accounting.formatMoney(TPaymentAmount, '');
+        $("#Description").val(desc);
+        $("#Reference").val("Bills: " + BL);
+    }
+    function CheckPaymentAmount(THIS) {
+        var PaymentAmount = accounting.unformat($(THIS).val());
+        var originalAmountDue = $(THIS).closest('tr').index() + 1;
+        originalAmountDue = $("#tblVendorUnpaid tr:eq(" + originalAmountDue + ") td:eq(8)").html();
+        if (accounting.unformat(originalAmountDue) < PaymentAmount) {
+            DialogSweetAlert("error", "You cannot made payment bigger then " + originalAmountDue + ".");
+            $(THIS).val(originalAmountDue).select();
+        }
+        TotalPaymentAmount();
+    }
+
+    function SaveChangeVendorPayment() {
+        var isChecked = $("input[name=BillID]:checked").length;
+        if (isChecked > 0) {
+            var FormData = $('form[name=FrmVendorPaymentMade]').serializeObject();
+            FormData["PaymentDate"] = StringToDate($("#PaymentDate").val());
+            FormData["Memo"] = encodeURIComponent(nl2br($("#Memo").val()));
+            FormData["TotalPaymentAmount"] = accounting.unformat($("#TotalPaymentAmount").html());
+            var obj = {};
+            var objTbl = [];
+            $("input[name=BillID]:checked").each(function (i) {
+                var index = ($(this).closest('tr').index() + 1);
+                obj = {};
+                var BillID = $("#tblVendorUnpaid tr:eq(" + index + ") td").eq(1).html();
+                var BillDate = StringToDate($("#tblVendorUnpaid tr:eq(" + index + ") td").eq(2).html());
+                var DueDate = StringToDate($("#tblVendorUnpaid tr:eq(" + index + ") td").eq(3).html());
+                var BillNumber = $("#tblVendorUnpaid tr:eq(" + index + ") td").eq(4).html();
+                var PONumber = $("#tblVendorUnpaid tr:eq(" + index + ") td").eq(5).html();
+                var Amount = accounting.unformat($("#tblVendorUnpaid tr:eq(" + index + ") td").eq(6).html());
+                var AmountPaid = accounting.unformat($("#tblVendorUnpaid tr:eq(" + index + ") td").eq(7).html());
+                var AmountDue = accounting.unformat($("#tblVendorUnpaid tr:eq(" + index + ") td").eq(8).html());
+                var PaymentAmount = accounting.unformat($("input[name=AmountDue]").eq($(this).closest('tr').index()).val());
+
+                obj = {
+                    BillID: BillID, BillDate: BillDate,
+                    DueDate: DueDate, BillNumber: BillNumber,
+                    PONumber: PONumber, Amount: Amount, AmountPaid: AmountPaid,
+                    AmountDue: AmountDue, PaymentAmount: PaymentAmount
+                };
+                objTbl.push(obj);
+            });
+            var URL = 'VendorPaymentsMade/SaveChangeVendorPaymentsMade';
+            DoSaveChageAjaxForm('FrmVendorPaymentMade', URL, { ObjForm: JSON.stringify(FormData), ObjTbl: JSON.stringify(objTbl) }, 'Saving Data...', function (response) {
+                $("#BunSearch").click();
+                $("#DialogAddNewItem").modal('hide');
+                response = JSON.parse(response.Data)[0];
+
+                var loc = window.location.href;
+                var ID = getQueryStringValue(loc, 'ID');
+                if (ID == "") {
+                    URL = "#!/Profile?ID=" + response.VendorID + "&Type=PaymentMade&OfficalReceiptNo=" + response.OfficalReceiptNo;
+                    OpenNewTap(URL);
+                }
+                else {
+                    OfficalReceiptNo = response.OfficalReceiptNo;
+                    $("#paymentsmade_Tap").click();
+                }
+            });
+        }
+        else {
+            DialogSweetAlert("error", "Please choose bill for payment.");
+        }
+    }
+</script>

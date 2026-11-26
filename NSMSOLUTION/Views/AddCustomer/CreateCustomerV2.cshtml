@@ -1,0 +1,2392 @@
+﻿@{
+Layout = null;
+}
+@Html.Raw(ViewBag.DrawHTMLFormV1)
+
+<style>
+  .SetCID {
+    outline: none;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 0.75rem;
+  }
+
+  div[id*="divFrm_"] .row .col-auto {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ivTypeOfInvoice {
+    margin: 14px 0;
+  }
+
+  .agency-clone {
+    margin: 12px 0;
+    border: 1px dashed #ccc;
+    padding: 5px 0;
+  }
+
+  .agency-clone .select2-selection {
+    border: none !important;
+  }
+
+  .agency-clone .select2-selection ul {
+    border-bottom: 1px solid #adadad !important;
+  }
+
+  [name="GrandTotal"] {
+    color: dodgerblue;
+    font-weight: 600 !important;
+  }
+
+  .div-contract {
+    border: 1px dashed #ccc;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .div-contract .wrap-input3 input {
+    border-bottom: 1px solid #ccc;
+  }
+
+  .div-contract .ti {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+
+  .div-contract {
+    background: #fff5f5;
+  }
+
+  body.dark-mode .div-contract {
+    background: transparent !important;
+  }
+
+  .DivSetCID label {
+    margin-bottom: 0;
+  }
+
+  .type-of-invoice {
+    margin: 1.5rem 0;
+  }
+</style>
+
+<script defer>
+  var _mapInitializing = false;
+  var _mapReady = false;
+  var _isUpdatingMap = false;
+  var _lastGeocodedLat = null;
+  var _lastGeocodedLng = null;
+  var formType = '@ViewBag.FormType' || '';
+  var isEditCustomer = '@ViewBag.IsEdit' === 'True' ? true : false;
+  var isToInvoice = '@ViewBag.IsToInvoice' === 'True' ? true : false;
+  var isRenew = '@ViewBag.IsRenew' === 'True' ? true : false;
+  var isChangePlan = '@ViewBag.IsChangePlan' === 'True' ? true : false;
+  var customerId = parseInt('@ViewBag.CustomerID') || 0;
+  var domainId = localStorage.getItem('DomainID');
+
+  $(function () {
+    onModalShow(customerId, formType, function () {
+      $('#IdentificationExpireDate').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        autoUpdateInput: false,
+        showDropdowns: true,
+        locale: { format: 'DD/MM/YYYY' }
+      }).on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+      });
+
+      if (formType) {
+        hiddenInput(formType);
+        $('<input>', {
+          type: 'hidden',
+          name: 'FormType',
+          value: formType
+        }).appendTo('form[name="Frm"]');
+      }
+
+      if (!customerId && !isEditCustomer) {
+        $('#SetCID').trigger('change');
+        return;
+      }
+
+      if (customerId && formType === 'NewRegister') {
+        EditCustomer(customerId, function () {
+          fillEditData(customerId);
+        });
+      } else {
+        fillEditData(customerId, formType);
+      }
+
+
+      const _origGeocode = google.maps.Geocoder.prototype.geocode;
+      const _cache = {};
+      google.maps.Geocoder.prototype.geocode = function (request, callback) {
+        const key = JSON.stringify(request);
+        if (_cache[key]) {
+          callback(_cache[key], google.maps.GeocoderStatus.OK);
+          return;
+        }
+        _origGeocode.call(this, request, function (results, status) {
+          if (status === google.maps.GeocoderStatus.OK) _cache[key] = results;
+          callback(results, status);
+        });
+      };
+    });
+  });
+
+
+  function toggleHeaderTitle() {
+    const targets = $('.form-content div[id^="divFrm_"]');
+
+    targets.each(function (index) {
+      const lastIndex = targets.length - 1;
+      const agencyIndex = lastIndex - 1;
+      const $container = $(this);
+      const $header = $container.children('div:first');
+      const $headerSec = $container.children('div:nth-child(2)');
+      const $rest = $container.children('div:not(:first)');
+      const $titleSpan = $header.find('span.card-title').first();
+      const $titleSpanSec = $header.find('span.card-title').first();
+
+      if ($titleSpan.length === 0 || $titleSpan.next('.ti').length) return;
+
+      const $icon = $('<i class="ti ms-2" style="cursor:pointer; font-size: 20px;"></i>');
+
+      if (index === 0) {
+        $rest.show();
+        //$icon.addClass('ti-chevrons-up');
+        const noneOption = domainId === '001'
+          ? `<option value="None VAT">None</option>`
+          : '';
+
+        const saveAs = `
+                    <div id="DivSetCID" class="d-flex align-items-center justify-content-center DivSetCID" style="margin-left:25px; padding: 0.2rem !important;">
+                        <label for="SetCID">Save as to:</label>
+                        <select name="SetCID" id="SetCID" class="SetCID">
+                            ${noneOption}
+                            <option value="VAT">TAX</option>
+                            <option value="CM">CM</option>
+                        </select>
+                        <input type="hidden" name="IsIncludedVAT" id="IsIncludedVAT" value="false"/>
+                    </div>`;
+        $titleSpan.after($icon);
+        $icon.after(saveAs);
+
+        $("#SetCID").addClass("form-control select2");
+        $("#SetCID").select2({
+          dropdownParent: $("#SetCID").parent(),
+          theme: 'bootstrap4',
+          minimumResultsForSearch: Infinity,
+          placeholder: ""
+        });
+        $('#SetCID').next('.select2-container').css({
+          width: '110px',
+          marginLeft: '10px'
+        });
+
+      } else if (index === lastIndex) {
+        $rest.show();
+        $icon.addClass('ti-chevrons-up');
+        $titleSpan.after($icon);
+      } else {
+        index == 1 ? $rest.show() : $rest.hide();
+        index == 1 ? $icon.addClass('ti-chevrons-up') : $icon.addClass('ti-chevrons-down');
+        if (typeof agencyIndex !== 'undefined' && index === agencyIndex) {
+          const btnAddAgency = `
+                    <button type="button" id="btnAddNewAgency" class="btn btn-info btn-sm ml-2 d-none">
+                        <i class="ti ti-library-plus"></i> Add New Agency
+                    </button>`;
+          $titleSpan.after($icon);
+          $icon.after(btnAddAgency);
+          addNewAgency();
+        } else {
+          $titleSpan.after($icon);
+        }
+      }
+
+      $header.off('click.toggle').on('click.toggle', function (e) {
+        const $target = $(e.target);
+        const $targetEl = $target.is('input, select, textarea, button');
+        const $select2Len = $target.closest('.select2-container').length;
+        const $newAgencyBtn = $target.closest('#btnAddNewAgency').length;
+
+        if ($targetEl || $select2Len || $newAgencyBtn || index == 0) {
+          return;
+        }
+
+        $rest.stop(true, true).slideToggle(200, function () {
+          if (typeof agencyIndex !== 'undefined' && index === agencyIndex) {
+            $('#btnAddNewAgency, #btnClearAgency').toggleClass('d-none');
+          }
+        });
+        $icon.toggleClass('ti-chevrons-down ti-chevrons-up');
+      });
+    });
+  }
+
+  // ── Main map loader ────────────────────────────────────────────
+  function loadGoogleMap(lat = 0, lng = 0) {
+    if (!navigator.geolocation) return;
+
+    const $mapEl = $('#GoogleMap_Longitude_CurrentLocation');
+
+    // Already initialized → just move pin (no re-geocode if same coords)
+    if (_mapReady && $mapEl.data('locationpicker')) {
+      if (lat !== 0 && lng !== 0) {
+        const current = $mapEl.locationpicker('location');
+        // ✅ Skip if coordinates haven't actually changed
+        if (current.latitude === lat && current.longitude === lng) return;
+
+        _isUpdatingMap = true;
+        $mapEl.locationpicker('location', { latitude: lat, longitude: lng });
+        setTimeout(() => { _isUpdatingMap = false; }, 600);
+      }
+      return;
+    }
+
+    if (_mapInitializing) return;
+    _mapInitializing = true;
+
+    const doInit = (lat_cust, lng_cust) => {
+      $mapEl.locationpicker({
+        location: { latitude: lat_cust, longitude: lng_cust },
+        radius: 10,
+        zoom: 18,
+        scrollwheel: false,
+        // ✅ Keep autocomplete for address search but bind inputs manually
+        enableAutocomplete: true,
+        inputBinding: {
+          latitudeInput: $('#GoogleMap_Latitude'),
+          longitudeInput: $('#GoogleMap_Longitude'),
+          locationNameInput: $('#GoogleMap_FullAddress')
+        },
+        onchanged: function (currentLocation) {
+          // ✅ Get the formatted address FIRST, before any guard
+          const map = $(this).locationpicker('map');
+          const formatted = map?.location?.formattedAddress || '';
+
+          // ✅ Always update the address field regardless of flag
+          if (formatted) {
+            $('#GoogleMap_FullAddress').val(formatted);
+          }
+
+          // ✅ Now update the GoogleMap object
+          if (typeof GoogleMap !== 'undefined') {
+            GoogleMap.GoogleMap_FullAddress = formatted;
+            GoogleMap.GoogleMap_Latitude = currentLocation.latitude;
+            GoogleMap.GoogleMap_Longitude = currentLocation.longitude;
+          }
+
+          // ✅ Only block the loop feedback (not the address fill)
+          if (_isUpdatingMap) return;
+
+          _isUpdatingMap = true;
+          setTimeout(() => { _isUpdatingMap = false; }, 600);
+        },
+      });
+
+      _mapReady = true;
+      //attachLatLngChangeListener();
+
+      if (lat_cust !== 11.5564 && lng_cust !== 104.9282) { // skip fallback default
+        setTimeout(() => {
+          fillAddressFromLatLng(lat_cust, lng_cust);
+        }, 800);
+      }
+
+      function fillAddressFromLatLng(lat, lng) {
+        // Don't call if address already filled
+        if ($('#GoogleMap_FullAddress').length > 0 && ($('#GoogleMap_FullAddress').val() || '').trim() !== '') return;
+
+        const geocoder = new google.maps.Geocoder();
+        const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+        geocoder.geocode({ location: latlng }, function (results, status) {
+          if (status === google.maps.GeocoderStatus.OK && results[0]) {
+            const address = results[0].formatted_address;
+            $('#GoogleMap_FullAddress').val(address);
+
+            if (typeof GoogleMap !== 'undefined') {
+              GoogleMap.GoogleMap_FullAddress = address;
+            }
+          }
+        });
+      }
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        let lat_cust = lat || parseFloat($('#GoogleMap_Latitude').val()) || position.coords.latitude;
+        let lng_cust = lng || parseFloat($('#GoogleMap_Longitude').val()) || position.coords.longitude;
+
+        if (lat === 0 && lng === 0 && typeof GoogleMap !== 'undefined' && GoogleMap.GoogleMap_FullAddress) {
+          lat_cust = GoogleMap.GoogleMap_Latitude;
+          lng_cust = GoogleMap.GoogleMap_Longitude;
+        }
+        doInit(lat_cust, lng_cust);
+      },
+      function () {
+        doInit(11.5179, 104.9341); // Fallback: Phnom Penh
+      }
+    );
+  }
+
+  function attachLatLngChangeListener() {
+    let typingTimer;
+
+    $('#GoogleMap_Latitude, #GoogleMap_Longitude')
+      .off('change.mapUpdate keyup.mapUpdate')
+      .on('change.mapUpdate keyup.mapUpdate', function () {
+
+        // ✅ Ignore programmatic updates from locationpicker itself
+        if (_isUpdatingMap) return;
+
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function () {
+          const lat = parseFloat($('#GoogleMap_Latitude').val()) || 0;
+          const lng = parseFloat($('#GoogleMap_Longitude').val()) || 0;
+
+          if (lat === 0 || lng === 0) return;
+
+          const $mapEl = $('#GoogleMap_Longitude_CurrentLocation');
+
+          // ✅ Skip if coords haven't actually changed
+          if (_lastGeocodedLat === lat && _lastGeocodedLng === lng) return;
+
+          if ($mapEl.data('locationpicker')) {
+            // Move the pin
+            _isUpdatingMap = true;
+            $mapEl.locationpicker('location', { latitude: lat, longitude: lng });
+            setTimeout(() => { _isUpdatingMap = false; }, 600);
+          }
+
+          // ✅ Force a fresh geocode — clear cache so address updates
+          _lastGeocodedLat = null;
+          _lastGeocodedLng = null;
+          $('#GoogleMap_FullAddress').val(''); // clear stale address
+
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode(
+            { location: { lat: lat, lng: lng } },
+            function (results, status) {
+              if (status === google.maps.GeocoderStatus.OK && results[0]) {
+                const address = results[0].formatted_address;
+
+                _lastGeocodedLat = lat;
+                _lastGeocodedLng = lng;
+
+                $('#GoogleMap_FullAddress').val(address);
+
+                if (typeof GoogleMap !== 'undefined') {
+                  GoogleMap.GoogleMap_FullAddress = address;
+                  GoogleMap.GoogleMap_Latitude = lat;
+                  GoogleMap.GoogleMap_Longitude = lng;
+                }
+              }
+            }
+          );
+
+        }, 800); // ← wait 800ms after user stops typing
+      });
+  }
+
+  function previewMap() {
+    if ($('#map-eye-icon').length) return;
+
+    const $icon = $('<i id="map-eye-icon" class="ti ti-eye" data-toggle="tooltip" title="Preview Location."></i>');
+    $icon.css({
+      fontSize: '18px',
+      position: 'absolute',
+      right: '10px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      cursor: 'pointer',
+      color: 'blue'
+    });
+
+    const $wrapper = $('#GoogleMap_FullAddress').closest('.wrap-input2');
+    $wrapper.css('position', 'relative').append($icon);
+
+    $icon.on('click', function () {
+      const lat = parseFloat($('#GoogleMap_Latitude').val()) || 0;
+      const lng = parseFloat($('#GoogleMap_Longitude').val()) || 0;
+      let url = "AddCustomer/SetCustomerLocationByGoogleMap";
+      if (lat !== 0 && lng !== 0) url += `?lat=${lat}&lng=${lng}`;
+      MarkerMap('GoogleMap_FullAddress', 'GoogleMap_Latitude', 'GoogleMap_Longitude', url);
+    });
+  }
+
+  function addNewAgency() {
+    $('#btnAddNewAgency').on('click', function (e, data) {
+      const $container = $('#AgencyCommission');
+
+      const cloneCount = $('.agency-clone').length;
+      if (cloneCount >= 1) return;
+
+      const $original = $container.children('div').not('.agency-clone');
+      const isEdit = data?.isEdit === true;
+      if (!$original.length) return;
+
+      const rand = Math.floor(Math.random() * 100000);
+      const $clone = $original.clone(false, false);
+
+      $clone.find('input, textarea').val('');
+      $clone.find('select').val(null).trigger('change');
+
+      const $select = $clone.find('.select2-hidden-accessible');
+      if ($select.length) {
+        const newId = `${$select.attr('id')}-${rand}`;
+        $clone.find('.select2-container').remove();
+        $select.removeClass('select2-hidden-accessible').removeAttr('data-select2-id').attr('id', newId);
+        $select.find('option').removeAttr('data-select2-id');
+      }
+
+      const $wrapper = $('<div class="agency-clone"></div>').append($clone);
+      $wrapper.append('<button type="button" class="btn btn-danger btnRemoveAgency ml-2"><i class="ti ti-trash"></i> Remove</button>');
+      $container.append($wrapper);
+
+      handleCommissionType(rand);
+
+      const newCount = $('.agency-clone').length;
+      const hidden = isEdit ? 'd-none' : '';
+      if ($('#btnClearAgency').length === 0) {
+        $(this).after(`<button type="button" id="btnClearAgency" class="btn btn-sm btn-danger ml-2 ${hidden}"><i class="ti ti-x"></i> Clear (${newCount})</button>`);
+      } else {
+        $('#btnClearAgency').html(`<i class="ti ti-x"></i> Clear (${cloneCount})`);
+      }
+    });
+
+    $(document).on('click', '.btnRemoveAgency', function () {
+      $(this).closest('.agency-clone').remove();
+      const cloneCount = $('.agency-clone').length;
+      if (cloneCount === 0) $('#btnClearAgency').remove();
+      else $('#btnClearAgency').html(`<i class="ti ti-x"></i> Clear (${cloneCount})`);
+    });
+
+    $(document).on('click', '#btnClearAgency', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('.agency-clone').remove();
+      $(this).remove();
+    });
+  }
+
+  function handleCommissionType(rnd) {
+    const objData = [{ id: 1, text: 'Once Time' }, { id: 2, text: 'On Package' }];
+    const $el = $(`#AgencyCommissionType-${rnd}`);
+    if (!$el.length) return;
+
+    if ($el.hasClass("select2-hidden-accessible")) $el.select2('destroy');
+
+    $el.select2({
+      theme: "bootstrap4",
+      placeholder: "Enter Commission Type",
+      allowClear: true,
+      multiple: true,
+      width: '100%',
+      data: objData,
+      dropdownParent: $el.closest('.agency-section, .agency-clone, body'),
+      escapeMarkup: m => m
+    });
+    $el.on('select2:select', function (e) {
+      // If a new item is selected, keep only the most recent one
+      const latestValue = e.params.data.id;
+      $(this).val([latestValue]).trigger('change');
+    });
+  }
+
+  function getTermCondition(type) {
+    LoadData(`AddCustomer/LoadCompanyLogo`, function (res) {
+      const jsonData = JSON.parse(res.data);
+      if (jsonData.length == 0) return;
+      const resData = jsonData[0];
+      const finalTerm = (type === 'VAT' || type === 'CM') ? decode(resData.TermConditionVAT) : decode(resData.TermConditionNonVAT);
+      $('textarea[name="TermsConditions"]').val(finalTerm);
+    }, false, "json");
+  }
+
+  function handleTypeOfInvoice() {
+
+    const invoiceTypes = [
+      { id: 'ExcludedVAT', label: 'Excluded VAT', dataValue: 'None VAT', value: true, isChecked: domainId === '001' },
+      { id: 'IncludedVAT', label: 'Included VAT', dataValue: 'VAT', value: false, isChecked: domainId !== '001' },
+      { id: 'CommercialINV', label: 'Commercial Inv.', dataValue: 'CM', value: false, isChecked: false }
+    ];
+
+    const visibleTypes = invoiceTypes.filter(i => domainId === '001' || i.id !== 'ExcludedVAT');
+
+    let divInvoiceType = `<div class="row type-of-invoice divTypeOfInvoice" id="divTypeOfInvoice">`;
+
+    $.each(visibleTypes, function (index, item) {
+      divInvoiceType += `
+            <div class="col-auto">
+                <div class="icheck-material-cyan icheck-inline">
+                    <input type="checkbox" name="TypeOfInvoice" id="${item.id}" data-value="${item.dataValue}" value="${item.value}" ${item.isChecked ? 'checked' : ''}>
+                    <label for="${item.id}">${item.label}</label>
+                </div>
+            </div>`;
+    });
+
+    divInvoiceType += `<input type="hidden" id="VATRate" name="VATRate" value="0">`;
+
+    divInvoiceType += `
+        <div class="col-auto">
+            <div class="form-group pt-1">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="isNextInvoice">
+                    <label class="custom-control-label d-none" for="isNextInvoice">Is Next Invoice</label>
+                </div>
+            </div>
+        </div></div>`;
+
+    $('.modal tfoot > tr > td').first().prepend(divInvoiceType);
+
+    $('input[name="TypeOfInvoice"]').on('change', function () {
+
+      $('input[name="TypeOfInvoice"]').not(this).prop('checked', false).val(false);
+      const isChecked = this.checked;
+      const dataValue = $(this).data('value');
+
+      $(this).prop('checked', isChecked).val(isChecked);
+      if (isChecked) {
+        $('#SetCID').val(dataValue).trigger('change');
+
+        const isVAT = dataValue === "VAT";
+        const isCM = dataValue === "CM";
+
+        $('#VATRate').attr('value', !isVAT ? 0 : 10);
+        $('#IsIncludedVAT').val(isVAT || isCM);
+      }
+      calculateTotals();
+    });
+  }
+
+  function handleChangeSaveAs(customerId, formType) {
+    let isSyncingSetCID = false;
+    const isEdit = !!customerId;
+    let dataEdit;
+    let invoiceNo;
+    let custType;
+
+    if (isEditCustomer) {
+      if (window.App?.CustomerInfo !== undefined) {
+        dataEdit = normalizeCustomerData(window.App?.CustomerInfo);
+        invoiceNo = dataEdit.Invoice?.[0]?.InvoiceNo || "";
+        custType = dataEdit.BillInfo?.SetCID || "";
+      }
+    }
+
+    $('#SetCID').on('change', function () {
+
+      if (isSyncingSetCID) return;
+
+      const val = $(this).val();
+      $('input[name="TypeOfInvoice"]').each(function () {
+        const dataValue = $(this).data('value');
+        const match = dataValue === val;
+        $(this).prop('checked', match).val(match);
+        if (match) {
+          const isVAT = dataValue === "VAT";
+          const isCM = dataValue === "CM";
+
+          $('#VATRate').attr('value', !isVAT ? 0 : 10);
+          $('#IsIncludedVAT').val(isVAT || isCM);
+
+          //handle class trigger change
+          const classValue = isVAT || isCM ? 'NSM' : 'NSM ISP';
+
+          $('#ClassName')
+            .typeahead('val', classValue)
+            .trigger('typeahead:select', {
+              value: classValue
+            });
+
+          const shouldLoad = !isEditCustomer || (isEditCustomer && formType == 'Invoice') || formType == 'Quotation' || isToInvoice || isRenew || isChangePlan;
+
+          if (shouldLoad) {
+            LoadData(`AddCustomer/LoadInvoicePrefix?formType=${formType}&invoiceType=${dataValue}`, function (response) {
+              const res = JSON.parse(response.data);
+
+              if (res.length === 0) return;
+
+              setTimeout(function () {
+                $('#InvoiceNo').val(res[0].PrefixNumber);
+                $('#PrefixInvoice').val(res[0].Prefix);
+              }, 100);
+
+              if (custType === dataValue || (custType === "CM" && dataValue === "VAT")) {
+                setTimeout(function () {
+                  if (invoiceNo && isEditCustomer) {
+                    $('#InvoiceNo').val(invoiceNo);
+                  }
+                }, 100);
+              }
+            }, false, "json");
+          }
+        }
+      });
+      $('#ClassName')
+        .off('typeahead:select.setCID')
+        .on('typeahead:select.setCID', function (e, item) {
+
+          if (!item) return;
+
+          let setCID = '';
+
+          if (item.Name === 'NSM') {
+            setCID = 'VAT';
+          } else if (item.Name === 'NSM ISP') {
+            setCID = 'None VAT';
+          }
+
+          if (setCID && !isSyncingSetCID) {
+            isSyncingSetCID = true;
+
+            $('#SetCID')
+              .val(setCID)
+              .trigger('change');
+
+            isSyncingSetCID = false;
+          }
+        });
+      getTermCondition(val);
+      calculateTotals();
+    });
+  }
+
+  function swapNoteAndTerm() {
+    const note = $('textarea[name="Customer_Notes"]').closest('.row');
+    const term = $('textarea[name="TermsConditions"]').closest('.row');
+    const temp = $('<div>').insertBefore(note);
+    note.insertBefore(term);
+    term.insertBefore(temp);
+    temp.remove();
+  }
+
+  function handleItemDescrition() {
+    const spDivHtml = `
+        <div class="divServicePlan" style="display: none; margin-top: 5px; border: 1px dashed #ccc; padding: 10px;">
+            <div class="${isChangePlan ? `d-block` : `d-none`}">
+                <div class="row">
+                    <small class="badge badge-sm badge-primary" style="font-size:9px;">Current Plan</small>
+                </div>
+                <div class="row">
+                    <label class="col-form-label">ឈ្មោះសេវាកម្មកំពុងប្រើ/Using Service Plan:</label>
+                    <div class="col wrap-input4 d-inline-block">
+                        <input type="text" id="OldServicePlan" class="input2 ServicePlan" name="OldServicePlan" readonly>
+                        <input type="hidden" id="OldServiceID" class="input2 ServiceID" name="OldServiceID">
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-form-label">កញ្ចប់សេវាកម្មកំពុងប្រើ/Using Package Name:</label>
+                    <div class="col wrap-input4 d-inline-block">
+                        <input type="text" id="OldPackageName" class="input2 PackageName" name="OldPackageName" readonly>
+                        <input type="hidden" id="OldPackageID" class="input2 PackageID" name="OldPackageID">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col wrap-input4 d-inline-block">
+                        Start Date: <span id="old-start-date" class="text-danger"></span>&nbsp;&nbsp;
+                        End Date: <span id="old-end-date" class="text-danger"></span>&nbsp;&nbsp;
+                        Remain: <span id="remain-day-usage" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <small class="badge badge-sm badge-danger" style="font-size:9px;">Change To</small>
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-form-label">ឈ្មោះសេវាកម្ម/Service Plan:</label>
+                <div class="col wrap-input4 d-inline-block" data-validate="Service Plan is required">
+                    <input type="text" id="ServicePlan" class="input2 ServicePlan" name="ServicePlan">
+                    <input type="hidden" id="ServiceID" class="input2 ServiceID" name="ServiceID">
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-form-label">កញ្ចប់សេវាកម្ម/Package Name:</label>
+                <div class="col wrap-input4 d-inline-block" data-validate="Package Name is required">
+                    <input type="text" id="PackageName" class="input2 PackageName" name="PackageName">
+                    <input type="hidden" id="PackageID" class="input2" name="PackageID">
+                    <input type="hidden" id="PID" class="input2" name="PID">
+                    <input type="hidden" id="Duration" class="input2" name="Duration">
+                    <input type="hidden" id="PackageDetailID" class="input2" name="PackageDetailID">
+                    <input type="hidden" id="DownSpeed" class="input2" name="DownSpeed">
+                    <input type="hidden" id="UpSpeed" class="input2" name="UpSpeed">
+                    <input type="hidden" id="Bandwidth" class="input2" name="Bandwidth">
+                    <input type="hidden" id="Feature" class="input2" name="Feature">
+                    <input type="hidden" id="ChartOfAccountID" class="input2" name="ChartOfAccountID">
+                </div>
+            </div>
+            <div class="row">
+                <div class="p-2">
+                    <div id="PackageFeature"></div>
+                </div>
+            </div>
+        </div>`;
+
+    $('input[name="OtherCharge"]').each(function () {
+      const $oc = $(this);
+      $oc.closest('tr').find('.input-delete').removeAttr('onclick');
+      if ($oc.siblings('.divServicePlan').length === 0) {
+        $oc.hide().after(spDivHtml);
+        $oc.siblings('.divServicePlan').show();
+        $oc.siblings('.input-delete').attr('data-serivce-plan', 'true');
+      }
+    });
+  }
+
+  function loadOtherCharge(formType) {
+    if (formType === 'NewRegister') return;
+    LoadData(`AddCustomer/LoadOtherCharge`, function (res) {
+      window.otherChargeData = JSON.parse(res.data);
+      ApplyTypeahead("OtherCharge", window.otherChargeData,
+        {
+          UM: "UM",
+          UnitPrice: "SalePrice",
+          OtherChargeID: "OtherChargeID",
+          ItemID: "ItemID",
+        },
+        { Name: "ItemName" });
+    }, true, "json");
+  }
+
+  function loadServicePlan(formType = '') {
+    if (formType === 'NewRegister') return;
+    LoadData(`AddCustomer/LoadServicePlan`, function (res) {
+      window.servicePlaneData = JSON.parse(res.data);
+      ApplyTypeahead("ServicePlan", window.servicePlaneData,
+        { ServiceID: "ServiceID" },
+        { Name: "ServiceName" }, "", "", "", "", "", "", "", false
+      );
+    }, false, "json");
+  }
+
+  function loadPackage(serviceId, callback) {
+    LoadData(`AddCustomer/LoadPackages2?ServiceID=${serviceId}&InvoiceType=''`, function (res) {
+      window.packageData = JSON.parse(res.data);
+      ApplyTypeahead("PackageName", window.packageData,
+        {
+          UM: "UM2", UnitPrice: "Price", PackageID: "PackageID",
+          PID: "PID", Duration: "Duration", PackageDetailID: "PackageDetailID",
+          DownSpeed: "DowSpeed", UpSpeed: "UpSpeed", Bandwidth: "Bandwidth",
+          Feature: "Feature", ChartOfAccountID: "ChartOfAccountID",
+        },
+        { Name: "PackageName" }, "", "", "", "", "", "", "", false
+      );
+      if (typeof callback === 'function') callback();
+    }, false, "json");
+  }
+
+  function hanldeDescTypeaheadSelected() {
+    // 1. Standard Other Charge Selection
+    $(document).off('typeahead:select', 'input[name="OtherCharge"]')
+      .on('typeahead:select', 'input[name="OtherCharge"]', function () {
+        const $currentRow = $(this).closest('tr');
+        formatPrice($currentRow);
+
+        const isSP = $currentRow.find('.input-delete').attr('data-serivce-plan') === 'true';
+
+        if ($currentRow.is(':last-child')) {
+          createNewRow($currentRow, `${isSP ? 'SP' : 'OC'}`);
+        }
+
+        !isSP && otherChargeInvDate();
+      });
+
+    // 2. Service Plan Selection/Change
+    $(document).off('typeahead:select', '#ServicePlan')
+      .on('typeahead:select', '#ServicePlan', function () {
+        $('#PackageFeature').empty();
+        $('#divContract').remove();
+        const $row = $(this).closest('tr');
+        $row.find('input[name="PackageName"]').typeahead('val', '');
+        const serviceId = $row.find('input[name="ServiceID"]').val();
+        if (serviceId) {
+          loadPackage(serviceId);
+        };
+      });
+
+    // 3. Package Selection (Service Plan flow)
+    $(document).off('typeahead:select', 'input[name="PackageName"]')
+      .on('typeahead:select', 'input[name="PackageName"]', function (e) {
+
+        $('#PackageFeature').empty();
+
+        const $currentRow = $(this).closest('tr');
+        const serviceId = $currentRow.find('input[name="ServiceID"]').val();
+        const packageDetailID = $currentRow
+          .find('input[name="PackageDetailID"]')
+          .val();
+
+        if (!packageDetailID) return;
+
+        const curPackage = window.packageData
+          .find(x => x.PackageDetailID == packageDetailID);
+
+        if (!curPackage) return;
+
+        if ($currentRow.is(':last-child')) {
+          createNewRow($currentRow, 'SP');
+        }
+
+        handlePackageFeature(curPackage);
+        if (serviceId) handleServiceDatePricker(curPackage);
+        formatPrice($currentRow);
+      });
+  }
+
+  function createNewRow($currentRow, type) {
+    const $newRow = prepareClonedRow($currentRow);
+    const suffix = Math.floor(Math.random() * 10000);
+
+    const ids = {
+      main: `OC_${type}_${suffix}`,
+      um: `UM_${type}_${suffix}`,
+      price: `Price_${type}_${suffix}`,
+      id: `OtherChargeID_${type}_${suffix}`,
+      itemId: `ItemID_${type}_${suffix}`
+    };
+
+    $newRow.find('input').click(function () {
+      this.select();
+    });
+
+    $newRow.find('input[name="OtherCharge"]').attr('id', ids.main).val('').show();
+    $newRow.find('input[name="OtherCharge_OtherChargeID"]').attr('id', ids.id).val('').show();
+    $newRow.find('input[name="ItemID"]').attr('id', ids.itemId).val('');
+    $newRow.find('input[name="UM"]').attr('id', ids.um).val('');
+    $newRow.find('input[name="UnitPrice"]').attr('id', ids.price).val('0.00');
+    $newRow.find('.divServicePlan').hide().find('input').val('');
+    $newRow.find('.input-delete').attr('data-serivce-plan', type === 'SP' ? 'true' : 'false');
+
+    $('#TableItemInformation tbody').append($newRow);
+
+    const mapping = {};
+    mapping[ids.um] = "UM";
+    mapping[ids.price] = "SalePrice";
+    mapping[ids.id] = "OtherChargeID";
+    mapping[ids.itemId] = "ItemID";
+
+    if (type === 'SP') {
+      LoadData(`AddCustomer/LoadOtherCharge`, function (res) {
+        const data = JSON.parse(res.data);
+        ApplyTypeahead(ids.main, data, mapping, { Name: "ItemName" });
+      }, false, "json");
+    } else {
+      ApplyTypeahead(ids.main, window.otherChargeData, mapping, { Name: "ItemName" });
+    }
+
+    handleRowNumber();
+  }
+
+  function handleSwapDescription() {
+    $(document).off('click', '.input-delete').on('click', '.input-delete', function () {
+      const $row = $(this).closest('tr');
+      const index = $row.index();
+      const $tbody = $('#TableItemInformation tbody');
+      const total = $tbody.find('tr').length;
+      const isSPClick = $(this).attr('data-serivce-plan') === 'true';
+
+      if (index === 0) {
+        $('#divContract').remove();
+
+        const $container = $row.find('td').eq(1).find('.wrap-input3');
+        const $ocInput = $container.find('input[name="OtherCharge"]');
+
+        if ($container.find('.divServicePlan').length === 0) {
+          handleItemDescrition();
+        }
+
+        const $spSection = $container.find('.divServicePlan');
+        $spSection.find('input[name="ServicePlan"]').typeahead('val', '');
+
+        //reset to default
+        $row.find('input[name="UM"]').attr('id', 'UM').val('');
+        $row.find('input[name="UnitPrice"]').attr('id', 'UnitPrice').val('0.00');
+
+        if (isSPClick) {
+          $spSection.hide().find('input').val('');
+          $ocInput.show().typeahead('val', '');
+          $row.find('input[name="OtherCharge"]').show().attr('id', 'OtherCharge').val('');
+          $row.find('input[name="OtherCharge_OtherChargeID"]').attr('id', 'OtherChargeID').val('');
+          $tbody.find('tr').not(':first').remove();
+          $(this).attr('data-serivce-plan', 'false');
+        } else {
+          $ocInput.hide().typeahead('val', '');
+          $spSection.show();
+          loadServicePlan();
+          $(this).attr('data-serivce-plan', 'true');
+          $('#PackageFeature').empty();
+        }
+      } else if (isSPClick) {
+        $row.remove();
+      }
+
+      if (!isSPClick && total !== 1) {
+        $row.remove();
+        ///RemoveTableRow('TRNo', 'TDNo', this, '', $row.find('input[name="OtherCharge"]').attr('id'), 'calculateTotals');
+      }
+
+      handleRowNumber();
+      calculateTotals();
+    });
+  }
+
+  function formatPrice($row) {
+    setTimeout(() => {
+      const $input = $row.find('input[name="UnitPrice"]');
+      const val = parseFloat($input.val()) || 0;
+      $input.val(val.toFixed(2));
+      calculateTotals();
+    }, 150);
+  }
+
+  function prepareClonedRow($row) {
+    const $clone = $row.clone();
+    $clone.find('.twitter-typeahead').contents().unwrap();
+    $clone.find('.tt-hint, .tt-menu').remove();
+    return $clone;
+  }
+
+  function appendAndInitTypeahead($newRow, ids, data) {
+    $('#TableItemInformation tbody').append($newRow);
+
+    // Update Row Numbers
+    handleRowNumber();
+
+    if (data && typeof ApplyTypeahead === "function") {
+      ApplyTypeahead(ids.main, data, {
+        [ids.um]: "UM",
+        [ids.price]: "SalePrice"
+      }, { Name: "ItemName" });
+    }
+
+    $newRow.find(`#${ids.main}`).focus().typeahead('close');
+  }
+
+  function handleRowNumber() {
+    $('#TableItemInformation tbody tr').each((i, el) => $(el)
+      .find('td').first().text(i + 1));
+  }
+
+  function handlePackageFeature(pkg) {
+    let featuresHtml = '';
+
+    if (pkg.Feature && pkg.Feature.trim() !== '') {
+      const features = pkg.Feature
+        .split('&#013;&#010;')
+        .filter(f => f.trim() !== '')
+        .map(f => `
+                <div class="row">
+                    <div class="col-auto ml-2">
+                        <p><i class="ti ti-caret-right-filled" style="font-size:22px;"></i></p>
+                    </div>
+                    <div class="col"><p>${f.trim()}</p></div>
+                </div>
+            `)
+        .join('');
+
+      featuresHtml = `
+            <div class="row">
+                <div class="col ml-2"><label>Feature:</label></div>
+            </div>
+            ${features}
+        `;
+    }
+
+    const duration = Number(pkg.Duration + pkg.FreeDuration || 0);
+
+    const divPeriod = `
+            <div class="row">
+                <div class="col">
+                    <label class="text-primary">
+                        Period <span id="duration"> ${duration} ${duration === 1 ? 'Month' : 'Months'} </span>
+                        From <span id="from-date">${$.format.date(addMonths(new Date(), 0), 'dd-MMMM-yyyy')}</span>
+                        To <span id="to-date">${$.format.date(addMonths(new Date(), duration), 'dd-MMMM-yyyy')}</span>
+                    </label>
+                </div>
+            </div>
+        `;
+
+    $('#PackageFeature').html(featuresHtml + divPeriod);
+  }
+
+  function handleServiceDatePricker(package) {
+    $('#divContract').remove();
+
+    const invNote = $('#Customer_Notes');
+
+    const divServiceDate = `
+        <div id="divContract" class="div-contract">
+            <div class="row">
+                <div class="col" style="font-size: 18px; margin-bottom: 12px; padding: 4px;">
+                    <i class="ti ti-contract text-danger"></i>
+                    <span class="text-danger">សុពលភាពនៃកិច្ចព្រមព្រៀង/Contract Period: ${package.Duration + ' ' + package.UM}</span>
+                </div>
+            </div>
+            <div class="row ${(isRenew || isChangePlan ? `d-none` : ``)}">
+                <div class="col-auto">
+                    <i class="ti ti-calendar-pin"></i>
+                    <label class="col-form-label">ថ្ងៃតម្លើង/Install Date:</label>
+                </div>
+                <div class="col">
+                    <div class="wrap-input3">
+                        <input type="text" id="install-date" class="input2" name="InstallDate"/>
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto">
+                    <i class="ti ti-calendar-cog"></i>
+                    <label class="col-form-label">កាលបរិច្ឆេទ/Invoice Date:</label>
+                </div>
+                <div class="col">
+                    <div class="wrap-input3">
+                        <input type="text" id="invoice-date"class="input2" name="InvoiceDate"/>
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <i class="ti ti-calendar-dollar"></i>
+                    <label class="col-form-label">កាលបរិច្ឆេទកំណត់/Due Date:</label>
+                </div>
+                <div class="col">
+                    <div class="wrap-input3">
+                        <input type="text" id="payment-due-date" class="input2 text-danger" name="PaymentDueDate"/>
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto">
+                    <i class="ti ti-calendar-bolt"></i>
+                    <label class="col-form-label">ថ្ងៃចាប់ផ្តើម/Start Date:</label>
+                </div>
+                <div class="col">
+                    <div class="wrap-input3">
+                        <input type="text" id="start-date" class="input2 text-primary" name="StartDate"/>
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <i class="ti ti-calendar-pause"></i>
+                    <label class="col-form-label">ថ្ងៃបញ្ចប់/End Date:</label>
+                </div>
+                <div class="col">
+                    <div class="wrap-input3">
+                        <input type="text" id="end-date" class="input2 text-danger" name="EndDate"/>
+                        <span class="focus-input2"></span>
+                    </div>
+                </div>
+                <input type="hidden" id="NextInvoiceDate" name="NextInvoiceDate"/>
+                <input type="hidden" id="EndNextInvoiceDate" name="EndNextInvoiceDate"/>
+            </div>
+        </div>
+        `;
+
+    invNote.closest('.row').after(divServiceDate);
+    initDPK(package);
+  }
+
+  function otherChargeInvDate() {
+    $('#divContract').remove();
+    const invNote = $('#Customer_Notes');
+    const divServiceDate = `
+         <div id="divContract" class="div-contract">
+             <div class="row">
+                 <div class="col-auto">
+                     <i class="ti ti-calendar-cog"></i>
+                     <label class="col-form-label">កាលបរិច្ឆេទ/Invoice Date:</label>
+                 </div>
+                 <div class="col">
+                     <div class="wrap-input3">
+                         <input type="text" id="invoice-date"class="input2" name="InvoiceDate"/>
+                         <span class="focus-input2"></span>
+                     </div>
+                 </div>
+                 <div class="col-auto">
+                     <i class="ti ti-calendar-dollar"></i>
+                     <label class="col-form-label">កាលបរិច្ឆេទកំណត់/Due Date:</label>
+                 </div>
+                 <div class="col">
+                     <div class="wrap-input3">
+                         <input type="text" id="payment-due-date" class="input2 text-danger" name="PaymentDueDate"/>
+                         <span class="focus-input2"></span>
+                     </div>
+                 </div>
+             </div>
+         </div>
+         `;
+
+    invNote.closest('.row').after(divServiceDate);
+    initDPK();
+
+  }
+
+  function initDPK(package) {
+    const $install = $('#install-date');
+    const $invoice = $('#invoice-date');
+    const $due = $('#payment-due-date');
+    const $start = $('#start-date');
+    const $end = $('#end-date');
+    const $from = $('#from-date');
+    const $to = $('#to-date');
+
+    const totalDuration = package?.Duration + package?.FreeDuration;
+    let activeDuration = totalDuration;
+    let renewStatDate = moment();
+    if (isRenew && window.App?.CustomerInfo) {
+      const normalized = normalizeCustomerData(window.App.CustomerInfo);
+      const serviceInvoice = normalized.Invoice?.find(i => i?.ServiceID && i?.Duration);
+
+      if (serviceInvoice?.Duration) {
+        activeDuration = parseInt(serviceInvoice.Duration) || totalDuration;
+        const renewStart = moment(serviceInvoice.EndDate2, 'DD/MM/YYYY');
+        if (renewStart.isValid()) {
+          renewStatDate = renewStart;
+        }
+      }
+    }
+
+    // Install date picker
+    $install.daterangepicker({
+      singleDatePicker: true,
+      timePicker: true,
+      timePicker24Hour: true,
+      autoApply: true,
+      drops: 'up',
+      startDate: moment(),
+      locale: { format: 'DD/MM/YYYY hh:mm A' }
+    });
+
+    // Invoice date picker
+    $invoice.daterangepicker({
+      singleDatePicker: true,
+      autoApply: true,
+      drops: 'up',
+      locale: { format: 'DD/MM/YYYY' }
+    }).on('change', function () {
+      const date = $(this).data('daterangepicker').startDate;
+      $due.data('daterangepicker').setStartDate(date);
+    });
+
+    // Due date picker
+    $due.daterangepicker({
+      singleDatePicker: true,
+      autoApply: true,
+      drops: 'up',
+      startDate: moment(),
+      locale: { format: 'DD/MM/YYYY' }
+    });
+
+    // Shared variable — initialize with the default renew start date
+    let serviceStartDate = moment(renewStatDate);
+
+    // Start date picker
+    $start.daterangepicker({
+      singleDatePicker: true,
+      autoApply: true,
+      drops: 'up',
+      startDate: renewStatDate,
+      locale: { format: 'DD/MM/YYYY' }
+    }).on('apply.daterangepicker', function (ev, picker) {
+      picker = picker || $(this).data('daterangepicker');
+      const start = picker.startDate;
+
+      serviceStartDate = start.clone(); // ← update shared var
+
+      const end = moment(start).add(totalDuration, 'month');
+      $end.data('daterangepicker').setStartDate(end);
+      $from.html(start.format('DD-MMMM-YYYY'));
+      $to.html(end.format('DD-MMMM-YYYY'));
+
+      // Reset duration label back to month when start changes
+      $('#duration, #UM').html(`${totalDuration} Month${totalDuration > 1 ? 's' : ''}`);
+      $('#UM').val(`${totalDuration} Month${totalDuration > 1 ? 's' : ''}`);
+
+      $('#NextInvoiceDate').val(end.format('DD/MM/YYYY'));
+      $('#EndNextInvoiceDate').val(moment(end).add(1, 'month').format('DD/MM/YYYY'));
+    });
+
+    // End date picker
+    $end.daterangepicker({
+      singleDatePicker: true,
+      autoApply: true,
+      drops: 'up',
+      minDate: moment(),
+      startDate: moment(renewStatDate).add(totalDuration, 'month'),
+      locale: { format: 'DD/MM/YYYY' }
+    }).on('apply.daterangepicker', function (ev, picker) {
+      const end = picker.startDate;
+      const defaultEnd = moment(serviceStartDate).add(totalDuration, 'month');
+
+      // If picked date == default end date → show month label, else show days
+      const isDefault = end.isSame(defaultEnd, 'Day');
+      const days = end.diff(serviceStartDate, 'Days');
+      const durationLabel = isDefault
+        ? `${totalDuration} Month${totalDuration > 1 ? 's' : ''}`
+        : `${days} Day${days !== 1 ? 's' : ''}`;
+
+      $to.html(end.format('DD-MMMM-YYYY'));
+      $('#duration').html(durationLabel);
+      $('#UM').val(durationLabel);
+      $('#NextInvoiceDate').val(end.format('DD/MM/YYYY'));
+      $('#EndNextInvoiceDate').val(moment(end).add(1, 'month').format('DD/MM/YYYY'));
+    });
+
+    if (isRenew) {
+      const drp = $start.data('daterangepicker');
+
+      if (drp) {
+        $start.trigger('apply.daterangepicker', { startDate: drp.startDate });
+      }
+    }
+
+    // ✅ Fix: populate NextInvoiceDate if end date already has a value
+    if ($end.val()) {
+      const endVal = moment($end.val(), 'DD/MM/YYYY');
+      $('#NextInvoiceDate').val(endVal.format('DD/MM/YYYY'));
+      $('#EndNextInvoiceDate').val(moment(endVal).add(1, 'month').format('DD/MM/YYYY'));
+      $to.html(endVal.format('DD-MMMM-YYYY'));
+    }
+  }
+
+  function validateUserInput(formType) {
+
+    if (formType === 'NewRegister') return;
+
+    LoadData('AddCustomer/GetCustomerName', function (data) {
+      const customers = data;
+      const nameKh = customers.filter(c => c.CustomerName !== '' && c.CustomerName !== null);
+      const nameLatin = customers.filter(c => c.CustomerNameLatin !== '' && c.CustomerNameLatin !== null);
+      ApplyTypeahead('CustomerName', nameKh,
+        {
+          CustomerName_CustomerID: 'CustomerID'
+        },
+        { Name: 'CustomerName' }
+      );
+      ApplyTypeahead('CustomerNameLatin', nameLatin,
+        {
+          CustomerName_CustomerID: 'CustomerID'
+        },
+        { Name: 'CustomerNameLatin' }
+      );
+    }, false, "json");
+
+    $('#CustomerName, #CustomerNameLatin').bind('typeahead:select', function (ev, suggestion, isAutoTrigger) {
+
+      if (isAutoTrigger) return;
+
+      const custId = $('#CustomerName_CustomerID').val();
+      $('#CustomerName_CustomerID').val(custId);
+      $('#CustomerName_AUTOFill').val(custId);
+
+      LoadData(`AddCustomer/GetCustomerBilling?CustomerID=${custId}`, function (response) {
+        const data = JSON.parse(response.data);
+        window.App = window.App || {};
+        window.App.CustomerInfo = null;
+
+        if (!data || Object.keys(data).length === 0) {
+          DialogSweetAlert('error', 'Customer Not Found');
+          return;
+        }
+
+        const customerInfo = data;
+        const tables = ['Table', 'Table1', 'Table2', 'Table3', 'Table4', 'Table5', 'Table6', 'Table7', 'Table8'];
+
+        tables.forEach(tableName => {
+          const data = customerInfo?.[tableName];
+          if (!data?.length) return;
+          $.each(data, function (index, val) {
+            if ('InvoiceNo' in val) delete val.InvoiceNo;
+            if ('InvoiceDate' in val) delete val.InvoiceDate;
+            if ('PaymentDueDate' in val) delete val.PaymentDueDate;
+            if ('InstallAddress' in val) delete val.InstallAddress;
+            if ('InstallCommune' in val) delete val.InstallCommune;
+            if ('InstallDistrict' in val) delete val.InstallDistrict;
+            if ('InstallProvinceCity' in val) delete val.InstallProvinceCity;
+            if ('GoogleMap_FullAddress' in val) delete val.GoogleMap_FullAddress;
+            if ('GoogleMap_Latitude' in val) delete val.GoogleMap_Latitude;
+            if ('GoogleMap_Longitude' in val) delete val.GoogleMap_Longitude;
+          });
+        });
+
+        window.App.CustomerInfo = data;
+
+        fillEditData(custId, formType);
+
+      }, false, "json");
+    });
+  }
+
+  function handleDisplayOnInput() {
+    const companyAddress = $('#CompanyAddress');
+    const companyCommune = $('#CompanyCommune');
+    const companyDistrict = $('#CompanyDistrict');
+    const companyProvince = $('#CompanyProvinceCity');
+    const billAddress = $('#BillToAddress');
+    const billCommune = $('#BillToCommune');
+    const billDistrict = $('#BillToDistrict');
+    const billProvince = $('#BillToProvinceCity');
+
+    $('#CustomerAddress').on('input', function () {
+      const custAddress = $(this).val();
+      companyAddress.val(custAddress);
+      billAddress.val(custAddress);
+    });
+
+    $('#CustomerCommune').on('typeahead:select', function () {
+      const custCommune = $(this).val();
+      const custDistrict = $('#CustomerDistrict').val();
+      const custProvince = $('#CustomerProvinceCity').val();
+
+      companyCommune.val(custCommune);
+      companyDistrict.val(custDistrict);
+      companyProvince.val(custProvince);
+
+      billCommune.val(custCommune);
+      billDistrict.val(custDistrict);
+      billProvince.val(custProvince);
+    });
+
+    $('#CustomerName, #CustomerNameLatin, #CustomerMobile').on('input typeahead:select', function (e) {
+      const contactPerson = $('#CompanyContactName');
+      const companyNameKH = $('#CompanyNameKH');
+      const companyName = $('#CompanyName');
+      const contactMobile = $('#CompanyContactMobileNumber');
+      const isCustomerName = this.id === 'CustomerName';
+      const isCustomerNameLatin = this.id === 'CustomerNameLatin';
+      const value = $(this).val();
+
+      // When name is selected from typeahead
+      if (e.type === 'typeahead:select' && (isCustomerName || isCustomerNameLatin)) {
+        contactPerson.val(value);
+        companyAddress.val($('#CustomerAddress').val());
+        billAddress.val($('#CustomerAddress').val());
+        contactMobile.val($('#CustomerMobile').val());
+        companyNameKH.val(value);
+        companyName.val($('#CustomerNameLatin').val());
+        return;
+      }
+
+      // Normal typing
+      if (isCustomerName) {
+        contactPerson.val(value);
+        companyNameKH.val(value);
+      } else if (isCustomerNameLatin) {
+        companyName.val(value);
+      }
+      else {
+        contactMobile.val(value);
+      }
+    });
+  }
+
+  function handleBlock(formType) {
+    $('#CustomerType').on('typeahead:open', function (e) {
+      if (!$('#CustomerGroup').val()) {
+        e.preventDefault();
+        $(this).typeahead('close');
+      }
+    }).on('typeahead:select', function () {
+
+      if (formType === 'NewRegister') return;
+
+      const block = $(this).val();
+      const invoiceType = $('#SetCID').val();
+      LoadData(`AddCustomer/LoadCustomerQuoteCID?CustomerType=${block}&FormType=${formType}`, function (response) {
+        const res = JSON.parse(response.data);
+        if (res[0].length === 0) return;
+        $("#CustomerCode").val(res[0].PrefixNumber);
+        $("#CustomerCode_Prefix").val(res[0].Prefix);
+      }, false, 'json');
+    });
+  }
+
+  function calculateRow(row) {
+    const qty = parseFloat(accounting.unformat(row.find('input[name="QTY"]').val())) || 0;
+    const unitPrice = parseFloat(accounting.unformat(row.find('input[name="UnitPrice"]').val())) || 0;
+    const disP = parseFloat(accounting.unformat(row.find('input[name="DisP"]').val())) || 0;
+    const disUSD = parseFloat(accounting.unformat(row.find('input[name="DisUSD"]').val())) || 0;
+    const disKHR = parseFloat(accounting.unformat(row.find('input[name="DisKHR"]').val())) || 0;
+    const exchangeRate = $('input[name="ExchangeRate"]').val();
+
+    const calc = new TotalCalculator({
+      qty,
+      unitPrice,
+      discountUSD: disUSD,
+      discountKHR: disKHR,
+      discountPercent: disP,
+      exchangeRate
+    });
+
+    const result = calc.calculate();
+    row.find('input[name="Amount"]').val(accounting.formatMoney(result.total, ''));
+    return result;
+  }
+
+  function calcSubtotal() {
+    let subtotal = 0;
+    let totalDiscount = 0;
+
+    $('table[name="TblItemInfo"] tbody tr').each(function () {
+      const rowResult = calculateRow($(this));
+      subtotal += parseFloat(accounting.toFixed(rowResult.subtotal, 2));
+      totalDiscount += rowResult.totalDiscount;
+    });
+
+    $('label[name="SubTotal"]').text(accounting.formatMoney(subtotal, ''));
+    $('input[name="TxtDisUSD"]').val(accounting.formatMoney(totalDiscount, ''));
+
+    return { subtotal, totalDiscount };
+  }
+
+  function calculateTotals() {
+    setTimeout(function () {
+      const { subtotal, totalDiscount } = calcSubtotal();
+      const vatRate = parseFloat(accounting.unformat($('input[name="VATRate"]').val())) || 0;
+      const deposit = parseFloat(accounting.unformat($('input[name="TxtDeposit"]').val())) || 0;
+
+      const calc = new TotalCalculator({
+        qty: 1,
+        unitPrice: subtotal - totalDiscount,
+        vatRate,
+        deposit
+      });
+
+      const result = calc.calculate();
+
+      $('input[name="VAT"]').val(accounting.formatMoney(result.amtVAT, ''));
+      $('label[name="Total"]').text(accounting.formatMoney(result.total, ''));
+      $('input[name="GrandTotal"]').val(accounting.formatMoney(result.grandTotal, ''));
+      $('input[name="TxtBalance"]').val(accounting.formatMoney(result.balanceUSD, ''));
+
+      return result;
+    }, 10);
+  }
+
+  function handleChangeTotal() {
+
+    // Row-level inputs (user types → recalculate)
+    const rowElements = `
+        input[name="QTY"],
+        input[name="UnitPrice"],
+        input[name="DisP"],
+        input[name="DisUSD"],
+        input[name="TxtDeposit"]
+    `;
+
+    $(document).on('keyup change', rowElements, function () {
+      calculateTotals();
+    });
+
+    $(document).on('focus', 'input[name="TxtDisUSD"]', function () {
+      $(this).select();
+    });
+
+    $(document).on('focus', 'input[name="TxtDisUSD"], input[name="VAT"]', function () {
+      $(this).select();
+    });
+
+    // Summary-level: Manual Discount override
+    $(document).on('keyup change', 'input[name="TxtDisUSD"]', function () {
+      const manualDiscount = parseFloat(accounting.unformat($(this).val())) || 0;
+      const subtotal = parseFloat(accounting.unformat($('label[name="SubTotal"]').text())) || 0;
+      const vatRate = parseFloat(accounting.unformat($('input[name="VATRate"]').val())) || 0;
+      const deposit = parseFloat(accounting.unformat($('input[name="TxtDeposit"]').val())) || 0;
+
+      const calc = new TotalCalculator({ qty: 1, unitPrice: subtotal - manualDiscount, vatRate, deposit });
+      const result = calc.calculate();
+
+      $('input[name="VAT"]').val(accounting.formatMoney(result.amtVAT, ''));
+      $('label[name="Total"]').text(accounting.formatMoney(result.total, ''));
+      $('input[name="GrandTotal"]').val(accounting.formatMoney(result.grandTotal, ''));
+      $('input[name="TxtBalance"]').val(accounting.formatMoney(result.balanceUSD, ''));
+    });
+
+    // Summary-level: Manual VAT override
+    $(document).on('keyup change', 'input[name="VAT"]', function () {
+      const total = parseFloat(accounting.unformat($('label[name="Total"]').text())) || 0;
+      const vat = parseFloat(accounting.unformat($(this).val())) || 0;
+      const deposit = parseFloat(accounting.unformat($('input[name="TxtDeposit"]').val())) || 0;
+
+      const grandTotal = total + vat - deposit;
+
+      $('input[name="GrandTotal"]').val(accounting.formatMoney(grandTotal, ''));
+      $('input[name="TxtBalance"]').val(accounting.formatMoney(grandTotal, ''));
+    });
+  }
+
+  function handleCommissionAmount(customerId) {
+    $(document).on('change', '[name="AgencyCommissionType"]', function () {
+      customerId = customerId || $('#CustomerName_CustomerID').val();
+      if (customerId) return;
+      const $container = $(this).closest('.p-2, .agency-clone');
+      $container.find('[name="CommissionAmountUSD"]').val(0);
+      $container.find('[name="CommissionAmountP"]').val('0%');
+    });
+
+    $(document).on('focus', '[name^="CommissionAmount"]', function () {
+      const $input = $(this);
+      if ($input.attr('name') === 'CommissionAmountP') {
+        const val = $input.val().replace('%', '');
+        $input.val(val);
+        this.select();
+      } else {
+        this.select();
+      }
+    });
+
+    $(document).on('input', '[name^="CommissionAmount"]', function () {
+      const $input = $(this);
+      const $container = $input.closest('.p-2, .agency-clone');
+      const invoiceType = $('#SetCID').val();
+      let packageAmount = 0;
+
+      $('#TableItemInformation tbody tr').each(function (index, el) {
+        if (index === 0) {
+          const serviceId = $(el).find('#ServiceID').val() || 0;
+          if (serviceId) {
+            packageAmount = parseFloat($(el).find('#Amount').val()) || 0;
+          }
+        }
+      });
+
+      if ($input.attr('name') === 'CommissionAmountUSD') {
+        let usd = parseFloat($input.val()) || 0;
+        if (packageAmount > 0) {
+          let baseAmount = invoiceType === "CM" ? packageAmount * 0.9 : packageAmount;
+          let percent = (usd / baseAmount) * 100;
+
+          let displayPercent = percent % 1 === 0 ? percent : percent.toFixed(2);
+          $container.find('[name="CommissionAmountP"]').val(displayPercent + '%');
+        } else {
+          $container.find('[name="CommissionAmountP"]').val('0%');
+        }
+      }
+
+      if ($input.attr('name') === 'CommissionAmountP') {
+        let selectionStart = this.selectionStart;
+        let rawVal = $input.val().replace(/%/g, '').replace(/[^0-9.]/g, '');
+
+        $input.val(rawVal ? rawVal + '%' : '');
+
+        if (rawVal) {
+          let cursorPos = Math.min(selectionStart, rawVal.length);
+          this.setSelectionRange(cursorPos, cursorPos);
+        }
+
+        let percent = parseFloat(rawVal) || 0;
+        let baseAmount = invoiceType === "CM" ? packageAmount * 0.9 : packageAmount;
+        let usd = (baseAmount * percent) / 100;
+        $container.find('[name="CommissionAmountUSD"]').val(usd.toFixed(2));
+      }
+    });
+
+    $(document).on('blur', '[name="CommissionAmountP"]', function () {
+      const $input = $(this);
+      let val = $input.val();
+      if (val && !val.includes('%')) {
+        $input.val(val + '%');
+      }
+    });
+  }
+
+  //Edit customer
+  function normalizeCustomerData(raw) {
+    if (!raw) return {
+      Customer: null, Infra: null, Company: null,
+      Commission: [], Billing: null, Invoice: [],
+      Balance: null, Payment: null, BillInfo: null,
+    };
+    return {
+      Customer: raw.Table?.[0] || null,
+      Infra: raw.Table1?.[0] || null,
+      Company: raw.Table2?.[0] || null,
+      Commission: raw.Table3 || [],
+      Billing: raw.Table4?.[0] || null,
+      Invoice: raw.Table5 || [],
+      Balance: raw.Table6?.[0] || null,
+      Payment: raw.Table7?.[0] || null,
+      BillInfo: raw.Table8?.[0] || null,
+    };
+  }
+
+  function bindFormData(data) {
+    if (!data) return;
+
+    // Single object: Customer, Company, Commission
+    const collection = ['Customer', 'Infra', 'Company', 'Commission', 'Billing',
+      'Invoice', 'Payment', 'Balance', 'BillInfo'];
+
+    collection.forEach(section => {
+      if (data[section]) fillInputs(section === 'Invoice' ? data[section][0] : data[section]);
+    });
+  }
+
+  function fillInputs(obj, $scope = $(document)) {
+    $.each(obj, (key, value) => {
+
+      if (value == null) return;
+
+      const $el = $scope.find(`[name="${key}"]`);
+      if (!$el.length) return;
+
+      if ($el.is(':checkbox')) {
+        if (value === "None VAT") $('#ExcludedVAT').prop('checked', true);
+        else if (value === "VAT") $('#IncludedVAT').prop('checked', true);
+        else if (value === "CM") $('#CommercialINV').prop('checked', true);
+      }
+      else if ($el.data('daterangepicker')) {
+        $el.data('daterangepicker').setStartDate(moment(value));
+        $el.val(moment(value).format('DD/MM/YYYY'));
+      }
+      else if ($el.hasClass('select2-hidden-accessible')) {
+        let values = value;
+        if ($el.prop('multiple')) {
+          if (typeof value === "string") values = value.split(',');
+          if (!Array.isArray(values)) values = [values];
+        }
+
+        $el.val(values).trigger('change');
+      }
+      else if ($el.hasClass('tt-input')) {
+        $el.typeahead('val', value)
+          .trigger('typeahead:select', [{ value }, true]);
+      }
+      else {
+        $el.val(value).trigger('change');
+      }
+    });
+  }
+
+  function fillEditData(customerId, formType = '') {
+    if (!customerId || !window.App?.CustomerInfo) return;
+    const normalized = normalizeCustomerData(window.App.CustomerInfo);
+    const autoFillCust = parseInt($('#CustomerName_AUTOFill').val()) || 0;
+
+    if (autoFillCust === 0) {
+      if (!isToInvoice && !isRenew && !isChangePlan) {
+        $("#CustomerName_CustomerInvoiceID").val(normalized.Invoice[0]?.CustomerInvoiceID);
+        $("#CustomerName_BillingInvoiceID").val(normalized.Billing?.BillingInvoiceID);
+        $("#CustomerName_CustomerBillInformationID").val(normalized.BillInfo?.CustomerBillInformationID);
+      }
+    }
+    if (isChangePlan) {
+      const oldService = normalized.Invoice[0]?.ServiceName;
+      const oldPackage = normalized.Invoice[0]?.ItemDescription;
+      const oldStartDate = normalized.Invoice[0]?.StartDate || moment();
+      const oldEndDate = normalized.Invoice[0]?.EndDate || moment();
+      const remainDay = normalized.Invoice[0]?.RemainDay || 0;
+      const prefixDay = remainDay > 1 ? 'Days' : 'Day';
+
+      setTimeout(function () {
+        $('#OldServicePlan').val(oldService);
+        $('#OldPackageName').val(oldPackage);
+        $('#old-start-date').text(moment(oldStartDate).format('DD-MM-YYYY'));
+        $('#old-end-date').text(moment(oldEndDate).format('DD-MM-YYYY'));
+        $('#remain-day-usage').text(`${remainDay} ${prefixDay}`);
+      }, 1000);
+
+      if (normalized.Invoice[0] && !isRenew) {
+        normalized.Invoice[0].ServiceName = "";
+      }
+    }
+
+    if (autoFillCust && formType == 'Quotation') {
+      normalized.Billing = [];
+      normalized.Invoice = [];
+      normalized.Payment = [];
+    }
+
+    //console.log(normalized)
+
+    // Append data to inputs, selects, etc.
+    if (typeof bindFormData === 'function') {
+      setTimeout(function () {
+        bindFormData(normalized);
+      }, 400);
+    }
+
+    // Load Google Map if coordinates exist
+    const lat = normalized.BillInfo?.GoogleMap_Latitude;
+    const lng = normalized.BillInfo?.GoogleMap_Longitude;
+    //if (lat != null && lng != null && typeof loadGoogleMap === 'function') {
+    //    loadGoogleMap(lat, lng);
+    //}
+
+    // Fill agency commissions
+    if (Array.isArray(normalized.Commission) && normalized.Commission.length > 0) {
+      normalized.Commission.forEach((com, index) => {
+        let $scope;
+        if (index === 0) {
+          $scope = $('#AgencyCommission > .p-2').slice(0, 2);
+        } else {
+          $('#btnAddNewAgency').trigger('click', { isEdit: true });
+          $scope = $('#AgencyCommission .agency-clone').last();
+        }
+
+        setTimeout(() => {
+          if (typeof fillInputs === 'function') {
+            fillInputs(com, $scope);
+          }
+        }, 800);
+      });
+    }
+
+    // Fill service plan and other charges
+    if (Array.isArray(normalized.Invoice) && normalized.Invoice.length > 0) {
+      setTimeout(() => {
+        normalized.Invoice
+          .sort((a, b) => (b?.ServiceID ? 1 : 0) - (a?.ServiceID ? 1 : 0))
+          .forEach((inv, index) => {
+            const $row = $('#TableItemInformation tbody tr').eq(index);
+            if (!$row.length) return;
+
+            const $serviceDiv = $row.find('.divServicePlan');
+            const hasServicePackage = normalized.Invoice.some(i => i?.ServiceID && i?.PackageDetailID);
+            const isItem = normalized.Invoice.some(i => i?.ItemID || i?.OtherChargeID);
+
+            if (!hasServicePackage && index === 0) {
+              $serviceDiv.parent().find('.input-delete').trigger('click');
+            }
+
+            // Apply dates helper
+            const setDate = (selector, value, format, triggerApply = false) => {
+              if (!value) return;
+              const picker = $(selector).data('daterangepicker');
+              if (!picker) return;
+              const date = format ? moment(value).format(format) : moment(value);
+              picker.setStartDate(date);
+              $(selector).val(date);
+              if (triggerApply) $(selector).trigger('apply.daterangepicker', picker);
+            };
+
+            if ($serviceDiv.is(':visible')) {
+              if (inv?.ServiceName) {
+                const $spInput = $row.find('[name="ServicePlan"]');
+                if ($spInput.data('ttTypeahead')) {
+                  $spInput.typeahead('val', inv.ServiceName).trigger('typeahead:select');
+                } else {
+                  $spInput.val(inv.ServiceName);
+                }
+
+                const $pkgInput = $row.find('[name="PackageName"]');
+                if ($pkgInput.data('ttTypeahead')) {
+                  $pkgInput.typeahead('val', inv.ItemDescription || '').trigger('typeahead:select');
+                } else {
+                  $pkgInput.val(inv.ItemDescription || '');
+                }
+
+                $row.find('[name="PID"]').val(inv?.PID || '');
+              }
+
+              setDate('#install-date', normalized.BillInfo?.InstallDate, 'DD/MM/YYYY hh:mm A');
+              setDate('#start-date', inv?.StartDate, 'DD/MM/YYYY', true);
+              setDate('#end-date', inv?.EndDate, 'DD/MM/YYYY');
+
+            } else {
+              // --- FIXED OTHER CHARGES BLOCK ---
+              if (inv?.ItemDescription) {
+                // 1. Immediately apply IDs to data fields so calculations don't break
+                $row.find('[name="OtherCharge_OtherChargeID"]').val(inv?.OtherChargeID);
+                $row.find('[name="ItemID"]').val(inv?.ItemID);
+                $row.find('[name="CustomerInvoiceID"]').val(inv?.CustomerInvoiceID);
+                $row.find('[name="ServiceID"]').val(inv?.ServiceID);
+
+                // 2. Safe Typeahead implementation with an instant fallback
+                const $ocInput = $row.find('[name="OtherCharge"]');
+                if ($ocInput.data('ttTypeahead')) {
+                  $ocInput.typeahead('val', inv.ItemDescription).trigger('typeahead:select');
+                } else {
+                  // Fallback if plugin isn't active/ready yet
+                  $ocInput.val(inv.ItemDescription);
+                }
+
+                if (isItem && index === 0) {
+                  otherChargeInvDate();
+                }
+              }
+            }
+
+            setDate('#invoice-date', normalized.BillInfo?.InvoiceDate, 'DD/MM/YYYY');
+            setDate('#payment-due-date', normalized.BillInfo?.PaymentDueDate, 'DD/MM/YYYY');
+
+            // Fill remaining numeric fields
+            ['UM', 'QTY', 'UnitPrice', 'DisP', 'DisUSD', 'Amount'].forEach(field => {
+              $row.find(`[name="${field}"]`).val(inv?.[field] ?? '0');
+            });
+          });
+
+        if (typeof calculateTotals === 'function') calculateTotals();
+      }, 800);
+    }
+  }
+
+  function hiddenInput(type) {
+    const mainForm = $('.form-content > div');
+
+    const saleSection = mainForm.eq(0);
+    const custSection = mainForm.eq(1);
+    const infraSection = mainForm.eq(2);
+    const billingSection = mainForm.eq(3);
+    const agencySection = mainForm.eq(4);
+    const serviceSection = mainForm.eq(5);
+
+    if (type === 'NewRegister') {
+      custSection.find('#CustomerCode, #SID, #ConnectionID')
+        .closest('.div-parent')
+        .remove();
+      custSection.children().show();
+      custSection.find('i')
+        .removeClass('ti-chevrons-down')
+        .addClass('ti-chevrons-up');
+      custSection.find('#IspLinkName, #IndustryType')
+        .closest('.p-2')
+        .remove();
+      custSection.find('#InstallAddress, #GoogleMap_FullAddress')
+        .closest('.p-2')
+        .remove();
+      custSection.find('#ATTName')
+        .closest('.div-parent')
+        .remove();
+
+      saleSection
+        .find('#ClassName, #InvoiceNo, #ReferenceNo')
+        .closest('.div-parent')
+        .remove();
+      saleSection
+        .find('#DivSetCID')
+        .remove();
+      agencySection.remove();
+      serviceSection.remove();
+      infraSection.remove();
+    } else if (type === 'Quotation') {
+      saleSection
+        .find('#ReferenceNo')
+        .closest('.div-parent')
+        .remove();
+      custSection.find('#SID, #ConnectionID')
+        .closest('.div-parent')
+        .remove();
+    }
+
+    if (type === "Quotation" || type === "Invoice") {
+      custSection.find(`#CustomerGender, #CustomerNationality,
+                #CustomerIdentification, #IdentificationExpireDate, #ConnectionID`)
+        .closest('.div-parent')
+        .each(function () {
+          this.style.setProperty('display', 'none', 'important');
+        });
+    }
+  }
+
+  function handleAttachmentFile(formType) {
+
+    if (formType != 'Quotation') return;
+
+    var attachmentEl = `<div class="mr-auto">
+            <input type="file" id="CustomerAttFiles" name="CustomerAttFiles" class="d-none" multiple />
+            <input type="file" id="CustomerBankSlip" name="CustomerBankSlip" class="d-none"/>
+            <button type="button" onclick="AddAttachmentFile('', 'CustomerAttFiles');" id="AddAttachmentFile" class="btn btn-info">
+                <i class="ti ti-paperclip"></i> Add Attachment File
+            </button>
+            </div>
+        `;
+
+    $("[id^=SaveChange]").before(attachmentEl);
+  }
+
+  function loadRefData(formType) {
+    if (isEditCustomer) return;
+
+    $('#ReferenceNo').on('typeahead:select', function () {
+      const refNo = $(this).val();
+      const custId = $('#ReferenceNo_CustomerID').val();
+      $('#CustomerName_CustomerID').val(custId);
+      $('#CustomerName_AUTOFill').val(custId);
+
+      EditCustomerWithRefNumber(custId, refNo, formType, true, function () {
+        const customerInfo = window.App.CustomerInfo;
+        const tables = ['Table', 'Table1', 'Table2', 'Table3', 'Table4', 'Table5', 'Table6', 'Table7', 'Table8'];
+
+        tables.forEach(tableName => {
+          const data = customerInfo?.[tableName];
+          if (!data?.length) return;
+          $.each(data, function (index, val) {
+            if ('InvoiceNo' in val) delete val.InvoiceNo;
+            if ('InvoiceDate' in val) delete val.InvoiceDate;
+            if ('PaymentDueDate' in val) delete val.PaymentDueDate;
+          });
+        });
+
+        setTimeout(function () { fillEditData(custId, formType); }, 10);
+      });
+    });
+  }
+
+  function approval(formData, formObj) {
+
+    LoadData('AddCustomer/LoadUserApprovalForDMCTAX', function (response) {
+      const data = JSON.parse(JSON.parse(response).Data)[0].Table;
+
+      const buildOptions = (items) =>
+        items.map(({ TelegramUserName, UserLoginID, FullName }) =>
+          `<option data-bind="${TelegramUserName}" value="${UserLoginID}">${FullName}</option>`
+        ).join('');
+
+      const dialogContent = `
+                <div class="mb-3">
+                    <select class="rounded-0 rounded-start form-select" id="SelectCheckBy" name="SelectCheckBy">
+                        <option data-bind="Check By" value="0">Please choose check by</option>
+                        ${buildOptions(data)}
+                    </select>
+                </div>
+                <div>
+                    <select class="rounded-0 rounded-start form-select" id="SelectApproval" name="SelectApproval">
+                        <option data-bind="No Need Approval" value="0">No Need Approval</option>
+                        ${buildOptions(data)}
+                    </select>
+                </div>
+            `;
+
+      const onConfirm = () => {
+        const approvalSelect = $("#SelectApproval").select2('data')[0];
+        const checkBySelect = $("#SelectCheckBy").select2('data')[0];
+
+        formObj.RequestApprovalTgUser = $(approvalSelect.element).attr('data-bind');
+        formObj.RequestApprovalNameID = approvalSelect.id;
+        formObj.RequestApprovalName = approvalSelect.text;
+        formObj.RequestCheckByTgUser = $(checkBySelect.element).attr('data-bind');
+        formObj.RequestCheckByNameID = checkBySelect.id;
+        formObj.RequestCheckByName = checkBySelect.text;
+
+        formData.delete("data");
+        formData.append("data", JSON.stringify(formObj));
+
+        submitForm(formData);
+      };
+
+      const onInit = () => {
+        ['#SelectCheckBy', '#SelectApproval'].forEach((id) => {
+          $(id).select2({
+            dropdownParent: $(id).parent(),
+            theme: 'bootstrap4',
+          });
+        });
+      };
+
+      DialogSweetCofirm(
+        onConfirm,
+        () => { SaveAs = false; },
+        "Are you sure?",
+        "Yes do it now.",
+        "",
+        dialogContent,
+        onInit
+      );
+    });
+  }
+
+  function convertLabel() {
+    var label = $('label[name="GrandTotal"]');
+    var value = label.text().trim();
+
+    var wrapper = $('<div>', { class: 'wrap-input3' });
+
+    var input = $('<input>', {
+      type: 'text',
+      class: 'input2 text-center text-bold',
+      id: 'GrandTotal',
+      name: 'GrandTotal',
+      value: value,
+      placeholder: 'Enter Grand Total'
+    });
+
+    var span = $('<span>', { class: 'focus-input2' });
+
+    wrapper.append(input).append(span);
+
+    label.replaceWith(wrapper);
+  }
+
+  function onModalShow(customerId, formType, callback) {
+    toggleHeaderTitle();
+    //loadGoogleMap();
+    attachLatLngChangeListener();
+    previewMap();
+    handleTypeOfInvoice();
+    handleChangeSaveAs(customerId, formType);
+    swapNoteAndTerm();
+    validateUserInput(formType);
+    handleDisplayOnInput();
+    handleBlock(formType);
+    handleAttachmentFile(formType);
+    handleCommissionAmount(customerId);
+    loadRefData(formType);
+    setTimeout(() => {
+      handleItemDescrition();
+      handleSwapDescription();
+      loadServicePlan(formType);
+      loadOtherCharge(formType);
+      hanldeDescTypeaheadSelected();
+      handleChangeTotal();
+      convertLabel();
+      callback?.();
+    }, 1000);
+  }
+
+  function buildCustomerRegisterData(formObj) {
+    const userId = localStorage.getItem("User_ID");
+    const fullName = localStorage.getItem("User_Full_Name");
+    const systemId = localStorage.getItem("SystemID");
+    const warehouseId = localStorage.getItem("WarehouseID");
+    const domainId = localStorage.getItem("DomainID");
+
+    return {
+      Customer: {
+        IndustryTypeID: formObj.IndustryType_IndustryTypeID || 0,
+        CustomerID: formObj.CustomerName_CustomerID || '',
+        CustomerName: formObj.CustomerName || '',
+        CustomerNameLatin: formObj.CustomerNameLatin || '',
+        CustomerGender: formObj.CustomerGender || '',
+        CustomerNationality: formObj.CustomerNationality || '',
+        CustomerAddress: formObj.CustomerAddress || '',
+        CustomerMobile: formObj.CustomerMobile || '',
+        CustomerNote: formObj.CustomerNote || '',
+        CustomerStatus: formObj.CustomerStatus || '',
+        CustomerTypeID: formObj.CustomerType_CustomerTypeID || 0,
+        ClassName: formObj.ClassName || '',
+        ClassNameID: formObj.ClassName_ClassID || 0,
+        ATTName: formObj.ATTName || '',
+        CustomerGroup: formObj.CustomerGroup || '',
+        CustomerGroupID: formObj.CustomerGroup_CustomerGroupID || 0,
+        EmployeeID: formObj.SallerName_SellerID || 0,
+        CustomerCommune: formObj.CustomerCommune || '',
+        CommuneID: formObj.CustomerCommune_CommuneID || 0,
+        CustomerDistrict: formObj.CustomerDistrict || '',
+        DistrictID: formObj.CustomerDistrict_DistrictID || 0,
+        CustomerProvinceCity: formObj.CustomerProvinceCity || '',
+        ProvinceCityID: formObj.CustomerProvinceCity_ProvinceCityID || 0,
+        CustomerIdentification: formObj.CustomerIdentification || '',
+        IdentificationExpireDate: formObj.IdentificationExpireDate || null,
+        RegisterBy: fullName,
+        RegisterByUserLoginID: userId,
+        ModifyBy: fullName,
+        SystemID: systemId,
+        WarehouseID: warehouseId,
+        DomainID: domainId
+      },
+
+      BillInfo: {
+        CompanyName: formObj.CompanyName || '',
+        CompanyNameKH: formObj.CompanyNameKH || '',
+        VATNumber: formObj.VATNumber || '',
+        CompanyDeskPhone: formObj.CompanyDeskPhone || '',
+        CompanyMobile: formObj.CompanyMobile || '',
+        CompanyEmail: formObj.CompanyEmail || '',
+        CompanyAddress: formObj.CompanyAddress || '',
+        CompanyCommune: formObj.CompanyCommune || '',
+        CompanyDistrict: formObj.CompanyDistrict || '',
+        CompanyProvinceCity: formObj.CompanyProvinceCity || '',
+        CompanyContactName: formObj.CompanyContactName || '',
+        CompanyContactPosition: formObj.CompanyContactPosition || '',
+        CompanyContactMobileNumber: formObj.CompanyContactMobileNumber || '',
+
+        BillToAddress: formObj.BillToAddress || '',
+        BillToCommune: formObj.BillToCommune || '',
+        BillToDistrict: formObj.BillToDistrict || '',
+        BillToProvinceCity: formObj.BillToProvinceCity || '',
+
+        InstallAddress: formObj.InstallAddress || '',
+        InstallCommune: formObj.InstallCommune || '',
+        InstallDistrict: formObj.InstallDistrict || '',
+        InstallProvinceCity: formObj.InstallProvinceCity || '',
+
+        GoogleMap_FullAddress: formObj.GoogleMap_FullAddress || '',
+        GoogleMap_Latitude: formObj.GoogleMap_Latitude || '',
+        GoogleMap_Longitude: formObj.GoogleMap_Longitude || '',
+
+        IsIncludedVAT: formObj.IsIncludedVAT === true ||
+          formObj.IsIncludedVAT === 'true',
+        TermCondition: formObj.TermsConditions || ''
+      }
+    };
+  }
+
+  function SaveChangeCustomer() {
+
+    const formElement = document.querySelector('form[name="Frm"]');
+
+    // Normal object (for building complex structure)
+    let formObj = $('form[name="Frm"]').serializeObject();
+
+    // FormData (for file upload + normal inputs)
+    let formData = new FormData(formElement);
+
+    let oc = [];
+    let sp = [];
+    let cm = [];
+    let amt = [];
+
+    // Validate attachment file
+    let custId = parseInt($('#CustomerName_CustomerID').val()) || 0;
+    const custAutoId = parseInt($('#CustomerName_AUTOFill').val()) || 0;
+    const serviceId = parseInt($('#ServiceID').val()) || 0;
+    if (custAutoId !== 0) {
+      custId = 0;
+    }
+    if (serviceId !== 0) {
+      const $custAtt = $('input[name="CustomerAttFiles"]');
+      const fileLen = $custAtt.length > 0 ? $custAtt[0].files.length : null;
+
+      if (fileLen === 0) {
+        DialogSweetAlert("warning", "Please Add Attachment File");
+        return;
+      }
+    }
+
+    // ===============================
+    // TOTAL AMOUNT
+    // ===============================
+
+    const subtotal = $('label[name="SubTotal"]').text() || 0;
+    const total = $('label[name="Total"]').text() || 0;
+    const grandTotal = $('input[name="GrandTotal"]').val() || 0;
+
+    amt.push({
+      Subtotal: subtotal,
+      TotalDiscountP: formObj.TxtDisP || 0,
+      TotalDiscountUSD: formObj.TxtDisUSD || 0,
+      Total: total,
+      GrandTotal: grandTotal,
+      VAT: formObj.VAT || 0
+    });
+
+    formObj.InvoiceTotalAmount = amt;
+
+    // ===============================
+    // SERVICE PLAN & OTHER CHARGE
+    // ===============================
+
+    $('#TableItemInformation tbody tr').each(function () {
+
+      const row = $(this);
+
+      let rowData = {
+        UM: row.find('[name^="UM"]').val() || '',
+        QTY: row.find('[name^="QTY"]').val() || '0',
+        UnitPrice: row.find('[name^="UnitPrice"]').val() || '0.00',
+        DisP: row.find('[name^="DisP"]').val() || '0',
+        DisUSD: row.find('[name^="DisUSD"]').val() || '0.00',
+        Amount: row.find('[name^="Amount"]').val() || '0.00'
+      };
+
+      let servicePlan = row.find('[name="ServicePlan"]').val();
+      let otherCharge = row.find('[name^="OtherCharge"]').val();
+
+      if (servicePlan && servicePlan.trim() !== "") {
+
+        sp.push({
+          ServicePlan: servicePlan,
+          ServiceID: row.find('[name="ServiceID"]').val(),
+          PackageID: row.find('[name="PackageID"]').val() || 0,
+          PackageName: row.find('[name="PackageName"]').val() || '',
+          PackageDetailID: row.find('[name="PackageDetailID"]').val() || 0,
+          DownSpeed: row.find('[name="DownSpeed"]').val() || 0,
+          UpSpeed: row.find('[name="UpSpeed"]').val() || 0,
+          Bandwidth: row.find('[name="Bandwidth"]').val() || 0,
+          Feature: row.find('[name="Feature"]').val() || '',
+          Duration: row.find('[name="Duration"]').val() || 0,
+          PID: row.find('[name="PID"]').val() || 0,
+          ChartOfAccountID: row.find('[name="ChartOfAccountID"]').val() || 0,
+          ...rowData
+        });
+
+      } else if (otherCharge && otherCharge.trim() !== "") {
+
+        oc.push({
+          OtherCharge: otherCharge,
+          OtherChargeID: row.find('[name^="OtherCharge_OtherChargeID"]').val(),
+          ItemID: row.find('[name^="ItemID"]').val(),
+          CustomerInvoiceID: row.find('[name^="CustomerInvoiceID"]').val(),
+          ServiceID: row.find('[name^="ServiceID"]').val(),
+          ...rowData
+        });
+      }
+    });
+
+    // 1. Handle the "Main" block (the first two .p-2 divs)
+    const $mainBlock = $('#AgencyCommission > .p-2').slice(0, 2);
+    if ($mainBlock.length > 0) {
+      extractData($mainBlock, cm);
+    }
+
+    // 2. Handle all "Clone" blocks
+    $('#AgencyCommission .agency-clone').each(function () {
+      extractData($(this), cm);
+    });
+
+    // Helper function to pull data from a specific scope
+    function extractData(container, targetArray) {
+
+      let type = container.find('select[name*="AgencyCommissionType"]').val();
+      let amountUSD = container.find('input[name="CommissionAmountUSD"]').val();
+      let amountP = container.find('input[name="CommissionAmountP"]').val();
+      let memo = container.find('input[name="Memo"]').val();
+
+      // Only push if there's actual data
+      if (
+        (type && type.length > 0) ||
+        (memo && memo.trim() !== "") ||
+        (amountUSD !== "0" && amountUSD !== "")
+      ) {
+        targetArray.push({
+          CommissionTypeID: type ? type.toString() : "",
+          CommissionAmountUSD: amountUSD || "0",
+          CommissionAmountP: amountP || "0",
+          Memo: memo || ""
+        });
+      }
+    }
+
+    formObj.CustomerServicePlan = sp;
+    formObj.CustomerOtherCharge = oc;
+    formObj.AgencyCommissionType = cm;
+
+    const keysToClean = ['OtherCharge', 'ServicePlan', 'PackageName', 'UM', 'QTY', 'UnitPrice', 'DisP', 'DisUSD', 'Amount', 'Memo', 'CommisionTypeID', 'CommissionAmountUSD', 'CommissionAmountP', 'VAT', 'TxtDisUSD', 'TxtDisP', 'OtherCharge_OtherChargeID', 'PackageDetailID', 'PID', 'PackageID', 'DownSpeed', 'UpSpeed', 'Bandwidth', 'ChartOfAccountID', 'Feature'];
+    keysToClean.forEach(key => {
+      delete formObj[key];
+      delete formObj[key + '[]'];
+    });
+
+    // --- FIX: MANUALLY APPEND FILES ---
+    const fileInput = document.getElementById('CustomerAttFiles');
+    if (fileInput && fileInput.files.length > 0) {
+      // Clear any existing entries for this name to prevent duplicates
+      formData.delete("CustomerAttFiles");
+
+      for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append("CustomerAttFiles", fileInput.files[i]);
+      }
+    }
+
+    const customerInvID = $("#CustomerName_CustomerInvoiceID").val();
+    const customerBillInvID = $("#CustomerName_BillingInvoiceID").val();
+    const customerBillInfoID = $("#CustomerName_CustomerBillInformationID").val();
+
+    formObj.CustomerInvoiceID = customerInvID;
+    formObj.BillingInvoiceID = customerBillInvID;
+    formObj.CustomerBillInformationID = customerBillInfoID;
+    formObj.IsEdit = isEditCustomer;
+    formObj.IsToInvoice = isToInvoice;
+    formObj.IsRenew = isRenew;
+    formObj.IsChangePlan = isChangePlan;
+
+    // Posting data
+    if (formType === 'NewRegister') {
+      const registerData = buildCustomerRegisterData(formObj);
+
+      PostData(
+        'api/Customer/Register',
+        registerData,
+        function (response) {
+          if (response.success) {
+            if ($('.btnclose').length) $('.btnclose').click();
+            if ($('#BunSearch').length) $('#BunSearch').click();
+            DialogSweetAlert('success', response.message);
+          } else {
+            DialogSweetAlert('error', response.message);
+          }
+        },
+        true,
+        true,
+        'json',
+        true
+      );
+
+      return;
+    }
+
+    if (formType !== 'Quotation') {
+      approval(formData, formObj);
+    } else {
+      formData.append("data", JSON.stringify(formObj));
+      submitForm(formData);
+    }
+  }
+
+  function submitForm(formData) {
+    const objData = JSON.parse(formData.get("data"));
+    const userCheck = objData && objData.RequestCheckByName;
+    const userCheckId = objData && objData.RequestCheckByNameID;
+    const userApproveId = objData && objData.RequestApprovalNameID;
+    const customerGroup = objData && objData.CustomerGroup;
+    // console.log(objData);
+    // return;
+    PostData(
+      `AddCustomer/SaveChangeCustomerV2`,
+      formData,
+      function (response) {
+        const res = JSON.parse(response);
+        if (res.success) {
+          if (formType == "NewRegister") {
+            PostData('AddCustomer/GenerateCustomerTelegramContact',
+              { data: JSON.stringify(res.data) }
+            );
+            return;
+          };
+
+          if (customerGroup === 'VIP') return;
+
+          PostData('AddCustomer/SentNotification',
+            {
+              data: JSON.stringify(
+                {
+                  ...res.data,
+                  NeedByCheck: userCheck,
+                  NeedByCheckID: userCheckId,
+                  NeedByApproveID: userApproveId
+                }
+              )
+            }, (res) => {
+              console.log(res)
+              if (!res.success) {
+                DialogSweetAlert('error', res.message);
+                return;
+              }
+
+              if ($('.btnclose').length) $('.btnclose').click();
+              if ($('#BunSearch').length) $('#BunSearch').click();
+              DialogSweetAlert('success', res.message);
+
+              if (isRenew || isChangePlan || isToInvoice) {
+                setTimeout(function () {
+                  location.reload();
+                }, 1000);
+              }
+            }, true, false, 'json'
+          );
+
+          if (formType === 'Invoice') {
+            PostData('AddCustomer/HandleTicketMessage',
+              { data: JSON.stringify(res.data.LastInvoiceData) }
+            );
+          }
+        } else {
+          DialogSweetAlert('error', res.message);
+        }
+      },
+      true,
+      true,
+    );
+  }
+
+
+</script>

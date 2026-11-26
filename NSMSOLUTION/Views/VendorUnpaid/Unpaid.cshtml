@@ -1,0 +1,15 @@
+﻿@{ Layout = null;}
+@Html.Raw(ViewBag.DrawHTMLSearchForm)
+
+<script>    
+    function onGridBillClick(THIS) {
+        var index = $(THIS).closest('tr').index();
+        var BillID = accounting.unformat($("#tblVendorBills tr[name=TrRowNo]:eq(" + index + ") td:eq(1)").html());
+        if (BillID != 0) {
+            var VendorID = accounting.unformat($("#tblVendorBills tr[name=TrRowNo]:eq(" + index + ") td:eq(2)").html());
+            var BillNumber = $("#tblVendorBills tr[name=TrRowNo]:eq(" + index + ") td:eq(5)").html();
+            var URL = "Profile/InvoiceTMP?VendorID=" + VendorID + "&POID=" + BillID + "&Type=Bill";
+            ShowDialogBox("Preview Bill No.: " + BillNumber, "Auto", "500", URL);
+        }
+    }
+</script>
