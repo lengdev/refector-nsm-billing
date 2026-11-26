@@ -1,0 +1,6 @@
+- The folders MVC, NSMSOLUTION, Telegram.Bot.Services, Utilities and the old database are LEGACY and READ-ONLY. Never edit them.
+- All analysis goes in /docs as markdown. All new code goes in /nsm-v2.
+- Never invent business rules. If unsure, write it under "Open Questions" in the doc.
+- Every claim about legacy behavior must cite the file path and method name it came from.
+- Make small changes, one task at a time, and list what you changed at the end.
+- New stack: ASP.NET Core Web API, EF Core, SQL Server, React + TypeScript + Vite, shadcn/ui. Clean Architecture, no business logic in controllers, tests for every service.
